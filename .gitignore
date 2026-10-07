@@ -1,0 +1,21 @@
+node_modules/
+dist/
+release/
+*.zip
+*.log
+.env
+.env.*
+!.env.example
+.DS_Store
+Thumbs.db
+qa-profile/
+user-data/
+# Supplied reference manuals and their complete extracted contents stay local.
+app/data/gpo-stylemanual-2016.pdf
+app/data/lcb-stylemanual-2019.pdf
+app/data/gpo-reference.json
+app/data/lcb-reference.json
+# Recreated from the pinned PDF.js package by npm install.
+app/vendor/cmaps/
+app/vendor/standard_fonts/
+app/vendor/wasm/

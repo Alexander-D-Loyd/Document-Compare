@@ -24,7 +24,7 @@ npm install
 npm start
 ```
 
-Electron 42.11.10 is pinned as a development dependency. The runtime processes PDFs locally and blocks outbound web requests. Installing development dependencies requires internet access; reviewing PDFs does not.
+Electron 42.11.10 and PDF.js 6.4.299 are pinned as development dependencies. `npm install` restores PDF.js character maps, fonts and WASM assets through the postinstall script. The runtime processes PDFs locally and blocks outbound web requests. Installing development dependencies requires internet access; reviewing PDFs does not.
 
 ### Restore the style references
 

@@ -1,0 +1,12 @@
+import assert from 'node:assert/strict';
+import {saveWord,removeWord,loadDictionary,isAccepted,DICTIONARY_KEY} from '../app/personal-dictionary.mjs';
+const values=new Map(),storage={getItem:k=>values.get(k)??null,setItem:(k,v)=>values.set(k,v)};
+let words=saveWord(storage,'Vehicle');
+assert.ok(isAccepted('Vehicle',words));assert.ok(!isAccepted('vehicle',words));assert.ok(!isAccepted('VEHICLE',words));
+assert.ok(isAccepted('Vehicle’s',words));assert.ok(!isAccepted('vehicle’s',words));
+words=saveWord(storage,'vehicle');assert.equal(words.size,2);assert.ok(isAccepted('vehicle',words));
+words=removeWord(storage,'Vehicle');assert.ok(isAccepted('vehicle',words));assert.ok(!isAccepted('Vehicle',words));
+assert.deepEqual([...loadDictionary(storage)],['vehicle']);
+storage.setItem(DICTIONARY_KEY,JSON.stringify({version:1,words:['legacy','Proper']}));
+assert.deepEqual([...loadDictionary(storage)],['legacy','Proper']);
+console.log('PASS: dictionary preserves case, capitalized/lowercase entries remain independent, exact-case removal and persistence, legacy entries retained');

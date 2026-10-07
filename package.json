@@ -1,0 +1,18 @@
+{
+  "name": "document-compare",
+  "productName": "Document Compare",
+  "version": "1.19.0",
+  "private": true,
+  "main": "main.cjs",
+  "description": "Local PDF comparison, spelling and grammar review, and instructional amendment verification",
+  "license": "UNLICENSED",
+  "scripts": {
+    "start": "electron .",
+    "postinstall": "node scripts/setup-pdf-assets.cjs",
+    "test": "node scripts/test.cjs"
+  },
+  "devDependencies": {
+    "electron": "42.11.10",
+    "pdfjs-dist": "6.4.299"
+  }
+}

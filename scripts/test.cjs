@@ -1,0 +1,9 @@
+const fs=require('node:fs'),path=require('node:path'),{spawnSync}=require('node:child_process');
+const root=path.resolve(__dirname,'..'),manualTests=new Set(['gpo-style.test.mjs','joint-style.test.mjs','style-numerals.test.mjs','style-punctuation.test.mjs']);
+const hasReferences=['lcb','gpo'].every(id=>fs.existsSync(path.join(root,'app','data',id+'-reference.json')));
+const files=fs.readdirSync(path.join(root,'tests')).filter(name=>name.endsWith('.test.mjs'));
+const selected=files.filter(name=>hasReferences||!manualTests.has(name));
+if(!hasReferences)console.log('Style reference JSON is not restored. Skipping manual-dependent test files: '+files.filter(name=>manualTests.has(name)).join(', ')+'. See README to run the complete suite.');
+const result=spawnSync(process.execPath,['--test',...selected.map(name=>path.join(root,'tests',name))],{cwd:root,stdio:'inherit'});
+if(result.error){console.error(result.error.message);process.exit(1);}process.exit(result.status??1);
+
