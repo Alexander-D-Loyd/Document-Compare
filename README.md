@@ -1,6 +1,6 @@
 # Document Compare
 
-An offline desktop app for comparing legislative PDFs and reviewing instructional amendments. Version 1.19.0.
+An offline desktop app for comparing legislative PDFs and reviewing instructional amendments. Version 1.20.8.
 
 ## Features
 
@@ -24,7 +24,7 @@ npm install
 npm start
 ```
 
-Electron 42.11.10 and PDF.js 6.4.299 are pinned as development dependencies. `npm install` restores PDF.js character maps, fonts and WASM assets through the postinstall script. The runtime processes PDFs locally and blocks outbound web requests. Installing development dependencies requires internet access; reviewing PDFs does not.
+Electron 42.11.10 and PDF.js 6.4.299 are pinned as development dependencies. `npm install` restores PDF.js character maps, fonts and WASM assets, plus the matching application icons, through the postinstall scripts. The runtime processes PDFs locally and blocks outbound web requests. Installing development dependencies requires internet access; reviewing PDFs does not.
 
 ### Restore the style references
 
@@ -45,7 +45,13 @@ These files remain ignored by Git. Comparison, amendments, spelling and grammar 
 npm test
 ```
 
-The test launcher runs all tests when reference JSON is available. On a fresh clone, it reports and skips four manual-dependent test files and runs the remaining core tests. No sample bills, personal dictionary or custom-term data are included. Restore the references to run the complete 36-test suite.
+The test launcher runs all tests when reference JSON is available. On a fresh clone, it reports and skips four manual-dependent test files and runs the remaining core tests. No sample bills, personal dictionary or custom-term data are included. Restore the references to run the complete 39-test suite.
+
+## Local changes in 1.20.0
+
+Each drop box has a red trash-can button in its top-right corner to remove its PDF, including cancelling a file being read. Removing Instructional Amendments reruns comparison without amendment exclusions when both bill versions remain loaded.
+
+One shared Ignore (one selected occurrence) and Ignore All (matching occurrences, with exact case) pair applies to whichever is active: Spelling & Grammar or Stylistic Check. It is disabled in Amendments and Changes. Ignore All is also disabled when only one matching finding remains, while Ignore stays available. Ignore choices affect only the currently loaded files, survive category switches and rechecks, and are cleared by replacing/removing any file, Refresh, or restarting. They do not change the saved dictionary or guides. Source changes remain local until explicitly requested to push to GitHub.
 
 ## Use on another computer
 
@@ -64,3 +70,9 @@ Text-based PDFs are supported; scans need OCR first. PDF images, comments and fo
 ## Licensing
 
 The application has no open-source license grant (`UNLICENSED`). Third-party library and dictionary licenses are retained under `app/vendor/`; see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). No rights to the excluded style manuals are granted by this repository.
+
+
+
+The controls above the document panes use compact spacing. Selected-finding descriptions occupy a full-width row, and Add to Dictionary/View Style Rules sit beside the shared Ignore controls. Document font size and PDF text layout are unchanged.
+
+

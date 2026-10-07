@@ -9,12 +9,14 @@ import { searchGuide } from './gpo-style.mjs';
 import {STYLE_GUIDES,guideById} from './style-guides.mjs';
 import {loadStyleTerms,saveStyleTerms,searchStyleTerms} from './custom-style.mjs';
 import {searchCoverage} from './style-coverage.mjs';
+import {createReviewIgnores} from './review-ignores.mjs';
 import { parseAmendments, amendmentDisplays, isProposedAmendmentsPage } from './amendments.mjs';
 pdfjs.GlobalWorkerOptions.workerSrc = new URL('./vendor/pdf.worker.mjs', import.meta.url).href;
 const $ = id => document.getElementById(id);
 const docs = [null, null];
 const versions = {0:0,1:0,amendments:0};
 const loading = {0:false,1:false,amendments:false};
+const pdfTasks={0:null,1:null,amendments:null},reviewIgnores=createReviewIgnores();
 let amendmentsDoc=null,amendmentWorker=null,amendmentSequence=0,amendmentResults=[];
 let amendmentIndex=-1,otherEdits=null;
 let reviewMode="changes",grammarIssues=[],grammarIndex=-1,amendmentsChecked=false;
@@ -30,7 +32,7 @@ let spellingWorker = null;
 let spellingIndex = -1;
 let spellingIssues = [];
 let spellingSequence = 0;
-let languageIssues=[],languageIndex=-1;
+let languageIssues=[],languageIndex=-1,languageChecked=false;
 let personalWords = new Set();
 let dictionaryError = '';
 let styleIssues=[],styleIndex=-1,styleWorker=null,styleSequence=0,styleChecked=false;
@@ -47,9 +49,11 @@ function setReviewMode(mode){
   for(const [id,value] of [['review-amendments','amendments'],['review-changes','changes'],['check-spelling','language'],['check-style','style']])$(id).setAttribute('aria-pressed',String(mode===value));
   $('amendments-section').hidden=mode!=='amendments'||!amendmentsDoc;
   $('add-dictionary').disabled=mode!=='language'||spellingIndex<0||!spellingIssues.length;
+  updateIgnoreControls();
   if(compared&&changed)renderDocuments();
 }
 function resetSpelling() {
+  languageChecked=false;
   grammarIssues=[];grammarIndex=-1;
   languageIssues=[];languageIndex=-1;$('grammar-status').textContent='';
   spellingSequence++;
@@ -61,9 +65,12 @@ function resetSpelling() {
   $('add-dictionary').disabled = true;
   $('add-dictionary').removeAttribute('title');
   $('spelling-status').textContent = dictionaryError || 'English dictionary · names and specialist terms may be flagged.';
+  updateIgnoreControls();
 }
 
 function availability() {
+  for(const side of [0,'amendments',1])$('remove'+side).disabled=!(loading[side]||(side==='amendments'?amendmentsDoc:docs[side]));
+  updateIgnoreControls();
   $('compare').disabled = !docs.every(Boolean) || loading[0] || loading[1] || !!compareWorker;
   $('review-amendments').disabled = !docs.every(Boolean) || !amendmentsDoc || Object.values(loading).some(Boolean) || !!amendmentWorker;
   $('refresh').disabled = Object.values(loading).some(Boolean);
@@ -79,6 +86,7 @@ function invalidateAmendments(){
   $('amendment-status').textContent='Load both versions and select Amendments.';
 }
 function invalidateResults() {
+  reviewIgnores.clear();
   compared = false;
   if (compareWorker) { compareWorker.terminate(); compareWorker = null; compareSequence++; }
   $('results').hidden = true;
@@ -115,7 +123,8 @@ function refreshView(){
 
 async function readFile(file, side) {
   const version = ++versions[side];
-  if(side==='amendments'){invalidateAmendments();amendmentsDoc=null;}else{invalidateResults();docs[side]=null;}
+  pdfTasks[side]?.destroy().catch(()=>{});
+  if(side==='amendments'){reviewIgnores.clear();resetSpelling();resetStyle();invalidateAmendments();amendmentsDoc=null;}else{invalidateResults();docs[side]=null;}
   loading[side] = true;
   $('error' + side).textContent = '';
   $('name' + side).textContent = file.name;
@@ -126,8 +135,10 @@ async function readFile(file, side) {
     if (!/\.pdf$/i.test(file.name)) throw Error('Choose a PDF file.');
     if (file.size > 50 * 1024 * 1024) throw Error('This PDF exceeds the 50 MB limit.');
     const data = new Uint8Array(await file.arrayBuffer());
+    if(versions[side]!==version)return;
     if (!new TextDecoder().decode(data.slice(0, 1024)).includes('%PDF-')) throw Error('This file is not a valid PDF.');
     task = pdfjs.getDocument({ data, isEvalSupported: false, enableXfa: false, cMapUrl: new URL('./vendor/cmaps/', import.meta.url).href, cMapPacked: true, standardFontDataUrl: new URL('./vendor/standard_fonts/', import.meta.url).href, wasmUrl: new URL('./vendor/wasm/', import.meta.url).href });
+    pdfTasks[side]=task;
     // Do not request or retain document passwords.
     task.onPassword = () => { task.destroy(); };
     const pdf = await task.promise;
@@ -173,13 +184,26 @@ async function readFile(file, side) {
     $(side==='amendments'?'amendment-status':'status').textContent = 'The PDF could not be loaded. See the message above.';
   } finally {
     if (task) await task.destroy().catch(() => {});
+    if(pdfTasks[side]===task)pdfTasks[side]=null;
     if (versions[side] === version) loading[side] = false;
     availability();
   }
 }
 
+function removeFile(side){
+  versions[side]++;pdfTasks[side]?.destroy().catch(()=>{});pdfTasks[side]=null;loading[side]=false;
+  if(side==='amendments')amendmentsDoc=null;else docs[side]=null;
+  invalidateResults();setReviewMode('changes');
+  $('file'+side).value='';$('error'+side).textContent='';$('drop'+side).classList.remove('drag');
+  $('name'+side).textContent=side==='amendments'?'Drop amendment instructions here':'Drop a PDF here';
+  $('meta'+side).textContent=side==='amendments'?'or click to choose a PDF · optional':'or click to choose a file · up to 50 MB';
+  for(const id of ['left','right']){$(id).replaceChildren();$(id+'-name').textContent='';$(id+'-page').value='1';$(id+'-page-total').textContent='0';}
+  $('added').textContent='';$('removed').textContent='';availability();
+  if(docs.every(Boolean))runComparison(true);else $('status').textContent=docs.some(Boolean)?'Choose the other PDF to continue.':'Choose two PDFs to begin. Your files stay on this computer.';
+}
 for (const side of [0,'amendments',1]) {
   const drop = $('drop' + side), input = $('file' + side);
+  $('remove'+side).addEventListener('click',()=>removeFile(side));
   drop.addEventListener('click', () => input.click());
   input.addEventListener('change', () => { if (input.files[0]) readFile(input.files[0], side); input.value = ''; });
   drop.addEventListener('dragover', event => { event.preventDefault(); drop.classList.add('drag'); });
@@ -465,10 +489,47 @@ function updateChangeNavigation(){
   $('next-change').disabled=!changeCount;$('previous-change').disabled=!changeCount;
   $('change-status').textContent=changeCount?`${changeCount} ${amendmentResults.length?'non-amendment ':''}change${changeCount===1?'':'s'} · select next to begin.`:amendmentResults.length?'No non-amendment text changes found.':'No text changes found.';
 }
+function updateIgnoreControls(){
+  const language=compared&&!!docs[1]&&reviewMode==='language'&&!spellingWorker&&languageIndex>=0&&!!languageIssues[languageIndex];
+  const style=compared&&!!docs[1]&&reviewMode==='style'&&!styleWorker&&styleIndex>=0&&!!styleIssues[styleIndex];
+  const category=style?'style':language?'spelling or grammar':null;
+  let matching=0;
+  if(style)matching=reviewIgnores.matchingCount('style',styleIssues[styleIndex],styleIssues,docs[1].text);
+  else if(language){
+    const selected=languageIssues[languageIndex],issues=selected.kind==='spelling'?spellingIssues:grammarIssues;
+    matching=reviewIgnores.matchingCount(selected.kind,issues[selected.index],issues,docs[1].text);
+  }
+  $('ignore-review').disabled=!(language||style);
+  $('ignore-all-review').disabled=matching<2;
+  $('ignore-review').title=category?`Ignore the selected ${category} finding in the loaded files`:'Select a Spelling & Grammar or Stylistic Check finding to ignore';
+  $('ignore-all-review').title=category?(matching<2?'Only one matching finding remains':`Ignore ${matching} matching ${category} findings in the loaded files`):'Select a Spelling & Grammar or Stylistic Check finding to ignore';
+}
+function ignoreLanguage(all){
+  const selected=languageIssues[languageIndex];if(!selected||spellingWorker||reviewMode!=='language')return;
+  const issue=selected.kind==='spelling'?spellingIssues[selected.index]:grammarIssues[selected.index],text=docs[1].text,oldIndex=languageIndex;
+  reviewIgnores.ignore(selected.kind,issue,text,all);
+  spellingIssues=spellingIssues.filter(i=>!reviewIgnores.has('spelling',i,text));docs[1].spelling=spellingIssues;
+  grammarIssues=grammarIssues.filter(i=>!reviewIgnores.has('grammar',i,text));spellingIndex=-1;grammarIndex=-1;
+  updateLanguageNavigation();renderDocuments();$('add-dictionary').disabled=true;$('add-dictionary').removeAttribute('title');
+  if(languageIssues.length)selectLanguage(Math.min(oldIndex,languageIssues.length-1));
+  else{$('grammar-status').textContent='';$('spelling-status').textContent='No remaining spelling or grammar findings. Ignore choices apply only to the loaded files; Refresh restores them.';}
+  updateIgnoreControls();
+}
+function ignoreStyle(all){
+  const issue=styleIssues[styleIndex];if(!issue||styleWorker||reviewMode!=='style')return;
+  const oldIndex=styleIndex,text=docs[1].text;reviewIgnores.ignore('style',issue,text,all);
+  styleIssues=styleIssues.filter(i=>!reviewIgnores.has('style',i,text));styleIndex=-1;renderDocuments();
+  $('next-style').disabled=!styleIssues.length;$('previous-style').disabled=!styleIssues.length;$('style-rule').disabled=true;
+  guideContext=null;$('guide-rule-context').hidden=true;
+  if(styleIssues.length)selectStyle(Math.min(oldIndex,styleIssues.length-1));
+  else $('style-status').textContent='No remaining style findings. Ignore choices apply only to the loaded files; Refresh restores them.';
+  updateIgnoreControls();
+}
 function updateLanguageNavigation(){
   languageIssues=[...spellingIssues.map((r,i)=>({kind:'spelling',index:i,start:r.start})),...grammarIssues.map((r,i)=>({kind:'grammar',index:i,start:r.start}))].sort((a,b)=>a.start-b.start||a.kind.localeCompare(b.kind));
   languageIndex=-1;
   $('next-spelling').disabled=!languageIssues.length;$('previous-spelling').disabled=!languageIssues.length;
+  updateIgnoreControls();
 }
 function selectLanguage(index){
   if(index<0||index>=languageIssues.length)return;
@@ -478,6 +539,7 @@ function selectLanguage(index){
   if(issue.kind==='spelling')selectSpelling(issue.index);else selectGrammar(issue.index);
   const status=$(issue.kind==='spelling'?'spelling-status':'grammar-status');
   status.textContent=`Issue ${index+1} of ${languageIssues.length} · `+status.textContent;
+  updateIgnoreControls();
 }
 function nextSpelling(direction=1){
   setReviewMode('language');if(!languageIssues.length)return;
@@ -527,6 +589,7 @@ function resetStyle(){
   styleSequence++;styleWorker?.terminate();styleWorker=null;styleIssues=[];styleIndex=-1;styleChecked=false;
   $('previous-style').disabled=true;$('next-style').disabled=true;$('style-rule').disabled=true;
   $('style-status').textContent='Check similar wording against style guides · LCB takes priority.';
+  updateIgnoreControls();
 }
 function selectStyle(index){
   if(index<0||index>=styleIssues.length)return;
@@ -539,6 +602,7 @@ function selectStyle(index){
   const references=issue.references.map(r=>`${guideById(r.guideId).title} ${r.rule}, p. ${r.guidePrintedPage}`).join(' · ');
   $('style-status').textContent=`Potential discrepancy ${index+1} of ${styleIssues.length} · p. ${block?.page||1}${issue.context?' · '+issue.context+' text':''} · ${issue.category}: “${issue.text}”. ${recommendation} ${issue.message} ${references}${issue.conflict?' · LCB takes priority.':''}`;
   $('style-rule').disabled=false;
+  updateIgnoreControls();
 }
 function nextStyle(direction=1){
   setReviewMode('style');if(!styleIssues.length)return;
@@ -556,10 +620,10 @@ function checkStyle(){
   styleWorker.onmessage=({data})=>{
     if(seq!==styleSequence)return;finish();
     if(data.error){$('style-status').textContent=data.error;return;}
-    styleIssues=data.issues;styleChecked=true;styleIndex=-1;
+    styleIssues=data.issues.filter(issue=>!reviewIgnores.has('style',issue,docs[1].text));styleChecked=true;styleIndex=-1;
     $('previous-style').disabled=!styleIssues.length;$('next-style').disabled=!styleIssues.length;
     $('style-status').textContent=styleIssues.length?`${styleIssues.length} potential style discrepancy(s) · use arrows to review.`:'No potential discrepancies found by the supported checks. See Style Guides → Check Coverage for rules requiring manual review.';
-    renderDocuments();if(styleIssues.length&&reviewMode==='style')selectStyle(0);
+    renderDocuments();if(styleIssues.length&&reviewMode==='style')selectStyle(0);updateIgnoreControls();
   };
   const doc=docs[1];styleWorker.postMessage({doc:{text:doc.text,blocks:doc.blocks,excluded:doc.excluded,struck:doc.struck},terms:customTerms});
 }
@@ -669,12 +733,13 @@ function updateCustomTerms(next){
 function checkSpelling(selectMode=true){
   if(!compared || compareWorker || !docs.every(Boolean))return;
   resetSpelling();
-  grammarIssues=findGrammarIssues(docs[1]).map((issue,id)=>({...issue,id}));
+  grammarIssues=findGrammarIssues(docs[1]).filter(issue=>!reviewIgnores.has('grammar',issue,docs[1].text)).map((issue,id)=>({...issue,id}));
   
   $('grammar-status').textContent=grammarIssues.length?`${grammarIssues.length} possible grammar issue(s).`:'No issues found by the local grammar rules.';
   if(selectMode)setReviewMode('language');renderDocuments();
   const seq=++spellingSequence;
   spellingWorker=new Worker('./spelling-worker.js');
+  updateIgnoreControls();
   $('check-spelling').disabled=true;
   $('spelling-status').textContent='Checking spelling locally in Current Version…';
   const fail=message=>{
@@ -688,10 +753,10 @@ function checkSpelling(selectMode=true){
     if(data.error){fail(data.error);return;}
     spellingWorker.terminate();spellingWorker=null;
     let id=0;
-    docs.forEach((doc,side)=>{doc.spelling=(side===1?data.issues[1]:[]).map(issue=>({...issue,id:id++,side}));});
+    docs.forEach((doc,side)=>{doc.spelling=(side===1?data.issues[1]:[]).filter(issue=>!reviewIgnores.has('spelling',issue,doc.text)).map(issue=>({...issue,id:id++,side}));});
     spellingIssues=docs.flatMap(doc=>doc.spelling);
     renderDocuments();
-    $('check-spelling').disabled=false;
+    $('check-spelling').disabled=false;languageChecked=true;
     updateLanguageNavigation();
     $('spelling-status').textContent=spellingIssues.length?`${spellingIssues.length} possible spelling issue${spellingIssues.length===1?'':'s'} · review names and specialist terms.`:'No spelling issues found in the English dictionary check.';
   };
@@ -930,10 +995,12 @@ $('next-amendment').addEventListener('click',()=>nextAmendment(1));
 $('previous-amendment').addEventListener('click',()=>nextAmendment(-1));
 $('next-change').addEventListener('click',()=>nextChange(1));
 $('previous-change').addEventListener('click',()=>nextChange(-1));
-$('check-spelling').addEventListener('click',()=>{if(languageIssues.length){setReviewMode('language');if(languageIndex>=0)selectLanguage(languageIndex);}else checkSpelling();});
+$('check-spelling').addEventListener('click',()=>{if(languageChecked){setReviewMode('language');if(languageIndex>=0)selectLanguage(languageIndex);}else checkSpelling();});
 $('next-spelling').addEventListener('click',()=>nextSpelling(1));
 $('previous-spelling').addEventListener('click',()=>nextSpelling(-1));
 $('add-dictionary').addEventListener('click',addToDictionary);
+$('ignore-review').addEventListener('click',()=>{if(reviewMode==='language')ignoreLanguage(false);else if(reviewMode==='style')ignoreStyle(false);});
+$('ignore-all-review').addEventListener('click',()=>{if(reviewMode==='language')ignoreLanguage(true);else if(reviewMode==='style')ignoreStyle(true);});
 for(const pane of [$('left'),$('right')]){
   function selectIssue(event){
     const style=event.target.closest('[data-style]');

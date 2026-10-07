@@ -122,10 +122,18 @@ export function makeDocument(pages, name, pageStrikes=[], pageFormatting=[]) {
 }
 export function spellingCandidates(doc) {
   let rangeIndex=0;
+  // PDF small-cap headings may extract as lowercase. Exempt only CALIFORNIA
+  // in the legislature masthead, leaving ordinary occurrences checkable.
+  const mastheadWords=doc.blocks.filter(b=>b.page===1).slice(0,8).flatMap(block=>{
+    if(block.margin||!/^california\s+legislature\b/i.test(block.text))return [];
+    const end='california'.length,runs=block.formatting?.runs||[];
+    if(!Array.from({length:end},(_,i)=>i).every(i=>runs.some(r=>r.smallCaps&&r.start<=i&&r.end>i)))return [];
+    return [{start:block.start,end:block.start+end}];
+  });
   return Array.from(doc.text.matchAll(/\p{L}+(?:[’']\p{L}+)*/gu), match => ({word:match[0], start:match.index, end:match.index+match[0].length})).filter(word => {
     while (rangeIndex<doc.excluded.length && doc.excluded[rangeIndex].end<=word.start) rangeIndex++;
     const range=doc.excluded[rangeIndex];
-    return (!range || word.end<=range.start || word.start>=range.end) && !(word.word.length>1 && word.word===word.word.toUpperCase());
+    return (!range || word.end<=range.start || word.start>=range.end) && !(word.word.length>1 && word.word===word.word.toUpperCase()) && !mastheadWords.some(r=>r.start===word.start&&r.end===word.end);
   });
 }
 export function activeText(doc){

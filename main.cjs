@@ -4,7 +4,7 @@ const { pathToFileURL } = require('node:url');
 app.setName('Document Compare');
 protocol.registerSchemesAsPrivileged([{ scheme: 'compare', privileges: { standard: true, secure: true, supportFetchAPI: true, corsEnabled: true } }]);
 async function createWindow() {
-  const win = new BrowserWindow({ width: 1360, height: 920, minWidth: 850, minHeight: 650, backgroundColor: '#101722', show: false, autoHideMenuBar: true, webPreferences: { nodeIntegration: false, contextIsolation: true, sandbox: true, webSecurity: true } });
+  const win = new BrowserWindow({ icon: path.join(__dirname, 'app', 'assets', 'document-compare.ico'), width: 1360, height: 920, minWidth: 850, minHeight: 650, backgroundColor: '#101722', show: false, autoHideMenuBar: true, webPreferences: { nodeIntegration: false, contextIsolation: true, sandbox: true, webSecurity: true } });
   win.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
   win.webContents.on('will-navigate', (event, url) => { if (url !== 'compare://local/index.html') event.preventDefault(); });
   win.once('ready-to-show', () => { if (process.env.DOCUMENT_COMPARE_QA !== '1') win.show(); });

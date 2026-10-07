@@ -19,3 +19,7 @@ app/data/lcb-reference.json
 app/vendor/cmaps/
 app/vendor/standard_fonts/
 app/vendor/wasm/
+
+# Icon binaries are restored from the checked-in encoded icon assets.
+app/assets/document-compare.png
+app/assets/document-compare.ico
