@@ -16,6 +16,7 @@ self.onmessage=async ({data})=>{
     const issues=data.candidates.map(words=>words.filter(candidate=>{
       const word=candidate.word.replace(/’/g,"'");
       if(!known.has(word))known.set(word,checker.check(word) || (/['’]s$/i.test(word) && checker.check(word.slice(0,-2))));
+      if(candidate.parts&&candidate.parts.every(part=>checker.check(part)))return false;
       return !known.get(word);
     }));
     self.postMessage({issues});

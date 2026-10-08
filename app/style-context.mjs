@@ -1,6 +1,7 @@
 export function styleSource(doc){
   const chars=doc.text.split('');
-  for(const r of [...(doc.excluded||[]),...(doc.struck||[])])for(let i=r.start;i<r.end;i++)if(chars[i]!=='\n')chars[i]=' ';
+  const runningHeads=doc.blocks.filter(b=>!b.margin&&/^Item\s+Amount$/.test(b.text.trim())&&b.formatting?.headerParts?.length>=2).map(b=>({start:b.start,end:b.end}));
+  for(const r of [...(doc.excluded||[]),...(doc.struck||[]),...runningHeads])for(let i=r.start;i<r.end;i++)if(chars[i]!=='\n')chars[i]=' ';
   return chars.join('').replace(/[\u2010-\u2015]/g,'-');
 }
 export function styleContext(doc){
@@ -19,5 +20,13 @@ export function styleContext(doc){
     let lo=0,hi=sentences.length-1;while(lo<hi){const mid=(lo+hi)>>1;if(sentences[mid].end<=offset)lo=mid+1;else hi=mid;}
     const sentence=sentences[lo];return {...sentence,start:offset>=begin?Math.max(begin,sentence.start):sentence.start};
   };
-  return {source,at,sentenceAt};
+  const budget=/\bBudget Act of\s+\d{4}/i.test(source);
+  const tableRanges=doc.blocks.filter((b,index)=>{
+    const body=source.slice(b.start+b.margin.length,b.end).trim();
+    const next=doc.blocks[index+1],nextBody=next?source.slice(next.start+next.margin.length,next.end):'';
+    const wrappedLabel=budget&&/\.{3,}/.test(nextBody)&&body.split(/\s+/).length<=12&&!/[.;:!?]/.test(body);
+    return b.formatting?.headerGaps?.length>=2||/\.{3,}/.test(body)||wrappedLabel||(budget&&body&&/^[\d\s,$().+%—–-]+$/.test(body));
+  });
+  const tableAt=offset=>{let lo=0,hi=tableRanges.length;while(lo<hi){const mid=(lo+hi)>>1;if(tableRanges[mid].end<=offset)lo=mid+1;else hi=mid;}return !!tableRanges[lo]&&tableRanges[lo].start<=offset;};
+  return {source,at,sentenceAt,tableAt};
 }

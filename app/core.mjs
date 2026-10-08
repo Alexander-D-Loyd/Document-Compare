@@ -1,3 +1,4 @@
+import {isBudgetRunningHead} from './change-scope.mjs';
 export function classify(text) {
   const trimmed = text.trim().replace(/^(?:[-•]\s+|\d+[.)]\s+)/, '');
   // Prefer explicit editorial language; general obligations remain content.
@@ -52,6 +53,7 @@ function layoutLines(pages) {
   // Only explicit "line N" prefixes and recognizable, repeated page labels.
   // Numeric clauses, headings, dates and body content are retained.
   const labels = new Map();
+  const billDocument=/\b(?:ASSEMBLY|SENATE)\s+BILL\s+(?:No\.?\s*)?\d+/i.test(pages[0]||'');
   const pageLabel = text => /^(?:\d+|[—–-]\s*\d+\s*[—–-]|(?:[—–-]\s*\d+\s*[—–-]\s*)?(?:AB|SB)\s*\d+(?:\s*[—–-]\s*\d+\s*[—–-])?)$/i.test(text.trim());
   for (const page of pages) {
     const lines = page.split('\n');
@@ -59,7 +61,8 @@ function layoutLines(pages) {
   }
   return pages.map(page => page.split('\n').map((text, i, lines) => {
     const atEdge = i < 2 || i >= lines.length - 2;
-    const ignored = atEdge && pageLabel(text) && ((labels.get(text.trim()) || 0) > 1 || /[—–-]/.test(text));
+    const corrected=/^Corrected\s+\d{1,2}[-/]\d{1,2}[-/]\d{2,4}\s+\d{2}\s*$/i.test(text.trim());
+    const ignored = atEdge && ((pageLabel(text) && ((labels.get(text.trim()) || 0) > 1 || /[—–-]/.test(text) || billDocument&&/^\d{2}$/.test(text.trim()))) || billDocument&&corrected);
     const margin = text.match(/^line\s*\d+(?:\s+|$)/i)?.[0] || '';
     return {text, ignored, margin};
   }));
@@ -67,17 +70,17 @@ function layoutLines(pages) {
 export function cleanLayoutLabels(pages) {
   return layoutLines(pages).map(lines => lines.filter(line => !line.ignored).map(line => line.text.slice(line.margin.length)).join('\n'));
 }
-export function makeDocument(pages, name, pageStrikes=[], pageFormatting=[]) {
+export function makeDocument(pages, name, pageStrikes=[], pageFormatting=[], words=null) {
   let offset = 0;
   const blocks = [], excluded = [];
   layoutLines(pages).forEach((lines, page) => lines.forEach((line, i) => {
-    if (!line.text.trim()) return;
+    if (!line.text.trim()) {offset+=line.text.length+1;return;}
     const block = {...line, formatting:pageFormatting[page]?.[i], id:`${page+1}-${i}`, page:page+1, start:offset, end:offset+line.text.length, kind:'content'};
     blocks.push(block);
     if (line.ignored || line.margin) excluded.push({start:offset, end:offset+(line.ignored ? line.text.length : line.margin.length)});
     offset = block.end + 1;
   }));
-  const text = blocks.map(b => b.text).join('\n');
+  const text = pages.join('\n');
   // Use the document's printed text column on short pages as well. A sparse
   // final page must not infer its column from a single indented body line.
   const columnBlocks=blocks.filter(b=>b.formatting&&b.text.slice(b.margin.length).trim()&&
@@ -109,16 +112,49 @@ export function makeDocument(pages, name, pageStrikes=[], pageFormatting=[]) {
       }
     }
   }
+  // Table running heads can occur between the two fragments of a divided
+  // word. They stay visible, but are never word continuations or body tokens.
+  for(const block of blocks)if(isBudgetRunningHead({text},block)){
+    block.runningHead=true;excluded.push({start:block.start,end:block.end});
+  }
+  excluded.sort((a,b)=>a.start-b.start);
   let excludedIndex=0;
-  const tokens = comparisonTokens(text).filter(token => {
+  const rawTokens = comparisonTokens(text).filter(token => {
     while (excludedIndex<excluded.length && excluded[excludedIndex].end<=token.start) excludedIndex++;
     const range=excluded[excludedIndex];
     return !range || token.end<=range.start || token.start>=range.end;
   });
+  // Join discretionary line-end hyphens only for recognized words. Keep the
+  // original characters and offsets for PDF rendering and genuine compounds.
+  const wrappedWords=[];
+  for(let i=0;i<blocks.length-1;i++){
+    const a=blocks[i];if(a.ignored||a.runningHead)continue;
+    let j=i+1;while(blocks[j]?.ignored||blocks[j]?.runningHead)j++;
+    const b=blocks[j];if(!b)continue;
+    const left=/([\p{L}]+)[-\u00ad\u2010]\s*$/u.exec(a.text),right=/^\s*([\p{L}]+)/u.exec(b.text.slice(b.margin.length));
+    if(!left||!right)continue;
+    const word=left[1]+right[1],lower=word.toLowerCase();
+    const recognized=words&&(words.has(lower)||words.has(lower.replace(/s$/,''))||words.has(lower.replace(/ed$/,''))||words.has(lower.replace(/ing$/,''))||words.has(lower.replace(/ing$/,'e')));
+    const start=a.start+left.index,end=b.start+b.margin.length+right.index+right[0].length;
+    wrappedWords.push({word,start,end,recognized:!!recognized,parts:[left[1],right[1]],spans:[{start,end:start+left[1].length},{start:end-right[1].length,end}]});
+  }
+  const tokens=[];let rawIndex=0;
+  for(const wrap of wrappedWords.filter(w=>w.recognized)){
+    while(rawIndex<rawTokens.length&&rawTokens[rawIndex].start<wrap.start)tokens.push(rawTokens[rawIndex++]);
+    tokens.push({value:wrap.word,start:wrap.start,end:wrap.end});
+    while(rawIndex<rawTokens.length&&rawTokens[rawIndex].start<wrap.end)rawIndex++;
+  }
+  tokens.push(...rawTokens.slice(rawIndex));
   let pageOffset=0;const struck=[];
   pages.forEach((page,i)=>{for(const span of pageStrikes[i] || [])struck.push({start:pageOffset+span.start,end:pageOffset+span.end});pageOffset+=page.length+1;});
-  const effectiveTokens=tokens.filter(token=>!struck.some(span=>span.start<token.end && span.end>token.start));
-  return {name, pages:pages.length, rawPages:pages, blocks, text, tokens, effectiveTokens, struck, excluded, spelling:[], changeLocations:{}};
+  const orderedStrikes=[...struck].sort((a,b)=>a.start-b.start),mergedStrikes=[];
+  for(const span of orderedStrikes){const last=mergedStrikes.at(-1);if(last&&span.start<=last.end)last.end=Math.max(last.end,span.end);else mergedStrikes.push({...span});}
+  let strikeIndex=0;
+  const effectiveTokens=tokens.filter(token=>{
+    while(strikeIndex<mergedStrikes.length&&mergedStrikes[strikeIndex].end<=token.start)strikeIndex++;
+    const span=mergedStrikes[strikeIndex];return !span||span.start>=token.end;
+  });
+  return {name, pages:pages.length, rawPages:pages, blocks, text, tokens, effectiveTokens, struck, excluded, wrappedWords, spelling:[], changeLocations:{}};
 }
 export function spellingCandidates(doc) {
   let rangeIndex=0;
@@ -130,10 +166,16 @@ export function spellingCandidates(doc) {
     if(!Array.from({length:end},(_,i)=>i).every(i=>runs.some(r=>r.smallCaps&&r.start<=i&&r.end>i)))return [];
     return [{start:block.start,end:block.start+end}];
   });
-  return Array.from(doc.text.matchAll(/\p{L}+(?:[’']\p{L}+)*/gu), match => ({word:match[0], start:match.index, end:match.index+match[0].length})).filter(word => {
+  const wraps=doc.wrappedWords||[];
+  let wrapIndex=0;
+  const candidates=[...wraps,...Array.from(doc.text.matchAll(/\p{L}+(?:[’']\p{L}+)*/gu), match => ({word:match[0], start:match.index, end:match.index+match[0].length})).filter(w=>{
+    while(wrapIndex<wraps.length&&wraps[wrapIndex].end<=w.start)wrapIndex++;
+    const r=wraps[wrapIndex];return !r||r.start>=w.end;
+  })].sort((a,b)=>a.start-b.start);
+  return candidates.filter(word => {
     while (rangeIndex<doc.excluded.length && doc.excluded[rangeIndex].end<=word.start) rangeIndex++;
     const range=doc.excluded[rangeIndex];
-    return (!range || word.end<=range.start || word.start>=range.end) && !(word.word.length>1 && word.word===word.word.toUpperCase()) && !mastheadWords.some(r=>r.start===word.start&&r.end===word.end);
+    return (!range || word.end<=range.start || word.start>=range.end || word.parts&&word.start<range.start) && !(word.word.length>1 && word.word===word.word.toUpperCase()) && !mastheadWords.some(r=>r.start===word.start&&r.end===word.end);
   });
 }
 export function activeText(doc){
@@ -146,3 +188,4 @@ export function activeText(doc){
   }
   return result+doc.text.slice(cursor);
 }
+

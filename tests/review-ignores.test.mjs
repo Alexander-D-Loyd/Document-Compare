@@ -14,3 +14,13 @@ test('matching counts use the same case and rule identity as Ignore All',()=>{
  const g={start:0,end:5,message:'Repeated word',suggestion:'word'};
  assert.equal(state.matchingCount('grammar',g,[g,{...g,message:'Different rule'}],text),1);
 });
+
+test('Undo reverses Ignore and Ignore All in order and file reset clears undo history',()=>{
+ const state=createReviewIgnores(),text='typpo typpo',a={start:0,end:5,word:'typpo'},b={...a,start:6,end:11};
+ state.ignore('spelling',a,text);state.ignore('spelling',b,text,true);
+ assert.deepEqual(state.undo(),{kind:'spelling',all:true});assert.equal(state.has('spelling',a,text),true);assert.equal(state.has('spelling',b,text),false);
+ state.ignore('style',{...b,text:'typpo',rule:'Usage'},text);
+ assert.deepEqual(state.undo(),{kind:'style',all:false});assert.equal(state.canUndo,true);
+ state.undo();assert.equal(state.has('spelling',a,text),false);assert.equal(state.canUndo,false);assert.equal(state.undo(),null);
+ state.ignore('spelling',a,text,true);state.clear();assert.equal(state.canUndo,false);assert.equal(state.has('spelling',b,text),false);
+});

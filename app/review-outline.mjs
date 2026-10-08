@@ -14,13 +14,15 @@ export function reviewOutline(rects,padding=3){
   const bands=rows.map(r=>({left:r.left-left-padding,right:r.right-left+padding,top:r.top-top-padding,bottom:r.bottom-top+padding}));
   const points=[[bands[0].left,0],[bands[0].right,0]];
   for(let i=0;i<bands.length-1;i++){
-    const a=bands[i],b=bands[i+1],join=(a.bottom+b.top)/2;
-    points.push([a.right,join-1],[Math.max(a.right,b.right),join-1],[Math.max(a.right,b.right),join+1],[b.right,join+1]);
+    const a=bands[i],b=bands[i+1],upper=Math.min(a.bottom,b.top),lower=Math.max(a.bottom,b.top);
+    // Follow the union of the padded line bands. A midpoint transition can
+    // clip the end of a tall glyph when adjacent lines are tightly spaced.
+    points.push([a.right,upper],[Math.max(a.right,b.right),upper],[Math.max(a.right,b.right),lower],[b.right,lower]);
   }
   const last=bands.at(-1);points.push([last.right,bottom-top],[last.left,bottom-top]);
   for(let i=bands.length-1;i>0;i--){
-    const a=bands[i],b=bands[i-1],join=(b.bottom+a.top)/2;
-    points.push([a.left,join+1],[Math.min(a.left,b.left),join+1],[Math.min(a.left,b.left),join-1],[b.left,join-1]);
+    const a=bands[i],b=bands[i-1],upper=Math.min(b.bottom,a.top),lower=Math.max(b.bottom,a.top);
+    points.push([a.left,lower],[Math.min(a.left,b.left),lower],[Math.min(a.left,b.left),upper],[b.left,upper]);
   }
   return {left,top,width:right-left,height:bottom-top,rows,path:points.map((p,i)=>`${i?'L':'M'} ${p[0]} ${p[1]}`).join(' ')+' Z'};
 }

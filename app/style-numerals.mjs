@@ -2,6 +2,20 @@ import {styleContext} from './style-context.mjs';
 const ones=['zero','one','two','three','four','five','six','seven','eight','nine','ten','eleven','twelve','thirteen','fourteen','fifteen','sixteen','seventeen','eighteen','nineteen'];
 const tens=['','','twenty','thirty','forty','fifty','sixty','seventy','eighty','ninety'];
 const ordinals=['zeroth','first','second','third','fourth','fifth','sixth','seventh','eighth','ninth','tenth','eleventh','twelfth','thirteenth','fourteenth','fifteenth','sixteenth','seventeenth','eighteenth','nineteenth'];
+const ordinalTens=['','','twentieth','thirtieth','fortieth','fiftieth','sixtieth','seventieth','eightieth','ninetieth'];
+export function spellOrdinal(n){
+ if(n<20)return ordinals[n];
+ if(n<100)return n%10?tens[Math.floor(n/10)]+'-'+ordinals[n%10]:ordinalTens[Math.floor(n/10)];
+ for(const [scale,name] of [[1e12,'trillion'],[1e9,'billion'],[1e6,'million'],[1000,'thousand'],[100,'hundred']])if(n>=scale)return spellNumber(Math.floor(n/scale))+' '+name+(n%scale?' '+spellOrdinal(n%scale):'th');
+ return String(n);
+}
+const ordinalNumbers=new Map(Array.from({length:99},(_,i)=>[spellOrdinal(i+1),i+1]));
+// Only explicitly supported larger forms are recognized; arbitrary lengthy
+// number phrases require the complete number/meaning parser, not a guess.
+for(const [word,value] of [['hundredth',100],['one hundredth',100],['thousandth',1000],['one thousandth',1000]])ordinalNumbers.set(word,value);
+const ordinalValues=new Map([...ordinalNumbers].map(([word,value])=>[word.replace(/-/g,' '),value]));
+const ordinalPattern=[...ordinalNumbers.keys()].sort((a,b)=>b.length-a.length).map(w=>w.replace(/[ -]/g,'[\\s-]+')).join('|');
+const figureOrdinal=n=>n+((n%100>=11&&n%100<=13)?'th':({1:'st',2:'nd',3:'rd'}[n%10]||'th'));
 const numbers=new Map([...ones.map((w,i)=>[w,i]),...tens.slice(2).map((w,i)=>[w,(i+2)*10])]);
 export function spellNumber(n){
  if(n<20)return ones[n];if(n<100)return tens[Math.floor(n/10)]+(n%10?'-'+ones[n%10]:'');
@@ -14,32 +28,81 @@ const singular=w=>({people:'person',children:'child',feet:'foot',inches:'inch',c
 export function numeralIssues(doc,references){
  const ctx=styleContext(doc),source=ctx.source,issues=[],protectedRanges=[];
  const protect=pattern=>{for(const m of source.matchAll(pattern))protectedRanges.push({start:m.index,end:m.index+m[0].length});};
+ // Technical symbols use figures under GPO 9.56/9.58; LCB examples
+ // spelling out small measures refer to fully written unit names.
+ protect(/\b\d+(?:\.\d+)?\s+(?:kg|mg|μg|km|cm|mm|mL|kL|kW|MW|Pa|Hz|ms|lb|min|yr|oz|ft|yd)s?\b/g);
  // Identifiers and dates are not counts. A repeated citation list stays one scope.
- protect(/\b(?:sections?|secs?\.?|chapters?|parts?|divisions?|titles?|articles?|paragraphs?|subparagraphs?|subdivisions?|clauses?|pages?|lines?|tables?|figures?|forms?|bills?|No\.?)\s+(?:\([a-z\d]+\)|\d+(?:\.\d+)*)(?:\s*(?:,\s*(?:(?:and|or)\s+)?|(?:and|or|to|through)\s+|[-–])(?:\([a-z\d]+\)|\d+(?:\.\d+)*))*/gi);
+ protect(/\b(?:sections?|subsections?|secs?\.?|chapters?|subchapters?|chs?\.?|provi(?:-\s*)?sions?|items?|schedules?|parts?|subparts?|divisions?|titles?|articles?|subarticles?|paragraphs?|subparagraphs?|subdivisions?|clauses?|pages?|lines?|tables?|figures?|forms?|bills?|propositions?|No\.?)\s+(?:\([a-z\d]+\)|\d+(?:\.\d+)*)(?:\s*(?:,\s*(?:(?:and|or)\s+)?|(?:and|or|to|through)\s+|[-–])(?:\([a-z\d]+\)|\d+(?:\.\d+)*))*/gi);
  protect(/\b(?:I\.\s*D\.|ID)\s+\d+(?:\.\d+)*/g);
+ // Abbreviated legal/session references and numbered program identifiers
+ // are labels, including the abbreviations commonly used in budget bills.
+ protect(/\b(?:P\.\s*L\.|Pub\.\s*L\.|H\.\s*R\.|S\.\s*B\.|A\.\s*B\.)\s*\d+(?:\s*[-–]\s*\d+)*/gi);
+ protect(/\b(?:Chs?\.?|Secs?\.?|Stats?\.?|Regs?\.?)(?:\s*|(?=\d))\d+(?:\.\d+)*(?:\s*(?:,\s*(?:(?:and|or)\s*)?|(?:and|or)\s*,?\s*|[-–])\d+(?:\.\d+)*)*/gi);
+ protect(/\bChs?\.?\s*\d[^;()]{0,100}?\bStats?\.\s*\d{4}/gi);
+ protect(/\bChs?\.?\s*\d[^;()]{0,120}?\bS\s*t\s*a\s*t\s*s?\s*\.\s*\d{4}/gi);
+ protect(/\bv\d+(?:\.\d+)+\b/g);
+ protect(/\b(?:Buildings?|Subcommittees?|Bargaining\s+Units?)\s+\d+(?:\s*(?:,\s*(?:(?:and|or)\s*)?|(?:and|or)\s+)\d+)*/g);
+ protect(/\b(?:SMARA|SPR)\s*-\s*\d+\b/g);
+ protect(/\b\d+(?:st|nd|rd|th)\s+Ex\.\s*Sess\./gi);
+ protect(/\b\d+\s+Cal\.\s*Code\s+Regs\.,?\s*\d+(?:\.\d+)*/gi);
+ protect(/\b(?:Jan|Feb|Mar|Apr|Jun|Jul|Aug|Sep|Sept|Oct|Nov|Dec)\.\s*\d{1,2}(?:,\s*\d{4})?/gi);
+ protect(/\b(?:Round|Reach|Bargaining\s+Unit)\s+\d+\b/g);
+ protect(/“[^”]*”|"[^"\n]*"/g);
+ // Arithmetic operands are symbols/figures, not ordinary prose counts.
+ protect(/(?:\b[A-Za-z]|\b\d+(?:\.\d+)?)\s*[+−±×÷]\s*(?:[A-Za-z]\b|\d+(?:\.\d+)?\b)(?:\s*[+−±×÷]\s*(?:[A-Za-z]\b|\d+(?:\.\d+)?\b))*/g);
+ protect(/[±]\s*\d+(?:\.\d+)?/g);
+ protect(/\bzero\s*-\s*emissions?\b/gi);
+ protect(/\b(?:net[\s-]+zero|zero[\s-]+(?:tolerance|sum|based))\b/gi);
+ protect(/\$\s*\d+(?:[.,]\d+)*\s+(?:thousand|million|billion|trillion)\b/gi);
  protect(/\b\d+\s+(?:U\.?\s*S\.?\s*C\.?|C\.?\s*F\.?\s*R\.?)(?:\s+(?:§\s*)?\d+(?:\.\d+)*)?/gi);
  protect(/\b(?:U\.S\.C\.|C\.F\.R\.)\s+(?:§\s*)?\d+(?:\.\d+)*/gi);
- protect(/\(\s*\d+[a-z]?\s*\)/gi);
+ protect(/\(\s*(?:\d+(?:\.\d+)?|\.\d+)[a-z]?\s*\)/gi);
+ protect(/\b(?:Budget Act of|Stats?\.?|Statutes? of)\s+\d{4}\b/gi);
  protect(/\b(?:January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{1,2}(?:,\s*\d{4})?/gi);
+ const wrapped=word=>word.split('').join('(?:-\\s*)?');
+ const months=['January','February','March','April','May','June','July','August','September','October','November','December'];
+ protect(new RegExp('\\b(?:'+months.map(wrapped).join('|')+')\\s+\\d{1,2}(?:,\\s*\\d{4})?','gi'));
+ protect(new RegExp('\\b(?:'+['Section','Article','Chapter','Division','Provision','Paragraph','Subdivision'].map(wrapped).join('|')+')s?\\s+\\d+(?:\\.\\d+)*','gi'));
+ protect(new RegExp('\\b'+wrapped('House')+'\\s+'+wrapped('Resolution')+'\\s+\\d+','g'));
+ protect(/\b(?:Stage|Release|Phase|House Resolution|Public Law|SPR)\s*\d+(?:[-.]\d+)*(?:\s*,\s*(?:(?:and|or)\s*)?\d+)*/g);
+ protect(/\b\d+\)(?=\s*[A-Z])/g);
  protect(/\b\d{1,2}\/\d{1,2}\/\d{2,4}\b/g);
  protect(/\b\d{4}-\d{2}-\d{2}\b/g);
+ // Telephone/service dialing codes and formal decision identifiers are
+ // indivisible identifiers; their digits are never prose quantities.
+ protect(/\b\d[-\u2011\u2013]\d[-\u2011\u2013]\d\b/g);
+ protect(/\b(?:Decision|D\.)\s+\d{2}-\d{2}-\d{3}\b/gi);
  // Fraction styling needs a whole-expression check, never a correction to
  // an isolated numerator, denominator or integer in a mixed fraction.
  protect(/\b\d+(?:\s+\d+)?\s*[\/⁄]\s*\d+\b/g);
  protect(/\b\d+[¼½¾⅐⅑⅒⅓⅔⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞]/g);
  protect(/\b(?:(?:\d+|one|two|three|four|five|six|seven|eight|nine|ten)\s+and\s+)?(?:one|two|three|four|five|six|seven|eight|nine)[ -]+(?:half|halves|thirds?|quarters?|fourths?|fifths?|sixths?|sevenths?|eighths?|ninths?|tenths?)\b/gi);
+ protect(/\b(?:one|two|three|four|five|six|seven|eight|nine)[ -]+(?:elevenths?|twelfths?|thirteenths?|fourteenths?|fifteenths?|sixteenths?|seventeenths?|eighteenths?|nineteenths?|twentieths?)\b/gi);
  protect(/\b\d{4}[-–]\d{2,4}\s+(?:Regular Session|fiscal year)/gi);
  protect(/\bgrades?\s+\d+(?:\s*(?:,\s*(?:(?:and|or)\s+)?|and\s+|or\s+|to\s+|through\s+|-)\d+)*/gi);
  for(const block of doc.blocks){const body=source.slice(block.start+block.margin.length,block.end),m=/^\s*(?:SEC\.\s+|SECTION\s+)?\d+(?:\.\d+)*\.(?=\s|$)/i.exec(body);if(m)protectedRanges.push({start:block.start+block.margin.length,end:block.start+block.margin.length+m[0].length});
   if(block.formatting?.headerGaps?.length>=2)protectedRanges.push({start:block.start,end:block.end});
  }
+ const budgetBill=/\bBudget Act of\s+\d{4}\b/i.test(source);
+ if(budgetBill){
+  protect(/\b\d{4}-\d{3}(?:-\d{4})?\b/g);
+  protect(/\b0\d+\b/g);
+  protect(/\b\d{4,}-(?=[A-Za-z])/g);
+  protect(/\b\d{4}-\d{4}\s+(?=[A-Z])/g);
+  for(const block of doc.blocks){
+   const body=source.slice(block.start+block.margin.length,block.end).trim();
+   // Tabulated numeric cells and dot-leader amount rows are not sentences.
+   if(body&&(/^[\d\s,$().+%—–-]+$/.test(body)||/\.{3,}/.test(body)))protectedRanges.push({start:block.start,end:block.end});
+  }
+ }
  const excludedContent=[...(doc.struck||[]),...doc.blocks.filter(b=>b.ignored).map(b=>({start:b.start,end:b.end}))];
  const blocked=(start,end)=>protectedRanges.some(r=>r.start<end&&r.end>start)||excludedContent.some(r=>r.start<end&&r.end>start);
  const candidates=[];
- const pattern=new RegExp(`\\b(?:\\d+(?:,\\d{3})*(?:\\.\\d+)?(?:st|nd|rd|th)?|${[...numbers.keys(),'hundred','thousand','million','billion','trillion',...ordinals.slice(1)].join('|')})\\b`,'gi');
+ const pattern=new RegExp(`\\b(?:${ordinalPattern}|\\d+(?:,\\d{3})*(?:\\.\\d+)?(?:st|nd|rd|th)?|${[...numbers.keys(),'hundred','thousand','million','billion','trillion'].join('|')})\\b`,'gi');
  const matches=[...source.matchAll(pattern)];
  for(let i=0;i<matches.length;i++){
-  const m=matches[i];let start=m.index,end=start+m[0].length,text=m[0],ordinal=/\d(?:st|nd|rd|th)$/i.test(text)||ordinals.includes(text.toLowerCase()),figure=/^\d/.test(text),value=figure?Number(text.replace(/(?:st|nd|rd|th)$/i,'').replaceAll(',','')):ordinal?ordinals.indexOf(text.toLowerCase()):wordValue([text.toLowerCase()]);
+  const m=matches[i],ordinalKey=m[0].toLowerCase().replace(/[\s-]+/g,' '),ordinalValue=ordinalValues.get(ordinalKey);
+  let start=m.index,end=start+m[0].length,text=m[0],ordinal=/\d(?:st|nd|rd|th)$/i.test(text)||ordinalValue!==undefined,figure=/^\d/.test(text),value=figure?Number(text.replace(/(?:st|nd|rd|th)$/i,'').replaceAll(',','')):ordinal?ordinalValue:wordValue([text.toLowerCase()]);
   if(!figure&&!ordinal){
    const words=[text.toLowerCase()];
    while(i+1<matches.length&&/^[\s-]+$/.test(source.slice(end,matches[i+1].index))&& !/^\d/.test(matches[i+1][0])&&!ordinals.includes(matches[i+1][0].toLowerCase())){
@@ -52,6 +115,8 @@ export function numeralIssues(doc,references){
   }
   if(value===null||!Number.isFinite(value)||blocked(start,end)||ctx.at(start)==='Heading')continue;
   const before=source.slice(Math.max(0,start-120),start).replace(/\s+/g,' '),after=source.slice(end,end+150).replace(/\s+/g,' '),sentence=ctx.sentenceAt(start);
+  if(ordinal&&!figure&&/\b(?:a|an|one)\s*$/i.test(before)&&/^\s+of\b/i.test(after))continue;
+  if(!figure&&/[a-z]-[ \t]*\n\s*$/i.test(source.slice(Math.max(0,start-80),start)))continue;
   const prefix=source.slice(sentence.start,start).replace(/^[\s”"’']*(?:\([a-z\d]+\)\s*)*/i,'').trim();
   const sentenceStart=!prefix;
   if(text.toLowerCase()==='second'&&/\b(?:per|each|every)\s*$/i.test(before))continue;
@@ -75,24 +140,34 @@ export function numeralIssues(doc,references){
   const money=/\$\s*$/.test(before)||/^(?:dollars?|cents?|mills?)$/.test(unit);
   const figureRepeat=/^\s*\(?\$/.test(after)||/\b(?:dollars?|cents?|mills?)\s*\(\s*\$\s*$/.test(before);
   const percent=/^(?:percent|percentage)$/.test(unit)||/^\s*%/.test(after);
-  const clock=/^\s*(?::\s*\d+|[ap]\.\s*m\.|o[’']clock)/i.test(after)||/:\s*$/.test(before);
+  const clock=/^\s*(?::\s*\d+|[ap]\.\s*m\.|o[’']clock)/i.test(after)||/\b\d{1,2}:\s*$/.test(before);
   const grade=/\bgrades?\s*$/i.test(before)||unit==='grade';
   const degree=unit==='degree'||unit==='degrees'||/^\s*°/.test(after);
   const inNext=/^\s+in\s+(\d+|one|two|three|four|five|six|seven|eight|nine|ten)\b/i.exec(after),inPrior=/\b(\d+|one|two|three|four|five|six|seven|eight|nine|ten)\s+in\s*$/i.exec(before);
   const inOther=inNext?.[1]||inPrior?.[1],inValue=inOther?(numbers.get(inOther.toLowerCase())??Number(inOther)):null;
-  const ratio=inOther?Math.max(value,inValue)>=10:/\b(?:ratio|proportion)\s*(?:of\s*)?$/i.test(before)||/^\s*:\s*\d/.test(after)||/:\s*$/.test(before)||/\b\d+\s+to\s*$/i.test(before)&&/^\s*[.,;)]/.test(after)||/^\s+to\s+\d+\s*[.,;)]/.test(after);
+  const ratio=inOther?Math.max(value,inValue)>=10:/\b(?:ratio|proportion)\s*(?:of\s*)?$/i.test(before)||/^\s*:\s*\d/.test(after)||/\b\d+\s*:\s*$/.test(before)||/\b\d+\s+to\s*$/i.test(before)&&/^\s*[.,;)]/.test(after)||/^\s+to\s+\d+\s*[.,;)]/.test(after);
   const duration=/^(?:day|week|month|year|hour|minute|second)s?$/.test(unit),measure=/^(?:feet|foot|inch|inches|meter|meters|metre|metres|mile|miles|pound|pounds|megabyte|megabytes|megawatt|megawatts|gallon|gallons|acre|acres)$/.test(unit);
+  if(unit==='grade'&&ordinal&&value===1&&figure){candidates.push({start,end,text,value,figure,ordinal,sentenceStart:false,context:ctx.at(start),exception:true,preferred:'first',rule:'Numerals: Grades',page:22,message:'LCB page 22 explicitly uses first grade in both bill and digest text.'});continue;}
   if(money||figureRepeat||percent||clock||grade||degree||ratio||/\d\.\d/.test(text)){
    // Paired dollar expressions and legal citations need their dedicated rules;
    // never change just one word inside a complete written amount.
-   if(!figure&&!figureRepeat&&(percent||clock||grade||degree||ratio)&&!(grade&&text.toLowerCase()==='first')){
-    candidates.push({start,end,text,value,figure,ordinal,sentenceStart,context:ctx.at(start),exception:true,preferred:String(value),rule:'Numerals, general item 2',page:21,message:'LCB requires figures for this numerical context.',gpo:'12.9',gpoPage:288});
+   if(!figure&&!figureRepeat&&!sentenceStart&&(percent||clock||grade||degree||ratio)&&!(unit==='grade'&&text.toLowerCase()==='first')){
+    const preferred=unit==='grade'&&ordinal?figureOrdinal(value):String(value);
+    candidates.push({start,end,text,value,figure,ordinal,sentenceStart,context:ctx.at(start),exception:true,preferred,rule:grade?'Numerals: Grades':'Numerals, general item 2',page:grade?22:21,message:grade?'LCB uses figures in grades, preserving the ordinal suffix before grade (7th grade); first grade is its explicit exception.':'LCB requires figures for this numerical context.',gpo:'12.9',gpoPage:288});
    }
    continue;
   }
   candidates.push({start,end,text,value,figure,ordinal,sentenceStart,context:ctx.at(start),sentence,unit:singular(unit),duration,measure});
  }
  const cite=(id,rule,page,preferred,text)=>({guideId:id,guideName:id==='lcb'?'LCB Style Manual':'GPO Style Manual',rule,guidePage:page,guidePrintedPage:references[id].pages[page-1].printedPage,preferred,ruleText:text});
+ const relatedStartNumbers=new Set(),openingBySentence=new Map();
+ for(const n of candidates){
+  if(n.sentenceStart&&!n.exception&&!n.ordinal){openingBySentence.set(n.sentence?.start,n);continue;}
+  const first=openingBySentence.get(n.sentence?.start);
+  if(!first||n.start<=first.end||n.exception||n.ordinal)continue;
+  const bridge=source.slice(first.end,n.start).replace(/\s+/g,' ').trim();
+  if(!/[.;:!?]/.test(bridge)&&bridge.split(/\s+/).filter(Boolean).length<=3&&/\b(?:and|or|to|through)\b/i.test(bridge))relatedStartNumbers.add(n);
+ }
  const relatedFigures=new Set();let group=[];
  const finishGroup=()=>{if(group.length>1&&group.some(n=>n.value>=10))for(const n of group)relatedFigures.add(n);};
  for(const n of candidates){
@@ -106,10 +181,10 @@ export function numeralIssues(doc,references){
   let preferred,rule,page=21,message,gpoRule,gpoPage,gpoPreferred,conflict=false;
   if(n.exception){({preferred,rule,page,message}=n);gpoRule=n.gpo;gpoPage=n.gpoPage;gpoPreferred=preferred;}
   else if(n.sentenceStart){
-   if(!n.figure)continue;preferred=n.ordinal?ordinals[n.value]||`Rephrase the sentence to spell out ordinal ${n.value}`:spellNumber(n.value);preferred=preferred[0].toUpperCase()+preferred.slice(1);rule='Numerals, general item 1';message='Spell out a number at the beginning of a sentence, or rephrase the sentence.';gpoRule='12.16';gpoPage=294;gpoPreferred=preferred;
+   if(!n.figure)continue;preferred=n.ordinal?spellOrdinal(n.value):spellNumber(n.value);preferred=preferred[0].toUpperCase()+preferred.slice(1);rule='Numerals, general item 1';message='Spell out a number at the beginning of a sentence, or rephrase the sentence.';gpoRule='12.16';gpoPage=294;gpoPreferred=preferred;
   }else if(n.ordinal){
    if(n.unit==='party'&&n.value===3){preferred='third';rule='Numerals: Digest, item 3';message='Use “third party” for a person other than the principals.';}
-   else{const words=n.context==='Digest'?n.value===1:n.value<10;preferred=words?ordinals[n.value]:n.value+((n.value%100>=11&&n.value%100<=13)?'th':({1:'st',2:'nd',3:'rd'}[n.value%10]||'th'));rule=`Numerals: ${n.context}, item ${n.context==='Digest'?2:4}`;message=`LCB ${n.context.toLowerCase()} rules determine the ordinal form here.`;}
+   else{const words=n.context==='Digest'?n.value===1:n.value<10;preferred=words?ordinals[n.value]:figureOrdinal(n.value);rule=`Numerals: ${n.context}, item ${n.context==='Digest'?2:4}`;message=`LCB ${n.context.toLowerCase()} rules determine the ordinal form here.`;}
    gpoRule='12.10';gpoPage=292;gpoPreferred=n.value<10?ordinals[n.value]:preferred;conflict=n.context==='Digest'&&n.value>1&&n.value<10&&n.unit!=='party';
   }else{
    const related=relatedFigures.has(n);
@@ -121,6 +196,10 @@ export function numeralIssues(doc,references){
    gpoPreferred=n.duration||n.measure?String(n.value):n.value<10?spellNumber(n.value):String(n.value);
    conflict=(n.duration||n.measure)&&words||n.context==='Digest'&&n.value>1&&n.value<10&&!n.duration&&!n.measure;
   }
+  // GPO 12.25 spells closely related sentence-opening numbers alike;
+  // LCB’s later-number form can differ. Exclude this known choice.
+  if(relatedStartNumbers.has(n)){conflict=true;gpoRule='12.25';gpoPage=297;gpoPreferred=spellNumber(n.value);}
+  if(n.figure&&!n.ordinal&&/^\d+(?:\.\d+)?$/.test(preferred)&&Number(n.text.replaceAll(',',''))===Number(preferred))preferred=n.text;
   const normalized=n.text.toLowerCase().replace(/\s+/g,' '),matchesPrimary=normalized===preferred.toLowerCase();
   if(matchesPrimary&&!conflict)continue;
   const gpoRecord=references.gpo.pages[(gpoPage||296)-1],gpoText=gpoRecord.text.slice(Math.max(0,gpoRecord.text.indexOf((gpoRule||'12.23')+'.'))).replace(/\s+/g,' ').slice(0,850);

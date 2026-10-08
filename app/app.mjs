@@ -1,22 +1,32 @@
+import {legislativeBody} from './external-amendments.mjs';
+import {outsideDigest,isBudgetRunningHead} from './change-scope.mjs';
+import {createUploadedPdfViewer} from './uploaded-pdf.mjs';
 import { grammarIssues as findGrammarIssues } from './grammar.mjs';
 import * as pdfjs from './vendor/pdf.mjs';
 import { makeDocument, spellingCandidates, comparisonTokens, activeText } from './core.mjs';
 import { loadDictionary, saveWord, removeWord, normalizeWord, isAccepted } from './personal-dictionary.mjs';
-import { extractPageLayout } from './pdf-strikes.mjs';
+import { extractPageLayout,hasVisiblePdfContent } from './pdf-strikes.mjs';
+import { printedAmendmentItems } from './amendment-markings.mjs';
+import { ocrDictionary,repairOcrSpacing,isOcrStyle,repairOcrInstructions } from './ocr-text.mjs';
 import { reviewOutline } from './review-outline.mjs';
 import { amendmentDeletionRanges } from './amendment-highlights.mjs';
 import { searchGuide } from './gpo-style.mjs';
 import {STYLE_GUIDES,guideById} from './style-guides.mjs';
 import {loadStyleTerms,saveStyleTerms,searchStyleTerms} from './custom-style.mjs';
 import {searchCoverage} from './style-coverage.mjs';
+import {searchRuleInventory} from './style-rule-inventory.mjs';
 import {createReviewIgnores} from './review-ignores.mjs';
 import { parseAmendments, amendmentDisplays, isProposedAmendmentsPage } from './amendments.mjs';
 pdfjs.GlobalWorkerOptions.workerSrc = new URL('./vendor/pdf.worker.mjs', import.meta.url).href;
 const $ = id => document.getElementById(id);
 const docs = [null, null];
-const versions = {0:0,1:0,amendments:0};
-const loading = {0:false,1:false,amendments:false};
-const pdfTasks={0:null,1:null,amendments:null},reviewIgnores=createReviewIgnores();
+const versions = {0:0,1:0,amendments:0,reference:0};
+const loading = {0:false,1:false,amendments:false,reference:false};
+const pdfTasks={0:null,1:null,amendments:null,reference:null},reviewIgnores=createReviewIgnores();
+let ocrWordsPromise,referenceBill=null;
+const externalDocs={};
+const uploadedFiles=new Map();
+const openUploadedPdf=createUploadedPdfViewer(pdfjs,uploadedFiles);
 let amendmentsDoc=null,amendmentWorker=null,amendmentSequence=0,amendmentResults=[];
 let amendmentIndex=-1,otherEdits=null;
 let reviewMode="changes",grammarIssues=[],grammarIndex=-1,amendmentsChecked=false;
@@ -100,7 +110,7 @@ function invalidateResults() {
   availability();
 }
 function metadata(side) {
-  const doc = side==='amendments'?amendmentsDoc:docs[side];
+  const doc = side==='reference'?externalDocs[referenceBill]:side==='amendments'?amendmentsDoc:docs[side];
   $('name' + side).textContent = doc.name;
   $('meta' + side).textContent = side==='amendments'?`${doc.pages} page${doc.pages===1?'':'s'} · ${parseAmendments(doc.text).length} amendment(s)${doc.ignoredFromPage?` · mockup pages ${doc.ignoredFromPage}–${doc.sourcePages} ignored`:''} · click to replace`:`${doc.pages} page${doc.pages === 1 ? '' : 's'} · ${doc.tokens.filter(t=>/[\p{L}\p{N}]/u.test(t.value)).length.toLocaleString()} words · click to replace`;
 }
@@ -122,9 +132,16 @@ function refreshView(){
 }
 
 async function readFile(file, side) {
+  uploadedFiles.delete(side);
   const version = ++versions[side];
+  const requestedBill=referenceBill;
+  if(side!=='reference'){
+    versions.reference++;pdfTasks.reference?.destroy().catch(()=>{});loading.reference=false;
+    for(const key of Object.keys(externalDocs))delete externalDocs[key];
+    $('reference-dialog').close();referenceBill=null;
+  }
   pdfTasks[side]?.destroy().catch(()=>{});
-  if(side==='amendments'){reviewIgnores.clear();resetSpelling();resetStyle();invalidateAmendments();amendmentsDoc=null;}else{invalidateResults();docs[side]=null;}
+  if(side==='reference'){invalidateAmendments();$('continue-reference').disabled=true;}else if(side==='amendments'){reviewIgnores.clear();resetSpelling();resetStyle();invalidateAmendments();amendmentsDoc=null;}else{invalidateResults();docs[side]=null;}
   loading[side] = true;
   $('error' + side).textContent = '';
   $('name' + side).textContent = file.name;
@@ -142,8 +159,9 @@ async function readFile(file, side) {
     // Do not request or retain document passwords.
     task.onPassword = () => { task.destroy(); };
     const pdf = await task.promise;
-    if (pdf.numPages > 300) throw Error('This PDF exceeds the 300-page limit. Split it into smaller documents.');
+    if (pdf.numPages > 1500) throw Error('This PDF exceeds the 1,500-page limit. Split it into smaller documents.');
     const pages = [],pageStrikes=[],pageFormatting=[];
+    let hasOcr=false;
     const blankPages = [];
     let total = 0,ignoredFromPage=null;
     for (let p = 1; p <= pdf.numPages; p++) {
@@ -154,27 +172,39 @@ async function readFile(file, side) {
       const operators=await page.getOperatorList();
       const fontStyles={...tc.styles};
       for(const name of Object.keys(fontStyles)){
-        try{const font=page.commonObjs.get(name);fontStyles[name]={...fontStyles[name],bold:!!font.bold,italic:!!font.italic};}catch{}
+        try{const font=page.commonObjs.get(name);fontStyles[name]={...fontStyles[name],name:font.name,bold:!!font.bold,italic:!!font.italic};}catch{}
       }
-      const layout=extractPageLayout(tc.items,operators,pdfjs.OPS,fontStyles,page.view[2]-page.view[0]);
+      let items=side==='amendments'?printedAmendmentItems(tc.items,fontStyles,page.view[2]-page.view[0],page.view[3]-page.view[1]):tc.items;
+      if(side==='amendments'&&Object.values(fontStyles).some(isOcrStyle)){
+        hasOcr=true;
+        const words=await (ocrWordsPromise??=fetch('./vendor/en_US/index.dic').then(r=>r.text()).then(ocrDictionary));
+        items=items.map(item=>typeof item.str==='string'&&isOcrStyle(fontStyles[item.fontName])?{...item,str:repairOcrSpacing(item.str,words)}:item);
+      }
+      const layout=extractPageLayout(items,operators,pdfjs.OPS,fontStyles,page.view[2]-page.view[0]);
       if(side==='amendments'&&isProposedAmendmentsPage(layout.text)){
         ignoredFromPage=p;page.cleanup();break;
       }
       pages.push(layout.text);pageStrikes.push(layout.strikes);pageFormatting.push(layout.lines);
-      if (!layout.text.trim()) blankPages.push(p);
+      if (!layout.text.trim()&&hasVisiblePdfContent(operators,pdfjs.OPS)) blankPages.push(p);
       total += pages.at(-1).length;
-      if (total > 1_000_000) throw Error('This PDF contains too much text. Split it into smaller documents.');
+      if (total > 10_000_000) throw Error('This PDF contains too much text. Split it into smaller documents.');
       page.cleanup();
     }
     if (!total) throw Error(ignoredFromPage?'No instruction pages precede the PROPOSED AMENDMENTS mockup. Upload the instructional amendment pages.':'No readable text found. This may be a scanned PDF; run OCR on it first.');
     if (blankPages.length) throw Error(`No readable text on page${blankPages.length === 1 ? '' : 's'} ${blankPages.slice(0, 10).join(', ')}${blankPages.length > 10 ? '…' : ''}. Run OCR or remove blank pages before comparing, so changes are not missed.`);
     if (versions[side] !== version) return;
-    const document=makeDocument(pages,file.name,pageStrikes,pageFormatting);
+    const words=await (ocrWordsPromise??=fetch('./vendor/en_US/index.dic').then(r=>r.text()).then(ocrDictionary));
+    if(versions[side]!==version)return;
+    const document=makeDocument(pages,file.name,pageStrikes,pageFormatting,words);
+    const heads=document.blocks.filter(b=>isBudgetRunningHead(document,b));
+    if(heads.length){document.tokens=document.tokens.filter(t=>!heads.some(b=>t.start>=b.start&&t.end<=b.end));document.effectiveTokens=document.effectiveTokens.filter(t=>!heads.some(b=>t.start>=b.start&&t.end<=b.end));}
+    document.ocr=hasOcr;
     if(side==='amendments'){document.sourcePages=pdf.numPages;document.ignoredFromPage=ignoredFromPage;}
-    if(side==='amendments')amendmentsDoc=document;else docs[side]=document;
+    if(side==='reference'){legislativeBody(document,requestedBill);$('status').textContent=docs.every(Boolean)?'Ready to compare document text.':'Choose the other PDF to continue.';externalDocs[requestedBill]=document;$('continue-reference').disabled=false;}else if(side==='amendments')amendmentsDoc=document;else docs[side]=document;
     metadata(side);
+    uploadedFiles.set(side,file);$('name'+side).title='Open this PDF';$('name'+side).setAttribute('role','link');$('name'+side).tabIndex=0;
     if(side==='amendments'){$('amendments-section').hidden=reviewMode!=='amendments';$('amendment-status').textContent='Instructions loaded. Select Amendments to verify both versions.';}
-    else $('status').textContent = docs.every(Boolean) ? 'Ready to compare document text.' : 'Choose the other PDF to continue.';
+    else if(side!=='reference') $('status').textContent = docs.every(Boolean) ? 'Ready to compare document text.' : 'Choose the other PDF to continue.';
   } catch (error) {
     if (versions[side] !== version) return;
     const message = /password|destroy/i.test(error.message) ? 'Password-protected PDFs are not supported. Save an unlocked copy first.' : error.message || 'Could not read this PDF. It may be damaged.';
@@ -187,10 +217,19 @@ async function readFile(file, side) {
     if(pdfTasks[side]===task)pdfTasks[side]=null;
     if (versions[side] === version) loading[side] = false;
     availability();
+    if(side==='amendments'&&amendmentsDoc&&versions[side]===version){
+      const needsReference=requestReference();
+      // Comparison may finish while PDF.js is still releasing the newly read
+      // instruction PDF. Resume verification once loading has actually ended.
+      if(!needsReference&&compared&&!compareWorker&&!amendmentsChecked&&!amendmentWorker)checkAmendments(false);
+    }
   }
 }
 
 function removeFile(side){
+  uploadedFiles.delete(side);$('name'+side).removeAttribute('role');$('name'+side).removeAttribute('tabindex');$('name'+side).removeAttribute('title');
+  versions.reference++;pdfTasks.reference?.destroy().catch(()=>{});loading.reference=false;
+  for(const key of Object.keys(externalDocs))delete externalDocs[key];referenceBill=null;$('reference-dialog').close();
   versions[side]++;pdfTasks[side]?.destroy().catch(()=>{});pdfTasks[side]=null;loading[side]=false;
   if(side==='amendments')amendmentsDoc=null;else docs[side]=null;
   invalidateResults();setReviewMode('changes');
@@ -204,7 +243,8 @@ function removeFile(side){
 for (const side of [0,'amendments',1]) {
   const drop = $('drop' + side), input = $('file' + side);
   $('remove'+side).addEventListener('click',()=>removeFile(side));
-  drop.addEventListener('click', () => input.click());
+  drop.addEventListener('click', event => {if(event.target.closest('#name'+side)&&uploadedFiles.has(side))openUploadedPdf(side);else input.click();});
+  $('name'+side).addEventListener('keydown',event=>{if(uploadedFiles.has(side)&&['Enter',' '].includes(event.key)){event.preventDefault();event.stopPropagation();openUploadedPdf(side);}});
   input.addEventListener('change', () => { if (input.files[0]) readFile(input.files[0], side); input.value = ''; });
   drop.addEventListener('dragover', event => { event.preventDefault(); drop.classList.add('drag'); });
   drop.addEventListener('dragleave', () => drop.classList.remove('drag'));
@@ -231,8 +271,8 @@ function sideRanges(doc, changes, side) {
     if(change.added || change.removed)ranges.push({start:first.start,end:last.end,kind:change.added?'added':'removed',group:change.group});
     tokenIndex+=change.count;
   }
-  if(otherEdits){doc.changeLocations={...otherEdits.locations[side]};return otherEdits.ranges[side];}
-  return ranges;
+  if(otherEdits){doc.changeLocations={...otherEdits.locations[side]};return outsideDigest(doc,otherEdits.ranges[side]);}
+  return outsideDigest(doc,ranges);
 }
 function renderDocument(root, doc, changes, side) {
   root.replaceChildren();
@@ -242,13 +282,10 @@ function renderDocument(root, doc, changes, side) {
   const deletionHighlights=amendmentDeletionRanges(doc,selectedAmendment,side);
   let previousPage=0,rangeIndex=0,spellIndex=0,pageRoot=root;
   doc.blocks.forEach((block,blockIndex)=>{
-    if(block.page!==previousPage){
-      pageRoot=document.createElement('section');pageRoot.className='pdf-page';root.append(pageRoot);
-      const label=document.createElement('div');label.className='page-ref';label.textContent=`Page ${block.page}`;label.dataset.page=block.page;pageRoot.append(label);previousPage=block.page;
-    }
+    if(block.page!==previousPage)for(let page=previousPage+1;page<=block.page;page++){pageRoot=document.createElement('section');pageRoot.className='pdf-page';root.append(pageRoot);const label=document.createElement('div');label.className='page-ref';label.textContent=`Page ${page}`;label.dataset.page=page;pageRoot.append(label);previousPage=page;}
     const row=document.createElement('div');row.className='text-line'+(block.margin?' has-margin':'');row.dataset.block=blockIndex;
     const gutter=document.createElement('span');gutter.className='margin-number';gutter.textContent=block.margin.replace(/^line\s*/i,'').trim();
-    const body=document.createElement('span');body.className='line-body'+(block.ignored?' layout-label':'');
+    const body=document.createElement('span');body.className='line-body'+(block.ignored||block.runningHead?' layout-label':'');
     const f=block.formatting;
     const headerParents=new Map();
     if(f){
@@ -284,7 +321,10 @@ function renderDocument(root, doc, changes, side) {
     while(spellIndex<doc.spelling.length && doc.spelling[spellIndex].end<=start)spellIndex++;
     const edits=[],spells=[],strikes=(doc.struck||[]).filter(r=>r.start<end&&r.end>start);
     for(let i=rangeIndex;i<ranges.length && ranges[i].start<end;i++)if(ranges[i].end>start)edits.push(ranges[i]);
-    for(let i=spellIndex;i<doc.spelling.length && doc.spelling[i].start<end;i++)if(doc.spelling[i].end>start)spells.push(doc.spelling[i]);
+    for(let i=spellIndex;i<doc.spelling.length && doc.spelling[i].start<end;i++){
+      const issue=doc.spelling[i];
+      for(const span of issue.spans||[issue])if(span.end>start&&span.start<end&&!block.ignored&&!block.runningHead)spells.push({...issue,start:span.start,end:span.end});
+    }
     const amendments=side===1&&reviewMode==='amendments'?amendmentResults.filter((_,i)=>i===amendmentIndex).flatMap(result=>result.evidence.map(e=>({start:e.currentOffset,end:e.currentEndOffset??e.currentOffset,directive:result.directive}))).filter(r=>r.start<end&&r.end>start):[];
     const amendmentCoverage=amendmentResults.flatMap(result=>result.evidence.map(e=>({start:side?e.currentOffset:e.previousOffset,end:side?e.currentEndOffset:e.previousEndOffset}))).filter(r=>r.end>r.start&&r.start<end&&r.end>start);
     const active=side===0&&reviewMode==='amendments'?amendmentResults[amendmentIndex]:null;
@@ -299,7 +339,7 @@ function renderDocument(root, doc, changes, side) {
     const points=[...new Set(insertions)].filter(at=>at>=start&&at<=end);
     const appendInsertion=at=>{
       if(!points.includes(at))return;
-      const marker=document.createElement('span');const between=!!active.between;marker.className=between?'amendment-insertion amendment-between-arrow':'amendment-insertion amendment-selection';marker.textContent=between?'➜':'+';if(between)row.style.marginTop=Math.max(16,parseFloat(row.style.marginTop)||0)+'px';marker.dataset.outlineGroup=sourceEdits.find(r=>r.start===at||r.end===at)?.id||active.number;marker.dataset.amendmentInsertion=active.number;marker.dataset.sourceOffset=at;marker.title=active.directive;marker.setAttribute('aria-label',`Amendment ${active.number}: insert text here`);marker.tabIndex=0;body.append(marker);
+      const marker=document.createElement('span');const between=!!active.between||active.beforeLine!=null;marker.className=between?'amendment-insertion amendment-between-arrow':'amendment-insertion amendment-selection';marker.textContent=between?'➜':'+';if(between)row.style.marginTop=Math.max(16,parseFloat(row.style.marginTop)||0)+'px';marker.dataset.outlineGroup=sourceEdits.find(r=>r.start===at||r.end===at)?.id||active.number;marker.dataset.amendmentInsertion=active.number;marker.dataset.sourceOffset=at;marker.title=active.directive;marker.setAttribute('aria-label',`Amendment ${active.number}: insert text here`);marker.tabIndex=0;body.append(marker);
     };
     const grammars=side===1&&reviewMode==='language'?grammarIssues.filter(r=>r.start<end&&r.end>start):[];
     const styles=side===1&&reviewMode==='style'?styleIssues.filter(r=>r.start<end&&r.end>start):[];
@@ -342,13 +382,13 @@ function renderDocument(root, doc, changes, side) {
       if(style&&!struck){chunk.classList.add('stylistic');chunk.dataset.style=style.id;chunk.title=`${style.message} Suggested: ${style.suggestion} · ${style.references.map(r=>guideById(r.guideId).title+" "+r.rule).join("; ")}`;chunk.tabIndex=0;chunk.setAttribute('role','button');chunk.setAttribute('aria-label',`Review potential style discrepancy: ${style.text}`);}
       const amendment=amendments.filter(r=>r.start<=a&&r.end>=b);
       const deleted=!(side===0&&struck)&&deletions.some(r=>r.start<=a&&r.end>=b);
-      if(amendment.length&&!block.ignored){chunk.classList.add('amendment-text');if(!deleted&&(currentReview?.action==='insert'||currentReview?.action==='replace'))chunk.classList.add('amendment-added');chunk.title=[...new Set(amendment.map(r=>r.directive))].join('\n');chunk.dataset.amendmentInstruction=chunk.title;if(!spelling)chunk.tabIndex=0;chunk.setAttribute('aria-description',chunk.title);}
+      if(amendment.length&&!block.ignored&&!block.runningHead){chunk.classList.add('amendment-text');if(!deleted&&(currentReview?.action==='insert'||currentReview?.action==='replace'))chunk.classList.add('amendment-added');chunk.title=[...new Set(amendment.map(r=>r.directive))].join('\n');chunk.dataset.amendmentInstruction=chunk.title;if(!spelling)chunk.tabIndex=0;chunk.setAttribute('aria-description',chunk.title);}
       if(deleted){chunk.classList.add('amendment-deletion');chunk.dataset.amendmentDeletion=selectedAmendment.number;chunk.title=selectedAmendment.directive;}
       if(differences.some(r=>r.start<=a&&r.end>=b))chunk.classList.add('amendment-unexpected');
       const selectionRange=side===1?reviewRanges.find(r=>r.currentOffset<=a&&r.currentEndOffset>=b):deletions.find(r=>r.start<=a&&r.end>=b);
       const part=f?.headerParts?.find(p=>p.start<=a-block.start&&p.end>=b-block.start);
       const chunkParent=headerParents.get(part)||body;
-      const selected=selectionRange&&!block.ignored&&!(side===0&&struck)&&!(side===1&&deleted)&&!!(side===1?currentReview?.insertText:active?.insertText)?.trim();
+      const selected=selectionRange&&!block.ignored&&!block.runningHead&&!(side===0&&struck)&&!(side===1&&deleted)&&!!(side===1?currentReview?.insertText:active?.insertText)?.trim();
       if(selected){
         let wrapper=chunkParent.lastElementChild;
         if(!wrapper?.classList.contains('amendment-selection')||wrapper.dataset.selectionText!=='true'||wrapper.dataset.outlineGroup!==selectionRange.id){
@@ -365,6 +405,7 @@ function renderDocument(root, doc, changes, side) {
     }
     row.append(gutter,body);pageRoot.append(row);
   });
+  for(let page=previousPage+1;page<=doc.pages;page++){const section=document.createElement('section');section.className='pdf-page';const label=document.createElement('div');label.className='page-ref';label.textContent=`Page ${page}`;label.dataset.page=page;section.append(label);root.append(section);}
 }
 function renderDocuments(){
   docs.forEach((doc,side)=>{const root=$(side?'right':'left'),top=root.scrollTop;renderDocument(root,doc,currentChanges,side);root.scrollTop=top;updatePageCounter(side);});
@@ -467,6 +508,7 @@ function nextChange(direction=1){
   $('change-status').textContent=`${amendmentResults.length?'Other change':'Change'} ${position+1} of ${changeCount} · ${locations.join(' / ')}`;
 }
 function updateChangeNavigation(){
+  if(otherEdits?.uncertain){navigableChanges=[];changeCount=0;changeIndex=-1;$('next-change').disabled=true;$('previous-change').disabled=true;$('change-status').textContent=otherEdits.reason;return;}
   const otherGroups=new Set();
   if(amendmentsDoc&&!amendmentsChecked){navigableChanges=[];changeCount=0;changeIndex=-1;$("next-change").disabled=true;$("previous-change").disabled=true;$("change-status").textContent="Select Amendments to identify non-amendment changes.";return;}
   if(docs.every(Boolean)){
@@ -500,6 +542,7 @@ function updateIgnoreControls(){
     matching=reviewIgnores.matchingCount(selected.kind,issues[selected.index],issues,docs[1].text);
   }
   $('ignore-review').disabled=!(language||style);
+  $('undo-ignore').disabled=!reviewIgnores.canUndo||!compared||!!compareWorker||!!spellingWorker||!!styleWorker||Object.values(loading).some(Boolean);
   $('ignore-all-review').disabled=matching<2;
   $('ignore-review').title=category?`Ignore the selected ${category} finding in the loaded files`:'Select a Spelling & Grammar or Stylistic Check finding to ignore';
   $('ignore-all-review').title=category?(matching<2?'Only one matching finding remains':`Ignore ${matching} matching ${category} findings in the loaded files`):'Select a Spelling & Grammar or Stylistic Check finding to ignore';
@@ -600,7 +643,7 @@ function selectStyle(index){
   const block=docs[1].blocks.find(b=>b.start<=issue.start&&b.end>issue.start);
   const recommendation=issue.matchesPrimary||!issue.suggestion?'':`Suggested: “${issue.suggestion}”.`;
   const references=issue.references.map(r=>`${guideById(r.guideId).title} ${r.rule}, p. ${r.guidePrintedPage}`).join(' · ');
-  $('style-status').textContent=`Potential discrepancy ${index+1} of ${styleIssues.length} · p. ${block?.page||1}${issue.context?' · '+issue.context+' text':''} · ${issue.category}: “${issue.text}”. ${recommendation} ${issue.message} ${references}${issue.conflict?' · LCB takes priority.':''}`;
+  $('style-status').textContent=`Potential discrepancy ${index+1} of ${styleIssues.length} · p. ${block?.page||1}${issue.context?' · '+issue.context+' text':''} · ${issue.category}: “${issue.matchText||issue.text}”. ${recommendation} ${issue.message} ${references}${issue.conflict?' · LCB takes priority.':''}`;
   $('style-rule').disabled=false;
   updateIgnoreControls();
 }
@@ -705,16 +748,23 @@ function openGuide(page=null,query='',id='lcb',context=null){
   if(!$('guide-dialog').open)$('guide-dialog').showModal();
   selectGuide(id,page??(['custom','coverage'].includes(id)?null:guideById(id).defaultPage),query);
 }
-function renderCoverage(query=''){
-  const root=$('coverage-list'),items=searchCoverage(query);root.replaceChildren();
-  $('guide-search-status').textContent=`${items.length} matching rule area(s). Checks flag potential issues; they do not certify complete compliance.`;
-  for(const item of items){
+async function renderCoverage(query=''){
+  const root=$('coverage-list');root.replaceChildren();
+  try{
+  const [lcb,gpo]=await Promise.all([loadGuideReference('lcb'),loadGuideReference('gpo')]);
+  if(activeGuideId!=='coverage'||$('guide-search').value.trim()!==query)return;
+  const inventory=searchRuleInventory({lcb,gpo},query),items=[...searchCoverage(query),...inventory];
+  $('guide-search-status').textContent=`${inventory.length} source rule/passages matched. Inventory includes rules that are not automated; no complete-compliance certification.`;
+  let rendered=0;
+  const more=document.createElement('button');more.className='quiet';more.textContent='Show More Source Rules';
+  const append=()=>{more.remove();for(const item of items.slice(rendered,rendered+100)){
     const card=document.createElement('article');card.className='guide-rule-card';
     const heading=document.createElement('strong');heading.textContent=item.title+' · '+item.status;
-    const text=document.createElement('p');text.textContent=item.text;
+    const text=document.createElement('p');text.textContent=(item.scope?item.scope+'\n\n':'')+item.text;
     const button=document.createElement('button');button.className='quiet';button.textContent=`View ${guideById(item.guide).title} source page`;button.addEventListener('click',()=>selectGuide(item.guide,item.page));
     card.append(heading,text,button);root.append(card);
-  }
+  }rendered+=100;if(rendered<items.length)root.append(more);};more.addEventListener('click',append);append();
+  }catch(e){$('guide-search-status').textContent='Could not load rule coverage: '+e.message;}
 }
 function renderCustomTerms(query=$('guide-search').value.trim()){
   const root=$('custom-term-list');root.replaceChildren();const terms=searchStyleTerms(customTerms,query);
@@ -833,7 +883,8 @@ function renderAmendments(){
   const card=document.createElement('div');card.className='amendment-card';
   const directive=document.createElement('p');directive.className='amendment-directive';appendAmendmentText(directive,display?.directive||{text:result.directive,strikes:[]});
   card.append(directive);
-  const payload=display?.payload||{text:result.insertText,strikes:[]};
+  if(result.externalReference){const note=document.createElement('p');note.className='tool-status';note.textContent=result.message;card.append(note);}
+  const payload=result.referenceLoaded?{text:result.insertText,strikes:[]}:display?.payload||{text:result.insertText,strikes:[]};
   if(payload.text){
     const amendment=document.createElement('p');amendment.className='amendment-payload';
     const tokens=comparisonTokens(payload.text).filter(t=>!payload.strikes.some(r=>r.start<t.end&&r.end>t.start)),different=new Set();
@@ -870,6 +921,7 @@ function appendAmendmentText(root,styled,missing=[]){
 
 function checkAmendments(selectMode=true){
   if(!docs.every(Boolean)||!amendmentsDoc||Object.values(loading).some(Boolean)||amendmentWorker)return;
+  if(requestReference())return;
   if(!compared && !compareWorker)runComparison();
   if(selectMode)setReviewMode('amendments');
   otherEdits=null;amendmentsChecked=false;updateIssueNavigation();updateChangeNavigation();
@@ -887,8 +939,8 @@ function checkAmendments(selectMode=true){
     amendmentsChecked=true;otherEdits=data.otherEdits;amendmentResults=data.results;amendmentIndex=amendmentResults.length?0:-1;updateChangeNavigation();renderAmendments();if(compared){renderDocuments();if(reviewMode==='amendments')focusAmendment(amendmentResults[amendmentIndex],true);}
     $('amendment-status').textContent='';
   };
-  const model=doc=>({name:doc.name,pages:doc.pages,text:doc.text,blocks:doc.blocks,tokens:doc.tokens,effectiveTokens:doc.effectiveTokens,struck:doc.struck});
-  amendmentWorker.postMessage({text:activeText(amendmentsDoc),previous:model(docs[0]),current:model(docs[1])});
+  const model=doc=>({name:doc.name,pages:doc.pages,text:doc.text,blocks:doc.blocks,tokens:doc.tokens,effectiveTokens:doc.effectiveTokens,struck:doc.struck,wrappedWords:doc.wrappedWords});
+  amendmentWorker.postMessage({text:amendmentsDoc.ocr?repairOcrInstructions(activeText(amendmentsDoc)):activeText(amendmentsDoc),previous:model(docs[0]),current:model(docs[1]),externalDocs:Object.fromEntries(Object.entries(externalDocs).map(([bill,doc])=>[bill,model(doc)]))});
 }
 function selectGrammar(index){
   setReviewMode('language');grammarIndex=index;
@@ -941,6 +993,23 @@ function openDictionary(){
   $('dictionary-search').value='';$('dictionary-new-word').value='';renderDictionary();
   $('dictionary-dialog').showModal();$('dictionary-search').focus();
 }
+function requestReference(){
+  if(!amendmentsDoc)return false;
+  const rule=parseAmendments(amendmentsDoc.text).find(r=>r.externalReference&&!externalDocs[r.externalReference.bill]);
+  if(!rule)return false;
+  referenceBill=rule.externalReference.bill;
+  $('reference-description').textContent=`Amendment ${rule.number} requires ${referenceBill}${rule.externalReference.description?': '+rule.externalReference.description:''}. Upload that bill to continue.`;
+  $('namereference').textContent=`Drop ${referenceBill} here`;$('metareference').textContent='or click to choose a PDF';$('errorreference').textContent='';$('continue-reference').disabled=true;
+  if(!$('reference-dialog').open)$('reference-dialog').showModal();
+  return true;
+}
+$('close-reference').addEventListener('click',()=>$('reference-dialog').close());
+$('dropreference').addEventListener('click',()=>$('filereference').click());
+$('filereference').addEventListener('change',event=>{const file=event.target.files[0];if(file)readFile(file,'reference');event.target.value='';});
+$('dropreference').addEventListener('dragover',event=>{event.preventDefault();$('dropreference').classList.add('dragover');});
+$('dropreference').addEventListener('dragleave',()=>$('dropreference').classList.remove('dragover'));
+$('dropreference').addEventListener('drop',event=>{event.preventDefault();$('dropreference').classList.remove('dragover');const files=event.dataTransfer.files;if(files.length!==1){$('errorreference').textContent='Drop one referenced bill PDF at a time.';return;}readFile(files[0],'reference');});
+$('continue-reference').addEventListener('click',()=>{if(loading.reference||!externalDocs[referenceBill])return;$('reference-dialog').close();if(!requestReference())checkAmendments();});
 $('view-dictionary').addEventListener('click',openDictionary);
 $('close-dictionary').addEventListener('click',()=>$('dictionary-dialog').close());
 $('dictionary-search').addEventListener('input',renderDictionary);
@@ -976,6 +1045,7 @@ $('style-rule').addEventListener('click',()=>{const issue=styleIssues[styleIndex
 $('view-guide').addEventListener('click',()=>openGuide());
 for(const guide of guideTabs){
   const tab=document.createElement('button');tab.id='guide-tab-'+guide.id;tab.className='quiet guide-tab';tab.setAttribute('role','tab');tab.setAttribute('aria-controls',guide.id==='custom'?'custom-terms-panel':'guide-content');tab.textContent=guide.title+(guide.primary?' · Primary':'');tab.setAttribute('aria-selected',String(guide.id===activeGuideId));tab.tabIndex=guide.id===activeGuideId?0:-1;
+  if(guide.id==='coverage')tab.setAttribute('aria-controls','coverage-panel');
   tab.addEventListener('click',()=>selectGuide(guide.id));
   tab.addEventListener('keydown',event=>{if(!['ArrowLeft','ArrowRight','Home','End'].includes(event.key))return;event.preventDefault();const index=guideTabs.findIndex(g=>g.id===activeGuideId),next=event.key==='Home'?0:event.key==='End'?guideTabs.length-1:(index+(event.key==='ArrowRight'?1:-1)+guideTabs.length)%guideTabs.length;selectGuide(guideTabs[next].id);$('guide-tab-'+guideTabs[next].id).focus();});
   $('guide-tabs').append(tab);
@@ -1000,6 +1070,12 @@ $('next-spelling').addEventListener('click',()=>nextSpelling(1));
 $('previous-spelling').addEventListener('click',()=>nextSpelling(-1));
 $('add-dictionary').addEventListener('click',addToDictionary);
 $('ignore-review').addEventListener('click',()=>{if(reviewMode==='language')ignoreLanguage(false);else if(reviewMode==='style')ignoreStyle(false);});
+$('undo-ignore').addEventListener('click',()=>{
+  if($('undo-ignore').disabled)return;
+  const action=reviewIgnores.undo();if(!action)return;
+  if(action.kind==='style'){resetStyle();checkStyle();}else checkSpelling();
+  updateIgnoreControls();
+});
 $('ignore-all-review').addEventListener('click',()=>{if(reviewMode==='language')ignoreLanguage(true);else if(reviewMode==='style')ignoreStyle(true);});
 for(const pane of [$('left'),$('right')]){
   function selectIssue(event){
@@ -1017,6 +1093,8 @@ for(const pane of [$('left'),$('right')]){
 }
 // Explicit, read-only interface for QA; never exposes file access or execution.
 export function snapshot() { return { docs: docs.map(doc => doc && ({ name: doc.name, pages: doc.pages, blocks: doc.blocks, struck:doc.struck })), amendmentsDoc:amendmentsDoc&&({text:amendmentsDoc.text,struck:amendmentsDoc.struck}), status: $('status').textContent, resultsVisible: !$('results').hidden, changeCount, changeIndex, languageCount:languageIssues.length,languageIndex,spellingCount:spellingIssues.length, spellingIndex, amendmentResults, amendmentIndex, reviewMode, styleIssues, styleCount:styleIssues.length, styleIndex, styleChecked, grammarCount:grammarIssues.length, grammarIndex, amendmentIssueCount:issueAmendments().length }; }
+
+
 
 
 

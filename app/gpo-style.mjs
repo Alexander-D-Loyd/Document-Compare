@@ -1,6 +1,7 @@
 // Explicit close variants of GPO forms; no arbitrary near-word substitutions.
 // Suggestions are advisory: a phrase can have a legitimate contextual exception.
 export const STYLE_RULES = [
+  ...[['ageing','aging'],['aluminium','aluminum'],['anaemia','anemia'],['anaesthetic','anesthetic'],['haemoglobin','hemoglobin'],['diarrhoea','diarrhea'],['oedema','edema'],['encyclopaedia','encyclopedia'],['oesophagus','esophagus'],['fibre','fiber'],['calibre','caliber'],['litre','liter'],['metre','meter'],['manoeuvre','maneuver'],['jewellery','jewelry'],['mould','mold'],['moult','molt'],['mollusc','mollusk'],['sulphur','sulfur'],['sceptic','skeptic'],['spectre','specter'],['smoulder','smolder']].map(([variant,preferred])=>({variant,preferred,rule:'5.2',category:'Preferred spelling',message:'GPO lists this preferred spelling. Confirm that the word is ordinary prose rather than an established proper name.'})),
   ...[
     ['acknowledgement','acknowledgment'],['acknowledgements','acknowledgments'],
     ['abridgement','abridgment'],['cancelled','canceled'],['cancelling','canceling'],

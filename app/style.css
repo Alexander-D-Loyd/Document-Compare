@@ -35,10 +35,9 @@ body:not([data-review="amendments"]) #amendment-position,body:not([data-review="
 .pdf-struck{color:#ff9ba5}
 .document .previous-source-struck{color:inherit;opacity:1;background:transparent;box-shadow:none}
 .amendment-focus{outline-color:#61b7ff;background:transparent}
-#issue-navigation.has-issues{border-color:#e3c659;background:#4c411e}
-#issue-navigation.has-issues button{background:#65521e;color:#fff0b0;border-color:#cfb34c}
+#issue-navigation.has-issues #review-issues{background:#65521e;color:#fff0b0;border-color:#cfb34c}
 #issue-navigation:not(.has-issues){border-color:#4c535c;background:#252b34}
-#issue-navigation:not(.has-issues) button{background:#343b45;color:#a4acb6;border-color:#56606c}
+#issue-navigation:not(.has-issues) #review-issues{background:#343b45;color:#a4acb6;border-color:#56606c}
 .change-swatch{background:#d9bd50}
 
 .page-navigation{display:flex;align-items:center;gap:8px;padding:8px 18px;background:#182638;border-bottom:1px solid #33445b;font-size:13px;color:#b8cce2}.page-navigation input{width:65px;background:#101c2c;border:1px solid #526a87;border-radius:5px;color:#e0e9f5;padding:5px 7px;font:inherit}.pdf-centered .line-body{text-align:center}.source-struck-hidden{display:none!important}.text-line.pdf-centered{margin-bottom:3px}
@@ -93,3 +92,12 @@ img.brandmark{object-fit:contain;background:transparent;border:0;border-radius:0
 @media(max-width:949px){.review-tools{grid-template-columns:1fr 1fr}}
 @media(max-width:700px){header{padding:10px 14px}main{padding:10px 14px}.review-tools{grid-template-columns:1fr}.style-tools{grid-column:auto}}
 
+
+.amendment-missing{padding:0}.amendment-payload{white-space:normal}.amendment-directive,.amendment-payload{word-spacing:normal;letter-spacing:normal}
+
+#reference-dialog{width:min(620px,90vw)}#dropreference{width:100%;margin:14px 0}
+
+#reference-dialog{max-height:85vh;background:#182536;color:#dce6f5;border:1px solid #607792;border-radius:12px;padding:22px;box-shadow:0 18px 60px #0008;overflow:auto}#reference-dialog::backdrop{background:#080d16bb}
+.guide-rule-card{min-width:0;overflow-wrap:anywhere}
+#uploaded-pdf-dialog{width:min(1000px,94vw);max-height:94vh;background:#192637;color:#dce6f5;border:1px solid #445c78;border-radius:12px;padding:16px}#uploaded-pdf-dialog::backdrop{background:#0009}.uploaded-pdf-image{overflow:auto;max-height:72vh;text-align:center}.uploaded-pdf-image canvas{max-width:100%;height:auto;background:white}.drop strong[role="link"]{cursor:pointer;text-decoration:underline;text-underline-offset:3px}.shared-review-actions #ignore-review{order:0}.shared-review-actions #undo-ignore{order:1}.shared-review-actions #ignore-all-review{order:2}.shared-review-actions #add-dictionary{order:3}.shared-review-actions #style-rule{order:4}
+.shared-review-actions #undo-ignore{order:-1}

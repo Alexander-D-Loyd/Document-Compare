@@ -95,3 +95,8 @@ export function extractPageLayout(items,operators,OPS,styles={},pageWidth=612){
   }
   return {text:lines.join('\n'),strikes,lines:formatting};
 }
+
+export function hasVisiblePdfContent(operators,OPS){
+ const paint=new Set(Object.entries(OPS).filter(([name])=>/^(?:paint|showText|showSpacedText|nextLineShowText|nextLineSetSpacingShowText|shadingFill|stroke$|closeStroke$|fill$|eoFill$|fillStroke$|eoFillStroke$|closeFillStroke$|closeEOFillStroke$)/.test(name)).map(([,code])=>code));
+ return operators.fnArray.some((code,i)=>paint.has(code)||(code===OPS.constructPath&&paint.has(operators.argsArray[i]?.[0])));
+}

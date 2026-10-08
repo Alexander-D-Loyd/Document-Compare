@@ -1,6 +1,16 @@
 # Document Compare
 
-An offline desktop app for comparing legislative PDFs and reviewing instructional amendments. Version 1.20.8.
+An offline desktop app for comparing legislative PDFs and reviewing instructional amendments. Version 1.20.23.
+
+## Download the Windows app
+
+Download **Document-Compare-Windows.zip** from [the latest release](https://github.com/Alexander-D-Loyd/Document-Compare/releases/latest), extract the entire ZIP, and run **Document Compare.exe**. Keep its resources and runtime files together. No development tools are needed.
+
+## Current validation and limitations
+
+Version 1.20.23 passes 197 automated tests and the 142 ordinary-amendment highlight/navigation retest. Page-break spelling uses separate word fragments and excludes intervening running heads. Undo is to the left of Ignore.
+
+The AB 109/SB 879 budget case remains unresolved: source amounts genuinely differ, additional drafting material is unavailable, and complex budget alignment still produces some false missing markers. These discrepancies remain flagged for review. Full automatic offline style-rule coverage is still unfinished; consult STYLE_RULE_COVERAGE.md.
 
 ## Features
 
@@ -9,7 +19,7 @@ An offline desktop app for comparing legislative PDFs and reviewing instructiona
 - Verify supported amendment instructions against the current bill, preserving source strikeouts and navigating both versions.
 - Review non-amendment changes, spelling and grammar, or stylistic findings separately with forward/backward navigation.
 - Maintain a case-sensitive personal dictionary and custom style terms.
-- Search the LCB and GPO style guides, with LCB taking priority; contextual numeral checks distinguish quantities, references, bill text and digest text.
+- Search the LCB and GPO style guides, with conflicting LCB/GPO recommendations excluded from stylistic findings; contextual numeral checks distinguish quantities, references, bill text and digest text.
 
 Blue marks additions, red marks deletions, yellow marks non-amendment changes, and purple marks potential style discrepancies. Spelling and grammar use red and blue underlines.
 
@@ -76,3 +86,24 @@ The application has no open-source license grant (`UNLICENSED`). Third-party lib
 The controls above the document panes use compact spacing. Selected-finding descriptions occupy a full-width row, and Add to Dictionary/View Style Rules sit beside the shared Ignore controls. Document font size and PDF text layout are unchanged.
 
 
+
+Local 1.20.11 fixes OCR word joins, misread directive quotes and line numbers, and nested quoted deletions. Amendment Verification uses natural spacing without padded word highlights. All ten AB 2266 August 21 amendments verify against v95 (Previous) and v94 (Current).
+
+Local 1.20.12 raises the PDF limit to 1,500 pages (50 MB remains), requests externally referenced bills in a drop-box dialog, and extracts only legislative body text. Unavailable additional drafting attachments require review. Blank pages retain page navigation. Contextual numeral checks protect budget codes/table amounts, proposition references, wrapped citations and telephone service codes. All 60 automated tests pass. The complete manuals are searchable; automated rule coverage remains partial and is listed in Style Guides > Check Coverage.
+
+Local 1.20.13 expands offline style checks and adds a searchable source-rule inventory in Check Coverage. 78 tests pass; 96 controlled violation/compliant pairs were checked across eight real bill contexts. Full automatic rule coverage is unfinished; see STYLE_RULE_COVERAGE.md. No GitHub push performed.
+
+Version 1.20.14: referenced bill bodies displayed and checked despite missing additional attachments; Undo Ignore; expanded offline mixed-duration/fraction/modifier checks and distinct LCB bill/digest rule inventory. Comprehensive rule coverage remains unfinished.
+
+Version 1.20.15 expands offline LCB compounds, GPO measurement notation and monetary pairs; audits GPO Chapter 1 applicability. 94 tests pass; 184 controlled rule/corpus pairs passed. Full coverage remains unfinished.
+
+Version 1.20.16 expands offline contextual style checks and discrete guide coverage. 138 tests pass; 888 controlled rule/corpus pairs pass across eight bills. Source-order and corpus false positives are repaired. Full coverage remains unfinished; see STYLE_RULE_COVERAGE.md. No GitHub push.
+
+Version 1.20.17 ignores LCB/GPO style disagreements while retaining independent checks. 137 tests pass. Local only.
+
+
+Version 1.20.18 expands offline punctuation and explicit quantity grouping, documents all numbered GPO Chapter 8/12 rule scopes, and excludes further known guide disagreements. 152 automated tests and 920 controlled rule/corpus pairs pass. Full automatic coverage remains unfinished. Local only; no GitHub push.
+
+Version 1.20.19 expands offline contextual rules, repairs GPO guide search, records remaining rule limits, and improves wrapped-style Ignore All. 177 tests and 2,040 controlled rule/corpus pairs pass across 12 bills. Full automatic coverage remains unfinished. Saved locally; no GitHub push.
+
+Version 1.20.20 completes numbered GPO rule-scope accounting, expands selected offline checks and conflict exclusions, and fixes amendment loading, neighboring-edit verification and tight-line contours. 187 tests and 2,064 controlled style pairs pass. Desktop retests cover all 12 available bill sets, including 142 ordinary amendments and the unresolved AB 109/SB 879 case. Full automatic rule coverage remains unfinished. Local only; no GitHub push.
