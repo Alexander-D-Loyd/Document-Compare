@@ -1,0 +1,33 @@
+import test from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs';import {makeDocument} from '../app/core.mjs';import {compoundIssues,END_WORD_RULES,OPEN_END_RULES} from '../app/style-compounds.mjs';import {jointStylisticIssues} from '../app/joint-style.mjs';import {CHECK_COVERAGE} from '../app/style-coverage.mjs';import {styleRuleInventory} from '../app/style-rule-inventory.mjs';
+const refs=Object.fromEntries(['lcb','gpo'].map(id=>[id,JSON.parse(fs.readFileSync(new URL('../app/data/'+id+'-reference.json',import.meta.url)))])),make=t=>makeDocument(Array.isArray(t)?t:[t],'Current'),target=(d,p)=>compoundIssues(d,refs).filter(i=>i.suggestion.toLowerCase()===p);
+const exceptions=[['certificate-holder','certificate holder'],['forest-land','forest land'],['state-park-land','state park land'],['low-water-mark','low water mark'],['high-water-mark','high water mark']];
+test('every listed open end-word exception checks complete hyphenated singular and regular plural forms',()=>{
+ for(const [bad,good]of exceptions)for(const suffix of ['','s']){const d=make('The '+bad+suffix+' is described.'),before=JSON.stringify(d),r=target(d,good+suffix);assert.equal(r.length,1,bad+suffix);assert.equal(r[0].text,bad+suffix);assert.equal(d.text.slice(r[0].start,r[0].end),bad+suffix);assert.equal(r[0].guidePage,15);assert.equal(target(make('The '+good+suffix+' is described.'),good+suffix).length,0);assert.equal(JSON.stringify(d),before);}
+});
+test('end-word coverage records complete exception forms and preserves dictionary and whole-rule limits',()=>{
+ const row=CHECK_COVERAGE.find(r=>r.title==='Complete end-word exceptions');assert.match(row.text,/five listed open exceptions/);assert.match(row.text,/combining marks/);assert.match(row.text,/dictionary authority remain manual/);const inventory=styleRuleInventory(refs).filter(r=>r.guide==='lcb'&&r.page===15);assert.ok(inventory.length);assert.ok(inventory.every(r=>['Partially automated','Excluded guide conflict'].includes(r.status)));assert.equal(inventory.filter(r=>r.status==='Excluded guide conflict').length,2);assert.ok(inventory.some(r=>/five open exceptions/.test(r.scope)));
+});
+test('closed regular plurals of open exceptions and explicitly named land/lands forms retain the whole word',()=>{
+ for(const [bad,good]of [['certificateholders','certificate holders'],['forestlands','forest lands'],['state parklands','state park lands'],['low watermarks','low water marks'],['high watermarks','high water marks'],['timber lands','timberlands'],['wild lands','wildlands']]){const r=target(make('The '+bad+' are described.'),good);assert.equal(r.length,1,bad);assert.equal(r[0].text,bad);assert.equal(target(make('The '+good+' are described.'),good).length,0);}
+});
+test('end-word lexical matches cannot select prefixes or suffixes inside original Unicode words',()=>{
+ for(const {variant,preferred}of [...END_WORD_RULES,...OPEN_END_RULES])for(const text of ['α'+variant,variant+'α','𐐀'+variant,variant+'2',variant+'\u0301'])assert.equal(target(make('The '+text+' is described.'),preferred).length,0,text);
+});
+test('all end-word source evidence protects supporting struck spaces and unknown excluded content',()=>{
+ for(const {variant,preferred}of END_WORD_RULES){const at=variant.indexOf(' '),d=make('The '+variant+' is described.');d.struck=[{start:4+at,end:5+at}];assert.equal(target(d,preferred).length,0,variant);const e=make('The '+variant.slice(0,at)+' unknown '+variant.slice(at+1)+' is described.'),start=e.text.indexOf('unknown');e.excluded.push({start,end:start+7});assert.equal(target(e,preferred).length,0,variant);}
+});
+test('complete multirow end-word evidence rejects later table rows and wrapped literals',()=>{
+ for(const [bad,good]of [['case load','caseload'],['forest land','forest land'],['high water mark','high water mark']]){const at=bad.indexOf(' '),d=make('The '+bad.slice(0,at)+'\n'+bad.slice(at+1)+'........100');assert.equal(target(d,good).length,0,bad);}
+ assert.equal(target(make('The title "The case\nload is described." is literal.'),'caseload').length,0);
+});
+test('identified page heads preserve complete end-word and open-exception selections without admitting unknown bridges',()=>{
+ for(const [first,last,good]of [['case','load','caseload'],['certificate-','holder','certificate holder'],['state-park-','land','state park land']]){const d=make(['ASSEMBLY BILL No. 9999\nThe people do enact as follows:\nline 1 The '+first,'AB 9999 — 2 —\nline 1 '+last+' is described.']);d.blocks.find(b=>b.ignored).formatting={headerParts:[{}]};const before=JSON.stringify(d),r=target(d,good);assert.equal(r.length,1,good);assert.equal(r[0].end,d.text.indexOf(last+' is described.')+last.length);assert.equal(JSON.stringify(d),before);const e=make('The '+first+'\nunknown marker\n'+last+' is described.'),b=e.blocks[1];b.ignored=true;e.excluded.push({start:b.start,end:b.end});assert.equal(target(e,good).length,0);}
+});
+test('open exceptions remain unique and modal holder verbs names headings and unrelated guards retain their meaning',()=>{
+ for(const [bad,good]of exceptions){const r=jointStylisticIssues(make('The '+bad+' is described.'),refs).filter(i=>i.start<=4&&i.end>4);assert.equal(r.length,1,bad);assert.equal(r[0].suggestion,good);}
+ for(const text of ['The agency shall permit holders to sell.','The agency may license holders of permits.','CASE LOAD','The Forest Lands Program is established.','The state park lands are described.'])assert.equal(compoundIssues(make(text),refs).length,0,text);
+ const d=make('unknown marker\nThe case load is described.'),b=d.blocks[0];b.ignored=true;d.excluded.push({start:b.start,end:b.end});assert.equal(target(d,'caseload').length,1);
+ for(const kind of ['struck','excluded']){const e=make('The state-park-lands are described.');e[kind]=[{start:4,end:5}];assert.equal(compoundIssues(e,refs).length,0,kind+' state cannot manufacture a suffix-only parklands warning');}
+ for(const kind of ['struck','excluded',null]){const e=make(['ASSEMBLY BILL No. 9999\nThe people do enact as follows:\nline 1 The state','AB 9999 — 2 —\nline 1 park lands are described.']);e.blocks.find(b=>b.ignored).formatting={headerParts:[{}]};if(kind)e[kind]=[...(e[kind]||[]),{start:e.text.indexOf('state\n'),end:e.text.indexOf('state\n')+1}];const before=JSON.stringify(e);assert.equal(compoundIssues(e,refs).length,0,'complete parent '+kind);assert.equal(JSON.stringify(e),before);}
+ for(const text of ['The wild lands are described.','The wildlands are described.','The wild-lands are described.','The ground waters are described.'])assert.equal(jointStylisticIssues(make(text),refs).length,0,'guide conflict '+text);
+});

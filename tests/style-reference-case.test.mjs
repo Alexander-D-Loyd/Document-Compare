@@ -1,9 +1,11 @@
 import test from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs';
 import {makeDocument} from '../app/core.mjs';import {jointStylisticIssues} from '../app/joint-style.mjs';
+import {styleRuleInventory} from '../app/style-rule-inventory.mjs';
 const refs=Object.fromEntries(['lcb','gpo'].map(id=>[id,JSON.parse(fs.readFileSync(new URL('../app/data/'+id+'-reference.json',import.meta.url)))]));
 const check=text=>jointStylisticIssues(makeDocument([text],'Current'),refs).filter(i=>i.checkId==='reference-case'||i.checkId==='legal-references');
 test('conflicting numbered-reference capitalization is ignored',()=>{
  assert.equal(check('See section 7 and Section 8, Schedule 1, and this section.').length,0);
+ const rows=styleRuleInventory(refs);for(const text of ['Section (with number)','Schedule (with number)']){const r=rows.find(r=>r.guide==='lcb'&&r.page===19&&r.text===text);assert.equal(r.status,'Excluded guide conflict');assert.match(r.scope,/3\.10/);}
 });
 test('independent reference spacing remains checked without changing disputed capitalization',()=>{
  const found=check('See section 7 (a).');assert.equal(found.length,1);assert.equal(found[0].suggestion,'section 7(a)');assert.equal(found[0].conflict,false);

@@ -7,7 +7,7 @@ self.onmessage=async({data})=>{
       const response=await fetch(guide.referenceUrl);if(!response.ok)throw Error(`${guide.title} reference could not be loaded.`);
       return [guide.id,await response.json()];
     })));
-    const issues=[...jointStylisticIssues(data.doc,references),...customStyleIssues(data.doc,data.terms||[])].sort((a,b)=>a.start-b.start||a.end-b.end).map((issue,id)=>({...issue,id}));
+    const issues=[...jointStylisticIssues(data.doc,references,{engineIssues:data.engineIssues||[],includeReviewSuggestions:true,authority:data.authority||null}),...customStyleIssues(data.doc,data.terms||[])].sort((a,b)=>a.start-b.start||a.end-b.end).map((issue,id)=>({...issue,id}));
     self.postMessage({issues});
   }catch(error){self.postMessage({error:error.message||'Stylistic check could not finish.'});}
 };

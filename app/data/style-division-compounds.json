@@ -1,0 +1,2249 @@
+{
+  "purpose": "Conservative protection of already-listed compound hyphens at physical word divisions. This is not a dictionary, spelling acceptance, independent rule coverage or verification of every grammatical role.",
+  "sourceHashes": {
+    "lcb-stylemanual-2019.pdf": "ae0ef412dafe30a3257d891b221cdbb3f371b7a9f51cbe363051739735cb9688",
+    "gpo-stylemanual-2016.pdf": "d4cfd249757b27bef01bd3fa76ce7da71fe6e4cb2cdcf510d371c7374d9ae630"
+  },
+  "records": [
+    {
+      "word": "above-mentioned",
+      "sources": [
+        {
+          "guide": "lcb",
+          "page": 9,
+          "text": "above-mentioned (u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "adjustable-rate",
+      "sources": [
+        {
+          "guide": "lcb",
+          "page": 9,
+          "text": "adjustable-rate (u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "age-appropriate",
+      "sources": [
+        {
+          "guide": "lcb",
+          "page": 9,
+          "text": "age-appropriate (u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "air-condition",
+      "sources": [
+        {
+          "guide": "lcb",
+          "page": 9,
+          "text": "air-condition (all forms)"
+        }
+      ]
+    },
+    {
+      "word": "all-mail",
+      "sources": [
+        {
+          "guide": "lcb",
+          "page": 9,
+          "text": "all-mail ballot election"
+        }
+      ]
+    },
+    {
+      "word": "arc-over",
+      "sources": [
+        {
+          "guide": "gpo",
+          "page": 128,
+          "text": "arc / -over (n., u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "at-risk",
+      "sources": [
+        {
+          "guide": "lcb",
+          "page": 9,
+          "text": "at-risk (u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "attorney-client",
+      "sources": [
+        {
+          "guide": "lcb",
+          "page": 9,
+          "text": "attorney-client (u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "attorney-in-fact",
+      "sources": [
+        {
+          "guide": "lcb",
+          "page": 9,
+          "text": "attorney-in-fact"
+        }
+      ]
+    },
+    {
+      "word": "back-in",
+      "sources": [
+        {
+          "guide": "gpo",
+          "page": 129,
+          "text": "back / -in (n., u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "board-approved",
+      "sources": [
+        {
+          "guide": "lcb",
+          "page": 9,
+          "text": "board-approved (u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "break-in",
+      "sources": [
+        {
+          "guide": "gpo",
+          "page": 133,
+          "text": "break / -in (n., u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "breast-fed",
+      "sources": [
+        {
+          "guide": "lcb",
+          "page": 9,
+          "text": "breast-fed (u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "burn-in",
+      "sources": [
+        {
+          "guide": "gpo",
+          "page": 135,
+          "text": "burn / -in (n., u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "cal-epa",
+      "sources": [
+        {
+          "guide": "lcb",
+          "page": 18,
+          "text": "Cal-EPA"
+        }
+      ]
+    },
+    {
+      "word": "cal-osha",
+      "sources": [
+        {
+          "guide": "lcb",
+          "page": 9,
+          "text": "Cal-OSHA"
+        },
+        {
+          "guide": "lcb",
+          "page": 18,
+          "text": "Cal-OSHA"
+        }
+      ]
+    },
+    {
+      "word": "call-in",
+      "sources": [
+        {
+          "guide": "gpo",
+          "page": 135,
+          "text": "call / -in (n., u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "call-off",
+      "sources": [
+        {
+          "guide": "gpo",
+          "page": 135,
+          "text": "call / -off (n., u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "call-over",
+      "sources": [
+        {
+          "guide": "gpo",
+          "page": 135,
+          "text": "call / -over (n., u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "carry-in",
+      "sources": [
+        {
+          "guide": "gpo",
+          "page": 136,
+          "text": "carry / -in (n., u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "cave-in",
+      "sources": [
+        {
+          "guide": "gpo",
+          "page": 137,
+          "text": "cave / -in (n., u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "cd-rom",
+      "sources": [
+        {
+          "guide": "lcb",
+          "page": 9,
+          "text": "CD-ROM"
+        },
+        {
+          "guide": "lcb",
+          "page": 18,
+          "text": "CD-ROM"
+        }
+      ]
+    },
+    {
+      "word": "certificate-of-need",
+      "sources": [
+        {
+          "guide": "lcb",
+          "page": 9,
+          "text": "certificate-of-need (u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "charter-party",
+      "sources": [
+        {
+          "guide": "lcb",
+          "page": 9,
+          "text": "charter-party (u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "check-in",
+      "sources": [
+        {
+          "guide": "gpo",
+          "page": 137,
+          "text": "check / -in (n., u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "closed-circuit",
+      "sources": [
+        {
+          "guide": "lcb",
+          "page": 9,
+          "text": "closed-circuit (u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "co-op",
+      "sources": [
+        {
+          "guide": "lcb",
+          "page": 9,
+          "text": "co-op"
+        }
+      ]
+    },
+    {
+      "word": "college-level",
+      "sources": [
+        {
+          "guide": "lcb",
+          "page": 9,
+          "text": "college-level (u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "come-off",
+      "sources": [
+        {
+          "guide": "gpo",
+          "page": 140,
+          "text": "come / -off (n., u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "come-on",
+      "sources": [
+        {
+          "guide": "gpo",
+          "page": 140,
+          "text": "come / -on (n., u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "come-out",
+      "sources": [
+        {
+          "guide": "gpo",
+          "page": 140,
+          "text": "come / -out (n.)"
+        }
+      ]
+    },
+    {
+      "word": "conflict-of-interest",
+      "sources": [
+        {
+          "guide": "lcb",
+          "page": 9,
+          "text": "conflict-of-interest (u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "cost-effective",
+      "sources": [
+        {
+          "guide": "lcb",
+          "page": 10,
+          "text": "cost-effective (u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "cost-effectively",
+      "sources": [
+        {
+          "guide": "lcb",
+          "page": 10,
+          "text": "cost-effectively"
+        }
+      ]
+    },
+    {
+      "word": "cost-effectiveness",
+      "sources": [
+        {
+          "guide": "lcb",
+          "page": 10,
+          "text": "cost-effectiveness"
+        }
+      ]
+    },
+    {
+      "word": "cost-of-living",
+      "sources": [
+        {
+          "guide": "lcb",
+          "page": 10,
+          "text": "cost-of-living (u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "courts-martial",
+      "sources": [
+        {
+          "guide": "gpo",
+          "rule": "5.8",
+          "text": "courts-martial"
+        }
+      ]
+    },
+    {
+      "word": "cross-action",
+      "sources": [
+        {
+          "guide": "lcb",
+          "page": 10,
+          "text": "cross-action"
+        }
+      ]
+    },
+    {
+      "word": "cross-complaint",
+      "sources": [
+        {
+          "guide": "lcb",
+          "page": 10,
+          "text": "cross-complaint"
+        }
+      ]
+    },
+    {
+      "word": "cross-cultural",
+      "sources": [
+        {
+          "guide": "lcb",
+          "page": 10,
+          "text": "cross-cultural (u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "cross-examine",
+      "sources": [
+        {
+          "guide": "lcb",
+          "page": 10,
+          "text": "cross-examine"
+        }
+      ]
+    },
+    {
+      "word": "cut-in",
+      "sources": [
+        {
+          "guide": "gpo",
+          "page": 142,
+          "text": "cut / -in (n., u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "cut-up",
+      "sources": [
+        {
+          "guide": "gpo",
+          "page": 142,
+          "text": "cut / -up (n., u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "data-processing",
+      "sources": [
+        {
+          "guide": "lcb",
+          "page": 10,
+          "text": "data-processing (u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "dollar-for-dollar",
+      "sources": [
+        {
+          "guide": "lcb",
+          "page": 10,
+          "text": "dollar-for-dollar (u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "drive-in",
+      "sources": [
+        {
+          "guide": "gpo",
+          "page": 145,
+          "text": "drive / -in (n., u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "drum-up",
+      "sources": [
+        {
+          "guide": "gpo",
+          "page": 145,
+          "text": "drum / -up (n., u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "due-in",
+      "sources": [
+        {
+          "guide": "gpo",
+          "page": 146,
+          "text": "due / -in (n., u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "employer-employee",
+      "sources": [
+        {
+          "guide": "lcb",
+          "page": 10,
+          "text": "employer-employee relationship"
+        }
+      ]
+    },
+    {
+      "word": "end-use",
+      "sources": [
+        {
+          "guide": "lcb",
+          "page": 10,
+          "text": "end-use (u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "ex-convict",
+      "sources": [
+        {
+          "guide": "lcb",
+          "page": 10,
+          "text": "ex-convict"
+        }
+      ]
+    },
+    {
+      "word": "ex-governor",
+      "sources": [
+        {
+          "guide": "gpo",
+          "rule": "6.34",
+          "text": "ex-governor"
+        }
+      ]
+    },
+    {
+      "word": "face-off",
+      "sources": [
+        {
+          "guide": "gpo",
+          "page": 147,
+          "text": "face / -off (n.)"
+        }
+      ]
+    },
+    {
+      "word": "face-on",
+      "sources": [
+        {
+          "guide": "gpo",
+          "page": 147,
+          "text": "face / -on (n., u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "factory-built",
+      "sources": [
+        {
+          "guide": "lcb",
+          "page": 10,
+          "text": "factory-built (u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "fade-in",
+      "sources": [
+        {
+          "guide": "gpo",
+          "page": 148,
+          "text": "fade / -in (n., u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "fall-in",
+      "sources": [
+        {
+          "guide": "gpo",
+          "page": 148,
+          "text": "fall / -in (n., u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "fill-in",
+      "sources": [
+        {
+          "guide": "gpo",
+          "page": 149,
+          "text": "fill / -in (n., u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "fill-up",
+      "sources": [
+        {
+          "guide": "gpo",
+          "page": 149,
+          "text": "fill / -up (n., u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "firm-up",
+      "sources": [
+        {
+          "guide": "gpo",
+          "page": 149,
+          "text": "firm / -up (n., u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "first-class",
+      "sources": [
+        {
+          "guide": "lcb",
+          "page": 10,
+          "text": "first-class (u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "first-come-first-served",
+      "sources": [
+        {
+          "guide": "lcb",
+          "page": 10,
+          "text": "first-come-first-served basis"
+        }
+      ]
+    },
+    {
+      "word": "first-degree",
+      "sources": [
+        {
+          "guide": "lcb",
+          "page": 10,
+          "text": "first-degree (u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "flat-rate",
+      "sources": [
+        {
+          "guide": "lcb",
+          "page": 10,
+          "text": "flat-rate (u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "flip-up",
+      "sources": [
+        {
+          "guide": "gpo",
+          "page": 150,
+          "text": "flip / -up (n., u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "floor-safe",
+      "sources": [
+        {
+          "guide": "lcb",
+          "page": 10,
+          "text": "floor-safe door"
+        }
+      ]
+    },
+    {
+      "word": "for-profit",
+      "sources": [
+        {
+          "guide": "lcb",
+          "page": 10,
+          "text": "for-profit (u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "full-time",
+      "sources": [
+        {
+          "guide": "lcb",
+          "page": 10,
+          "text": "full-time (u.m.)"
+        },
+        {
+          "guide": "lcb",
+          "page": 10,
+          "text": "full-time equivalent student"
+        }
+      ]
+    },
+    {
+      "word": "go-around",
+      "sources": [
+        {
+          "guide": "gpo",
+          "page": 153,
+          "text": "go / -around (n., u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "go-back",
+      "sources": [
+        {
+          "guide": "gpo",
+          "page": 153,
+          "text": "go / -back (n., u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "go-off",
+      "sources": [
+        {
+          "guide": "gpo",
+          "page": 153,
+          "text": "go / -off (n., u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "good-time",
+      "sources": [
+        {
+          "guide": "lcb",
+          "page": 10,
+          "text": "good-time release date"
+        }
+      ]
+    },
+    {
+      "word": "half-on",
+      "sources": [
+        {
+          "guide": "gpo",
+          "page": 155,
+          "text": "half / -on (n., u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "half-time",
+      "sources": [
+        {
+          "guide": "lcb",
+          "page": 11,
+          "text": "half-time (u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "half-witted",
+      "sources": [
+        {
+          "guide": "lcb",
+          "page": 11,
+          "text": "half-witted (u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "hands-free",
+      "sources": [
+        {
+          "guide": "lcb",
+          "page": 11,
+          "text": "hands-free (u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "hearing-impaired",
+      "sources": [
+        {
+          "guide": "lcb",
+          "page": 11,
+          "text": "hearing-impaired (u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "high-quality",
+      "sources": [
+        {
+          "guide": "lcb",
+          "page": 11,
+          "text": "high-quality (u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "in-home",
+      "sources": [
+        {
+          "guide": "lcb",
+          "page": 19,
+          "text": "in-home supportive services"
+        },
+        {
+          "guide": "lcb",
+          "page": 19,
+          "text": "In-Home Supportive Services program"
+        }
+      ]
+    },
+    {
+      "word": "in-kind",
+      "sources": [
+        {
+          "guide": "lcb",
+          "page": 11,
+          "text": "in-kind (u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "in-lieu",
+      "sources": [
+        {
+          "guide": "lcb",
+          "page": 11,
+          "text": "in-lieu (u.m.)"
+        },
+        {
+          "guide": "lcb",
+          "page": 14,
+          "text": "vehicle in-lieu tax"
+        }
+      ]
+    },
+    {
+      "word": "in-state",
+      "sources": [
+        {
+          "guide": "lcb",
+          "page": 11,
+          "text": "in-state (u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "kick-in",
+      "sources": [
+        {
+          "guide": "gpo",
+          "page": 162,
+          "text": "kick / -in (n., u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "knock-on",
+      "sources": [
+        {
+          "guide": "gpo",
+          "page": 162,
+          "text": "knock / -on (n., u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "lay-by",
+      "sources": [
+        {
+          "guide": "gpo",
+          "page": 163,
+          "text": "lay / -by (n.)"
+        }
+      ]
+    },
+    {
+      "word": "lead-in",
+      "sources": [
+        {
+          "guide": "gpo",
+          "page": 163,
+          "text": "lead / -in (n., u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "lean-to",
+      "sources": [
+        {
+          "guide": "gpo",
+          "page": 163,
+          "text": "lean / -to (n., u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "lease-purchase",
+      "sources": [
+        {
+          "guide": "lcb",
+          "page": 11,
+          "text": "lease-purchase agreement"
+        }
+      ]
+    },
+    {
+      "word": "life-cycle",
+      "sources": [
+        {
+          "guide": "lcb",
+          "page": 11,
+          "text": "life-cycle (u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "limited-english-proficient",
+      "sources": [
+        {
+          "guide": "lcb",
+          "page": 11,
+          "text": "limited-English-proficient (u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "limited-english-speaking",
+      "sources": [
+        {
+          "guide": "lcb",
+          "page": 11,
+          "text": "limited-English-speaking (u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "load-serving",
+      "sources": [
+        {
+          "guide": "lcb",
+          "page": 11,
+          "text": "load-serving (u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "loan-shark",
+      "sources": [
+        {
+          "guide": "lcb",
+          "page": 11,
+          "text": "loan-shark (v.)"
+        }
+      ]
+    },
+    {
+      "word": "long-range",
+      "sources": [
+        {
+          "guide": "lcb",
+          "page": 11,
+          "text": "long-range (u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "long-term",
+      "sources": [
+        {
+          "guide": "lcb",
+          "page": 11,
+          "text": "long-term (u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "look-in",
+      "sources": [
+        {
+          "guide": "gpo",
+          "page": 165,
+          "text": "look / -in (n., u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "low-income",
+      "sources": [
+        {
+          "guide": "lcb",
+          "page": 11,
+          "text": "low-income (u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "low-interest",
+      "sources": [
+        {
+          "guide": "lcb",
+          "page": 11,
+          "text": "low-interest (u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "lump-sum",
+      "sources": [
+        {
+          "guide": "lcb",
+          "page": 11,
+          "text": "lump-sum (u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "man-made",
+      "sources": [
+        {
+          "guide": "lcb",
+          "page": 11,
+          "text": "man-made"
+        }
+      ]
+    },
+    {
+      "word": "medi-cal",
+      "sources": [
+        {
+          "guide": "lcb",
+          "page": 11,
+          "text": "Medi-Cal"
+        },
+        {
+          "guide": "lcb",
+          "page": 19,
+          "text": "Medi-Cal"
+        },
+        {
+          "guide": "lcb",
+          "page": 19,
+          "text": "Medi-Cal program"
+        }
+      ]
+    },
+    {
+      "word": "medium-sized",
+      "sources": [
+        {
+          "guide": "lcb",
+          "page": 12,
+          "text": "medium-sized structures or structures of medium size"
+        }
+      ]
+    },
+    {
+      "word": "mess-up",
+      "sources": [
+        {
+          "guide": "gpo",
+          "page": 166,
+          "text": "mess / -up (n., u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "mid-fiscal",
+      "sources": [
+        {
+          "guide": "lcb",
+          "page": 12,
+          "text": "mid-fiscal year"
+        }
+      ]
+    },
+    {
+      "word": "mixed-use",
+      "sources": [
+        {
+          "guide": "lcb",
+          "page": 12,
+          "text": "mixed-use (u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "moderate-income",
+      "sources": [
+        {
+          "guide": "lcb",
+          "page": 11,
+          "text": "low- and moderate-income (u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "month-by-month",
+      "sources": [
+        {
+          "guide": "lcb",
+          "page": 12,
+          "text": "month-by-month (u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "new-hire",
+      "sources": [
+        {
+          "guide": "lcb",
+          "page": 12,
+          "text": "new-hire (u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "no-fault",
+      "sources": [
+        {
+          "guide": "lcb",
+          "page": 12,
+          "text": "no-fault insurance"
+        }
+      ]
+    },
+    {
+      "word": "non-civil",
+      "sources": [
+        {
+          "guide": "lcb",
+          "page": 12,
+          "text": "non-civil service"
+        }
+      ]
+    },
+    {
+      "word": "non-civil-service",
+      "sources": [
+        {
+          "guide": "lcb",
+          "page": 12,
+          "text": "non-civil-service (u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "non-english-speaking",
+      "sources": [
+        {
+          "guide": "lcb",
+          "page": 11,
+          "text": "limited- and non-English-speaking (u.m.)"
+        },
+        {
+          "guide": "lcb",
+          "page": 12,
+          "text": "non-English-speaking (u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "non-life",
+      "sources": [
+        {
+          "guide": "lcb",
+          "page": 12,
+          "text": "non-life threatening"
+        }
+      ]
+    },
+    {
+      "word": "non-life-threatening",
+      "sources": [
+        {
+          "guide": "lcb",
+          "page": 12,
+          "text": "non-life-threatening (u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "non-revenue-producing",
+      "sources": [
+        {
+          "guide": "lcb",
+          "page": 12,
+          "text": "non-revenue-producing"
+        }
+      ]
+    },
+    {
+      "word": "non-self-liquidating",
+      "sources": [
+        {
+          "guide": "lcb",
+          "page": 12,
+          "text": "non-self-liquidating"
+        }
+      ]
+    },
+    {
+      "word": "non-work-related",
+      "sources": [
+        {
+          "guide": "lcb",
+          "page": 12,
+          "text": "non-work-related (u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "odd-numbered",
+      "sources": [
+        {
+          "guide": "lcb",
+          "page": 12,
+          "text": "odd-numbered (u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "off-road",
+      "sources": [
+        {
+          "guide": "lcb",
+          "page": 12,
+          "text": "off-road (u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "off-sale",
+      "sources": [
+        {
+          "guide": "lcb",
+          "page": 12,
+          "text": "off-sale (u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "on-call",
+      "sources": [
+        {
+          "guide": "lcb",
+          "page": 12,
+          "text": "on-call (u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "on-road",
+      "sources": [
+        {
+          "guide": "lcb",
+          "page": 12,
+          "text": "on-road (u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "on-sale",
+      "sources": [
+        {
+          "guide": "lcb",
+          "page": 12,
+          "text": "on-sale (u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "once-over",
+      "sources": [
+        {
+          "guide": "gpo",
+          "page": 171,
+          "text": "once / -over (n.)"
+        }
+      ]
+    },
+    {
+      "word": "one-half",
+      "sources": [
+        {
+          "guide": "lcb",
+          "page": 12,
+          "text": "one-half"
+        }
+      ]
+    },
+    {
+      "word": "one-time",
+      "sources": [
+        {
+          "guide": "lcb",
+          "page": 12,
+          "text": "one-time (one action; u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "open-space",
+      "sources": [
+        {
+          "guide": "lcb",
+          "page": 12,
+          "text": "open-space (u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "out-of-service",
+      "sources": [
+        {
+          "guide": "lcb",
+          "page": 12,
+          "text": "out-of-service (u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "out-of-state",
+      "sources": [
+        {
+          "guide": "lcb",
+          "page": 12,
+          "text": "out-of-state (u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "over-the-counter",
+      "sources": [
+        {
+          "guide": "lcb",
+          "page": 12,
+          "text": "over-the-counter (u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "owner-occupied",
+      "sources": [
+        {
+          "guide": "lcb",
+          "page": 12,
+          "text": "owner-occupied (u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "paid-up",
+      "sources": [
+        {
+          "guide": "lcb",
+          "page": 12,
+          "text": "paid-up (u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "part-time",
+      "sources": [
+        {
+          "guide": "lcb",
+          "page": 10,
+          "text": "full- or part-time (u.m.)"
+        },
+        {
+          "guide": "lcb",
+          "page": 12,
+          "text": "part-time (u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "phase-in",
+      "sources": [
+        {
+          "guide": "lcb",
+          "page": 12,
+          "text": "phase-in (n., u.m.)"
+        },
+        {
+          "guide": "gpo",
+          "page": 173,
+          "text": "phase / -in (n., u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "plug-in",
+      "sources": [
+        {
+          "guide": "gpo",
+          "page": 175,
+          "text": "plug / -in (n., u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "post-traumatic",
+      "sources": [
+        {
+          "guide": "lcb",
+          "page": 13,
+          "text": "post-traumatic stress disorder (PTSD)"
+        }
+      ]
+    },
+    {
+      "word": "printing-in",
+      "sources": [
+        {
+          "guide": "gpo",
+          "page": 176,
+          "text": "printing / -in (n., u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "printing-out",
+      "sources": [
+        {
+          "guide": "gpo",
+          "page": 176,
+          "text": "printing / -out (n., u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "profit-sharing",
+      "sources": [
+        {
+          "guide": "lcb",
+          "page": 13,
+          "text": "profit-sharing (u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "pull-in",
+      "sources": [
+        {
+          "guide": "gpo",
+          "page": 177,
+          "text": "pull / -in (n., u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "pull-on",
+      "sources": [
+        {
+          "guide": "gpo",
+          "page": 177,
+          "text": "pull / -on (n., u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "put-on",
+      "sources": [
+        {
+          "guide": "gpo",
+          "page": 177,
+          "text": "put / -on (n., u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "put-up",
+      "sources": [
+        {
+          "guide": "gpo",
+          "page": 177,
+          "text": "put / -up (n., u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "quasi-academic",
+      "sources": [
+        {
+          "guide": "gpo",
+          "rule": "6.34",
+          "text": "quasi-academic"
+        }
+      ]
+    },
+    {
+      "word": "re-cross-examination",
+      "sources": [
+        {
+          "guide": "lcb",
+          "page": 13,
+          "text": "re-cross-examination"
+        }
+      ]
+    },
+    {
+      "word": "rig-up",
+      "sources": [
+        {
+          "guide": "gpo",
+          "page": 179,
+          "text": "rig / -up (n., u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "right-of-way",
+      "sources": [
+        {
+          "guide": "lcb",
+          "page": 13,
+          "text": "right-of-way"
+        }
+      ]
+    },
+    {
+      "word": "rights-of-way",
+      "sources": [
+        {
+          "guide": "lcb",
+          "page": 13,
+          "text": "rights-of-way"
+        },
+        {
+          "guide": "gpo",
+          "rule": "5.8",
+          "text": "rights-of-way"
+        }
+      ]
+    },
+    {
+      "word": "ring-in",
+      "sources": [
+        {
+          "guide": "gpo",
+          "page": 179,
+          "text": "ring / -in (n., u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "ring-off",
+      "sources": [
+        {
+          "guide": "gpo",
+          "page": 179,
+          "text": "ring / -off (n., u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "ring-up",
+      "sources": [
+        {
+          "guide": "gpo",
+          "page": 179,
+          "text": "ring / -up (n., u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "rip-off",
+      "sources": [
+        {
+          "guide": "gpo",
+          "page": 179,
+          "text": "rip / -off (n., u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "rip-up",
+      "sources": [
+        {
+          "guide": "gpo",
+          "page": 179,
+          "text": "rip / -up (n., u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "roll-on",
+      "sources": [
+        {
+          "guide": "gpo",
+          "page": 179,
+          "text": "roll / -on (n., u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "run-in",
+      "sources": [
+        {
+          "guide": "gpo",
+          "page": 180,
+          "text": "run / -in (n., u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "run-on",
+      "sources": [
+        {
+          "guide": "gpo",
+          "page": 180,
+          "text": "run / -on (n., u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "s-edge",
+      "sources": [
+        {
+          "guide": "lcb",
+          "page": 14,
+          "text": "water’s-edge (u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "self-control",
+      "sources": [
+        {
+          "guide": "gpo",
+          "rule": "6.34",
+          "text": "self-control"
+        }
+      ]
+    },
+    {
+      "word": "set-aside",
+      "sources": [
+        {
+          "guide": "gpo",
+          "page": 183,
+          "text": "set / -aside (n., u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "set-in",
+      "sources": [
+        {
+          "guide": "gpo",
+          "page": 183,
+          "text": "set / -in (n., u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "set-on",
+      "sources": [
+        {
+          "guide": "gpo",
+          "page": 183,
+          "text": "set / -on (n., u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "set-to",
+      "sources": [
+        {
+          "guide": "gpo",
+          "page": 183,
+          "text": "set / -to (n., u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "seven-up",
+      "sources": [
+        {
+          "guide": "gpo",
+          "page": 183,
+          "text": "seven / -up (n.)"
+        }
+      ]
+    },
+    {
+      "word": "short-doyle",
+      "sources": [
+        {
+          "guide": "lcb",
+          "page": 19,
+          "text": "Short-Doyle plan"
+        }
+      ]
+    },
+    {
+      "word": "short-term",
+      "sources": [
+        {
+          "guide": "lcb",
+          "page": 13,
+          "text": "short-term (u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "shut-in",
+      "sources": [
+        {
+          "guide": "gpo",
+          "page": 184,
+          "text": "shut / -in (n., u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "sign-on",
+      "sources": [
+        {
+          "guide": "gpo",
+          "page": 185,
+          "text": "sign / -on (n., u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "single-family",
+      "sources": [
+        {
+          "guide": "lcb",
+          "page": 13,
+          "text": "single-family (u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "slap-up",
+      "sources": [
+        {
+          "guide": "gpo",
+          "page": 186,
+          "text": "slap / -up (n., u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "slip-on",
+      "sources": [
+        {
+          "guide": "gpo",
+          "page": 186,
+          "text": "slip / -on (n., u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "slip-up",
+      "sources": [
+        {
+          "guide": "gpo",
+          "page": 186,
+          "text": "slip / -up (n., u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "snap-on",
+      "sources": [
+        {
+          "guide": "gpo",
+          "page": 186,
+          "text": "snap / -on (n., u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "so-called",
+      "sources": [
+        {
+          "guide": "lcb",
+          "page": 13,
+          "text": "so-called (u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "squeeze-in",
+      "sources": [
+        {
+          "guide": "gpo",
+          "page": 189,
+          "text": "squeeze / -in (n., u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "stand-in",
+      "sources": [
+        {
+          "guide": "gpo",
+          "page": 189,
+          "text": "stand / -in (n., u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "state-certified",
+      "sources": [
+        {
+          "guide": "lcb",
+          "page": 13,
+          "text": "state-certified (u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "state-mandated",
+      "sources": [
+        {
+          "guide": "lcb",
+          "page": 13,
+          "text": "state-mandated (u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "state-of-the-art",
+      "sources": [
+        {
+          "guide": "lcb",
+          "page": 13,
+          "text": "state-of-the-art (u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "step-in",
+      "sources": [
+        {
+          "guide": "gpo",
+          "page": 190,
+          "text": "step / -in (n., u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "step-on",
+      "sources": [
+        {
+          "guide": "gpo",
+          "page": 190,
+          "text": "step / -on (n., u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "step-up",
+      "sources": [
+        {
+          "guide": "gpo",
+          "page": 190,
+          "text": "step / -up (n., u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "stir-up",
+      "sources": [
+        {
+          "guide": "gpo",
+          "page": 190,
+          "text": "stir / -up (n., u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "straight-out",
+      "sources": [
+        {
+          "guide": "gpo",
+          "page": 191,
+          "text": "straight / -out (n., u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "strike-in",
+      "sources": [
+        {
+          "guide": "gpo",
+          "page": 191,
+          "text": "strike / -in (n., u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "strike-over",
+      "sources": [
+        {
+          "guide": "gpo",
+          "page": 191,
+          "text": "strike / -over (n., u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "suck-in",
+      "sources": [
+        {
+          "guide": "gpo",
+          "page": 191,
+          "text": "suck / -in (n., u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "tail-up",
+      "sources": [
+        {
+          "guide": "gpo",
+          "page": 193,
+          "text": "tail / -up (n., u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "take-home",
+      "sources": [
+        {
+          "guide": "lcb",
+          "page": 13,
+          "text": "take-home (u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "take-in",
+      "sources": [
+        {
+          "guide": "gpo",
+          "page": 193,
+          "text": "take / -in (n., u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "tax-exempt",
+      "sources": [
+        {
+          "guide": "lcb",
+          "page": 13,
+          "text": "tax-exempt (u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "tear-off",
+      "sources": [
+        {
+          "guide": "gpo",
+          "page": 194,
+          "text": "tear / -off (n., u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "tear-out",
+      "sources": [
+        {
+          "guide": "gpo",
+          "page": 194,
+          "text": "tear / -out (n., u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "third-party",
+      "sources": [
+        {
+          "guide": "lcb",
+          "page": 13,
+          "text": "third-party (u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "throw-in",
+      "sources": [
+        {
+          "guide": "gpo",
+          "page": 195,
+          "text": "throw / -in (n., u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "throw-on",
+      "sources": [
+        {
+          "guide": "gpo",
+          "page": 195,
+          "text": "throw / -on (n., u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "tie-in",
+      "sources": [
+        {
+          "guide": "gpo",
+          "page": 195,
+          "text": "tie / -in (n., u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "tie-on",
+      "sources": [
+        {
+          "guide": "gpo",
+          "page": 195,
+          "text": "tie / -on (n., u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "tie-out",
+      "sources": [
+        {
+          "guide": "gpo",
+          "page": 195,
+          "text": "tie / -out (n., u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "time-share",
+      "sources": [
+        {
+          "guide": "lcb",
+          "page": 13,
+          "text": "time-share"
+        }
+      ]
+    },
+    {
+      "word": "tip-in",
+      "sources": [
+        {
+          "guide": "gpo",
+          "page": 196,
+          "text": "tip / -in (n., u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "toe-in",
+      "sources": [
+        {
+          "guide": "gpo",
+          "page": 196,
+          "text": "toe / -in (n., u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "toll-free",
+      "sources": [
+        {
+          "guide": "lcb",
+          "page": 13,
+          "text": "toll-free (u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "trade-in",
+      "sources": [
+        {
+          "guide": "gpo",
+          "page": 197,
+          "text": "trade / -in (n., u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "try-on",
+      "sources": [
+        {
+          "guide": "gpo",
+          "page": 198,
+          "text": "try / -on (n., u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "turn-in",
+      "sources": [
+        {
+          "guide": "gpo",
+          "page": 199,
+          "text": "turn / -in (n., u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "turn-to",
+      "sources": [
+        {
+          "guide": "gpo",
+          "page": 199,
+          "text": "turn / -to (n.)"
+        }
+      ]
+    },
+    {
+      "word": "two-up",
+      "sources": [
+        {
+          "guide": "gpo",
+          "page": 199,
+          "text": "two / -up (n., u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "walk-on",
+      "sources": [
+        {
+          "guide": "gpo",
+          "page": 201,
+          "text": "walk / -on (n., u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "wash-in",
+      "sources": [
+        {
+          "guide": "gpo",
+          "page": 201,
+          "text": "wash / -in (n., u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "wave-on",
+      "sources": [
+        {
+          "guide": "gpo",
+          "page": 202,
+          "text": "wave / -on (n., u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "way-up",
+      "sources": [
+        {
+          "guide": "gpo",
+          "page": 202,
+          "text": "way / -up (n., u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "weigh-in",
+      "sources": [
+        {
+          "guide": "gpo",
+          "page": 202,
+          "text": "weigh / -in (n., u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "well-being",
+      "sources": [
+        {
+          "guide": "lcb",
+          "page": 14,
+          "text": "well-being (n.)"
+        }
+      ]
+    },
+    {
+      "word": "well-known",
+      "sources": [
+        {
+          "guide": "lcb",
+          "page": 14,
+          "text": "well-known (u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "wrap-up",
+      "sources": [
+        {
+          "guide": "gpo",
+          "page": 206,
+          "text": "wrap / -up (n., u.m.) (u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "write-in",
+      "sources": [
+        {
+          "guide": "gpo",
+          "page": 206,
+          "text": "write / -in (n., u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "x-ray",
+      "sources": [
+        {
+          "guide": "lcb",
+          "page": 14,
+          "text": "x-ray (n., u.m.)"
+        },
+        {
+          "guide": "lcb",
+          "page": 20,
+          "text": "x-ray (n., u.m.)"
+        }
+      ]
+    },
+    {
+      "word": "year-round",
+      "sources": [
+        {
+          "guide": "lcb",
+          "page": 14,
+          "text": "year-round (u.m.)"
+        }
+      ]
+    }
+  ]
+}

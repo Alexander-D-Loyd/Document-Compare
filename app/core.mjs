@@ -1,4 +1,11 @@
 import {isBudgetRunningHead} from './change-scope.mjs';
+import {historyTokens} from './history-rows.mjs';
+import {budgetContext,budgetLeaderRanges} from './budget-layout.mjs';
+import guideSpellings from './data/lcb-spelling-words.json' with {type:'json'};
+import {guidePhraseSpellingRanges} from './spelling-guide-phrases.mjs';
+import {statuteChapterSpellingRanges} from './spelling-statute-chapters.mjs';
+const guideCompounds=guideSpellings.words.filter(r=>r.word.includes('-')).map(r=>r.word);
+const compoundPattern=new RegExp('(?<![\\p{L}\\p{N}_])(?:'+guideCompounds.map(word=>word.split('-').map(s=>s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('[-\\u2010\\u2011]')).join('|')+')(?:[’\']s)?(?![\\p{L}\\p{N}_])','giu');
 export function classify(text) {
   const trimmed = text.trim().replace(/^(?:[-•]\s+|\d+[.)]\s+)/, '');
   // Prefer explicit editorial language; general obligations remain content.
@@ -29,6 +36,16 @@ export function wordCount(text) { return (text.match(/\S+/g) || []).length; }
 export function comparisonTokens(text) {
   return Array.from(text.matchAll(/[\p{L}\p{N}\p{M}_]+|[^\s\u200b\u00ad]/gu), match => ({ value: match[0], start: match.index, end: match.index + match[0].length }));
 }
+export function substantiveTokens(text,context=text){
+  return outsideRanges(comparisonTokens(text),budgetLeaderRanges(text,budgetContext(text)?text:context));
+}
+function outsideRanges(tokens,ranges){
+  let index=0;
+  return tokens.filter(token=>{
+    while(index<ranges.length&&ranges[index].end<=token.start)index++;
+    const range=ranges[index];return !range||token.end<=range.start||token.start>=range.end;
+  });
+}
 export function extractPageLines(items) {
   const rows = [];
   for (const item of items) {
@@ -53,7 +70,12 @@ function layoutLines(pages) {
   // Only explicit "line N" prefixes and recognizable, repeated page labels.
   // Numeric clauses, headings, dates and body content are retained.
   const labels = new Map();
-  const billDocument=/\b(?:ASSEMBLY|SENATE)\s+BILL\s+(?:No\.?\s*)?\d+/i.test(pages[0]||'');
+  const firstHead=(pages[0]||'').split('\n').slice(0,2).map(s=>s.trim()),billLabel=/^(?:AB|SB)\s*\d+$/i,folioLabel=/^[—–-]\s*\d+\s*[—–-]$/;
+  // Extracted later bill pages lack the original masthead. Require an exact
+  // bill/folio running head, together or in two top rows, before excluding
+  // legislative version/revision footers. A bill mention alone is insufficient.
+  const combinedBillHead=/^(?:(?:AB|SB)\s*\d+\s*[—–-]\s*\d+\s*[—–-]|[—–-]\s*\d+\s*[—–-]\s*(?:AB|SB)\s*\d+)$/i;
+  const billDocument=/\b(?:ASSEMBLY|SENATE)\s+BILL\s+(?:No\.?\s*)?\d+/i.test(pages[0]||'')||firstHead.some(s=>combinedBillHead.test(s))||(firstHead.some(s=>billLabel.test(s))&&firstHead.some(s=>folioLabel.test(s)));
   const pageLabel = text => /^(?:\d+|[—–-]\s*\d+\s*[—–-]|(?:[—–-]\s*\d+\s*[—–-]\s*)?(?:AB|SB)\s*\d+(?:\s*[—–-]\s*\d+\s*[—–-])?)$/i.test(text.trim());
   for (const page of pages) {
     const lines = page.split('\n');
@@ -62,9 +84,10 @@ function layoutLines(pages) {
   return pages.map(page => page.split('\n').map((text, i, lines) => {
     const atEdge = i < 2 || i >= lines.length - 2;
     const corrected=/^Corrected\s+\d{1,2}[-/]\d{1,2}[-/]\d{2,4}\s+\d{2}\s*$/i.test(text.trim());
-    const ignored = atEdge && ((pageLabel(text) && ((labels.get(text.trim()) || 0) > 1 || /[—–-]/.test(text) || billDocument&&/^\d{2}$/.test(text.trim()))) || billDocument&&corrected);
+    const revised=/^Revised\s+\d{1,2}[-/]\d{1,2}[-/]\d{2,4}\s*[—–-]\s*See\s+last\s+page\.\s*(?:\d{2})?\s*$/i.test(text.trim());
+    const ignored = atEdge && ((pageLabel(text) && ((labels.get(text.trim()) || 0) > 1 || /[—–-]/.test(text) || billDocument&&/^\d{2}$/.test(text.trim()))) || billDocument&&(corrected||revised));
     const margin = text.match(/^line\s*\d+(?:\s+|$)/i)?.[0] || '';
-    return {text, ignored, margin};
+    return {text, ignored, margin, layoutLabel:ignored};
   }));
 }
 export function cleanLayoutLabels(pages) {
@@ -118,33 +141,47 @@ export function makeDocument(pages, name, pageStrikes=[], pageFormatting=[], wor
     block.runningHead=true;excluded.push({start:block.start,end:block.end});
   }
   excluded.sort((a,b)=>a.start-b.start);
-  let excludedIndex=0;
-  const rawTokens = comparisonTokens(text).filter(token => {
-    while (excludedIndex<excluded.length && excluded[excludedIndex].end<=token.start) excludedIndex++;
-    const range=excluded[excludedIndex];
-    return !range || token.end<=range.start || token.start>=range.end;
-  });
+  // Comparison-only layout exclusions must not erase leaders from style input:
+  // the style checker uses their presence to recognize budget table rows.
+  const comparisonExcluded=[...excluded,...budgetLeaderRanges(text)].sort((a,b)=>a.start-b.start);
+  const rawTokens=outsideRanges(comparisonTokens(text),comparisonExcluded);
   // Join discretionary line-end hyphens only for recognized words. Keep the
   // original characters and offsets for PDF rendering and genuine compounds.
   const wrappedWords=[];
+  const continuationStarts=new Set();
   for(let i=0;i<blocks.length-1;i++){
-    const a=blocks[i];if(a.ignored||a.runningHead)continue;
-    let j=i+1;while(blocks[j]?.ignored||blocks[j]?.runningHead)j++;
-    const b=blocks[j];if(!b)continue;
-    const left=/([\p{L}]+)[-\u00ad\u2010]\s*$/u.exec(a.text),right=/^\s*([\p{L}]+)/u.exec(b.text.slice(b.margin.length));
-    if(!left||!right)continue;
-    const word=left[1]+right[1],lower=word.toLowerCase();
-    const recognized=words&&(words.has(lower)||words.has(lower.replace(/s$/,''))||words.has(lower.replace(/ed$/,''))||words.has(lower.replace(/ing$/,''))||words.has(lower.replace(/ing$/,'e')));
-    const start=a.start+left.index,end=b.start+b.margin.length+right.index+right[0].length;
-    wrappedWords.push({word,start,end,recognized:!!recognized,parts:[left[1],right[1]],spans:[{start,end:start+left[1].length},{start:end-right[1].length,end}]});
+    const a=blocks[i];if(a.ignored||a.runningHead||continuationStarts.has(i))continue;
+    const left=/([\p{L}]+)[-\u00ad\u2010]\s*$/u.exec(a.text);if(!left)continue;
+    const start=a.start+left.index,parts=[left[1]],spans=[{start,end:start+left[1].length}];
+    let j=i+1;
+    while(parts.length<16){
+      while(blocks[j]?.ignored||blocks[j]?.runningHead)j++;
+      const b=blocks[j];if(!b)break;
+      const body=b.text.slice(b.margin.length),right=/^\s*([\p{L}]+)/u.exec(body);if(!right)break;
+      const partStart=b.start+b.margin.length+right.index+right[0].length-right[1].length;
+      parts.push(right[1]);spans.push({start:partStart,end:partStart+right[1].length});
+      // A continuation can itself occupy a complete divided line. Consume it
+      // once, rather than emitting overlapping two-fragment spelling issues.
+      if(!/^[-\u00ad\u2010]\s*$/u.test(body.slice(right[0].length)))break;
+      continuationStarts.add(j);j++;
+    }
+    if(parts.length<2)continue;
+    const word=parts.join(''),lower=word.toLowerCase();
+    const compound=guideCompounds.some(c=>c.toLowerCase()===parts.join('-').toLowerCase());
+    const recognized=!compound&&words&&(words.has(lower)||words.has(lower.replace(/s$/,''))||words.has(lower.replace(/ed$/,''))||words.has(lower.replace(/ing$/,''))||words.has(lower.replace(/ing$/,'e')));
+    const end=spans.at(-1).end;
+    wrappedWords.push({word:compound?parts.join('-'):word,start,end,recognized:!!recognized,parts,spans});
   }
-  const tokens=[];let rawIndex=0;
+  let tokens=[];let rawIndex=0;
   for(const wrap of wrappedWords.filter(w=>w.recognized)){
     while(rawIndex<rawTokens.length&&rawTokens[rawIndex].start<wrap.start)tokens.push(rawTokens[rawIndex++]);
     tokens.push({value:wrap.word,start:wrap.start,end:wrap.end});
     while(rawIndex<rawTokens.length&&rawTokens[rawIndex].start<wrap.end)rawIndex++;
   }
-  tokens.push(...rawTokens.slice(rawIndex));
+  // Large bills can exceed the engine's argument-count limit even though
+  // their text is within the PDF limits. Append without a variadic call.
+  while(rawIndex<rawTokens.length)tokens.push(rawTokens[rawIndex++]);
+  tokens=historyTokens(tokens,blocks);
   let pageOffset=0;const struck=[];
   pages.forEach((page,i)=>{for(const span of pageStrikes[i] || [])struck.push({start:pageOffset+span.start,end:pageOffset+span.end});pageOffset+=page.length+1;});
   const orderedStrikes=[...struck].sort((a,b)=>a.start-b.start),mergedStrikes=[];
@@ -154,10 +191,25 @@ export function makeDocument(pages, name, pageStrikes=[], pageFormatting=[], wor
     while(strikeIndex<mergedStrikes.length&&mergedStrikes[strikeIndex].end<=token.start)strikeIndex++;
     const span=mergedStrikes[strikeIndex];return !span||span.start>=token.end;
   });
-  return {name, pages:pages.length, rawPages:pages, blocks, text, tokens, effectiveTokens, struck, excluded, wrappedWords, spelling:[], changeLocations:{}};
+  return {name, pages:pages.length, rawPages:pages, blocks, text, tokens, effectiveTokens, struck, excluded, comparisonExcluded, wrappedWords, spelling:[], changeLocations:{}};
 }
 export function spellingCandidates(doc) {
   let rangeIndex=0;
+  const guidePhrases=[...guidePhraseSpellingRanges(doc),...statuteChapterSpellingRanges(doc)].sort((a,b)=>a.start-b.start);let phraseIndex=0;
+  // Alphabetic clause labels are structural identifiers, not spelling words.
+  // Require a leading marker sequence or an explicit legal reference label;
+  // ordinary prose and parenthetical words retain their spelling checks.
+  const clauseMarkers=new Set();
+  const addMarkers=(text,start)=>{for(const m of text.matchAll(/\(([a-z]{1,2})\)/g))clauseMarkers.add(start+m.index+1);};
+  for(const block of doc.blocks){
+    const start=block.start+(block.margin?.length||0),body=doc.text.slice(start,block.end);
+    const leading=/^\s*(?:\((?:\d+|[A-Za-z]{1,2}|[ivxIVX]+)\)\s*)+/.exec(body);
+    if(leading)addMarkers(leading[0],start);
+  }
+  const referenceParts=[];let referenceCursor=0;
+  for(const range of doc.excluded){referenceParts.push(doc.text.slice(referenceCursor,range.start),' '.repeat(range.end-range.start));referenceCursor=range.end;}
+  referenceParts.push(doc.text.slice(referenceCursor));
+  for(const m of referenceParts.join('').matchAll(/\b(?:subdivisions?|subparagraphs?|paragraphs?|clauses?)\s+\([a-z]{1,2}\)(?:\s*(?:,\s*(?:(?:and|or)\s+)?|(?:and|or|to|through)\s+)\([a-z]{1,2}\))*/gi))addMarkers(m[0],m.index);
   // PDF small-cap headings may extract as lowercase. Exempt only CALIFORNIA
   // in the legislature masthead, leaving ordinary occurrences checkable.
   const mastheadWords=doc.blocks.filter(b=>b.page===1).slice(0,8).flatMap(block=>{
@@ -167,12 +219,29 @@ export function spellingCandidates(doc) {
     return [{start:block.start,end:block.start+end}];
   });
   const wraps=doc.wrappedWords||[];
+  const compounds=Array.from(doc.text.matchAll(compoundPattern),m=>({word:m[0],start:m.index,end:m.index+m[0].length}));
   let wrapIndex=0;
-  const candidates=[...wraps,...Array.from(doc.text.matchAll(/\p{L}+(?:[’']\p{L}+)*/gu), match => ({word:match[0], start:match.index, end:match.index+match[0].length})).filter(w=>{
+  let compoundIndex=0;
+  const candidates=[...wraps,...compounds,...Array.from(doc.text.matchAll(/\p{L}+(?:[’']\p{L}+)*/gu), match => ({word:match[0], start:match.index, end:match.index+match[0].length})).filter(w=>{
     while(wrapIndex<wraps.length&&wraps[wrapIndex].end<=w.start)wrapIndex++;
-    const r=wraps[wrapIndex];return !r||r.start>=w.end;
+    while(compoundIndex<compounds.length&&compounds[compoundIndex].end<=w.start)compoundIndex++;
+    const r=wraps[wrapIndex],c=compounds[compoundIndex];return (!r||r.start>=w.end)&&(!c||c.start>=w.end);
   })].sort((a,b)=>a.start-b.start);
   return candidates.filter(word => {
+    while(phraseIndex<guidePhrases.length&&guidePhrases[phraseIndex].end<=word.start)phraseIndex++;
+    const phrase=guidePhrases[phraseIndex];
+    if(phrase&&word.start>=phrase.start&&word.end<=phrase.end)return false;
+    if(clauseMarkers.has(word.start))return false;
+    // A correct numeric ordinal's suffix is not a separately spelled word.
+    // Keep standalone letters, embedded codes and malformed suffixes reviewable.
+    if(/^(?:st|nd|rd|th)$/i.test(word.word)){
+      const number=/(?<![\p{L}\p{N}_])\d+$/u.exec(doc.text.slice(Math.max(0,word.start-30),word.start));
+      if(number){
+        const lastTwo=Number(number[0].slice(-2)),last=lastTwo%10;
+        const suffix=lastTwo>=11&&lastTwo<=13?'th':({1:'st',2:'nd',3:'rd'}[last]||'th');
+        if(word.word.toLowerCase()===suffix)return false;
+      }
+    }
     while (rangeIndex<doc.excluded.length && doc.excluded[rangeIndex].end<=word.start) rangeIndex++;
     const range=doc.excluded[rangeIndex];
     return (!range || word.end<=range.start || word.start>=range.end || word.parts&&word.start<range.start) && !(word.word.length>1 && word.word===word.word.toUpperCase()) && !mastheadWords.some(r=>r.start===word.start&&r.end===word.end);

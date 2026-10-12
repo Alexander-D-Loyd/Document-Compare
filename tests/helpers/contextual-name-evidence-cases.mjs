@@ -1,0 +1,25 @@
+// Independent source-role witnesses; these are test expectations, not a
+// production vocabulary or a claim that a person's identity is authenticated.
+export const NAME_EVIDENCE_CASES=[
+ {text:'The black students are eligible.',selection:'black',suggestion:'Black',cue:'students',page:18},
+ {text:'Use the spanish interpreters.',selection:'spanish',suggestion:'Spanish',cue:'interpreters',page:20},
+ {text:'The type I Diabetes is treated.',selection:'Diabetes',suggestion:'diabetes',cue:'type I',page:18},
+ {text:'The Diabetes type II is treated.',selection:'Diabetes',suggestion:'diabetes',cue:'type II',page:18},
+ {text:'The Bay Area is available.',selection:'Bay Area',suggestion:'bay area',cue:'is',page:18},
+ {text:'The United States senator shall act.',selection:'senator',suggestion:'Senator',cue:'United States',page:19},
+ {text:'The senator Jane Smith shall act.',selection:'senator',suggestion:'Senator',cue:'shall',page:19},
+ {text:'The three People are eligible.',selection:'People',suggestion:'people',cue:'three',page:19},
+ {text:'The representative of the United States Congress shall act.',selection:'representative',suggestion:'Representative',cue:'United States Congress',page:19},
+ {text:'The United States congressional representative shall act.',selection:'representative',suggestion:'Representative',cue:'United States congressional',page:19},
+ {text:'The cosumnes River is named.',selection:'cosumnes',suggestion:'Cosumnes',cue:'River',page:3},
+ {text:'The united states congress shall act.',selection:'united states congress',suggestion:'United States Congress',cue:'states',page:18},
+ {text:'The california legislature shall act.',selection:'california legislature',suggestion:'California Legislature',cue:'california',page:19},
+ {text:'The united states constitution applies.',selection:'united states constitution',suggestion:'United States Constitution',cue:'states',page:18},
+ {text:'The constitution of the united states applies.',selection:'constitution of the united states',suggestion:'Constitution of the United States',cue:'states',page:18},
+ {text:'The U.S. constitution applies.',selection:'constitution',suggestion:'Constitution',cue:'U.S.',page:18},
+ {text:'The executive order no. 34 applies.',selection:'executive order no.',suggestion:'Executive Order No.',cue:'34',page:19},
+ {text:'The United States armed forces are funded.',selection:'armed forces',suggestion:'Armed Forces',cue:'United States',page:18},
+ {text:'The armed forces of the United States are funded.',selection:'armed forces',suggestion:'Armed Forces',cue:'United States',page:18},
+ {text:'The allies during World War II supplied records.',selection:'allies',suggestion:'Allies',cue:'World War II',page:18},
+ {text:'The allied force in World War I supplied records.',selection:'allied force',suggestion:'Allied force',cue:'World War I',page:18},
+];

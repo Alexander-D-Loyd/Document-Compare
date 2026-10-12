@@ -1,8 +1,64 @@
+Document Compare 1.21.4 — Offline authority, printed bill OCR and LCB follow-on
+
+Adds a local authorized-data importer for ordered spellings, with edition/source/
+SHA-256 provenance, local IndexedDB persistence, search, removal and failed-save
+protection. Listed alternatives remain valid spellings. Later-listed lowercase
+forms receive a reader-review suggestion; meanings and names are not inferred.
+The complete Merriam-Webster dictionary is not included. See OFFLINE_AUTHORITY.md.
+
+Adds on-demand offline OCR for printed Previous/Current/reference bill scans
+and large image/text hybrid pages. The existing Tesseract runtime is reused,
+serialized and limited to one rendered page at a time. A separate bounded
+margin-column pass prevents vertical misreading of line numbers. Original
+pixel rereads, confidence/disagreement warnings and independent embedded-text
+comparison provide additional checks. Uncertain bill readings keep amendment
+results in Needs Review; discrepancies remain visible. OCR confidence is not
+proof of complete accuracy. Rotated scanned bills are explicitly rejected and
+need an upright readable copy. Handwriting and verified OCR typography remain
+outside scope. Original uploaded PDFs are retained for source review.
+
+Includes local multiword quantity-opening and qualified time-notice extensions,
+plus conditional qualified time-expression review through selected intervening
+adjectives. Four-digit calendar-year labels are protected as date identifiers.
+Precise findings, original offsets, literal names and guide-conflict exclusions
+retain priority. Full contextual LCB automation is still incomplete.
+
+1,906 source tests pass. The actual offline-engine benchmark detects all 132
+annotated problems across 235 controlled cases, with zero missed annotated
+problems, wrong corrections or duplicate questions. Seven additional reader
+questions remain in that controlled benchmark; these are not measured office
+false positives. The 28 saved Current-version corpus replay (2,230 pages) adds
+or removes no findings. Three controlled raster/hybrid bills preserve complete
+text and eight line numbers. Rotation and unreadable-image controls are explicit.
+AB 1502's source OCR regression retains the italic (l) and character integrity.
+These controlled measurements do not certify office-wide precision or recall.
+
+Fresh 1.21.4 native desktop verification is pending. The unchanged preceding
+1.21.3 package passed all 19 native stages. The verifier for 1.21.4 adds importer/
+OCR workflow and authority persistence across packaged process restart.
+
+Extract the entire Windows ZIP; run Document Compare/Document Compare.exe.
+All document review stays offline. No GitHub upload has been made.
+
+--- Historical checkpoints below ---
+
+## October 11 local LCB follow-on (after verified 1.21.3)
+
+Added scoped multiword quantity-opening review and selected qualified notice-period possessives, including the source-listed schoolday noun. Check Coverage and LCB source paragraph scopes describe these extensions. 1,893 source tests and 221 controlled offline-engine cases pass; all 28 cached Current documents retain their existing findings. This is local source work, not a packaged or newly native-verified build, and it does not certify whole-rule completeness. See TESTING_REPORT.md and STYLE_COVERAGE_STATUS.json.
+
+## October 11 practical review checkpoint (1.21.3)
+
+All 41 numbered LCB source paragraphs have scoped method assessments. Added an explicit document-local “Section … of this bill” target review, complete grammar evidence across margins/page divisions, and a summary separating potential discrepancies from reader-review suggestions. Conflicting guide rules remain excluded. The fixed benchmark and complete source suite pass; native 1.21.3 verification remains pending. Selected checks do not certify whole-rule completeness or office-wide recall. See DEVELOPMENT_REVIEW.md.
+
 # Highest priority: style rule coverage
 
 User priority recorded October 7, 2026: expand reliable rule coverage across the uploaded LCB and GPO manuals before cosmetic improvements or unrelated features. Keep changes local unless a GitHub push is explicitly requested.
 
 Current user policy: ignore LCB/GPO disagreements in Stylistic Check regardless of which form the document uses. Keep independent, nonconflicting checks active. The complete guides remain searchable. Full-text search is not automated rule coverage. Do not describe the checker as exhaustive or interpret an empty result as compliance certification.
+
+## Current partial-coverage checkpoint (October 9, 2026)
+
+All 651 applicable canonical lexical/example entries have selected checks; 12 additional entries have explicit guide-conflict treatment. The current inventory has 854 entries: 834 partially automated, 5 reference/priority entries, 14 excluded guide conflicts and 1 manual opinions/cover-letter passage. The user-supplied California Entities snapshot supports capitalization checks for 482 eligible complete names; unfamiliar names, aliases, ambiguous contexts and legal status remain manual. This is 100% partial inventory mapping, not full contextual automation or measured accuracy. Merriam-Webster is the user-selected spelling authority; a small verified preference subset is bundled offline. Full dictionary coverage and complete contextual automation remain unfinished. See STYLE_COVERAGE_STATUS.json and TESTING_REPORT.md for scopes and validation.
 
 ## Required rule inventory
 
@@ -28,7 +84,7 @@ Audit every rule in LCB pages 1–23, then every relevant rule in GPO pages 1–
 
 ## Current baseline
 
-All pages of both guides are searchable. Automated coverage is partial: selected numeral, punctuation, spelling/usage, capitalization and modifier rules, plus user-defined case-sensitive terms. The latest complete regression suite has 195 passing tests. The external-bill upload and 1,500-page support are implemented. The local testing report records twelve bill sets and identified limitations. Comprehensive rule inventory and the broader rule families above remain unfinished work.
+All pages of both guides are searchable. Automated coverage is partial: selected numeral, punctuation, spelling/usage, capitalization and modifier rules, plus user-defined case-sensitive terms. The latest complete source regression suite has 1,879 passing tests; fresh 1.21.3 native verification is pending. The external-bill upload and 1,500-page support are implemented. The local testing report records twelve bill sets and identified limitations. Comprehensive rule inventory and the broader rule families above remain unfinished work.
 
 ## October 7 implementation checkpoint (1.20.13)
 
@@ -107,3 +163,16 @@ Expanded GPO 12.14 / 8.52 checks to missing and malformed thousands grouping in 
 
 195 automated tests pass. 2,100 controlled violation/compliant pairs across 12 actual bill contexts pass. The original Current versions of all 12 bills were reviewed, including 1,008 AB 109 pages. Neither new rule family introduced findings in these unchanged originals; controlled mutations exercise their detection and contextual protections. Existing findings remain 34 in AB 109, seven data-sharing modifiers in AB 1636, and two toward/towards suggestions in AB 1415. These counts are not compliance certification. Offline desktop worker checks passed. No source PDFs were changed. All 783 numbered GPO rules retain explicit scopes; full automatic coverage and assessment of 307 remaining unnumbered passages are still unfinished. Local only; no GitHub push.
 
+
+
+## October 8 implementation checkpoint (1.20.24)
+
+Document Compare 1.20.24 — saved locally; not pushed to GitHub.
+
+Expanded source-backed offline style checking for missing suspended hyphens in full/half/part-time, long/short-term and low/moderate-income modifiers before recognized nouns. Added final serial-comma checks for selected multiword noun lists and separated-form checks for ten GPO reflexive pronouns in recognized grammatical contexts. Findings retain exact source offsets and guide citations; existing purple style highlighting and navigation are reused. Updated searchable rule scopes to describe the actual supported cases and remaining exceptions.
+
+Validation: 209 automated tests pass. 2,280 controlled violation/compliant pairs pass across twelve actual bill contexts; the original twelve Current versions were also checked in full, including all 1,008 AB 109 pages. New checks produce no additional findings in the untouched corpus. Desktop style-worker and searchable-coverage UI checks pass. Quotes, official-looking titles, recognized budget tables, strikeouts, legal identifiers, ordinary self nouns, independent adjectives, nested alternatives and corrected lists are protected by targeted regression cases.
+
+Full automatic offline style-rule coverage remains unfinished. The inventory contains 1,905 source records, with 307 unnumbered passages still unassessed; recording or searching a rule is not implementing it. Unknown modifiers, arbitrary grammatical lists, names, meanings and source typography still require review. No findings is not compliance certification. Known LCB/GPO disagreements remain excluded. The unresolved AB 109/SB 879 budget case is unchanged; genuine discrepancies remain flagged and complex-budget false missing markers remain deferred.
+
+Extract the entire Windows ZIP and run Document Compare.exe. Keep its resources and runtime files together. All review remains offline. GitHub remains at 1.20.23 until another push is requested.

@@ -1,0 +1,265 @@
+{
+  "source": "20250AB8_93.pdf",
+  "sourceSha256": "bc84321afb07d4da2ffcc900ea8274b6ff25f82d50fba42749df78549f65aa7d",
+  "pdfPage": 61,
+  "printedLines": [
+    29,
+    30,
+    31
+  ],
+  "independentRendering": "Line 30 begins (D) AM-855; its margin number is separate from the text.",
+  "items": [
+    {
+      "str": "line",
+      "transform": [
+        12,
+        0,
+        0,
+        12,
+        21,
+        350.704
+      ],
+      "width": 18,
+      "height": 12,
+      "fontName": "body"
+    },
+    {
+      "str": " ",
+      "transform": [
+        0,
+        0,
+        0,
+        0,
+        39,
+        350.704
+      ],
+      "width": 9,
+      "height": 0,
+      "fontName": "body"
+    },
+    {
+      "str": "29",
+      "transform": [
+        12,
+        0,
+        0,
+        12,
+        48,
+        350.704
+      ],
+      "width": 12,
+      "height": 12,
+      "fontName": "body"
+    },
+    {
+      "str": " ",
+      "transform": [
+        0,
+        0,
+        0,
+        0,
+        60,
+        350.704
+      ],
+      "width": 12,
+      "height": 0,
+      "fontName": "body"
+    },
+    {
+      "str": "a,7,10,10a-tetrahydrobenzo[c]chromen-1-ol.",
+      "transform": [
+        12,
+        0,
+        0,
+        12,
+        72,
+        350.704
+      ],
+      "width": 213.20400000000006,
+      "height": 12,
+      "fontName": "body"
+    },
+    {
+      "str": "30",
+      "transform": [
+        12,
+        0,
+        0,
+        12,
+        48,
+        337.704
+      ],
+      "width": 12,
+      "height": 12,
+      "fontName": "body"
+    },
+    {
+      "str": " ",
+      "transform": [
+        0,
+        0,
+        0,
+        0,
+        60,
+        337.704
+      ],
+      "width": 22,
+      "height": 0,
+      "fontName": "body"
+    },
+    {
+      "str": "line",
+      "transform": [
+        12,
+        0,
+        0,
+        12,
+        70.28,
+        337.704
+      ],
+      "width": 18,
+      "height": 12,
+      "fontName": "body"
+    },
+    {
+      "str": "(D)",
+      "transform": [
+        12,
+        0,
+        0,
+        12,
+        82,
+        337.704
+      ],
+      "width": 16.656,
+      "height": 12,
+      "fontName": "body"
+    },
+    {
+      "str": " ",
+      "transform": [
+        0,
+        0,
+        0,
+        0,
+        98.65599999999999,
+        337.704
+      ],
+      "width": 6.000000000000014,
+      "height": 0,
+      "fontName": "body"
+    },
+    {
+      "str": "AM-855,",
+      "transform": [
+        12,
+        0,
+        0,
+        12,
+        104.656,
+        337.704
+      ],
+      "width": 44.328,
+      "height": 12,
+      "fontName": "body"
+    },
+    {
+      "str": " ",
+      "transform": [
+        0,
+        0,
+        0,
+        0,
+        148.984,
+        337.704
+      ],
+      "width": 52.28,
+      "height": 0,
+      "fontName": "body"
+    },
+    {
+      "str": "(4aR,12bR)-8-hexyl-2,5,5-trimethyl-1",
+      "transform": [
+        12,
+        0,
+        0,
+        12,
+        201.264,
+        337.704
+      ],
+      "width": 182.7360000000002,
+      "height": 12,
+      "fontName": "body"
+    },
+    {
+      "str": "line",
+      "transform": [
+        12,
+        0,
+        0,
+        12,
+        21,
+        324.704
+      ],
+      "width": 18,
+      "height": 12,
+      "fontName": "body"
+    },
+    {
+      "str": " ",
+      "transform": [
+        0,
+        0,
+        0,
+        0,
+        39,
+        324.704
+      ],
+      "width": 9,
+      "height": 0,
+      "fontName": "body"
+    },
+    {
+      "str": "31",
+      "transform": [
+        12,
+        0,
+        0,
+        12,
+        48,
+        324.704
+      ],
+      "width": 12,
+      "height": 12,
+      "fontName": "body"
+    },
+    {
+      "str": " ",
+      "transform": [
+        0,
+        0,
+        0,
+        0,
+        60,
+        324.704
+      ],
+      "width": 12,
+      "height": 0,
+      "fontName": "body"
+    },
+    {
+      "str": ",4,4a,8,9,10,11,12b-octahydronaphtho[3,2-c]isochromen-12-ol.",
+      "transform": [
+        12,
+        0,
+        0,
+        12,
+        72,
+        324.704
+      ],
+      "width": 303.552,
+      "height": 12,
+      "fontName": "body"
+    }
+  ]
+}

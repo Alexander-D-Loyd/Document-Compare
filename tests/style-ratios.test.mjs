@@ -14,3 +14,9 @@ test('ratios preserve source offsets across margins and exclude crossed text',()
 test('LCB first grade exception accepts bill/digest wording but still detects ordinal figures',()=>{
  const found=jointStylisticIssues(makeDocument(['Use 1st grade pupils and first grade pupils.'],'Current'),refs);assert.ok(found.some(i=>i.text==='1st'&&i.suggestion==='first'));assert.ok(!found.some(i=>i.text==='first'));
 });
+
+test('an explicit ratio across a reader-identified running head retains both quantities and its whole selection',()=>{
+ const doc=makeDocument(['ASSEMBLY BILL No. 121\nThe people do enact as follows:\nline 1 Use a ratio of one to\n97','AB 121 — 2 —\nline 1 five.'],'Current');for(const b of doc.blocks.filter(b=>b.ignored))b.formatting={headerParts:[{start:0,end:b.text.length,anchor:'left'}]};
+ const [issue]=ratioIssues(doc,refs);assert.ok(issue);assert.equal(issue.suggestion,'1 to 5');assert.equal(issue.start,doc.text.indexOf('one'));assert.equal(issue.end,doc.text.indexOf('five')+4);assert.equal(doc.text.slice(issue.start,issue.end),issue.text);assert.equal(jointStylisticIssues(doc,refs).length,1);
+ for(const b of doc.blocks.filter(b=>b.ignored))b.formatting={};assert.equal(ratioIssues(doc,refs).length,0);
+});

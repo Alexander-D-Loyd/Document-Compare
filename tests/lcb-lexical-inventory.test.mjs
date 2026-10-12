@@ -22,6 +22,10 @@ test('excluded lexical guide disagreements are not represented as active spellin
 });
 test('discrete entries distinguish selected checks from unimplemented contextual forms',()=>{
  const entries=styleRuleInventory(refs).filter(r=>r.id.startsWith('lcb-entry-'));assert.ok(entries.find(r=>r.text==='cost-effective (u.m.)').scope.includes('recognized noun head'));
- assert.equal(entries.find(r=>r.text==='one-time (one action; u.m.)').status,'Manual review required');
+ const once=entries.find(r=>r.text==='one-time (one action; u.m.)');assert.equal(once.status,'Partially automated');assert.match(once.scope,/only\/just once/);assert.match(once.scope,/Other variants, meanings and exceptions are not certified/);
+ const former=entries.find(r=>r.text==='onetime (formerly; u.m.)');assert.equal(former.status,'Partially automated');assert.ok(former.scope.includes('formerly/previously'));
+ assert.equal(entries.find(r=>r.text==='aural').status,'Partially automated');
+ assert.equal(entries.find(r=>r.text==='assigner').status,'Partially automated');
+ assert.equal(styleRuleInventory(refs).find(r=>r.id==='lcb-17-7').status,'Partially automated');
  assert.ok(searchRuleInventory(refs,'indorsement Commercial Code').some(r=>r.id.startsWith('lcb-entry-')));
 });

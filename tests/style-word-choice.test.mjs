@@ -2,6 +2,15 @@ import test from 'node:test';import assert from 'node:assert/strict';import fs f
 import {makeDocument} from '../app/core.mjs';import {wordChoiceIssues} from '../app/style-word-choice.mjs';
 const refs={lcb:JSON.parse(fs.readFileSync(new URL('../app/data/lcb-reference.json',import.meta.url)))};
 const check=text=>wordChoiceIssues(makeDocument([text],'Current'),refs);
+test('LCB assure preference is limited to explicit outcomes and keeps reassurance constructions',()=>{
+ assert.deepEqual(check('The agency shall assure accuracy and must assure compliance.').map(i=>i.suggestion),['ensure','ensure']);
+ for(const text of ['The agency shall ensure accuracy.','Staff shall assure the patient that treatment is safe.','The term “shall assure accuracy” is literal.','The agency shall assure the board of its intention.'])assert.equal(check(text).length,0,text);
+});
+test('anytime adverbs remain distinct from noun phrases and literal terms',()=>{
+ assert.deepEqual(check('A person may apply any time after the deadline. Staff may resign any time.').map(i=>i.suggestion),['anytime','anytime']);
+ for(const text of ['A person may apply anytime after the deadline.','A person may apply at any time.','Any time period is permitted.','Staff shall use any time remaining.','The phrase “apply any time” is literal.'])assert.equal(check(text).length,0,text);
+ const doc=makeDocument(['line 1 A person may apply any\nline 2 time after the deadline.'],'Current');const issue=wordChoiceIssues(doc,refs)[0];assert.equal(issue.suggestion,'anytime');assert.equal(doc.text.slice(issue.start,issue.end),issue.text);
+});
 test('meaning-dependent LCB pairs use explicit grammatical and domain cues',()=>{
  const text='The board must advice the principle investigator. Obtain legal advise. Costs shall be born by the board. Enact an ordnance and purchase stationary supplies.';
  assert.deepEqual(check(text).map(i=>i.suggestion),['advise','principal','advice','borne','ordinance','stationery']);

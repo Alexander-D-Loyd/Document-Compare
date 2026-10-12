@@ -1,0 +1,264 @@
+{
+  "source": "20250AB8_93.pdf",
+  "sourceSha256": "bc84321afb07d4da2ffcc900ea8274b6ff25f82d50fba42749df78549f65aa7d",
+  "pdfPage": 62,
+  "printedLines": [
+    22,
+    23,
+    24
+  ],
+  "items": [
+    {
+      "str": "line",
+      "transform": [
+        12,
+        0,
+        0,
+        12,
+        20.381,
+        441.704
+      ],
+      "width": 18,
+      "height": 12,
+      "fontName": "body"
+    },
+    {
+      "str": " ",
+      "transform": [
+        0,
+        0,
+        0,
+        0,
+        38.381,
+        441.704
+      ],
+      "width": 9.619,
+      "height": 0,
+      "fontName": "body"
+    },
+    {
+      "str": "22",
+      "transform": [
+        12,
+        0,
+        0,
+        12,
+        48,
+        441.704
+      ],
+      "width": 12,
+      "height": 12,
+      "fontName": "body"
+    },
+    {
+      "str": " ",
+      "transform": [
+        0,
+        0,
+        0,
+        0,
+        60,
+        441.704
+      ],
+      "width": 12,
+      "height": 0,
+      "fontName": "body"
+    },
+    {
+      "str": "2 -yl)phenyl]-7,7-dimethyl-4-bicyclo[3.1.1]hept-3-enyl]methanol.",
+      "transform": [
+        12,
+        0,
+        0,
+        12,
+        72,
+        441.704
+      ],
+      "width": 312.00799999999975,
+      "height": 12,
+      "fontName": "body"
+    },
+    {
+      "str": "23",
+      "transform": [
+        12,
+        0,
+        0,
+        12,
+        48,
+        428.704
+      ],
+      "width": 12,
+      "height": 12,
+      "fontName": "body"
+    },
+    {
+      "str": " ",
+      "transform": [
+        0,
+        0,
+        0,
+        0,
+        60,
+        428.704
+      ],
+      "width": 22,
+      "height": 0,
+      "fontName": "body"
+    },
+    {
+      "str": "line",
+      "transform": [
+        12,
+        0,
+        0,
+        12,
+        63.512,
+        428.704
+      ],
+      "width": 18,
+      "height": 12,
+      "fontName": "body"
+    },
+    {
+      "str": "(N)",
+      "transform": [
+        12,
+        0,
+        0,
+        12,
+        82,
+        428.704
+      ],
+      "width": 16.656,
+      "height": 12,
+      "fontName": "body"
+    },
+    {
+      "str": " ",
+      "transform": [
+        0,
+        0,
+        0,
+        0,
+        98.65599999999999,
+        428.704
+      ],
+      "width": 6.000000000000014,
+      "height": 0,
+      "fontName": "body"
+    },
+    {
+      "str": "HU-331,",
+      "transform": [
+        12,
+        0,
+        0,
+        12,
+        104.656,
+        428.704
+      ],
+      "width": 42.324,
+      "height": 12,
+      "fontName": "body"
+    },
+    {
+      "str": " ",
+      "transform": [
+        0,
+        0,
+        0,
+        0,
+        146.98000000000002,
+        428.704
+      ],
+      "width": 45.512,
+      "height": 0,
+      "fontName": "body"
+    },
+    {
+      "str": "3-hydroxy-2-[(1R,6R)-3-methyl-6-(1-m",
+      "transform": [
+        12,
+        0,
+        0,
+        12,
+        192.49200000000002,
+        428.704
+      ],
+      "width": 191.5080000000001,
+      "height": 12,
+      "fontName": "body"
+    },
+    {
+      "str": "line",
+      "transform": [
+        12,
+        0,
+        0,
+        12,
+        21,
+        415.704
+      ],
+      "width": 18,
+      "height": 12,
+      "fontName": "body"
+    },
+    {
+      "str": " ",
+      "transform": [
+        0,
+        0,
+        0,
+        0,
+        39,
+        415.704
+      ],
+      "width": 9,
+      "height": 0,
+      "fontName": "body"
+    },
+    {
+      "str": "24",
+      "transform": [
+        12,
+        0,
+        0,
+        12,
+        48,
+        415.704
+      ],
+      "width": 12,
+      "height": 12,
+      "fontName": "body"
+    },
+    {
+      "str": " ",
+      "transform": [
+        0,
+        0,
+        0,
+        0,
+        60,
+        415.704
+      ],
+      "width": 12,
+      "height": 0,
+      "fontName": "body"
+    },
+    {
+      "str": "ethylethenyl)-2-cyclohexen-1-yl]-5-pentyl-2,5-cyclohexadiene-1",
+      "transform": [
+        12,
+        0,
+        0,
+        12,
+        72,
+        415.704
+      ],
+      "width": 311.964,
+      "height": 12,
+      "fontName": "body"
+    }
+  ]
+}

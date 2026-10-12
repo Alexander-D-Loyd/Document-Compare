@@ -2,6 +2,12 @@ import test from 'node:test';import assert from 'node:assert/strict';import fs f
 import {makeDocument} from '../app/core.mjs';import {lcbContextualIssues,lcbModifierForms} from '../app/lcb-contextual.mjs';
 const refs={lcb:JSON.parse(fs.readFileSync(new URL('../app/data/lcb-reference.json',import.meta.url)))};
 const check=text=>lcbContextualIssues(makeDocument([text],'Current'),refs);
+test('initialism article checks retain periods and handle both vowel and consonant letter sounds',()=>{
+ const found=check('A F.C.C. ruling applies. An C.D.C. report applies. An CPUC order applies. An DNA test applies.');
+ assert.deepEqual(found.map(i=>i.suggestion),['An F.C.C.','A C.D.C.','A CPUC','A DNA']);
+ for(const text of ['An F.C.C. ruling applies. A C.D.C. report applies.','A NASA program applies. A N.A.S.A. program applies.','An FCCD token applies.','An lowercase cdc token applies.'])assert.equal(check(text).length,0,text);
+ const doc=makeDocument(['line 1 A F.\nline 2 C.C. ruling applies.'],'Current');const i=lcbContextualIssues(doc,refs)[0];assert.equal(i.suggestion,'An F. C.C.');assert.equal(doc.text.slice(i.start,i.end),i.text);
+});
 test('initialism articles preserve sentence capitalization and cite both guides',()=>{
  const both={...refs,gpo:JSON.parse(fs.readFileSync(new URL('../app/data/gpo-reference.json',import.meta.url)))};
  const found=lcbContextualIssues(makeDocument(['A FCC ruling applies. An SB amendment applies. An AB bill applies.'],'Current'),both).filter(i=>i.category==='Articles before initials');

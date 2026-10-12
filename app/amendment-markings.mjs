@@ -1,6 +1,7 @@
 // Images and ink annotations never enter PDF text extraction. These checks
 // remove recognizable administrative text and isolated OCR signature blocks.
 // Apply only to the instructional PDF, never to the two bill versions.
+import {isOcrStyle} from './ocr-text.mjs';
 export function printedAmendmentItems(items,styles={},pageWidth=612,pageHeight=792){
  const textItems=items.filter(i=>typeof i.str==='string'&&i.str.trim());
  const heights=textItems.filter(i=>i.height>=8&&i.height<=16).map(i=>i.height).sort((a,b)=>a-b);
@@ -23,7 +24,7 @@ export function printedAmendmentItems(items,styles={},pageWidth=612,pageHeight=7
   const ocr=ordered.every(i=>{
    const style=styles[i.fontName]||{};
    // PDF.js exposes OCR font metrics even when its internal font name is hidden.
-   return /GlyphLessFont/i.test(style.name||'')||(style.fontFamily==='sans-serif'&&style.ascent===1&&Math.abs(style.descent||0)<.01);
+   return isOcrStyle(style);
   });
   const signatureFooter=ocr&&row.y<pageHeight*.11&&cells.length>1&&
    (rows[index-1]?.y-row.y>bodyHeight*2.5)&&
@@ -39,6 +40,9 @@ export function printedAmendmentItems(items,styles={},pageWidth=612,pageHeight=7
    const rotated=Math.abs(item.transform[1])>Math.abs(item.transform[0])*.1;
    if(/(?:Handwriting|Handwritten|Signature|BrushScript|SegoeScript|SegoePrint)/i.test(font)||
      (/^RN\s*\d[\d\s]*$/i.test(item.str.trim())&&(rotated||item.transform[4]>pageWidth*.88)))excluded.add(item);
+   // OCR of vertical administrative barcodes can appear as a huge horizontal
+   // word, even extending beyond the page. Do not treat it as amendment prose.
+   if(ocr&&item.transform[5]<pageHeight*.16&&item.transform[4]>pageWidth*.88&&item.height>bodyHeight*2)excluded.add(item);
   }
  }
  return items.filter(i=>!excluded.has(i));

@@ -1,5 +1,6 @@
 import { sequenceDiff } from './sequence-diff.mjs';
 import { comparisonTokens } from './core.mjs';
+import {splitHistoryChanges} from './history-rows.mjs';
 export function compareText(left, right) {
   return compareTokenValues(comparisonTokens(left).map(t => t.value), comparisonTokens(right).map(t => t.value));
 }
@@ -16,5 +17,5 @@ export function compareTokenValues(left, right) {
       next.value.unshift(token); next.count++;
     }
   }
-  return changes?.map(change => ({ count: change.count, added: !!change.added, removed: !!change.removed, words: change.value.filter(t => /[\p{L}\p{N}]/u.test(t)).length })) || null;
+  return splitHistoryChanges(changes)?.map(change => ({ count: change.count, added: !!change.added, removed: !!change.removed, history:!!change.history, words: change.value.reduce((n,t)=>n+comparisonTokens(t).filter(w=>/[\p{L}\p{N}]/u.test(w.value)).length,0) })) || null;
 }

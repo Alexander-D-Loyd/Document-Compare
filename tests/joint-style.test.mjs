@@ -8,6 +8,14 @@ import {STYLE_GUIDES} from '../app/style-guides.mjs';
 import {createReviewIgnores} from '../app/review-ignores.mjs';
 const references=Object.fromEntries(STYLE_GUIDES.map(g=>[g.id,JSON.parse(fs.readFileSync(new URL('../app/'+g.referenceUrl,import.meta.url),'utf8'))]));
 const check=text=>jointStylisticIssues(makeDocument([text],'Current'),references);
+test('explicit state-office title conflicts are ignored without excluding federal or person-name uses',()=>{
+ assert.ok(references.gpo.pages[51].text.includes('secretary of state of'));
+ for(const text of ['The California secretary of state shall act.','The California Secretary of State shall act.','The state attorney general shall act.','The state Attorney General shall act.','The secretary of state of California shall act.','The attorney general of the state of California shall act.'])assert.equal(check(text).length,0,text);
+ assert.ok(check('The United States secretary of state shall act.').some(i=>i.suggestion==='Secretary of State'));
+ assert.equal(check('State veterinary technician associations recognized by the secretary of state in that state.').length,0);
+ assert.ok(check('The California attorney general Jane Smith shall act.').some(i=>i.suggestion==='Attorney General'));
+ assert.deepEqual(check('The California secretary of state shall use a data sharing agreement.').map(i=>i.suggestion),['data-sharing']);
+});
 test('expanded contractions and sourced spelling variants detect violations while accepting corrected prose',()=>{
  const found=check('The board hasn’t approved the fibre. It should’ve addressed the anaemia.');assert.deepEqual(found.map(i=>i.suggestion),['has not','fiber','should have','anemia']);
  assert.equal(check('The board has not approved the fiber. It should have addressed the anemia.').length,0);

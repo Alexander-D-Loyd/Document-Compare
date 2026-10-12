@@ -1,9 +1,5 @@
 const fs=require('node:fs'),path=require('node:path'),{spawnSync}=require('node:child_process');
-const root=path.resolve(__dirname,'..'),manualTests=new Set(['gpo-style.test.mjs','joint-style.test.mjs','style-numerals.test.mjs','style-punctuation.test.mjs','style-inventory.test.mjs','lcb-contextual.test.mjs','style-money.test.mjs','style-fractions.test.mjs','style-capitalization.test.mjs','style-compounds.test.mjs','style-measures.test.mjs','style-money-forms.test.mjs','style-references.test.mjs','style-ratios.test.mjs','style-word-choice.test.mjs','style-office-titles.test.mjs','style-reference-case.test.mjs','style-calendar.test.mjs','style-verb-endings.test.mjs','style-corpus-identifiers.test.mjs','lcb-lexical-inventory.test.mjs','style-listed-nouns.test.mjs','style-calendar-abbreviations.test.mjs','style-temperature-names.test.mjs','style-quantity-separators.test.mjs','style-symbols.test.mjs','style-editorial-notation.test.mjs','style-table-figures.test.mjs','style-compound-plurals.test.mjs','style-geologic-names.test.mjs','style-modifier-positions.test.mjs','style-semicolon-series.test.mjs']);
-const hasReferences=['lcb','gpo'].every(id=>fs.existsSync(path.join(root,'app','data',id+'-reference.json')));
-const files=fs.readdirSync(path.join(root,'tests')).filter(name=>name.endsWith('.test.mjs'));
-const selected=files.filter(name=>hasReferences||!manualTests.has(name));
-if(!hasReferences)console.log('Style reference JSON is not restored. Skipping manual-dependent test files: '+files.filter(name=>manualTests.has(name)).join(', ')+'. See README to run the complete suite.');
-const result=spawnSync(process.execPath,['--test',...selected.map(name=>path.join(root,'tests',name))],{cwd:root,stdio:'inherit'});
-if(result.error){console.error(result.error.message);process.exit(1);}process.exit(result.status??1);
-
+const root=path.resolve(__dirname,'..');
+if(!['lcb','gpo'].every(id=>fs.existsSync(path.join(root,'app/data',id+'-reference.json')))){console.error('Restore the two reference JSON files from the Windows release before running the complete test suite. See README. No tests were run.');process.exit(2);}
+const files=fs.readdirSync(path.join(root,'tests')).filter(n=>n.endsWith('.test.mjs')).map(n=>path.join('tests',n));
+const result=spawnSync(process.execPath,['--test',...files],{cwd:root,stdio:'inherit'});if(result.error){console.error(result.error.message);process.exit(1);}process.exit(result.status??1);

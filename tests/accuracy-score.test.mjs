@@ -1,0 +1,8 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {scoreFindings}from '../tools/accuracy-score.mjs';
+test('accuracy scoring distinguishes misses, wrong corrections, duplicates and review burden',()=>{
+ const expected=[{start:0,end:2,suggestion:'a',critical:true},{start:10,end:12,critical:true}],findings=[{start:0,end:2,suggestion:'b'},{start:0,end:2,suggestion:'a'},{start:20,end:22,suggestion:'c'},{start:30,end:32,reviewSuggested:true}];
+ const score=scoreFindings(expected,findings,{exhaustive:true});assert.equal(score.detected,1);assert.equal(score.missedCritical.length,1);assert.equal(score.incorrectSuggestions.length,1);assert.equal(score.duplicate.length,1);assert.equal(score.falseCorrections.length,1);assert.equal(score.reviewBurden.length,1);assert.equal(score.recall,.5);
+});
+test('a contextual review can detect a real error without asserting a replacement',()=>{const s=scoreFindings([{start:0,end:2,suggestion:'a',critical:true}],[{start:0,end:2,suggestion:null,reviewSuggested:true}],{exhaustive:true});assert.equal(s.detected,1);assert.equal(s.incorrectSuggestions.length,0);});
+test('nonexhaustive original-PDF annotations never classify unreviewed findings as false positives',()=>{const s=scoreFindings([],[{start:0,end:2,suggestion:'a'}]);assert.equal(s.falseCorrections.length,0);assert.equal(s.unannotated.length,1);assert.equal(s.recall,null);});
+test('matching assigns broad and rule-specific annotations to distinct findings',()=>{const s=scoreFindings([{start:0,end:2},{start:0,end:2,checkId:'specific'}],[{start:0,end:2,checkId:'specific'},{start:0,end:2,checkId:'other'}]);assert.equal(s.detected,2);assert.equal(s.duplicate.length,0);});

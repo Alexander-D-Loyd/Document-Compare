@@ -6,7 +6,7 @@ test('percent representation depends on digest/bill context; time possessives an
  assert.equal(contextualPunctuationIssues(makeDocument(['The 1990’s culture changed. Give one week’s notice. The rate is 5 percent.'],'Current'),refs).length,0);
  doc.struck=[{start:text.indexOf('5%'),end:text.indexOf('5%')+2}];assert.equal(contextualPunctuationIssues(doc,refs).some(i=>i.suggestion==='5 percent'),false);
 });
-test('coverage searches include contextual rules and explicit manual-review limitations',()=>{assert.equal(searchCoverage('identifiers')[0].page,22);assert.ok(searchCoverage('meaning').some(i=>i.status==='Manual review required'));assert.ok(searchCoverage('dollar').some(i=>/still require manual review/.test(i.text)));});
+test('coverage searches include contextual rules and explicit manual-review limitations',()=>{assert.ok(searchCoverage('identifiers').some(i=>i.page===22));assert.ok(searchCoverage('meaning').some(i=>i.status==='Manual review required'));assert.ok(searchCoverage('dollar').some(i=>/still require manual review/.test(i.text)));});
 test('quoted commas and periods, complete dates and listed possessives follow LCB examples',()=>{
  const text='The term “provider”, means an entity. The word is "covered". On January 1, 2027 the rule applies. In April, 2001 it changed. Workers compensation and a drivers license apply.';
  const found=contextualPunctuationIssues(makeDocument([text],'Current'),refs);
@@ -14,7 +14,7 @@ test('quoted commas and periods, complete dates and listed possessives follow LC
  assert.equal(contextualPunctuationIssues(makeDocument(['The term “provider,” applies on January 1, 2027, and in April 2001. Workers’ compensation applies. The board measures 6".'],'Current'),refs).length,0);
 });
 test('simple serial lists are distinguished from two-item and clause sequences',()=>{
- assert.deepEqual(contextualPunctuationIssues(makeDocument(['The list includes apples, pears and bananas. It comprises books and papers. If applicable, review and approve the plan.'],'Current'),refs).map(i=>i.suggestion),['includes apples, pears, and bananas']);
+ assert.deepEqual(contextualPunctuationIssues(makeDocument(['The list includes apples, pears and bananas. It comprises books and papers. If applicable, review and approve the plan.'],'Current'),refs).map(i=>i.suggestion),[', and']);
 });
 test('official fund and appropriation program names are not renamed as ordinary possessive phrases',()=>{
  const doc=makeDocument(['The Contractors License Fund pays the board.\nline 1 (5) 1426045-Distributed DCA Workers\nline 2 Compensation.'],'Current');

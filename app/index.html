@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; worker-src 'self' blob:; style-src 'self'; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'none'"><title>Document Compare</title><link rel="stylesheet" href="style.css"></head>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; worker-src 'self' blob:; style-src 'self'; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'none'"><title>Document Compare</title><link rel="stylesheet" href="style.css"></head>
 <body>
 <header><div class="brand"><img class="brandmark" src="assets/document-compare.svg" alt="" width="38" height="38"><div><h1>Document Compare</h1><p>Find added and removed text</p></div></div><span class="privacy">Processed on this computer</span></header>
 <main>
@@ -23,16 +23,25 @@
 <div class="results-heading"><h2>Amendment Verification</h2><div class="navigation-pair" id="issue-navigation" aria-label="Amendment issues navigation"><button id="previous-issue" class="quiet arrow-button" disabled aria-label="Previous amendment issue">←</button><button id="review-issues" class="quiet" disabled>Issues</button><button id="next-issue" class="quiet arrow-button" disabled aria-label="Next amendment issue">→</button></div></div><p id="issue-status" class="tool-status" aria-live="polite"></p>
 
 
-<div id="amendment-results"></div>
+<div id="amendment-results" tabindex="0" role="region" aria-label="Scrollable amendment verification text"></div>
 
 </section>
-<section class="empty" id="empty"><div class="empty-symbol" aria-hidden="true">Aa <span>↔</span> Aa</div><h2>Find what changed.</h2><p>Find additions and removals, even when the text shifts between lines or pages.</p><p class="small-note">Text-based PDFs are supported. Scans without a text layer need OCR first.<br>Encrypted PDFs, embedded comments, images, and formatting changes are not supported.</p></section>
+<section class="empty" id="empty"><div class="empty-symbol" aria-hidden="true">Aa <span>↔</span> Aa</div><h2>Find what changed.</h2><p>Find additions and removals, even when the text shifts between lines or pages.</p><p class="small-note">Text-based PDFs and printed scans are read locally. Uncertain OCR readings require checking the original PDF.<br>Encrypted PDFs, embedded comments, images, and formatting changes are not supported.</p></section>
 </main><footer><span>Document Compare · Desktop</span><span>No account or internet connection required</span></footer>
 <dialog id="dictionary-dialog" aria-labelledby="dictionary-title">
 <div class="dictionary-heading"><div><h2 id="dictionary-title">Personal Dictionary</h2><p class="small-note">Your saved spellings · Case-sensitive</p></div><button id="close-dictionary" class="quiet" aria-label="Close dictionary">×</button></div>
 <label for="dictionary-search">Search words</label><input id="dictionary-search" type="search" placeholder="Search your dictionary" autocomplete="off">
 <form id="dictionary-add-form"><label for="dictionary-new-word">Add a word</label><div class="dictionary-add-row"><input id="dictionary-new-word" maxlength="150" autocomplete="off" required placeholder="Enter a word"><button class="primary" type="submit">Add</button></div></form>
 <p id="dictionary-feedback" class="tool-status" aria-live="polite"></p><p id="dictionary-count" class="small-note"></p><ul id="dictionary-words"></ul>
+<details id="authority-panel"><summary>Offline Spelling Authority</summary>
+<p class="small-note">Import an authorized JSON export with ordered spellings. All data stays on this computer. Imported alternatives are accepted by spelling review; later-listed forms receive a stylistic review suggestion, with meaning left to the reader. Office lists are labeled separately from Merriam-Webster.</p>
+<p id="authority-summary" class="small-note"></p>
+<label for="authority-import">Import authority JSON · up to 50 MB</label><input id="authority-import" type="file" accept=".json,application/json">
+<button id="authority-remove" class="quiet" type="button" disabled>Remove imported authority</button>
+<p id="authority-feedback" class="tool-status" aria-live="polite"></p>
+<label for="authority-search">Search imported spellings or entry identifiers</label><input id="authority-search" type="search" autocomplete="off">
+<p id="authority-count" class="small-note"></p><ul id="authority-entries"></ul>
+</details>
 </dialog>
 
 <dialog id="guide-dialog" class="reference-dialog" aria-labelledby="guide-title">
@@ -55,7 +64,7 @@
 <button id="continue-reference" class="primary" disabled>Continue</button>
 </dialog>
 <dialog id="uploaded-pdf-dialog" aria-labelledby="uploaded-pdf-title"><div class="dictionary-heading"><h2 id="uploaded-pdf-title">Original PDF</h2><button id="uploaded-pdf-close" class="quiet" aria-label="Close PDF">×</button></div><form id="uploaded-pdf-form" class="guide-page-navigation"><button type="button" id="uploaded-pdf-previous" class="quiet arrow-button" aria-label="Previous PDF page">←</button><label for="uploaded-pdf-page">Page</label><input id="uploaded-pdf-page" type="number" min="1" value="1" required><span>of <span id="uploaded-pdf-page-total"></span></span><button type="button" id="uploaded-pdf-next" class="quiet arrow-button" aria-label="Next PDF page">→</button><button type="submit" class="quiet">Go</button></form><p id="uploaded-pdf-status" role="status"></p><div class="uploaded-pdf-image"><canvas id="uploaded-pdf-canvas"></canvas></div></dialog><script type="module" src="app.mjs"></script>
-</body></html>
+<dialog id="reading-dialog" aria-labelledby="reading-title"><div class="dictionary-heading"><h2 id="reading-title">Review PDF Reading</h2><button id="reading-close" class="quiet" aria-label="Close PDF reading review">×</button></div><p>Confirm uncertain readings against the original PDF. Corrections apply only to this loaded file and leave the original PDF unchanged.</p><div id="reading-list"></div><p id="reading-feedback" role="status"></p></dialog><script src="vendor/typo.js"></script></body></html>
 
 
 

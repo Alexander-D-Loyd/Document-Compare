@@ -1,5 +1,5 @@
 import {legislativeContext} from './legislative-context.mjs';
-import {writtenMoneyNumber} from './style-money.mjs';
+import {writtenMoneyNumber,singularMoneyUnitPairs,moneyRangeBlocked} from './style-money.mjs';
 import {spellNumber} from './style-numerals.mjs';
 const words='zero|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety|hundred|thousand|million|billion|trillion';
 const number='(?:'+words+')(?:[\\s-]+(?:and[\\s-]+)?(?:'+words+'))*';
@@ -12,15 +12,15 @@ function amountWords(value){
  return spellNumber(whole)+' '+(whole===1?'dollar':'dollars')+(cents?' and '+spellNumber(cents)+' '+(cents===1?'cent':'cents'):'');
 }
 export function moneyFormIssues(doc,references){
- const ctx=legislativeContext(doc),source=ctx.source,issues=[],pairs=[];
+ const ctx=legislativeContext(doc),source=ctx.source,issues=[],pairs=singularMoneyUnitPairs(source);
  const quoted=[...source.matchAll(/“[^”]*”|"[^"\n]*"/g)].map(m=>({start:m.index,end:m.index+m[0].length}));
- const blocked=(start,end)=>ctx.tableAt(start)||[...(doc.struck||[]),...doc.blocks.filter(b=>b.ignored).map(b=>({start:b.start,end:b.end})),...quoted].some(r=>r.start<end&&r.end>start);
+ const blocked=(start,end)=>ctx.tableAt(start)||moneyRangeBlocked(doc,start,end)||quoted.some(r=>r.start<end&&r.end>start);
  const add=(m,suggestion,message,kind)=>{
   if(blocked(m.index,m.index+m[0].length))return;
   if(/^[A-Z]/.test(m[0]))suggestion=suggestion[0].toUpperCase()+suggestion.slice(1);
   issues.push({start:m.index,end:m.index+m[0].length,text:doc.text.slice(m.index,m.index+m[0].length),suggestion,guideId:'lcb',guidePage:23,guidePrintedPage:'23',rule:'Numerals: Monetary form',category:'Monetary form',context:kind,checkId:'money-forms',conflict:false,message,references:[{guideId:'lcb',guideName:'LCB Style Manual',guidePage:23,guidePrintedPage:references.lcb.pages[22].printedPage,rule:'Numerals: Money',preferred:suggestion,ruleText:'LCB page 23 repeats bill monetary amounts in words and figures, including dollar modifiers. Page 21 exempts uncodified findings/declarations and resolutions; digest monetary examples use figures alone.'}]});
  };
- const pattern=new RegExp('\\b('+number+')[\\s-]+(dollars?|cents?|mills?)(?:\\s+and\\s+('+number+')\\s+cents?)?(?:\\s*\\(\\s*\\$\\s*(\\d+(?:,\\d{3})*(?:\\.\\d+)?)\\s*\\))?','gi');
+ const pattern=new RegExp('\\b('+number+')[\\s-]+(dollars?|cents?|mills?)(?![\\p{L}\\p{N}_])(?:\\s+and\\s+('+number+')\\s+cents?(?![\\p{L}\\p{N}_]))?(?:\\s*\\(\\s*\\$\\s*(\\d+(?:,\\d{3})*(?:\\.\\d+)?)\\s*\\))?','giu');
  for(const m of source.matchAll(pattern)){
   const kind=ctx.moneyAt(m.index),main=writtenMoneyNumber(m[1]),cents=m[3]?writtenMoneyNumber(m[3]):0;
   if(main===null||cents===null||cents>=100)continue;

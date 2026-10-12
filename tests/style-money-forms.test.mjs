@@ -25,3 +25,23 @@ test('quotes, foreign currency, denominations, tables and source strikeouts avoi
  const doc=makeDocument([bill('Pay ten\nline 2 dollars.')],'Current');const issue=moneyFormIssues(doc,refs)[0];assert.equal(doc.text.slice(issue.start,issue.end),issue.text);assert.equal(issue.suggestion,'ten dollars ($10)');
  doc.struck=[{start:issue.start,end:issue.end}];assert.equal(moneyFormIssues(doc,refs).length,0);
 });
+
+test('AB 8 milligrams and other longer unit names are not truncated to monetary mills',()=>{
+ assert.equal(check(bill('The product contains five milligrams of THC and ten milliliters of water.')).length,0);
+ assert.equal(check(bill('The product contains five milligrams (0.005 grams) and ten milliliters.')).length,0);
+ assert.equal(check(bill('A five-milligram limit applies.')).length,0);
+ assert.deepEqual(check(bill('Pay five mills.')).map(i=>i.suggestion),['five mills ($0.005)']);
+});
+
+test('AB 121 complete each-dollar denominator is a paired unit, not a missing written amount',()=>{
+ assert.equal(check(bill('The local match equals one dollar ($1) for each dollar ($1) received.')).length,0);
+ assert.equal(check(bill('Pay for every cent ($0.01) or per mill ($0.001).')).length,0);
+ assert.equal(check(bill('Pay for each dollar ($2).')).length,0,'The separate monetary-agreement check owns the whole conflicting expression.');
+ assert.equal(check(bill('Pay per dollar ($1.00).')).length,0);
+ assert.deepEqual(check(bill('Pay each dollar and pay $2.')).map(i=>i.suggestion),['two dollars ($2)'],'Bare unit words do not exempt a later unrelated figure.');
+});
+
+test('missing monetary figures span only reader-identified running heads with unchanged original offsets',()=>{
+ const doc=makeDocument([bill('Pay ten'),'AB 121 — 2 —\nline 1 dollars.'],'Current'),head=doc.blocks.find(b=>b.text==='AB 121 — 2 —');assert.ok(head?.ignored);head.formatting={headerParts:[{start:0,end:head.text.length,anchor:'left'}]};
+ const [issue]=moneyFormIssues(doc,refs);assert.ok(issue);assert.equal(issue.suggestion,'ten dollars ($10)');assert.equal(doc.text.slice(issue.start,issue.end),issue.text);assert.ok(issue.text.includes(head.text));head.formatting={};assert.equal(moneyFormIssues(doc,refs).length,0);
+});

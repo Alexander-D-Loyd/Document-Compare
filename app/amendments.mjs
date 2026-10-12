@@ -1,19 +1,25 @@
 import {externalBillReference,resolveExternalPayload} from './external-amendments.mjs';
 import {repairOcrDirective} from './ocr-text.mjs';
-import {comparisonTokens} from './core.mjs';
+import {substantiveTokens} from './core.mjs';
 import {diffArrays} from './vendor/diff/diff/array.js';
 import {sequenceDiff} from './sequence-diff.mjs';
+import {amendmentDiscrepancies} from './amendment-discrepancies.mjs';
+import {amendmentWordDiff} from './amendment-word-diff.mjs';
+import {splitHistoryChanges} from './history-rows.mjs';
+import {isAmendmentMetadataLine as metadataLine} from './amendment-metadata.mjs';
 const canonical=value=>value.normalize('NFKC').replace(/[“”]/g,'"').replace(/[‘’]/g,"'");
 const values=tokens=>tokens.map(t=>canonical(t.value));
-const phrase=text=>values(comparisonTokens(text));
+const phrase=(text,context=text)=>values(substantiveTokens(text,context));
 const equals=(a,b)=>a.length===b.length && a.every((v,i)=>v===b[i]);
 const quotedSource=String.raw`““[^”]+””|“[^“”]*“[^“”]*”[^“”]*”|“[^”]+”|"[^"]+"|‘[^’]+’|'[^']+'`;
 const quotes=text=>Array.from(text.matchAll(new RegExp(quotedSource,'g')),m=>m[0].slice(1,-1));
 // Some instruction PDFs append an annotated copy of the whole bill.
 const proposedHeading=/(?:^|\n)[ \t]*PROPOSED[ \t]+AMENDMENTS(?:[ \t]*(?=\n|$)|[ \t]+(?:TO\b|RN\b))/i;
-const instructionsEnd=text=>text.search(proposedHeading);
+export function instructionsEnd(text){
+  const ends=[text.search(proposedHeading),text.search(/(?:^|\n)[ \t]*[-–—][ \t]*0[ \t]*[-–—][ \t]*(?=\r?\n|$)/)];
+  const found=ends.filter(n=>n>=0);return found.length?Math.min(...found):-1;
+}
 export function isProposedAmendmentsPage(text){return proposedHeading.test(text);}
-const metadataLine=line=>/^\s*(?:[-–—]\s*0\s*[-–—]|\d{2}\/\d{2}\/\d{2}\s+\d.*|\d+\s+RN\s+.*|RN\s*\d.*|Substantive)\s*$/i.test(line);
 function trimFooter(text){return text.split('\n').filter(line=>!metadataLine(line)).join('\n').trim();}
 function instructionSpacing(text){
   // Normalize only editorial wording outside quotations; never rewrite payload.
@@ -22,6 +28,7 @@ function instructionSpacing(text){
     .replace(/\bpage(?=\d)/gi,'page ')
     .replace(/\bin(?=line\s*\d)/gi,'in ')
     .replace(/\bline(?=\d)/gi,'line ')
+    .replace(/\bbetween(?=lines?\s*\d)/gi,'between ')
     .replace(/\bstrikeout\b/gi,'strike out')
     .replace(/\bandinsert\b/gi,'and insert')
     .replace(/([”"’])(?=and\s*insert)/g,'$1 ')).join('');
@@ -128,7 +135,7 @@ function compile(rule,doc){
   if(!rule.title&&(/\bstrike\s+out\s+pages?\s+\d+/i.test(rule.directive)||(rule.directive.match(/\b(?:strike\s+out|delete|remove)\b/gi)||[]).length>1))return compileCompound(rule,doc);
   const tokens=doc.effectiveTokens||doc.tokens,blocks=scopedBlocks(rule,doc);
   const indices=tokens.map((token,i)=>blocks.some(b=>token.start>=b.start+b.margin.length && token.start<b.end)&&blocks.some(b=>token.end>b.start+b.margin.length && token.end<=b.end)?i:-1).filter(i=>i>=0);
-  const replacement=phrase(rule.insertText);
+  const replacement=phrase(rule.insertText,doc.text);
   if(rule.beforeLine!==null){
     if(rule.action!=='insert'||rule.title||rule.heading)throw Error('A before-line instruction must specify an insertion before a printed margin line.');
     const targets=blocks.filter(b=>Number(b.margin.match(/\d+/)?.[0])===rule.beforeLine);
@@ -149,7 +156,7 @@ function compile(rule,doc){
     return [{start:boundary,end:boundary,replacement}];
   }
   if(rule.action==='insert'){
-    if(rule.anchor){return choose(occurrences(tokens,phrase(rule.anchor),indices),rule).map(match=>({start:rule.position==='before'?match.start:match.end,end:rule.position==='before'?match.start:match.end,replacement,sourceOffset:rule.position==='before'?tokens[match.start].start:tokens[match.end-1].end}));}
+    if(rule.anchor){return choose(occurrences(tokens,phrase(rule.anchor,doc.text),indices),rule).map(match=>({start:rule.position==='before'?match.start:match.end,end:rule.position==='before'?match.start:match.end,replacement,sourceOffset:rule.position==='before'?tokens[match.start].start:tokens[match.end-1].end}));}
     if(!indices.length)throw Error('No text could be resolved at the insertion location.');
     if(/\bat\s+(?:the\s+)?(?:end|beginning|start)\b/i.test(rule.directive)){
       const atEnd=/\bat\s+(?:the\s+)?end\b/i.test(rule.directive),boundary=atEnd?indices.at(-1)+1:indices[0];return [{start:boundary,end:boundary,replacement}];
@@ -158,7 +165,7 @@ function compile(rule,doc){
   }
   if(rule.deleteText.length){
     if(rule.action==='replace'&&rule.deleteText.length!==1)throw Error('A replacement with multiple quoted targets needs manual review.');
-    return rule.deleteText.flatMap(text=>choose(occurrences(tokens,phrase(text),indices),rule).map(match=>({...match,replacement:rule.action==='replace'?replacement:[]})));
+    return rule.deleteText.flatMap(text=>choose(occurrences(tokens,phrase(text,doc.text),indices),rule).map(match=>({...match,replacement:rule.action==='replace'?replacement:[]})));
   }
   if(/\b(?:strike\s+out|delete|remove)\s+(?:the\s+)?lines?\s+\d+/i.test(rule.directive)&&rule.lineStart&&indices.length){
     return [{start:indices[0],end:indices.at(-1)+1,replacement:rule.action==='replace'?replacement:[]}];
@@ -191,7 +198,7 @@ function compileCompound(rule,doc){
   if(!patches.length)throw Error('The compound instruction could not be resolved.');
   // Every strike-out must be consumed; never silently verify only its final clause.
   if(events.filter(m=>/^strike\s+out/i.test(m[0])).length!==(rule.directive.match(/\b(?:strike\s+out|delete|remove)\b/gi)||[]).length)throw Error('Part of this compound instruction is not supported.');
-  if(rule.action==='replace')patches.at(-1).replacement=phrase(rule.insertText);
+  if(rule.action==='replace')patches.at(-1).replacement=phrase(rule.insertText,doc.text);
   const ordered=patches.sort((a,b)=>a.start-b.start),merged=[];
   for(const patch of ordered){
     const last=merged.at(-1);
@@ -202,7 +209,7 @@ function compileCompound(rule,doc){
   return merged;
 }
 function alignment(previous,current){
-  const changes=sequenceDiff(values(previous),values(current));
+  const changes=amendmentWordDiff(values(previous),values(current));
   if(!changes)throw Error('These versions differ too much to align reliably. Compare shorter sections.');
   const map=new Array(previous.length).fill(null);let old=0,now=0;
   for(const change of changes){if(change.added){now+=change.count;}else if(change.removed){old+=change.count;}else{for(let j=0;j<change.count;j++)map[old++]=now++;}}
@@ -246,7 +253,7 @@ function testPatch(patch,expectedTokens,origins,map,previous,current,prevDoc,cur
   const currentEndOffset=currentEnd>currentStart?current[currentEnd-1].end:(current[currentStart]?.end??currentOffset);
   let actualIndex=currentStart;
   const expectedParts=[],actualParts=[],differenceRanges=[],missingPoints=[];
-  const wordingDiff=sequenceDiff(expected,actual);
+  const wordingDiff=amendmentWordDiff(expected,actual);
   if(!wordingDiff)throw Error('The requested and current wording could not be compared reliably.');
   for(const [changeIndex,change] of wordingDiff.entries()){
     const part={text:change.value.join(' '),different:!!(change.added||change.removed)};
@@ -256,13 +263,7 @@ function testPatch(patch,expectedTokens,origins,map,previous,current,prevDoc,cur
     // the actual replacement and the expected wording in the bottom pane.
     // Reserve missing markers for deletions that have no replacement tokens.
     else if(!wordingDiff[changeIndex-1]?.added&&!wordingDiff[changeIndex+1]?.added){
-      const numeric=change.value.every(value=>/^[\d,]+$/.test(value));
-      const amountHere=[current[actualIndex],current[actualIndex-1]].some(t=>t&&/^[\d,]+$/.test(t.value));
-      // Global alignment of a large budget can match repeated commas/digits
-      // between the removed and added parts of one amount. A numeric mismatch
-      // beside actual numeric text is shown as a discrepancy, not as a gap
-      // inside the printed amount. Expected differences remain in the card.
-      if(!numeric||!amountHere)missingPoints.push({offset:current[actualIndex]?.start??current[current.length-1]?.end??0,text:part.text});
+      missingPoints.push({offset:current[actualIndex]?.start??current[current.length-1]?.end??0,text:part.text});
     }
   }
   const currentDeletionRanges=[];
@@ -302,7 +303,7 @@ function testPatch(patch,expectedTokens,origins,map,previous,current,prevDoc,cur
     if(!patch.replacement.length||status==='not-implemented')collect(candidates.filter(t=>!crossed(t)));
     currentDeletionRanges.sort((a,b)=>a.start-b.start);
   }
-  return {status,previousOffset,previousEndOffset,currentOffset,currentEndOffset,currentDeletionRanges,currentPage:block?.page,currentLine:block?.margin?.trim()||'',expected:expected.join(' '),actual:textOf(currentDoc,current,currentStart,currentEnd),original:textOf(prevDoc,previous,oldStart,oldEnd),expectedParts,actualParts,differenceRanges,missingPoints};
+  return {status,previousOffset,previousEndOffset,currentOffset,currentEndOffset,currentDeletionRanges,currentPage:block?.page,currentLine:block?.margin?.trim()||'',expected:expected.join(' '),actual:textOf(currentDoc,current,currentStart,currentEnd),original:textOf(prevDoc,previous,oldStart,oldEnd),expectedParts,actualParts,differenceRanges,missingPoints,discrepancies:amendmentDiscrepancies(wordingDiff,current,currentStart)};
 }
 function amendmentPlan(instructionText,prevDoc,currentDoc,externalDocs={}){
   const rules=parseAmendments(instructionText).map(rule=>{
@@ -361,7 +362,7 @@ export function verifyAmendments(instructionText,prevDoc,currentDoc,externalDocs
 export function nonAmendmentEdits(instructionText,prevDoc,currentDoc,results,externalDocs={}){
   if(results.some(r=>r.externalReference&&(r.status==='needs-review'||r.attachmentWarning)))return {ranges:[[],[]],locations:[{},{}],uncertain:true,reason:'Non-amendment changes cannot be classified until the referenced bill insertion and any additional drafting attachments are resolved.'};
   const {previous,current,expectedTokens,origins}=amendmentPlan(instructionText,prevDoc,currentDoc,externalDocs);
-  const diff=sequenceDiff(values(expectedTokens),values(current));
+  const diff=splitHistoryChanges(sequenceDiff(values(expectedTokens),values(current)));
   if(!diff)throw Error('Non-amendment changes could not be aligned reliably.');
   const ranges=[[],[]],locations=[{},{}];let old=0,now=0,group=-1,inEdit=false;
   const targets=side=>results.flatMap(r=>r.evidence.map(e=>({start:side?e.currentOffset:e.previousOffset,end:side?e.currentEndOffset:e.previousEndOffset}))).filter(r=>r.end>r.start);
@@ -369,8 +370,8 @@ export function nonAmendmentEdits(instructionText,prevDoc,currentDoc,results,ext
   const add=(side,token,kind)=>{if(token&&!covered[side].some(r=>r.start<token.end&&r.end>token.start))ranges[side].push({start:token.start,end:token.end,kind,group});};
   for(const change of diff){
     if(change.added||change.removed){
-      if(!inEdit){group++;locations[0][group]=previous[origins[old]?.start]?.start??previous.at(-1)?.end??0;locations[1][group]=current[now]?.start??current.at(-1)?.end??0;}
-      inEdit=true;
+      if(!inEdit||change.history){group++;locations[0][group]=previous[origins[old]?.start]?.start??previous.at(-1)?.end??0;locations[1][group]=current[now]?.start??current.at(-1)?.end??0;}
+      inEdit=!change.history;
       if(change.added){for(let i=0;i<change.count;i++)add(1,current[now+i],'added');now+=change.count;}
       else{for(let i=0;i<change.count;i++){const origin=origins[old+i];if(origin&&!origin.amendment)for(let j=origin.start;j<origin.end;j++)add(0,previous[j],'removed');}old+=change.count;}
     }else{inEdit=false;old+=change.count;now+=change.count;}

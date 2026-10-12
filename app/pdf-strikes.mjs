@@ -1,3 +1,6 @@
+import {sourceTextEvidence} from './pdf-text-evidence.mjs';
+import {partialStrikeGlyphEvidence} from './pdf-strike-glyphs.mjs';
+import {pageTextIntegrity} from './pdf-page-quality.mjs';
 const identity=()=>[1,0,0,1,0,0];
 const multiply=(a,b)=>[a[0]*b[0]+a[2]*b[1],a[1]*b[0]+a[3]*b[1],a[0]*b[2]+a[2]*b[3],a[1]*b[2]+a[3]*b[3],a[0]*b[4]+a[2]*b[5]+a[4],a[1]*b[4]+a[3]*b[5]+a[5]];
 const point=(m,x,y)=>({x:m[0]*x+m[2]*y+m[4],y:m[1]*x+m[3]*y+m[5]});
@@ -29,7 +32,9 @@ export function horizontalStrokes(operators,OPS){
   return lines;
 }
 export function extractPageLayout(items,operators,OPS,styles={},pageWidth=612){
+  items=sourceTextEvidence(items,operators,OPS);
   const strokes=horizontalStrokes(operators,OPS),rows=[];
+  items=partialStrikeGlyphEvidence(items,operators,OPS,strokes);
   for(const item of items){
     if(!('str' in item) || !item.str.length)continue;
     // Secured-copy stamps are rotated independently of the bill text.
@@ -51,18 +56,53 @@ export function extractPageLayout(items,operators,OPS,styles={},pageWidth=612){
     })).sort((a,b)=>Math.abs(a.y-row.y)-Math.abs(b.y-row.y))[0];
     if(target){target.items.push(...row.items);rows.splice(rows.indexOf(row),1);}
   }
+  // A typeset fraction's numerator has its own raised baseline. Join it only
+  // when a smaller digit physically touches a slash on a nearby text row.
+  // Page numbers, footnotes and separate numbered lines have no such evidence.
+  for(const row of [...rows]){
+    const glyphs=row.items.filter(item=>item.str.trim());
+    if(!glyphs.length||!glyphs.every(item=>/^\d+$/.test(item.str.trim())))continue;
+    const target=rows.filter(other=>other!==row&&glyphs.every(glyph=>{
+      const height=Math.max(...other.items.map(item=>item.height));
+      return glyph.height<height*.85&&row.y>other.y&&row.y-other.y<=height*.7&&other.items.some(item=>
+        /^[⁄/]\d*/.test(item.str.trim())&&Math.abs(glyph.transform[4]+glyph.width-item.transform[4])<=Math.max(1.5,height*.15));
+    })).sort((a,b)=>Math.abs(a.y-row.y)-Math.abs(b.y-row.y))[0];
+    if(target){target.items.push(...row.items);rows.splice(rows.indexOf(row),1);}
+  }
   const lines=[],strikes=[],formatting=[];let pageOffset=0;
+  // Some accessible bill PDFs position their nonprinting "line" label after
+  // the visible margin number, overlapping the body. Recover its order only
+  // when other numbered rows establish the same right-aligned margin column.
+  const visible=row=>row.items.filter(item=>item.str.trim()).sort((a,b)=>a.transform[4]-b.transform[4]);
+  const margins=rows.map(visible).filter(g=>g[0]?.str.trim()==='line'&&/^\d+$/.test(g[1]?.str.trim()||'')&&g[2]).map(g=>({right:g[1].transform[4]+g[1].width,bodyLeft:g[2].transform[4]}));
+  if(margins.length>=2)for(const row of rows){
+    const [number,label,body]=visible(row);
+    if(!number||!body||!/^\d+$/.test(number.str.trim())||label.str.trim()!=='line')continue;
+    const right=number.transform[4]+number.width;
+    const peers=margins.filter(m=>Math.abs(m.right-right)<1.5);
+    if(peers.length<2||label.transform[4]<=number.transform[4])continue;
+    const inGutter=label.transform[4]<Math.min(...peers.map(m=>m.bodyLeft))-1;
+    const overlapsBody=label.transform[4]+label.width>body.transform[4]+1;
+    if(!inGutter&&!overlapsBody)continue;
+    row.items=row.items.map(item=>item===label?{...item,transform:[...item.transform.slice(0,4),number.transform[4]-label.width-1,item.transform[5]]}:item===number?{...item,spaceBefore:true}:item);
+  }
   const ordered=rows.sort((a,b)=>b.y-a.y),gaps=ordered.slice(1).map((r,i)=>ordered[i].y-r.y).filter(g=>g>3&&g<35).sort((a,b)=>a-b);
   const regularGap=gaps.map(value=>({value,count:gaps.filter(g=>Math.abs(g-value)<1).length})).sort((a,b)=>b.count-a.count||a.value-b.value)[0]?.value||18;
   for(const [rowIndex,row] of ordered.entries()){
     let text='',end=null;const spans=[],runs=[];
     for(const item of row.items.sort((a,b)=>a.transform[4]-b.transform[4])){
       const x=item.transform[4],y=item.transform[5],gap=end===null?0:x-end;
-      if(text && gap>Math.max(1.5,item.height*.16) && !/\s$/.test(text) && !/^\s/.test(item.str))text+=' ';
+      if(text && (item.spaceBefore||gap>Math.max(1.5,item.height*.16)) && !/\s$/.test(text) && !/^\s/.test(item.str))text+=' ';
       const start=text.length;text+=item.str;end=x+item.width;
-      runs.push({start,end:text.length,x,width:item.width,height:item.height,space:!item.str.trim(),font:styles[item.fontName]?.fontFamily||'serif',bold:!!styles[item.fontName]?.bold,italic:!!styles[item.fontName]?.italic,smallCaps:!!(styles[item.fontName]?.ascent>0&&styles[item.fontName]?.ascent<.5)});
-      const crossed=!!item.str.trim()&&strokes.some(line=>line.y-y>item.height*.15 && line.y-y<item.height*.65 && Math.max(0,Math.min(end,line.x2)-Math.max(x,line.x1))>=item.width*.7);
-      if(crossed)spans.push({start,end:text.length});
+      const rowHeight=Math.max(...row.items.map(glyph=>glyph.height));
+      const fractionDigit=/^\d+$/.test(item.str.trim())&&item.height<rowHeight*.85&&row.items.some(glyph=>/^[⁄/]\d*/.test(glyph.str.trim())&&Math.min(Math.abs(x+item.width-glyph.transform[4]),Math.abs(x-(glyph.transform[4]+glyph.width)))<=Math.max(1.5,rowHeight*.15));
+      runs.push({start,end:text.length,x,width:item.width,height:item.height,space:!item.str.trim(),font:styles[item.fontName]?.fontFamily||'serif',bold:!!styles[item.fontName]?.bold,italic:!!styles[item.fontName]?.italic,smallCaps:!!(styles[item.fontName]?.ascent>0&&styles[item.fontName]?.ascent<.5),...(fractionDigit?{fractionOffset:y-row.y}: {}),...(item.sourceCharSpacing!==undefined?{sourceCharSpacing:item.sourceCharSpacing}: {})});
+      if(item.sourceGlyphs){
+        for(const glyph of item.sourceGlyphs)if(item.ocrStruck||strokes.some(line=>line.y-y>item.height*.15&&line.y-y<item.height*.65&&Math.max(0,Math.min(glyph.x+glyph.width,line.x2)-Math.max(glyph.x,line.x1))>=glyph.width*.7))spans.push({start:start+glyph.start,end:start+glyph.end});
+      }else{
+        const crossed=!!item.ocrStruck||!!item.str.trim()&&strokes.some(line=>line.y-y>item.height*.15 && line.y-y<item.height*.65 && Math.max(0,Math.min(end,line.x2)-Math.max(x,line.x1))>=item.width*.7);
+        if(crossed)spans.push({start,end:text.length});
+      }
     }
     const leading=text.length-text.trimStart().length;text=text.trim();
     if(!text)continue;
@@ -93,7 +133,9 @@ export function extractPageLayout(items,operators,OPS,styles={},pageWidth=612){
     })));
     if(f.rules.length){const y=f.rules[0].y;f.rules=f.rules.filter(l=>Math.abs(l.y-y)<=3);}
   }
-  return {text:lines.join('\n'),strikes,lines:formatting};
+  const layout={text:lines.join('\n'),strikes,lines:formatting};
+  layout.readingQuality=pageTextIntegrity(items,layout);
+  return layout;
 }
 
 export function hasVisiblePdfContent(operators,OPS){

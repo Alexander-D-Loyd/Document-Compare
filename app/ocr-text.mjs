@@ -1,17 +1,31 @@
-const connectors=new Set('a an the and or of to in on at by for from with under over after before this that these those is are was were shall must may be not'.split(' '));
-export function ocrDictionary(text){return new Set([...connectors,...text.split(/\r?\n/).slice(1).map(line=>line.split('/')[0].trim().toLowerCase()).filter(word=>/^[a-z]+$/.test(word))]);}
+const connectors=new Set('a an the and or if of to in on at by for from with under over after before this that these those is are was were shall must may be not'.split(' '));
+export function ocrDictionary(text,expandedWords=[]){return new Set([...connectors,...text.split(/\r?\n/).slice(1).map(line=>line.split('/')[0].trim().toLowerCase()),...Array.from(expandedWords,word=>word.toLowerCase())].filter(word=>/^[a-z]+$/.test(word)));}
 export function repairOcrSpacing(text,words){
  return text.replace(/\b[A-Za-z]{4,}\b/g,word=>{
   const lower=word.toLowerCase();if(words.has(lower))return word;
-  const splits=[];
-  for(let i=1;i<lower.length;i++){
-   const first=lower.slice(0,i),last=lower.slice(i);
-   if(words.has(first)&&words.has(last)&&(first.length>=3||connectors.has(first))&&(last.length>=3||connectors.has(last))&&(connectors.has(first)||connectors.has(last)))splits.push(i);
-  }
-  return splits.length===1?word.slice(0,splits[0])+' '+word.slice(splits[0]):word;
+  if(lower.length>60)return word;
+  let solutions=[],best=7,bestConnectors=-1;
+  const split=(start,cuts)=>{
+   if(start===lower.length){
+    let from=0;const score=cuts.reduce((n,end)=>{const part=lower.slice(from,end);from=end;return n+Number(connectors.has(part));},0);
+    if(cuts.length>1&&(cuts.length<best||cuts.length===best&&score>=bestConnectors)){
+     if(cuts.length<best||score>bestConnectors){best=cuts.length;bestConnectors=score;solutions=[];}
+     if(solutions.length<2)solutions.push(cuts);
+    }
+    return;
+   }
+   if(cuts.length>=Math.min(best,6))return;
+   for(let end=start+1;end<=lower.length;end++){
+    const part=lower.slice(start,end);
+    if(words.has(part)&&(part.length>=3||connectors.has(part)))split(end,[...cuts,end]);
+   }
+  };
+  split(0,[]);
+  if(solutions.length!==1)return word;
+  let start=0;return solutions[0].map(end=>{const part=word.slice(start,end);start=end;return part;}).join(' ');
  });
 }
-export function isOcrStyle(style){return /GlyphLessFont/i.test(style?.name||'')||(style?.fontFamily==='sans-serif'&&style?.ascent===1&&Math.abs(style?.descent||0)<.01);}
+export function isOcrStyle(style){return /GlyphLessFont/i.test(style?.name||'')||(['sans-serif','monospace'].includes(style?.fontFamily)&&style?.ascent===1&&Math.abs(style?.descent||0)<.01);}
 
 // Repair OCR only in editorial directives; quoted payload wording stays literal.
 export function repairOcrDirective(styled){
@@ -29,6 +43,7 @@ export function repairOcrDirective(styled){
  replace(/\b(On)page(?=\s*\d)/gi,m=>m.replace(/page/i,' page'));
  replace(/\b(page|line)(?=\d)/gi,m=>m+' ');
  replace(/\binline(?=\s*\d)/gi,()=> 'in line');
+ replace(/\bbetweenlines?(?=\s*\d)/gi,m=>m.replace(/lines?/i,' $&'));
  replace(/\blines?\s+[|Il](?=\s+(?:to|through|and)\s+\d)/g,m=>m.slice(0,-1)+'1');
  // A closing apostrophe before the next deletion clause is an OCR delimiter,
  // while apostrophes inside the quoted wording are preserved.

@@ -23,3 +23,10 @@ app/vendor/wasm/
 # Icon binaries are restored from the checked-in encoded icon assets.
 app/assets/document-compare.png
 app/assets/document-compare.ico
+
+# Offline engine binaries are distributed in the Windows release.
+engines/runtime/
+**/__pycache__/
+# Pinned OCR assets are restored by npm install and verified by their manifest.
+app/vendor/ocr/*
+!app/vendor/ocr/MANIFEST.json

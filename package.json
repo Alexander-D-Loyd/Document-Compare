@@ -1,18 +1,20 @@
 {
   "name": "document-compare",
   "productName": "Document Compare",
-  "version": "1.20.23",
+  "version": "1.21.4",
   "private": true,
   "main": "main.cjs",
   "description": "Local PDF comparison, spelling and grammar review, and instructional amendment verification",
   "license": "UNLICENSED",
   "scripts": {
     "start": "electron .",
-    "postinstall": "node scripts/setup-pdf-assets.cjs && node scripts/setup-app-icons.cjs",
+    "postinstall": "node scripts/setup-pdf-assets.cjs && node scripts/setup-app-icons.cjs && node scripts/setup-ocr-assets.cjs",
     "test": "node scripts/test.cjs"
   },
   "devDependencies": {
-    "electron": "42.11.10",
-    "pdfjs-dist": "6.4.299"
+    "electron": "44.5.1",
+    "pdfjs-dist": "6.4.299",
+    "tesseract.js": "7.0.0",
+    "tesseract.js-core": "7.0.0"
   }
 }

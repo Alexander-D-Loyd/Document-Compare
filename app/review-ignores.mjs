@@ -1,7 +1,7 @@
 // Review-only state. Deliberately never persisted to disk or local storage.
 export function createReviewIgnores(){
  const occurrences=new Set(),matches=new Set(),history=[];
- const signature=(kind,issue,text)=>JSON.stringify([kind,kind==='spelling'?issue.word:(kind==='style'&&(issue.matchText||issue.text)?issue.matchText||issue.text:text.slice(issue.start,issue.end)).replace(/\s+/g,' ').trim(),kind==='grammar'?issue.message:kind==='style'?issue.rule:'',issue.suggestion||'']);
+ const signature=(kind,issue,text)=>JSON.stringify([kind,kind==='spelling'?issue.word:(kind==='style'&&(issue.matchText||issue.text)?issue.matchText||issue.text:issue.matchText||text.slice(issue.start,issue.end)).replace(/\s+/g,' ').trim(),kind==='grammar'?issue.message:kind==='style'?issue.rule:'',issue.suggestion||'']);
  const occurrence=(kind,issue,text)=>JSON.stringify([signature(kind,issue,text),issue.start,issue.end]);
  return {
   ignore(kind,issue,text,all=false){const set=all?matches:occurrences,key=all?signature(kind,issue,text):occurrence(kind,issue,text);if(set.has(key))return;set.add(key);history.push({kind,all,key});},

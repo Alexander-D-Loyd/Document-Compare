@@ -15,3 +15,12 @@ test('formal agency names, fund names and private attorney general doctrine stay
  const text='The Governor’s Office of Business and Economic Development and the Division of the State Architect act. The Appellate Court Trust Fund pays under the private attorney general doctrine.\n0500-001-0140—For support of the Governor’s Office, payable from the fund.';
  assert.equal(check(text).length,0);
 });
+
+test('southern California directional wording keeps the agreeing LCB and GPO source rules',()=>{
+ const both={...refs,gpo:JSON.parse(fs.readFileSync(new URL('../app/data/gpo-reference.json',import.meta.url)))},doc=makeDocument(['A goods movement campus in Southern California is available.'],'Current'),found=capitalizationIssues(doc,both);assert.equal(found.length,1);assert.equal(found[0].suggestion,'southern California');assert.equal(found[0].conflict,false);assert.deepEqual(found[0].references.map(r=>[r.guideId,r.guidePage]),[['lcb',20],['gpo',48]]);assert.equal(found[0].references[1].rule,'3.23');assert.match(found[0].references[1].ruleText,/not a blanket rule/);assert.equal(doc.text.slice(found[0].start,found[0].end),'Southern California');
+ for(const text of ['A campus in southern California is available.','Southern California has a campus.','The Southern California Institute operates.','A campus in “Southern California” is named.'])assert.equal(capitalizationIssues(makeDocument([text],'Current'),both).length,0,text);
+});
+
+test('capitalization ranges preserve both body fragments across only identified running heads',()=>{
+ const both={...refs,gpo:JSON.parse(fs.readFileSync(new URL('../app/data/gpo-reference.json',import.meta.url)))},doc=makeDocument(['ASSEMBLY BILL No. 121\nThe people do enact as follows:\nline 1 A campus in Southern\n97','AB 121 — 2 —\nline 1 California is available.'],'Current');assert.equal(capitalizationIssues(doc,both).length,0);for(const b of doc.blocks.filter(b=>b.ignored))b.formatting={headerParts:[{start:0,end:b.text.length,anchor:'left'}]};const found=capitalizationIssues(doc,both);assert.equal(found.length,1);assert.equal(found[0].start,doc.text.indexOf('Southern'));assert.equal(found[0].end,doc.text.indexOf('California is')+10);assert.equal(found[0].text,doc.text.slice(found[0].start,found[0].end));assert.equal(found[0].suggestion,'southern California');assert.equal(found[0].references.length,2);doc.struck=[{start:found[0].start,end:found[0].start+1}];assert.equal(capitalizationIssues(doc,both).length,0);
+});

@@ -1,11 +1,32 @@
-import {styleContext} from './style-context.mjs';
+import {styleContext,styleRangeBlocked} from './style-context.mjs';
+import {canonicalWrittenValue} from './style-numerals.mjs';
+import {dividedCalendarDates} from './style-calendar-dates.mjs';
+import {simplePunctuationWordSeries} from './style-list-phrases.mjs';
+import {percentageOpeningEvidence} from './style-percentage-openings.mjs';
+import {styleEvidenceGuard,cutsOriginalStyleWord,originalBodyStyleContext} from './style-evidence.mjs';
+import {createNounQuantityReader}from './style-noun-quantities.mjs';
+import {styleSingleQuoteRanges}from './style-single-quote-ranges.mjs';
+import {cutsOriginalSourceWord} from './style-introduced-lists.mjs';
+export const QUALIFIED_TIME_NOTICE_SCOPE='LCB6/7 possessive-time checks now also recognize a complete canonical written or integer/grouped/decimal count followed by a selected business/calendar/court/school/academic/consecutive/working time-unit qualifier and notice, plus the source-listed schoolday noun. Every original count, qualifier, time unit and notice remains evidence. The possessive is supplied from the actual singular/plural unit; independent figure/spelled-out corrections remain separate. Protected quotations, source strikes/exclusions, malformed numbers, identifiers, genuine hyphenated unit modifiers and table rows stay excluded. Other qualified nominal relationships and fractions remain unresolved; this does not certify all possessive-time grammar.';
 export function contextualPunctuationIssues(doc,references){
  const ctx=styleContext(doc),issues=[];
+ const blockedListEvidence=styleEvidenceGuard(doc,ctx);
+ const timeQuantity=createNounQuantityReader(doc,ctx);
+ let timeLiteralRanges=null,timeOriginalContext=null;
+ const timeCurrencyPrefix=(source,start)=>{while(start>0&&/\s/u.test(source[start-1]))start--;return /[$€£¥₹¢]/u.test(source[start-1]||'');};
  const literal=[...ctx.source.matchAll(/“[^”]*”|"[^"\n]*"/g)].map(m=>({start:m.index,end:m.index+m[0].length}));
  const quoted=m=>literal.some(r=>r.start<m.index+m[0].length&&r.end>m.index);
  const add=(m,suggestion,rule,page,message,guideId='lcb',conflict=false)=>{
   suggestion=suggestion.replace(/\s+/g,' ');
-  if(ctx.at(m.index)==='Heading'||[...(doc.struck||[]),...doc.blocks.filter(b=>b.ignored).map(b=>({start:b.start,end:b.end}))].some(r=>r.start<m.index+m[0].length&&r.end>m.index))return;
+  if(!['Punctuation: Quotation Marks','8.120'].includes(rule)&&quoted(m))return;
+  const end=m.index+m[0].length;
+  if(ctx.at(m.index)==='Heading'||(doc.struck||[]).some(r=>r.start<end&&r.end>m.index))return;
+  // A complete date can cross printed page labels already blanked in the
+  // shared source. Preserve that whole source selection; its endpoints must
+  // still be real prose. Other punctuation checks keep their existing scope.
+  if(rule!=='Punctuation: Time possessives'&&doc.blocks.some(b=>b.ignored&&(rule==='Punctuation: Full dates'?
+    b.start<=m.index&&b.end>m.index||b.start<end&&b.end>=end:
+    b.start<end&&b.end>m.index)))return;
   const printedPage=references[guideId].pages[page-1].printedPage;
   issues.push({start:m.index,end:m.index+m[0].length,text:doc.text.slice(m.index,m.index+m[0].length),suggestion,guideId,guidePage:page,guidePrintedPage:printedPage,rule,category:'Punctuation',context:ctx.at(m.index),checkId:'punctuation',conflict,message,references:[{guideId,guideName:guideId==='lcb'?'LCB Style Manual':'GPO Style Manual',guidePage:page,guidePrintedPage:printedPage,rule,preferred:suggestion,ruleText:message}]});
  };
@@ -14,17 +35,30 @@ export function contextualPunctuationIssues(doc,references){
   if(!/^\s*(?:[.,;:!?)]|$|(?:and|or|to|through|were|are|was|is)\b)/i.test(ctx.source.slice(m.index+m[0].length)))continue;
   add(m,m[0].replace(/[’']/g,''),'Punctuation: Apostrophes',6,'LCB does not use an apostrophe to form plural numbers; its example is “1990s.”');
  }
- for(const m of ctx.source.matchAll(/\b(?:\d+|one|two|three|four|five|six|seven|eight|nine|ten|thirty|sixty|ninety)\s+(?:days?|weeks?|months?|years?)\s+notice\b/gi)){
-  const suggestion=m[0].replace(/\b(day|week|month|year)(s?)\s+(notice)$/i,(_,unit,plural,notice)=>unit+plural+(plural?'’':'’s')+' '+notice);
-  add(m,suggestion,'Punctuation: Time possessives',7,'LCB examples use “90 days’ notice” and “one week’s notice.” This time expression immediately modifies “notice.”');
- }
- for(const m of ctx.source.matchAll(/\b(?:\d+|one|two|three|four|five|six|seven|eight|nine|ten|thirty|sixty|ninety)\s+(?:days?|weeks?|months?|years?|hours?|minutes?)\s+(?:pay|work|labor|labour|vacation|delay|experience|traveltime)\b/gi)){
-  add(m,m[0].replace(/\b(day|week|month|year|hour|minute)(s?)\s+(\w+)$/i,(_,unit,plural,noun)=>unit+plural+(plural?'’':'’s')+' '+noun),'Punctuation: Time possessives',6,'LCB describes possessive time expressions. GPO 8.14 illustrates a day’s labor, weeks’ pay and hours’ traveltime; confirm this means an amount of time rather than a named program.');
+ const cardinalWords='zero|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety|hundred|thousand|million|billion|trillion';
+ const count='(?:\\d+(?:,\\d{3})*(?:\\.\\d+)?|(?:'+cardinalWords+')(?:[\\s-]+(?:'+cardinalWords+')){0,12})';
+ for(const m of ctx.source.matchAll(new RegExp('\\b('+count+')\\s+((?:(?:business|calendar|court|school|academic|consecutive|working)\\s+)?(?:schooldays?|days?|weeks?|months?|years?|hours?|minutes?)\\s+(notice|pay|work|labor|labour|vacation|delay|experience|traveltime))\\b','gi'))){
+  // Qualifiers extend the source-listed notice construction only. They do
+  // not establish the noun/verb role of an unfamiliar work/pay expression.
+  if(/^(?:(?:business|calendar|court|school|academic|consecutive|working)\s+|schooldays?\s+)/i.test(m[2])&&m[3].toLowerCase()!=='notice')continue;
+  const unitStart=m.index+m[0].lastIndexOf(m[2]),quantity=timeQuantity(unitStart),evidenceEnd=m.index+m[0].length;
+  if(!quantity||quantity.start!==m.index||cutsOriginalStyleWord(doc,evidenceEnd)||/^[-\u00ad\u2010\u2011’']/u.test(doc.text.slice(evidenceEnd))||blockedListEvidence(quantity.start,evidenceEnd))continue;
+  if(timeLiteralRanges===null){timeOriginalContext=originalBodyStyleContext(doc);timeLiteralRanges=[...styleSingleQuoteRanges(ctx.source),...(timeOriginalContext?[...timeOriginalContext.literalRanges,...styleSingleQuoteRanges(timeOriginalContext.source)]:[])];}if(timeLiteralRanges.some(r=>r.start<evidenceEnd&&r.end>quantity.start)||timeCurrencyPrefix(ctx.source,quantity.start)||timeOriginalContext&&timeCurrencyPrefix(timeOriginalContext.source,quantity.start))continue;
+  const written=!/^\d/.test(m[1]),value=written?canonicalWrittenValue(m[1]):Number(m[1].replaceAll(',',''));
+  if(value===null||!Number.isFinite(value)||ctx.tableAt(m.index)||/[\p{L}\p{N}\/⁄.,+−-]$/u.test(ctx.source.slice(Math.max(0,m.index-1),m.index))||/[+−-]\s*$/.test(ctx.source.slice(Math.max(0,m.index-12),m.index)))continue;
+  // A larger written count may have its own numeral correction. Keep that
+  // finding independent by highlighting just the missing possessive here.
+  const kind=ctx.at(m.index),independentCount=written&&value>=10||kind==='Bill'&&!written&&value>=1&&value<=9||kind==='Digest'&&(written&&value!==1||!written&&value===1);
+  const target=independentCount?{index:m.index+m[0].lastIndexOf(m[2]),0:m[2]}:m;
+  const suggestion=target[0].replace(/\b(schoolday|day|week|month|year|hour|minute)(s?)\s+(\w+)$/i,(_,unit,plural,noun)=>unit+plural+(plural?'’':'’s')+' '+noun);
+  add(target,suggestion,'Punctuation: Time possessives',m[3].toLowerCase()==='notice'?7:6,'LCB uses possessive time expressions, including “90 days’ notice” and “one week’s notice.” This complete recognized count immediately qualifies the stated noun. Larger written-number corrections remain independent; ambiguous fraction counts and tables are protected.');
  }
  for(const m of ctx.source.matchAll(/\b(?:your[’']s|her[’']s|our[’']s|their[’']s|its[’'])(?=\s|[.,;:!?)]|$)/gi))add(m,m[0].replace(/[’']/g,''),'8.8',208,'GPO 8.8 says possessive pronouns do not take an apostrophe; “it’s” as a contraction is checked separately.','gpo');
  for(const m of ctx.source.matchAll(/\b\d+(?:\.\d+)?(?:\s*%|\s+percent\b)/gi)){
   if(ctx.tableAt(m.index))continue;
   if(/[\/⁄]\s*$/.test(ctx.source.slice(Math.max(0,m.index-5),m.index)))continue;
+  const number=m[0].match(/^\d+(?:\.\d+)?/)[0];
+  if(/^\d+$/.test(number)&&percentageOpeningEvidence(doc,ctx,m.index,m.index+number.length))continue;
   const kind=ctx.at(m.index),symbol=/%$/.test(m[0]);if(kind==='Bill'&&symbol)add(m,m[0].replace(/\s*%$/,' percent'),'Numerals: Percent',23,'LCB bill text uses figures followed by “percent”; the digest uses the % symbol.');
   if(kind==='Digest'&&!symbol)add(m,m[0].replace(/\s+percent$/i,'%'),'Numerals: Percent',23,'LCB digest text uses the % symbol; GPO 10.5 prefers the spelled form in ordinary prose. This conflicting choice is excluded from Stylistic Check.','lcb',true);
  }
@@ -42,6 +76,10 @@ export function contextualPunctuationIssues(doc,references){
   add(m,m[0][1]+m[0][0],'Punctuation: Quotation Marks',6,'LCB places periods and commas inside quotation marks.');
  }
  const months='January|February|March|April|May|June|July|August|September|October|November|December';
+ for(const part of dividedCalendarDates(ctx.source)){
+  const continues=/^\s+[A-Za-z]/.test(ctx.source.slice(part.end));
+  add({index:part.start,0:part.text},part.suggestion+(continues?',':''),'Punctuation: Full dates',7,'This complete calendar date has a separated pair of day digits. LCB page 7 shows contiguous day figures in a month-day-year date, with a comma after the year when the sentence continues. This may be source spacing or PDF reading; verify the original PDF before editing. The source text is preserved.');
+ }
  for(const m of ctx.source.matchAll(new RegExp('\\b(?:'+months+')\\s+\\d{1,2},\\s+\\d{4}(?=\\s+[A-Za-z])','g')))add(m,m[0]+',','Punctuation: Full dates',7,'LCB shows a comma following the year in a complete month-day-year date when the sentence continues.');
  for(const m of ctx.source.matchAll(new RegExp('\\b(?:'+months+'),\\s+\\d{4}\\b','g')))add(m,m[0].replace(',',''),'Punctuation: Month and year',7,'LCB writes a month and year without a separating comma, as in “April 2001.”');
  for(const [form,preferred] of [['workers compensation','workers’ compensation'],['attorneys fees','attorney’s fees'],['drivers license','driver’s license'],['drivers licenses','driver’s licenses'],['farmers market','farmers’ market'],['homeowners insurance','homeowners’ insurance'],['masters degree','master’s degree'],['travelers checks','traveler’s checks'],['contractors license','contractor’s license'],['cashiers checks','cashier’s checks'],['mechanics liens','mechanic’s liens']]){
@@ -54,11 +92,15 @@ export function contextualPunctuationIssues(doc,references){
    const suggestion=/^[A-Z]/.test(m[0])?preferred[0].toUpperCase()+preferred.slice(1):preferred;add(m,suggestion,'Punctuation: Listed possessive forms',7,'LCB lists “'+preferred+'” with this possessive form.');
   }
  }
- // Restrict this pass to an explicit introductory list and three simple
- // words; more complex clauses require a grammatical parse.
+ // Single-word items need independent role evidence. A noun followed by a
+ // descriptive pair, condition or preposition pair is not a three-item list.
  for(const m of ctx.source.matchAll(/\b(?:includes?|comprises?|consists of|such as)\s+([a-z]+),\s+([a-z]+)\s+(and|or|nor)\s+([a-z]+)\b/gi)){
-  if(/^(?:if|when|where|unless|then|shall|may|must)$/i.test(m[1])||/^(?:is|are|be|was|were)$/i.test(m[4]))continue;
-  add(m,m[0].replace(/\s+(and|or|nor)\s+([a-z]+)$/i,', $1 $2'),'Punctuation: Commas',6,'LCB uses a comma before the final conjunction in a series of three or more items. This check covers a simple list introduced explicitly.');
+  const end=m.index+m[0].length;
+  if(!simplePunctuationWordSeries([m[1],m[2],m[4]])||cutsOriginalSourceWord(doc,m.index)||cutsOriginalSourceWord(doc,end)||styleRangeBlocked(doc,m.index,end)||blockedListEvidence(m.index,end))continue;
+  const join=/\s+(and|or|nor)\s+([a-z]+)$/i.exec(m[0]);
+  add({index:m.index+join.index+join[0].indexOf(join[1]),0:join[1]},', '+join[1],'Punctuation: Commas',6,'LCB and GPO use a comma before the final conjunction in a series of three or more items. Check that these are separate list items, then add a comma before “'+join[1]+'”.');
+  const issue=issues.at(-1),start=m.index+join.index+join[0].indexOf(join[1]);
+  if(issue?.start===start&&issue.rule==='Punctuation: Commas')issue.references.push({guideId:'gpo',guideName:'GPO Style Manual',guidePage:216,guidePrintedPage:references.gpo.pages[215].printedPage,rule:'8.46',preferred:issue.suggestion,ruleText:'GPO 8.46 requires a comma after each member of a series of three or more words, phrases, letters or figures used with and, or or nor.'});
  }
  // These fixed LCB examples have a defined punctuation pattern. Preserve
  // quoted wording; do not infer that every occurrence of 'including' is

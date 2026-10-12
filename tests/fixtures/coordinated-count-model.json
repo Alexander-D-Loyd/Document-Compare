@@ -1,0 +1,1341 @@
+{
+  "parserSHA256": "bb9c22a691dd6f4006945e243bd736a274453ca6c96c06cf6047ef5fa1801d54",
+  "source": "Actual en_core_web_sm 3.8.0 parser controls; semantic relation remains unproven.",
+  "rows": [
+    {
+      "text": "The office shall employ two women and 10 men.",
+      "issues": [
+        {
+          "start": 24,
+          "end": 27,
+          "headStart": 28,
+          "headEnd": 33,
+          "head": "women",
+          "headLemma": "woman",
+          "peerStart": 38,
+          "peerEnd": 40,
+          "peerHeadStart": 41,
+          "peerHeadEnd": 44,
+          "peerHead": "men",
+          "peerHeadLemma": "man",
+          "evidenceStart": 0,
+          "evidenceEnd": 45,
+          "conditionalSuggestion": "2",
+          "suggestion": null,
+          "reviewSuggested": true,
+          "engine": "spaCy",
+          "engineRule": "LCB_COORDINATED_NUMBER_RELATION_REVIEW",
+          "coordinationEvidence": {
+            "counts": [
+              {
+                "start": 24,
+                "end": 27,
+                "text": "two",
+                "pos": "NUM",
+                "tag": "CD",
+                "dep": "nummod",
+                "lemma": "two",
+                "headStart": 28,
+                "headEnd": 33,
+                "headText": "women"
+              },
+              {
+                "start": 38,
+                "end": 40,
+                "text": "10",
+                "pos": "NUM",
+                "tag": "CD",
+                "dep": "nummod",
+                "lemma": "10",
+                "headStart": 41,
+                "headEnd": 44,
+                "headText": "men"
+              }
+            ],
+            "paths": [
+              [
+                {
+                  "start": 28,
+                  "end": 33,
+                  "text": "women",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "dobj",
+                  "lemma": "woman",
+                  "headStart": 17,
+                  "headEnd": 23,
+                  "headText": "employ"
+                }
+              ],
+              [
+                {
+                  "start": 41,
+                  "end": 44,
+                  "text": "men",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "conj",
+                  "lemma": "man",
+                  "headStart": 28,
+                  "headEnd": 33,
+                  "headText": "women"
+                },
+                {
+                  "start": 28,
+                  "end": 33,
+                  "text": "women",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "dobj",
+                  "lemma": "woman",
+                  "headStart": 17,
+                  "headEnd": 23,
+                  "headText": "employ"
+                }
+              ]
+            ],
+            "markers": [
+              [],
+              [
+                {
+                  "start": 34,
+                  "end": 37,
+                  "text": "and",
+                  "pos": "CCONJ",
+                  "tag": "CC",
+                  "dep": "cc",
+                  "lemma": "and",
+                  "headStart": 28,
+                  "headEnd": 33,
+                  "headText": "women"
+                }
+              ]
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "text": "The office shall appoint three attorneys and 12 paralegals.",
+      "issues": [
+        {
+          "start": 25,
+          "end": 30,
+          "headStart": 31,
+          "headEnd": 40,
+          "head": "attorneys",
+          "headLemma": "attorney",
+          "peerStart": 45,
+          "peerEnd": 47,
+          "peerHeadStart": 48,
+          "peerHeadEnd": 58,
+          "peerHead": "paralegals",
+          "peerHeadLemma": "paralegal",
+          "evidenceStart": 0,
+          "evidenceEnd": 59,
+          "conditionalSuggestion": "3",
+          "suggestion": null,
+          "reviewSuggested": true,
+          "engine": "spaCy",
+          "engineRule": "LCB_COORDINATED_NUMBER_RELATION_REVIEW",
+          "coordinationEvidence": {
+            "counts": [
+              {
+                "start": 25,
+                "end": 30,
+                "text": "three",
+                "pos": "NUM",
+                "tag": "CD",
+                "dep": "nummod",
+                "lemma": "three",
+                "headStart": 31,
+                "headEnd": 40,
+                "headText": "attorneys"
+              },
+              {
+                "start": 45,
+                "end": 47,
+                "text": "12",
+                "pos": "NUM",
+                "tag": "CD",
+                "dep": "nummod",
+                "lemma": "12",
+                "headStart": 48,
+                "headEnd": 58,
+                "headText": "paralegals"
+              }
+            ],
+            "paths": [
+              [
+                {
+                  "start": 31,
+                  "end": 40,
+                  "text": "attorneys",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "dobj",
+                  "lemma": "attorney",
+                  "headStart": 17,
+                  "headEnd": 24,
+                  "headText": "appoint"
+                }
+              ],
+              [
+                {
+                  "start": 48,
+                  "end": 58,
+                  "text": "paralegals",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "conj",
+                  "lemma": "paralegal",
+                  "headStart": 31,
+                  "headEnd": 40,
+                  "headText": "attorneys"
+                },
+                {
+                  "start": 31,
+                  "end": 40,
+                  "text": "attorneys",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "dobj",
+                  "lemma": "attorney",
+                  "headStart": 17,
+                  "headEnd": 24,
+                  "headText": "appoint"
+                }
+              ]
+            ],
+            "markers": [
+              [],
+              [
+                {
+                  "start": 41,
+                  "end": 44,
+                  "text": "and",
+                  "pos": "CCONJ",
+                  "tag": "CC",
+                  "dep": "cc",
+                  "lemma": "and",
+                  "headStart": 31,
+                  "headEnd": 40,
+                  "headText": "attorneys"
+                }
+              ]
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "text": "The board consists of four representatives and 10 delegates.",
+      "issues": [
+        {
+          "start": 22,
+          "end": 26,
+          "headStart": 27,
+          "headEnd": 42,
+          "head": "representatives",
+          "headLemma": "representative",
+          "peerStart": 47,
+          "peerEnd": 49,
+          "peerHeadStart": 50,
+          "peerHeadEnd": 59,
+          "peerHead": "delegates",
+          "peerHeadLemma": "delegate",
+          "evidenceStart": 0,
+          "evidenceEnd": 60,
+          "conditionalSuggestion": "4",
+          "suggestion": null,
+          "reviewSuggested": true,
+          "engine": "spaCy",
+          "engineRule": "LCB_COORDINATED_NUMBER_RELATION_REVIEW",
+          "coordinationEvidence": {
+            "counts": [
+              {
+                "start": 22,
+                "end": 26,
+                "text": "four",
+                "pos": "NUM",
+                "tag": "CD",
+                "dep": "nummod",
+                "lemma": "four",
+                "headStart": 27,
+                "headEnd": 42,
+                "headText": "representatives"
+              },
+              {
+                "start": 47,
+                "end": 49,
+                "text": "10",
+                "pos": "NUM",
+                "tag": "CD",
+                "dep": "nummod",
+                "lemma": "10",
+                "headStart": 50,
+                "headEnd": 59,
+                "headText": "delegates"
+              }
+            ],
+            "paths": [
+              [
+                {
+                  "start": 27,
+                  "end": 42,
+                  "text": "representatives",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "pobj",
+                  "lemma": "representative",
+                  "headStart": 19,
+                  "headEnd": 21,
+                  "headText": "of"
+                }
+              ],
+              [
+                {
+                  "start": 50,
+                  "end": 59,
+                  "text": "delegates",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "conj",
+                  "lemma": "delegate",
+                  "headStart": 27,
+                  "headEnd": 42,
+                  "headText": "representatives"
+                },
+                {
+                  "start": 27,
+                  "end": 42,
+                  "text": "representatives",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "pobj",
+                  "lemma": "representative",
+                  "headStart": 19,
+                  "headEnd": 21,
+                  "headText": "of"
+                }
+              ]
+            ],
+            "markers": [
+              [],
+              [
+                {
+                  "start": 43,
+                  "end": 46,
+                  "text": "and",
+                  "pos": "CCONJ",
+                  "tag": "CC",
+                  "dep": "cc",
+                  "lemma": "and",
+                  "headStart": 27,
+                  "headEnd": 42,
+                  "headText": "representatives"
+                }
+              ]
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "text": "The office shall assign two staff members and 10 volunteers.",
+      "issues": [
+        {
+          "start": 24,
+          "end": 27,
+          "headStart": 34,
+          "headEnd": 41,
+          "head": "members",
+          "headLemma": "member",
+          "peerStart": 46,
+          "peerEnd": 48,
+          "peerHeadStart": 49,
+          "peerHeadEnd": 59,
+          "peerHead": "volunteers",
+          "peerHeadLemma": "volunteer",
+          "evidenceStart": 0,
+          "evidenceEnd": 60,
+          "conditionalSuggestion": "2",
+          "suggestion": null,
+          "reviewSuggested": true,
+          "engine": "spaCy",
+          "engineRule": "LCB_COORDINATED_NUMBER_RELATION_REVIEW",
+          "coordinationEvidence": {
+            "counts": [
+              {
+                "start": 24,
+                "end": 27,
+                "text": "two",
+                "pos": "NUM",
+                "tag": "CD",
+                "dep": "nummod",
+                "lemma": "two",
+                "headStart": 34,
+                "headEnd": 41,
+                "headText": "members"
+              },
+              {
+                "start": 46,
+                "end": 48,
+                "text": "10",
+                "pos": "NUM",
+                "tag": "CD",
+                "dep": "nummod",
+                "lemma": "10",
+                "headStart": 49,
+                "headEnd": 59,
+                "headText": "volunteers"
+              }
+            ],
+            "paths": [
+              [
+                {
+                  "start": 34,
+                  "end": 41,
+                  "text": "members",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "dobj",
+                  "lemma": "member",
+                  "headStart": 17,
+                  "headEnd": 23,
+                  "headText": "assign"
+                }
+              ],
+              [
+                {
+                  "start": 49,
+                  "end": 59,
+                  "text": "volunteers",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "conj",
+                  "lemma": "volunteer",
+                  "headStart": 34,
+                  "headEnd": 41,
+                  "headText": "members"
+                },
+                {
+                  "start": 34,
+                  "end": 41,
+                  "text": "members",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "dobj",
+                  "lemma": "member",
+                  "headStart": 17,
+                  "headEnd": 23,
+                  "headText": "assign"
+                }
+              ]
+            ],
+            "markers": [
+              [],
+              [
+                {
+                  "start": 42,
+                  "end": 45,
+                  "text": "and",
+                  "pos": "CCONJ",
+                  "tag": "CC",
+                  "dep": "cc",
+                  "lemma": "and",
+                  "headStart": 34,
+                  "headEnd": 41,
+                  "headText": "members"
+                }
+              ]
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "text": "The office shall employ two registered women and 10 licensed men.",
+      "issues": [
+        {
+          "start": 24,
+          "end": 27,
+          "headStart": 39,
+          "headEnd": 44,
+          "head": "women",
+          "headLemma": "woman",
+          "peerStart": 49,
+          "peerEnd": 51,
+          "peerHeadStart": 61,
+          "peerHeadEnd": 64,
+          "peerHead": "men",
+          "peerHeadLemma": "man",
+          "evidenceStart": 0,
+          "evidenceEnd": 65,
+          "conditionalSuggestion": "2",
+          "suggestion": null,
+          "reviewSuggested": true,
+          "engine": "spaCy",
+          "engineRule": "LCB_COORDINATED_NUMBER_RELATION_REVIEW",
+          "coordinationEvidence": {
+            "counts": [
+              {
+                "start": 24,
+                "end": 27,
+                "text": "two",
+                "pos": "NUM",
+                "tag": "CD",
+                "dep": "nummod",
+                "lemma": "two",
+                "headStart": 39,
+                "headEnd": 44,
+                "headText": "women"
+              },
+              {
+                "start": 49,
+                "end": 51,
+                "text": "10",
+                "pos": "NUM",
+                "tag": "CD",
+                "dep": "nummod",
+                "lemma": "10",
+                "headStart": 61,
+                "headEnd": 64,
+                "headText": "men"
+              }
+            ],
+            "paths": [
+              [
+                {
+                  "start": 39,
+                  "end": 44,
+                  "text": "women",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "dobj",
+                  "lemma": "woman",
+                  "headStart": 17,
+                  "headEnd": 23,
+                  "headText": "employ"
+                }
+              ],
+              [
+                {
+                  "start": 61,
+                  "end": 64,
+                  "text": "men",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "conj",
+                  "lemma": "man",
+                  "headStart": 39,
+                  "headEnd": 44,
+                  "headText": "women"
+                },
+                {
+                  "start": 39,
+                  "end": 44,
+                  "text": "women",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "dobj",
+                  "lemma": "woman",
+                  "headStart": 17,
+                  "headEnd": 23,
+                  "headText": "employ"
+                }
+              ]
+            ],
+            "markers": [
+              [],
+              [
+                {
+                  "start": 45,
+                  "end": 48,
+                  "text": "and",
+                  "pos": "CCONJ",
+                  "tag": "CC",
+                  "dep": "cc",
+                  "lemma": "and",
+                  "headStart": 39,
+                  "headEnd": 44,
+                  "headText": "women"
+                }
+              ]
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "text": "The office shall employ two women, three men, and 10 children.",
+      "issues": [
+        {
+          "start": 24,
+          "end": 27,
+          "headStart": 28,
+          "headEnd": 33,
+          "head": "women",
+          "headLemma": "woman",
+          "peerStart": 50,
+          "peerEnd": 52,
+          "peerHeadStart": 53,
+          "peerHeadEnd": 61,
+          "peerHead": "children",
+          "peerHeadLemma": "child",
+          "evidenceStart": 0,
+          "evidenceEnd": 62,
+          "conditionalSuggestion": "2",
+          "suggestion": null,
+          "reviewSuggested": true,
+          "engine": "spaCy",
+          "engineRule": "LCB_COORDINATED_NUMBER_RELATION_REVIEW",
+          "coordinationEvidence": {
+            "counts": [
+              {
+                "start": 24,
+                "end": 27,
+                "text": "two",
+                "pos": "NUM",
+                "tag": "CD",
+                "dep": "nummod",
+                "lemma": "two",
+                "headStart": 28,
+                "headEnd": 33,
+                "headText": "women"
+              },
+              {
+                "start": 50,
+                "end": 52,
+                "text": "10",
+                "pos": "NUM",
+                "tag": "CD",
+                "dep": "nummod",
+                "lemma": "10",
+                "headStart": 53,
+                "headEnd": 61,
+                "headText": "children"
+              }
+            ],
+            "paths": [
+              [
+                {
+                  "start": 28,
+                  "end": 33,
+                  "text": "women",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "dobj",
+                  "lemma": "woman",
+                  "headStart": 17,
+                  "headEnd": 23,
+                  "headText": "employ"
+                }
+              ],
+              [
+                {
+                  "start": 53,
+                  "end": 61,
+                  "text": "children",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "conj",
+                  "lemma": "child",
+                  "headStart": 41,
+                  "headEnd": 44,
+                  "headText": "men"
+                },
+                {
+                  "start": 41,
+                  "end": 44,
+                  "text": "men",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "conj",
+                  "lemma": "man",
+                  "headStart": 28,
+                  "headEnd": 33,
+                  "headText": "women"
+                },
+                {
+                  "start": 28,
+                  "end": 33,
+                  "text": "women",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "dobj",
+                  "lemma": "woman",
+                  "headStart": 17,
+                  "headEnd": 23,
+                  "headText": "employ"
+                }
+              ]
+            ],
+            "markers": [
+              [],
+              [
+                {
+                  "start": 46,
+                  "end": 49,
+                  "text": "and",
+                  "pos": "CCONJ",
+                  "tag": "CC",
+                  "dep": "cc",
+                  "lemma": "and",
+                  "headStart": 41,
+                  "headEnd": 44,
+                  "headText": "men"
+                },
+                {
+                  "start": 33,
+                  "end": 34,
+                  "text": ",",
+                  "pos": "PUNCT",
+                  "tag": ",",
+                  "dep": "punct",
+                  "lemma": ",",
+                  "headStart": 28,
+                  "headEnd": 33,
+                  "headText": "women"
+                }
+              ]
+            ]
+          }
+        },
+        {
+          "start": 35,
+          "end": 40,
+          "headStart": 41,
+          "headEnd": 44,
+          "head": "men",
+          "headLemma": "man",
+          "peerStart": 50,
+          "peerEnd": 52,
+          "peerHeadStart": 53,
+          "peerHeadEnd": 61,
+          "peerHead": "children",
+          "peerHeadLemma": "child",
+          "evidenceStart": 0,
+          "evidenceEnd": 62,
+          "conditionalSuggestion": "3",
+          "suggestion": null,
+          "reviewSuggested": true,
+          "engine": "spaCy",
+          "engineRule": "LCB_COORDINATED_NUMBER_RELATION_REVIEW",
+          "coordinationEvidence": {
+            "counts": [
+              {
+                "start": 35,
+                "end": 40,
+                "text": "three",
+                "pos": "NUM",
+                "tag": "CD",
+                "dep": "nummod",
+                "lemma": "three",
+                "headStart": 41,
+                "headEnd": 44,
+                "headText": "men"
+              },
+              {
+                "start": 50,
+                "end": 52,
+                "text": "10",
+                "pos": "NUM",
+                "tag": "CD",
+                "dep": "nummod",
+                "lemma": "10",
+                "headStart": 53,
+                "headEnd": 61,
+                "headText": "children"
+              }
+            ],
+            "paths": [
+              [
+                {
+                  "start": 41,
+                  "end": 44,
+                  "text": "men",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "conj",
+                  "lemma": "man",
+                  "headStart": 28,
+                  "headEnd": 33,
+                  "headText": "women"
+                },
+                {
+                  "start": 28,
+                  "end": 33,
+                  "text": "women",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "dobj",
+                  "lemma": "woman",
+                  "headStart": 17,
+                  "headEnd": 23,
+                  "headText": "employ"
+                }
+              ],
+              [
+                {
+                  "start": 53,
+                  "end": 61,
+                  "text": "children",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "conj",
+                  "lemma": "child",
+                  "headStart": 41,
+                  "headEnd": 44,
+                  "headText": "men"
+                },
+                {
+                  "start": 41,
+                  "end": 44,
+                  "text": "men",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "conj",
+                  "lemma": "man",
+                  "headStart": 28,
+                  "headEnd": 33,
+                  "headText": "women"
+                },
+                {
+                  "start": 28,
+                  "end": 33,
+                  "text": "women",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "dobj",
+                  "lemma": "woman",
+                  "headStart": 17,
+                  "headEnd": 23,
+                  "headText": "employ"
+                }
+              ]
+            ],
+            "markers": [
+              [
+                {
+                  "start": 33,
+                  "end": 34,
+                  "text": ",",
+                  "pos": "PUNCT",
+                  "tag": ",",
+                  "dep": "punct",
+                  "lemma": ",",
+                  "headStart": 28,
+                  "headEnd": 33,
+                  "headText": "women"
+                }
+              ],
+              [
+                {
+                  "start": 46,
+                  "end": 49,
+                  "text": "and",
+                  "pos": "CCONJ",
+                  "tag": "CC",
+                  "dep": "cc",
+                  "lemma": "and",
+                  "headStart": 41,
+                  "headEnd": 44,
+                  "headText": "men"
+                },
+                {
+                  "start": 33,
+                  "end": 34,
+                  "text": ",",
+                  "pos": "PUNCT",
+                  "tag": ",",
+                  "dep": "punct",
+                  "lemma": ",",
+                  "headStart": 28,
+                  "headEnd": 33,
+                  "headText": "women"
+                }
+              ]
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "text": "The office shall appoint two women, but retain 10 men.",
+      "issues": []
+    },
+    {
+      "text": "The office shall employ two women and train 10 men.",
+      "issues": []
+    },
+    {
+      "text": "The program lasts two years and 10 months.",
+      "issues": [
+        {
+          "start": 18,
+          "end": 21,
+          "headStart": 22,
+          "headEnd": 27,
+          "head": "years",
+          "headLemma": "year",
+          "peerStart": 32,
+          "peerEnd": 34,
+          "peerHeadStart": 35,
+          "peerHeadEnd": 41,
+          "peerHead": "months",
+          "peerHeadLemma": "month",
+          "evidenceStart": 0,
+          "evidenceEnd": 42,
+          "conditionalSuggestion": "2",
+          "suggestion": null,
+          "reviewSuggested": true,
+          "engine": "spaCy",
+          "engineRule": "LCB_COORDINATED_NUMBER_RELATION_REVIEW",
+          "coordinationEvidence": {
+            "counts": [
+              {
+                "start": 18,
+                "end": 21,
+                "text": "two",
+                "pos": "NUM",
+                "tag": "CD",
+                "dep": "nummod",
+                "lemma": "two",
+                "headStart": 22,
+                "headEnd": 27,
+                "headText": "years"
+              },
+              {
+                "start": 32,
+                "end": 34,
+                "text": "10",
+                "pos": "NUM",
+                "tag": "CD",
+                "dep": "nummod",
+                "lemma": "10",
+                "headStart": 35,
+                "headEnd": 41,
+                "headText": "months"
+              }
+            ],
+            "paths": [
+              [
+                {
+                  "start": 22,
+                  "end": 27,
+                  "text": "years",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "dobj",
+                  "lemma": "year",
+                  "headStart": 12,
+                  "headEnd": 17,
+                  "headText": "lasts"
+                }
+              ],
+              [
+                {
+                  "start": 35,
+                  "end": 41,
+                  "text": "months",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "conj",
+                  "lemma": "month",
+                  "headStart": 22,
+                  "headEnd": 27,
+                  "headText": "years"
+                },
+                {
+                  "start": 22,
+                  "end": 27,
+                  "text": "years",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "dobj",
+                  "lemma": "year",
+                  "headStart": 12,
+                  "headEnd": 17,
+                  "headText": "lasts"
+                }
+              ]
+            ],
+            "markers": [
+              [],
+              [
+                {
+                  "start": 28,
+                  "end": 31,
+                  "text": "and",
+                  "pos": "CCONJ",
+                  "tag": "CC",
+                  "dep": "cc",
+                  "lemma": "and",
+                  "headStart": 22,
+                  "headEnd": 27,
+                  "headText": "years"
+                }
+              ]
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "text": "The office consists of two departments and 10 divisions.",
+      "issues": [
+        {
+          "start": 23,
+          "end": 26,
+          "headStart": 27,
+          "headEnd": 38,
+          "head": "departments",
+          "headLemma": "department",
+          "peerStart": 43,
+          "peerEnd": 45,
+          "peerHeadStart": 46,
+          "peerHeadEnd": 55,
+          "peerHead": "divisions",
+          "peerHeadLemma": "division",
+          "evidenceStart": 0,
+          "evidenceEnd": 56,
+          "conditionalSuggestion": "2",
+          "suggestion": null,
+          "reviewSuggested": true,
+          "engine": "spaCy",
+          "engineRule": "LCB_COORDINATED_NUMBER_RELATION_REVIEW",
+          "coordinationEvidence": {
+            "counts": [
+              {
+                "start": 23,
+                "end": 26,
+                "text": "two",
+                "pos": "NUM",
+                "tag": "CD",
+                "dep": "nummod",
+                "lemma": "two",
+                "headStart": 27,
+                "headEnd": 38,
+                "headText": "departments"
+              },
+              {
+                "start": 43,
+                "end": 45,
+                "text": "10",
+                "pos": "NUM",
+                "tag": "CD",
+                "dep": "nummod",
+                "lemma": "10",
+                "headStart": 46,
+                "headEnd": 55,
+                "headText": "divisions"
+              }
+            ],
+            "paths": [
+              [
+                {
+                  "start": 27,
+                  "end": 38,
+                  "text": "departments",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "pobj",
+                  "lemma": "department",
+                  "headStart": 20,
+                  "headEnd": 22,
+                  "headText": "of"
+                }
+              ],
+              [
+                {
+                  "start": 46,
+                  "end": 55,
+                  "text": "divisions",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "conj",
+                  "lemma": "division",
+                  "headStart": 27,
+                  "headEnd": 38,
+                  "headText": "departments"
+                },
+                {
+                  "start": 27,
+                  "end": 38,
+                  "text": "departments",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "pobj",
+                  "lemma": "department",
+                  "headStart": 20,
+                  "headEnd": 22,
+                  "headText": "of"
+                }
+              ]
+            ],
+            "markers": [
+              [],
+              [
+                {
+                  "start": 39,
+                  "end": 42,
+                  "text": "and",
+                  "pos": "CCONJ",
+                  "tag": "CC",
+                  "dep": "cc",
+                  "lemma": "and",
+                  "headStart": 27,
+                  "headEnd": 38,
+                  "headText": "departments"
+                }
+              ]
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "text": "The board shall inspect two houses and 10 rooms.",
+      "issues": [
+        {
+          "start": 24,
+          "end": 27,
+          "headStart": 28,
+          "headEnd": 34,
+          "head": "houses",
+          "headLemma": "house",
+          "peerStart": 39,
+          "peerEnd": 41,
+          "peerHeadStart": 42,
+          "peerHeadEnd": 47,
+          "peerHead": "rooms",
+          "peerHeadLemma": "room",
+          "evidenceStart": 0,
+          "evidenceEnd": 48,
+          "conditionalSuggestion": "2",
+          "suggestion": null,
+          "reviewSuggested": true,
+          "engine": "spaCy",
+          "engineRule": "LCB_COORDINATED_NUMBER_RELATION_REVIEW",
+          "coordinationEvidence": {
+            "counts": [
+              {
+                "start": 24,
+                "end": 27,
+                "text": "two",
+                "pos": "NUM",
+                "tag": "CD",
+                "dep": "nummod",
+                "lemma": "two",
+                "headStart": 28,
+                "headEnd": 34,
+                "headText": "houses"
+              },
+              {
+                "start": 39,
+                "end": 41,
+                "text": "10",
+                "pos": "NUM",
+                "tag": "CD",
+                "dep": "nummod",
+                "lemma": "10",
+                "headStart": 42,
+                "headEnd": 47,
+                "headText": "rooms"
+              }
+            ],
+            "paths": [
+              [
+                {
+                  "start": 28,
+                  "end": 34,
+                  "text": "houses",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "dobj",
+                  "lemma": "house",
+                  "headStart": 16,
+                  "headEnd": 23,
+                  "headText": "inspect"
+                }
+              ],
+              [
+                {
+                  "start": 42,
+                  "end": 47,
+                  "text": "rooms",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "conj",
+                  "lemma": "room",
+                  "headStart": 28,
+                  "headEnd": 34,
+                  "headText": "houses"
+                },
+                {
+                  "start": 28,
+                  "end": 34,
+                  "text": "houses",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "dobj",
+                  "lemma": "house",
+                  "headStart": 16,
+                  "headEnd": 23,
+                  "headText": "inspect"
+                }
+              ]
+            ],
+            "markers": [
+              [],
+              [
+                {
+                  "start": 35,
+                  "end": 38,
+                  "text": "and",
+                  "pos": "CCONJ",
+                  "tag": "CC",
+                  "dep": "cc",
+                  "lemma": "and",
+                  "headStart": 28,
+                  "headEnd": 34,
+                  "headText": "houses"
+                }
+              ]
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "text": "The office employs two women; another office employs 10 men.",
+      "issues": []
+    },
+    {
+      "text": "The program shall review Section 2 and Article 10.",
+      "issues": []
+    },
+    {
+      "text": "The program shall process two cases per day and 10 cases per month.",
+      "issues": []
+    },
+    {
+      "text": "The office shall employ two women and ten men.",
+      "issues": [
+        {
+          "start": 24,
+          "end": 27,
+          "headStart": 28,
+          "headEnd": 33,
+          "head": "women",
+          "headLemma": "woman",
+          "peerStart": 38,
+          "peerEnd": 41,
+          "peerHeadStart": 42,
+          "peerHeadEnd": 45,
+          "peerHead": "men",
+          "peerHeadLemma": "man",
+          "evidenceStart": 0,
+          "evidenceEnd": 46,
+          "conditionalSuggestion": "2",
+          "suggestion": null,
+          "reviewSuggested": true,
+          "engine": "spaCy",
+          "engineRule": "LCB_COORDINATED_NUMBER_RELATION_REVIEW",
+          "coordinationEvidence": {
+            "counts": [
+              {
+                "start": 24,
+                "end": 27,
+                "text": "two",
+                "pos": "NUM",
+                "tag": "CD",
+                "dep": "nummod",
+                "lemma": "two",
+                "headStart": 28,
+                "headEnd": 33,
+                "headText": "women"
+              },
+              {
+                "start": 38,
+                "end": 41,
+                "text": "ten",
+                "pos": "NUM",
+                "tag": "CD",
+                "dep": "nummod",
+                "lemma": "ten",
+                "headStart": 42,
+                "headEnd": 45,
+                "headText": "men"
+              }
+            ],
+            "paths": [
+              [
+                {
+                  "start": 28,
+                  "end": 33,
+                  "text": "women",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "dobj",
+                  "lemma": "woman",
+                  "headStart": 17,
+                  "headEnd": 23,
+                  "headText": "employ"
+                }
+              ],
+              [
+                {
+                  "start": 42,
+                  "end": 45,
+                  "text": "men",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "conj",
+                  "lemma": "man",
+                  "headStart": 28,
+                  "headEnd": 33,
+                  "headText": "women"
+                },
+                {
+                  "start": 28,
+                  "end": 33,
+                  "text": "women",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "dobj",
+                  "lemma": "woman",
+                  "headStart": 17,
+                  "headEnd": 23,
+                  "headText": "employ"
+                }
+              ]
+            ],
+            "markers": [
+              [],
+              [
+                {
+                  "start": 34,
+                  "end": 37,
+                  "text": "and",
+                  "pos": "CCONJ",
+                  "tag": "CC",
+                  "dep": "cc",
+                  "lemma": "and",
+                  "headStart": 28,
+                  "headEnd": 33,
+                  "headText": "women"
+                }
+              ]
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "text": "The office shall employ twenty two women and 10 men.",
+      "issues": []
+    }
+  ]
+}

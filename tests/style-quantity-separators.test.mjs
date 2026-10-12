@@ -29,3 +29,19 @@ test('malformed numeric identifiers, decimals and literal source text remain pro
  assert.equal(check('Section 12,00 persons qualify. Model 1,20,000 vehicles qualify. Use 12,00-15,00 units or 12,00/1500 units. Measure 12,00.5 feet or 1.12000 units. The title “12,00 People” is literal. Enroll 01200 applicants. In 2026 people qualify.').length,0);
  const text='Provide for 12,00 applicants.';const doc=makeDocument([text],'Current');doc.struck=[{start:text.indexOf('12,00'),end:text.indexOf('12,00')+5}];assert.equal(jointStylisticIssues(doc,refs).filter(i=>i.checkId==='quantity-separators').length,0);
 });
+test('grouping now preserves arbitrary complete quantity digit strings beyond the previous fifteen-digit cap',()=>{
+ for(const digits of ['9007199254740993','100000000000000000000001','1'+'0'.repeat(400)]){const [i]=check('Provide for '+digits+' applicants.');assert.ok(i);assert.equal(i.suggestion.replaceAll(',',''),digits);assert.equal(i.text,digits);}
+});
+test('every establishing noun and population cue character remains original complete evidence',()=>{
+ for(const text of ['Provide for 1200 applicants.','The headcount of 12000.'])for(const property of ['struck','excluded']){const a=text.includes('applicants')?text.indexOf('1200'):0,b=text.length-1;for(let at=a;at<b;at++){const d=makeDocument([text],'Current');d[property].push({start:at,end:at+1});assert.equal(jointStylisticIssues(d,refs).filter(i=>i.checkId==='quantity-separators').length,0,property+' '+at+' '+text);}}
+});
+test('Unicode compound boundaries and masked noun suffixes cannot supply count evidence',()=>{
+ for(const tail of ['α','\u0301','9','_list','-based'])for(const property of [null,'struck','excluded']){const text='Provide for 1200 applicants',d=makeDocument([text+tail+'.'],'Current');if(property)d[property].push({start:text.length,end:text.length+tail.length});assert.equal(jointStylisticIssues(d,refs).filter(i=>i.checkId==='quantity-separators').length,0,tail+' '+property);}
+});
+test('an intact alternative quantity cue survives a separate uncertain cue and has exact witness coordinates',()=>{
+ const text='The headcount of 12000 applicants.',d=makeDocument([text],'Current');d.struck.push({start:0,end:3});const [i]=jointStylisticIssues(d,refs).filter(i=>i.checkId==='quantity-separators');assert.ok(i);assert.equal(i.suggestion,'12,000');assert.equal(i.quantitySeparatorEvidence.text,'12000 applicants');assert.equal(d.text.slice(i.quantitySeparatorEvidence.start,i.quantitySeparatorEvidence.end),i.quantitySeparatorEvidence.text);
+});
+test('masked original structural labels currency prefixes and single-quoted quantities stay protected',()=>{
+ for(const prefix of ['Section ','Model ','$ ','in ']){const text=prefix+(prefix==='in '?'2026':'1200')+' people.',d=makeDocument([text],'Current');d.struck.push({start:0,end:prefix.length});assert.equal(jointStylisticIssues(d,refs).filter(i=>i.checkId==='quantity-separators').length,0,prefix);}
+ for(const text of ["'1200 applicants'","‘1200 applicants’"])assert.equal(check(text).length,0,text);
+});

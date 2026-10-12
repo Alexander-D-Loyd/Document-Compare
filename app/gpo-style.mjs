@@ -1,3 +1,7 @@
+import {LY_ADVERBS} from './ly-adverbs.mjs';
+import {threePointCompassCandidates,threePointCompassIssues} from './style-compass-directions.mjs';
+import {styleEvidenceGuard} from './style-evidence.mjs';
+import {multiAdverbCandidates,multiAdverbHead} from './style-multi-adverb-modifiers.mjs';
 // Explicit close variants of GPO forms; no arbitrary near-word substitutions.
 // Suggestions are advisory: a phrase can have a legitimate contextual exception.
 export const STYLE_RULES = [
@@ -25,7 +29,8 @@ export const STYLE_RULES = [
   ...[['north-east','northeast'],['north-west','northwest'],['south-east','southeast'],['south-west','southwest']].map(([variant,preferred])=>({variant,preferred,rule:'6.14',category:'Compounding',message:'GPO prints two-point compass directions as one word.'})),
   ...[['vice-president','vice president'],['attorney-general','attorney general'],['notary-public','notary public'],['commander-in-chief','commander in chief'],['sergeant-at-arms','sergeant at arms']].map(([variant,preferred])=>({variant,preferred,rule:'6.40',category:'Title compounding',message:'GPO generally leaves single-office civil and military titles unhyphenated. Review compound or quoted usages.'})),
   ...[['ex governor','ex-governor'],['self control','self-control'],['quasi academic','quasi-academic']].map(([variant,preferred])=>({variant,preferred,rule:'6.34',category:'Compounding',message:'Compare this prefix with GPO’s hyphenated example.'})),
-  ...[['united states','United States'],['united nations','United Nations'],['environmental protection agency','Environmental Protection Agency'],['department of agriculture','Department of Agriculture']].map(([variant,preferred])=>({variant,preferred,rule:'3.18',category:'Capitalization',caseSensitive:true,message:'Compare the capitalization of this full organized-body name with GPO’s example.'}))
+  {variant:'united states',preferred:'United States',rule:'3.3',category:'Capitalization',caseSensitive:true,message:'GPO 3.3 capitalizes proper names. This selected complete country name is checked; unfamiliar names and literal or historic source uses still require review.'},
+  ...[['united nations','United Nations'],['environmental protection agency','Environmental Protection Agency'],['department of agriculture','Department of Agriculture']].map(([variant,preferred])=>({variant,preferred,rule:'3.18',category:'Capitalization',caseSensitive:true,message:'Compare the capitalization of this full organized-body name with GPO’s example.'}))
 ];
 
 const escape=s=>s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
@@ -44,13 +49,15 @@ export function searchGuide(reference,query){
 }
 export function stylisticIssues(doc,reference,rules=STYLE_RULES,{dynamic=true}={}){
   const blocked=[...(doc.excluded||[]),...(doc.struck||[])];
-  const protectedRanges=[...(doc.struck||[]),...doc.blocks.filter(b=>b.ignored).map(b=>({start:b.start,end:b.end}))];
+  const rangeBlocked=styleEvidenceGuard(doc),cutsWord=index=>/[\p{L}\p{N}\p{M}_]$/u.test(doc.text.slice(Math.max(0,index-2),index))&&/^[\p{L}\p{N}\p{M}_]/u.test(doc.text.slice(index,index+2));
   const issues=[],seen=new Set();
   const source=doc.text.split('');for(const r of blocked)for(let i=r.start;i<r.end;i++)source[i]=' ';
   const searchable=source.join('').replace(/[\u2010-\u2015]/g,'-');
-  const add=(match,rule,preferred)=>{
+  const hasCompass=rules.some(r=>r.rule==='6.14'),compassRanges=hasCompass?threePointCompassCandidates(searchable):[];
+  const literalRanges=[...searchable.matchAll(/“[^”]*”|"[^"\n]*"/g)].map(m=>({start:m.index,end:m.index+m[0].length}));
+  const add=(match,rule,preferred,evidenceEnd=match.index+match[0].length)=>{
     const start=match.index,end=start+match[0].length;
-    if(protectedRanges.some(r=>r.start<end&&r.end>start))return;
+    if(cutsWord(start)||cutsWord(end)||cutsWord(evidenceEnd)||rangeBlocked(start,evidenceEnd))return;
     const raw=fold(match[0]),normalized=raw;
     if(rule.caseSensitive?(normalized===preferred||normalized===preferred.toUpperCase()):normalized.toLowerCase()===preferred.toLowerCase())return;
     const key=`${start}:${end}`;if(seen.has(key))return;
@@ -63,24 +70,50 @@ export function stylisticIssues(doc,reference,rules=STYLE_RULES,{dynamic=true}={
   for(const rule of rules){
     const variants=rule.category.includes('ompound')?[rule.variant,rule.variant.replaceAll('-',' '),rule.variant.replaceAll(' ','-'),rule.variant.replace(/[- ]/g,'')]:[rule.variant];
     for(const variant of new Set(variants)){
-      const parts=variant.split(' ').map(escape).join('\\s+');
+      // Slash spacing can vary in extraction without changing the prohibited
+      // conjunction. Keep the complete source range, including wrapped lines.
+      const parts=variant==='and/or'?'and\\s*/\\s*or':variant.split(' ').map(escape).join('\\s+');
       for(const match of searchable.matchAll(new RegExp(`(?<![\\p{L}\\p{N}_])${parts}(?![\\p{L}\\p{N}_])`,'giu'))){
+        // A known three-point expression owns its complete selection. An
+        // uncertain or protected whole expression must not fall back to its
+        // second two-point component alone.
+        if(rule.rule==='6.14'&&compassRanges.some(r=>r.start<match.index+match[0].length&&r.end>match.index))continue;
+        // Grey can be a surname, a quoted foreign spelling or a label.
+        // The dictionary preference check supplies the same finite sense.
+        if(rule.variant==='grey'&&(match[0]!=='grey'||!/^\s+(?:color|colour|paint|fabric|background|hair)\b/.test(searchable.slice(match.index+match[0].length))))continue;
         if(rule.rule==='6.40'&&/^-(?:elect|designate)\b/i.test(searchable.slice(match.index+match[0].length)))continue;
+        if(rule.category.includes('ompound')&&/^(?:permit|license|bond)[\s-]+holders?$/i.test(match[0])){
+          const before=searchable.slice(Math.max(0,match.index-55),match.index),after=searchable.slice(match.index+match[0].length);
+          if(/\b(?:shall|must|may|can|could|will|would|should)\s*$/i.test(before)||/\bto\s*$/i.test(before)&&/^\s+to\s+[a-z]/i.test(after))continue;
+        }
+        if(rule.category==='Contractions'&&/^[’'](?:ve|ll|d|re|s)\b/i.test(searchable.slice(match.index+match[0].length)))continue;
+        if(rule.category!=='Capitalization'&&/^[A-Z]/.test(match[0])&&(/\b[A-Z][a-z]+\s+[A-Z][a-z]+/.test(match[0])||/^\s+(?:(?:of|for|the|and|in|on)\s+)?[A-Z][a-z]/.test(searchable.slice(match.index+match[0].length))||/\b(?:Mr|Mrs|Ms|Dr)\.\s*$/.test(searchable.slice(Math.max(0,match.index-35),match.index))))continue;
+        if(literalRanges.some(r=>r.start<match.index+match[0].length&&r.end>match.index))continue;
         add(match,rule,rule.preferred);
       }
     }
   }
   if(dynamic){
   // Restrict -ly checks to actual adverbs, excluding family-, early-, etc.
-  const adverbs='publicly|privately|wholly|newly|highly|fully|federally|locally|recently|previously|widely|closely|eagerly|unusually';
-  for(const match of searchable.matchAll(new RegExp(`\\b(?:${adverbs})-[a-z]+\\b`,'gi')))add(match,{rule:'6.20',category:'Modifier hyphenation',message:'GPO omits the hyphen after an adverb ending in -ly.'},match[0].replace('-',' '));
+  const adverbs=LY_ADVERBS.join('|'),adverbQuotes=[...searchable.matchAll(/“[^”]*”|"[^"\n]*"/g)].map(m=>({start:m.index,end:m.index+m[0].length}));
+  const multiAdverbs=multiAdverbCandidates(searchable),owners=[...multiAdverbs,...multiAdverbCandidates(doc.text.replace(/[\u2010-\u2015]/g,'-'))];
+  for(const match of multiAdverbs){const head=multiAdverbHead(match,searchable);if(head)add(match,{rule:'6.20',category:'Modifier hyphenation',message:'LCB8 item3 and GPO6.20 omit hyphens in this selected three-word modifier with two adverbs. Confirm the ordinary noun role.'},head.suggestion,head.end);}
+  // Even an uncertain whole role must not fall back to a misleading correction
+  // of its first two words. Original candidates also own masked fragments.
+  for(const match of searchable.matchAll(new RegExp(`\\b(?:${adverbs})-[a-z]+\\b`,'gi')))if(!owners.some(m=>m.index<=match.index&&m.index+m[0].length>=match.index+match[0].length)&&!adverbQuotes.some(r=>r.start<match.index+match[0].length&&r.end>match.index))add(match,{rule:'6.20',category:'Modifier hyphenation',message:'GPO omits the hyphen after an adverb ending in -ly.'},match[0].replace('-',' '));
   // A spelled-out compound number retains its words; only the missing hyphen is suggested.
   for(const match of searchable.matchAll(/\b(?:twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety)\s+(?:one|two|three|four|five|six|seven|eight|nine)\b/gi))add(match,{rule:'6.36',category:'Numerical compounding',message:'GPO hyphenates the elements of spelled-out compound numbers from twenty-one through ninety-nine.'},fold(match[0]).replace(' ','-'));
   // Only compare the specific unit-modifier phrases illustrated by GPO, retaining noun context.
   for(const [phrase,noun] of [['long term','loan'],['high speed','line'],['large scale','project'],['low cost','housing'],['lump sum','payment'],['part time','personnel'],['state of the art','technology'],['cost of living','increase']]){
     const pattern=new RegExp(`\\b${phrase.split(' ').join('\\s+')}(?=\\s+${noun}\\b)`,'gi');
-    for(const match of searchable.matchAll(pattern))add(match,{rule:'6.15',category:'Modifier hyphenation',message:'This phrase resembles a GPO example of a hyphenated modifier before a noun; confirm that the same context applies.'},phrase.replaceAll(' ','-'));
+    for(const match of searchable.matchAll(pattern)){
+      // The noun establishes the role but remains outside the selection.
+      // Masking unknown/struck text cannot manufacture a valid noun cue.
+      const end=match.index+match[0].length,head=new RegExp(`^\\s+${noun}\\b`,'i').exec(searchable.slice(end));
+      if(head)add(match,{rule:'6.15',category:'Modifier hyphenation',message:'This phrase resembles a GPO example of a hyphenated modifier before a noun; confirm that the same context applies.'},phrase.replaceAll(' ','-'),end+head[0].length);
+    }
   }
   }
+  if(hasCompass)issues.push(...threePointCompassIssues(doc,reference));
   return issues.sort((a,b)=>a.start-b.start||a.end-b.end).map((issue,id)=>({...issue,id}));
 }

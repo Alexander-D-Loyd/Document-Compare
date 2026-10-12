@@ -1,0 +1,3791 @@
+{
+  "status": "complete",
+  "parserSHA256": "df53841dfae3286e8278d04bb0dddcc821370443e0721b15be250080edf1ff43",
+  "cases": 19,
+  "elapsedMs": 47,
+  "rows": [
+    {
+      "text": "The office shall employ two women, 12 men, and 15 children.",
+      "issues": [
+        {
+          "start": 24,
+          "end": 27,
+          "headStart": 28,
+          "headEnd": 33,
+          "head": "women",
+          "headLemma": "woman",
+          "peerStart": 35,
+          "peerEnd": 37,
+          "peerHeadStart": 38,
+          "peerHeadEnd": 41,
+          "peerHead": "men",
+          "peerHeadLemma": "man",
+          "evidenceStart": 0,
+          "evidenceEnd": 59,
+          "conditionalSuggestion": "2",
+          "suggestion": null,
+          "reviewSuggested": true,
+          "engine": "spaCy",
+          "engineRule": "LCB_MIXED_COUNT_LIST_REVIEW",
+          "mixedCountListEvidence": {
+            "members": [
+              {
+                "start": 24,
+                "end": 27,
+                "headStart": 28,
+                "headEnd": 33,
+                "head": "women",
+                "lemma": "woman",
+                "sourceText": "two"
+              },
+              {
+                "start": 35,
+                "end": 37,
+                "headStart": 38,
+                "headEnd": 41,
+                "head": "men",
+                "lemma": "man",
+                "sourceText": "12"
+              },
+              {
+                "start": 47,
+                "end": 49,
+                "headStart": 50,
+                "headEnd": 58,
+                "head": "children",
+                "lemma": "child",
+                "sourceText": "15"
+              }
+            ],
+            "counts": [
+              {
+                "start": 24,
+                "end": 27,
+                "text": "two",
+                "pos": "NUM",
+                "tag": "CD",
+                "dep": "nummod",
+                "lemma": "two",
+                "headStart": 28,
+                "headEnd": 33,
+                "headText": "women"
+              },
+              {
+                "start": 35,
+                "end": 37,
+                "text": "12",
+                "pos": "NUM",
+                "tag": "CD",
+                "dep": "nummod",
+                "lemma": "12",
+                "headStart": 38,
+                "headEnd": 41,
+                "headText": "men"
+              },
+              {
+                "start": 47,
+                "end": 49,
+                "text": "15",
+                "pos": "NUM",
+                "tag": "CD",
+                "dep": "nummod",
+                "lemma": "15",
+                "headStart": 50,
+                "headEnd": 58,
+                "headText": "children"
+              }
+            ],
+            "paths": [
+              [
+                {
+                  "start": 28,
+                  "end": 33,
+                  "text": "women",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "dobj",
+                  "lemma": "woman",
+                  "headStart": 17,
+                  "headEnd": 23,
+                  "headText": "employ"
+                }
+              ],
+              [
+                {
+                  "start": 38,
+                  "end": 41,
+                  "text": "men",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "appos",
+                  "lemma": "man",
+                  "headStart": 28,
+                  "headEnd": 33,
+                  "headText": "women"
+                },
+                {
+                  "start": 28,
+                  "end": 33,
+                  "text": "women",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "dobj",
+                  "lemma": "woman",
+                  "headStart": 17,
+                  "headEnd": 23,
+                  "headText": "employ"
+                }
+              ],
+              [
+                {
+                  "start": 50,
+                  "end": 58,
+                  "text": "children",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "conj",
+                  "lemma": "child",
+                  "headStart": 38,
+                  "headEnd": 41,
+                  "headText": "men"
+                },
+                {
+                  "start": 38,
+                  "end": 41,
+                  "text": "men",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "appos",
+                  "lemma": "man",
+                  "headStart": 28,
+                  "headEnd": 33,
+                  "headText": "women"
+                },
+                {
+                  "start": 28,
+                  "end": 33,
+                  "text": "women",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "dobj",
+                  "lemma": "woman",
+                  "headStart": 17,
+                  "headEnd": 23,
+                  "headText": "employ"
+                }
+              ]
+            ],
+            "markers": [
+              [],
+              [
+                {
+                  "start": 33,
+                  "end": 34,
+                  "text": ",",
+                  "pos": "PUNCT",
+                  "tag": ",",
+                  "dep": "punct",
+                  "lemma": ",",
+                  "headStart": 28,
+                  "headEnd": 33,
+                  "headText": "women"
+                }
+              ],
+              [
+                {
+                  "start": 43,
+                  "end": 46,
+                  "text": "and",
+                  "pos": "CCONJ",
+                  "tag": "CC",
+                  "dep": "cc",
+                  "lemma": "and",
+                  "headStart": 38,
+                  "headEnd": 41,
+                  "headText": "men"
+                },
+                {
+                  "start": 33,
+                  "end": 34,
+                  "text": ",",
+                  "pos": "PUNCT",
+                  "tag": ",",
+                  "dep": "punct",
+                  "lemma": ",",
+                  "headStart": 28,
+                  "headEnd": 33,
+                  "headText": "women"
+                }
+              ]
+            ],
+            "separators": [
+              {
+                "start": 33,
+                "end": 35,
+                "text": ", "
+              },
+              {
+                "start": 41,
+                "end": 47,
+                "text": ", and "
+              }
+            ]
+          }
+        },
+        {
+          "start": 24,
+          "end": 27,
+          "headStart": 28,
+          "headEnd": 33,
+          "head": "women",
+          "headLemma": "woman",
+          "peerStart": 47,
+          "peerEnd": 49,
+          "peerHeadStart": 50,
+          "peerHeadEnd": 58,
+          "peerHead": "children",
+          "peerHeadLemma": "child",
+          "evidenceStart": 0,
+          "evidenceEnd": 59,
+          "conditionalSuggestion": "2",
+          "suggestion": null,
+          "reviewSuggested": true,
+          "engine": "spaCy",
+          "engineRule": "LCB_MIXED_COUNT_LIST_REVIEW",
+          "mixedCountListEvidence": {
+            "members": [
+              {
+                "start": 24,
+                "end": 27,
+                "headStart": 28,
+                "headEnd": 33,
+                "head": "women",
+                "lemma": "woman",
+                "sourceText": "two"
+              },
+              {
+                "start": 35,
+                "end": 37,
+                "headStart": 38,
+                "headEnd": 41,
+                "head": "men",
+                "lemma": "man",
+                "sourceText": "12"
+              },
+              {
+                "start": 47,
+                "end": 49,
+                "headStart": 50,
+                "headEnd": 58,
+                "head": "children",
+                "lemma": "child",
+                "sourceText": "15"
+              }
+            ],
+            "counts": [
+              {
+                "start": 24,
+                "end": 27,
+                "text": "two",
+                "pos": "NUM",
+                "tag": "CD",
+                "dep": "nummod",
+                "lemma": "two",
+                "headStart": 28,
+                "headEnd": 33,
+                "headText": "women"
+              },
+              {
+                "start": 35,
+                "end": 37,
+                "text": "12",
+                "pos": "NUM",
+                "tag": "CD",
+                "dep": "nummod",
+                "lemma": "12",
+                "headStart": 38,
+                "headEnd": 41,
+                "headText": "men"
+              },
+              {
+                "start": 47,
+                "end": 49,
+                "text": "15",
+                "pos": "NUM",
+                "tag": "CD",
+                "dep": "nummod",
+                "lemma": "15",
+                "headStart": 50,
+                "headEnd": 58,
+                "headText": "children"
+              }
+            ],
+            "paths": [
+              [
+                {
+                  "start": 28,
+                  "end": 33,
+                  "text": "women",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "dobj",
+                  "lemma": "woman",
+                  "headStart": 17,
+                  "headEnd": 23,
+                  "headText": "employ"
+                }
+              ],
+              [
+                {
+                  "start": 38,
+                  "end": 41,
+                  "text": "men",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "appos",
+                  "lemma": "man",
+                  "headStart": 28,
+                  "headEnd": 33,
+                  "headText": "women"
+                },
+                {
+                  "start": 28,
+                  "end": 33,
+                  "text": "women",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "dobj",
+                  "lemma": "woman",
+                  "headStart": 17,
+                  "headEnd": 23,
+                  "headText": "employ"
+                }
+              ],
+              [
+                {
+                  "start": 50,
+                  "end": 58,
+                  "text": "children",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "conj",
+                  "lemma": "child",
+                  "headStart": 38,
+                  "headEnd": 41,
+                  "headText": "men"
+                },
+                {
+                  "start": 38,
+                  "end": 41,
+                  "text": "men",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "appos",
+                  "lemma": "man",
+                  "headStart": 28,
+                  "headEnd": 33,
+                  "headText": "women"
+                },
+                {
+                  "start": 28,
+                  "end": 33,
+                  "text": "women",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "dobj",
+                  "lemma": "woman",
+                  "headStart": 17,
+                  "headEnd": 23,
+                  "headText": "employ"
+                }
+              ]
+            ],
+            "markers": [
+              [],
+              [
+                {
+                  "start": 33,
+                  "end": 34,
+                  "text": ",",
+                  "pos": "PUNCT",
+                  "tag": ",",
+                  "dep": "punct",
+                  "lemma": ",",
+                  "headStart": 28,
+                  "headEnd": 33,
+                  "headText": "women"
+                }
+              ],
+              [
+                {
+                  "start": 43,
+                  "end": 46,
+                  "text": "and",
+                  "pos": "CCONJ",
+                  "tag": "CC",
+                  "dep": "cc",
+                  "lemma": "and",
+                  "headStart": 38,
+                  "headEnd": 41,
+                  "headText": "men"
+                },
+                {
+                  "start": 33,
+                  "end": 34,
+                  "text": ",",
+                  "pos": "PUNCT",
+                  "tag": ",",
+                  "dep": "punct",
+                  "lemma": ",",
+                  "headStart": 28,
+                  "headEnd": 33,
+                  "headText": "women"
+                }
+              ]
+            ],
+            "separators": [
+              {
+                "start": 33,
+                "end": 35,
+                "text": ", "
+              },
+              {
+                "start": 41,
+                "end": 47,
+                "text": ", and "
+              }
+            ]
+          }
+        }
+      ],
+      "nounRoles": [
+        {
+          "text": "office",
+          "dep": "nsubj",
+          "head": "employ"
+        },
+        {
+          "text": "women",
+          "dep": "dobj",
+          "head": "employ"
+        },
+        {
+          "text": "men",
+          "dep": "appos",
+          "head": "women"
+        },
+        {
+          "text": "children",
+          "dep": "conj",
+          "head": "men"
+        }
+      ]
+    },
+    {
+      "text": "The office shall employ two women, three men, and 15 children.",
+      "issues": [],
+      "nounRoles": [
+        {
+          "text": "office",
+          "dep": "nsubj",
+          "head": "employ"
+        },
+        {
+          "text": "women",
+          "dep": "dobj",
+          "head": "employ"
+        },
+        {
+          "text": "men",
+          "dep": "conj",
+          "head": "women"
+        },
+        {
+          "text": "children",
+          "dep": "conj",
+          "head": "men"
+        }
+      ]
+    },
+    {
+      "text": "The office shall employ two eligible women, 12 qualified men, and 15 children.",
+      "issues": [],
+      "nounRoles": [
+        {
+          "text": "office",
+          "dep": "nsubj",
+          "head": "employ"
+        },
+        {
+          "text": "women",
+          "dep": "dobj",
+          "head": "employ"
+        },
+        {
+          "text": "men",
+          "dep": "conj",
+          "head": "women"
+        },
+        {
+          "text": "children",
+          "dep": "conj",
+          "head": "men"
+        }
+      ]
+    },
+    {
+      "text": "The office shall employ two women, 12 men, and fifteen children.",
+      "issues": [],
+      "nounRoles": [
+        {
+          "text": "office",
+          "dep": "nsubj",
+          "head": "employ"
+        },
+        {
+          "text": "women",
+          "dep": "dobj",
+          "head": "employ"
+        },
+        {
+          "text": "men",
+          "dep": "conj",
+          "head": "women"
+        },
+        {
+          "text": "children",
+          "dep": "conj",
+          "head": "men"
+        }
+      ]
+    },
+    {
+      "text": "The office shall employ two women, 9007199254740993 men, and 15 children.",
+      "issues": [],
+      "nounRoles": [
+        {
+          "text": "office",
+          "dep": "nsubj",
+          "head": "employ"
+        },
+        {
+          "text": "women",
+          "dep": "dobj",
+          "head": "employ"
+        },
+        {
+          "text": "men",
+          "dep": "conj",
+          "head": "women"
+        },
+        {
+          "text": "children",
+          "dep": "conj",
+          "head": "men"
+        }
+      ]
+    },
+    {
+      "text": "The office shall employ two women, 12 men, or 15 children.",
+      "issues": [],
+      "nounRoles": [
+        {
+          "text": "office",
+          "dep": "nsubj",
+          "head": "employ"
+        },
+        {
+          "text": "women",
+          "dep": "dobj",
+          "head": "employ"
+        },
+        {
+          "text": "men",
+          "dep": "conj",
+          "head": "women"
+        },
+        {
+          "text": "children",
+          "dep": "conj",
+          "head": "men"
+        }
+      ]
+    },
+    {
+      "text": "The office shall employ two women, 12 men and 15 children.",
+      "issues": [],
+      "nounRoles": [
+        {
+          "text": "office",
+          "dep": "nsubj",
+          "head": "employ"
+        },
+        {
+          "text": "women",
+          "dep": "dobj",
+          "head": "employ"
+        },
+        {
+          "text": "men",
+          "dep": "conj",
+          "head": "women"
+        },
+        {
+          "text": "children",
+          "dep": "conj",
+          "head": "men"
+        }
+      ]
+    },
+    {
+      "text": "The office shall employ two women, 12 men, 15 children, and 18 volunteers.",
+      "issues": [
+        {
+          "start": 24,
+          "end": 27,
+          "headStart": 28,
+          "headEnd": 33,
+          "head": "women",
+          "headLemma": "woman",
+          "peerStart": 35,
+          "peerEnd": 37,
+          "peerHeadStart": 38,
+          "peerHeadEnd": 41,
+          "peerHead": "men",
+          "peerHeadLemma": "man",
+          "evidenceStart": 0,
+          "evidenceEnd": 74,
+          "conditionalSuggestion": "2",
+          "suggestion": null,
+          "reviewSuggested": true,
+          "engine": "spaCy",
+          "engineRule": "LCB_MIXED_COUNT_LIST_REVIEW",
+          "mixedCountListEvidence": {
+            "members": [
+              {
+                "start": 24,
+                "end": 27,
+                "headStart": 28,
+                "headEnd": 33,
+                "head": "women",
+                "lemma": "woman",
+                "sourceText": "two"
+              },
+              {
+                "start": 35,
+                "end": 37,
+                "headStart": 38,
+                "headEnd": 41,
+                "head": "men",
+                "lemma": "man",
+                "sourceText": "12"
+              },
+              {
+                "start": 43,
+                "end": 45,
+                "headStart": 46,
+                "headEnd": 54,
+                "head": "children",
+                "lemma": "child",
+                "sourceText": "15"
+              },
+              {
+                "start": 60,
+                "end": 62,
+                "headStart": 63,
+                "headEnd": 73,
+                "head": "volunteers",
+                "lemma": "volunteer",
+                "sourceText": "18"
+              }
+            ],
+            "counts": [
+              {
+                "start": 24,
+                "end": 27,
+                "text": "two",
+                "pos": "NUM",
+                "tag": "CD",
+                "dep": "nummod",
+                "lemma": "two",
+                "headStart": 28,
+                "headEnd": 33,
+                "headText": "women"
+              },
+              {
+                "start": 35,
+                "end": 37,
+                "text": "12",
+                "pos": "NUM",
+                "tag": "CD",
+                "dep": "nummod",
+                "lemma": "12",
+                "headStart": 38,
+                "headEnd": 41,
+                "headText": "men"
+              },
+              {
+                "start": 43,
+                "end": 45,
+                "text": "15",
+                "pos": "NUM",
+                "tag": "CD",
+                "dep": "nummod",
+                "lemma": "15",
+                "headStart": 46,
+                "headEnd": 54,
+                "headText": "children"
+              },
+              {
+                "start": 60,
+                "end": 62,
+                "text": "18",
+                "pos": "NUM",
+                "tag": "CD",
+                "dep": "nummod",
+                "lemma": "18",
+                "headStart": 63,
+                "headEnd": 73,
+                "headText": "volunteers"
+              }
+            ],
+            "paths": [
+              [
+                {
+                  "start": 28,
+                  "end": 33,
+                  "text": "women",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "dobj",
+                  "lemma": "woman",
+                  "headStart": 17,
+                  "headEnd": 23,
+                  "headText": "employ"
+                }
+              ],
+              [
+                {
+                  "start": 38,
+                  "end": 41,
+                  "text": "men",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "appos",
+                  "lemma": "man",
+                  "headStart": 28,
+                  "headEnd": 33,
+                  "headText": "women"
+                },
+                {
+                  "start": 28,
+                  "end": 33,
+                  "text": "women",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "dobj",
+                  "lemma": "woman",
+                  "headStart": 17,
+                  "headEnd": 23,
+                  "headText": "employ"
+                }
+              ],
+              [
+                {
+                  "start": 46,
+                  "end": 54,
+                  "text": "children",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "conj",
+                  "lemma": "child",
+                  "headStart": 38,
+                  "headEnd": 41,
+                  "headText": "men"
+                },
+                {
+                  "start": 38,
+                  "end": 41,
+                  "text": "men",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "appos",
+                  "lemma": "man",
+                  "headStart": 28,
+                  "headEnd": 33,
+                  "headText": "women"
+                },
+                {
+                  "start": 28,
+                  "end": 33,
+                  "text": "women",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "dobj",
+                  "lemma": "woman",
+                  "headStart": 17,
+                  "headEnd": 23,
+                  "headText": "employ"
+                }
+              ],
+              [
+                {
+                  "start": 63,
+                  "end": 73,
+                  "text": "volunteers",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "conj",
+                  "lemma": "volunteer",
+                  "headStart": 46,
+                  "headEnd": 54,
+                  "headText": "children"
+                },
+                {
+                  "start": 46,
+                  "end": 54,
+                  "text": "children",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "conj",
+                  "lemma": "child",
+                  "headStart": 38,
+                  "headEnd": 41,
+                  "headText": "men"
+                },
+                {
+                  "start": 38,
+                  "end": 41,
+                  "text": "men",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "appos",
+                  "lemma": "man",
+                  "headStart": 28,
+                  "headEnd": 33,
+                  "headText": "women"
+                },
+                {
+                  "start": 28,
+                  "end": 33,
+                  "text": "women",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "dobj",
+                  "lemma": "woman",
+                  "headStart": 17,
+                  "headEnd": 23,
+                  "headText": "employ"
+                }
+              ]
+            ],
+            "markers": [
+              [],
+              [
+                {
+                  "start": 33,
+                  "end": 34,
+                  "text": ",",
+                  "pos": "PUNCT",
+                  "tag": ",",
+                  "dep": "punct",
+                  "lemma": ",",
+                  "headStart": 28,
+                  "headEnd": 33,
+                  "headText": "women"
+                }
+              ],
+              [
+                {
+                  "start": 41,
+                  "end": 42,
+                  "text": ",",
+                  "pos": "PUNCT",
+                  "tag": ",",
+                  "dep": "punct",
+                  "lemma": ",",
+                  "headStart": 38,
+                  "headEnd": 41,
+                  "headText": "men"
+                },
+                {
+                  "start": 33,
+                  "end": 34,
+                  "text": ",",
+                  "pos": "PUNCT",
+                  "tag": ",",
+                  "dep": "punct",
+                  "lemma": ",",
+                  "headStart": 28,
+                  "headEnd": 33,
+                  "headText": "women"
+                }
+              ],
+              [
+                {
+                  "start": 56,
+                  "end": 59,
+                  "text": "and",
+                  "pos": "CCONJ",
+                  "tag": "CC",
+                  "dep": "cc",
+                  "lemma": "and",
+                  "headStart": 46,
+                  "headEnd": 54,
+                  "headText": "children"
+                },
+                {
+                  "start": 41,
+                  "end": 42,
+                  "text": ",",
+                  "pos": "PUNCT",
+                  "tag": ",",
+                  "dep": "punct",
+                  "lemma": ",",
+                  "headStart": 38,
+                  "headEnd": 41,
+                  "headText": "men"
+                },
+                {
+                  "start": 33,
+                  "end": 34,
+                  "text": ",",
+                  "pos": "PUNCT",
+                  "tag": ",",
+                  "dep": "punct",
+                  "lemma": ",",
+                  "headStart": 28,
+                  "headEnd": 33,
+                  "headText": "women"
+                }
+              ]
+            ],
+            "separators": [
+              {
+                "start": 33,
+                "end": 35,
+                "text": ", "
+              },
+              {
+                "start": 41,
+                "end": 43,
+                "text": ", "
+              },
+              {
+                "start": 54,
+                "end": 60,
+                "text": ", and "
+              }
+            ]
+          }
+        },
+        {
+          "start": 24,
+          "end": 27,
+          "headStart": 28,
+          "headEnd": 33,
+          "head": "women",
+          "headLemma": "woman",
+          "peerStart": 43,
+          "peerEnd": 45,
+          "peerHeadStart": 46,
+          "peerHeadEnd": 54,
+          "peerHead": "children",
+          "peerHeadLemma": "child",
+          "evidenceStart": 0,
+          "evidenceEnd": 74,
+          "conditionalSuggestion": "2",
+          "suggestion": null,
+          "reviewSuggested": true,
+          "engine": "spaCy",
+          "engineRule": "LCB_MIXED_COUNT_LIST_REVIEW",
+          "mixedCountListEvidence": {
+            "members": [
+              {
+                "start": 24,
+                "end": 27,
+                "headStart": 28,
+                "headEnd": 33,
+                "head": "women",
+                "lemma": "woman",
+                "sourceText": "two"
+              },
+              {
+                "start": 35,
+                "end": 37,
+                "headStart": 38,
+                "headEnd": 41,
+                "head": "men",
+                "lemma": "man",
+                "sourceText": "12"
+              },
+              {
+                "start": 43,
+                "end": 45,
+                "headStart": 46,
+                "headEnd": 54,
+                "head": "children",
+                "lemma": "child",
+                "sourceText": "15"
+              },
+              {
+                "start": 60,
+                "end": 62,
+                "headStart": 63,
+                "headEnd": 73,
+                "head": "volunteers",
+                "lemma": "volunteer",
+                "sourceText": "18"
+              }
+            ],
+            "counts": [
+              {
+                "start": 24,
+                "end": 27,
+                "text": "two",
+                "pos": "NUM",
+                "tag": "CD",
+                "dep": "nummod",
+                "lemma": "two",
+                "headStart": 28,
+                "headEnd": 33,
+                "headText": "women"
+              },
+              {
+                "start": 35,
+                "end": 37,
+                "text": "12",
+                "pos": "NUM",
+                "tag": "CD",
+                "dep": "nummod",
+                "lemma": "12",
+                "headStart": 38,
+                "headEnd": 41,
+                "headText": "men"
+              },
+              {
+                "start": 43,
+                "end": 45,
+                "text": "15",
+                "pos": "NUM",
+                "tag": "CD",
+                "dep": "nummod",
+                "lemma": "15",
+                "headStart": 46,
+                "headEnd": 54,
+                "headText": "children"
+              },
+              {
+                "start": 60,
+                "end": 62,
+                "text": "18",
+                "pos": "NUM",
+                "tag": "CD",
+                "dep": "nummod",
+                "lemma": "18",
+                "headStart": 63,
+                "headEnd": 73,
+                "headText": "volunteers"
+              }
+            ],
+            "paths": [
+              [
+                {
+                  "start": 28,
+                  "end": 33,
+                  "text": "women",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "dobj",
+                  "lemma": "woman",
+                  "headStart": 17,
+                  "headEnd": 23,
+                  "headText": "employ"
+                }
+              ],
+              [
+                {
+                  "start": 38,
+                  "end": 41,
+                  "text": "men",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "appos",
+                  "lemma": "man",
+                  "headStart": 28,
+                  "headEnd": 33,
+                  "headText": "women"
+                },
+                {
+                  "start": 28,
+                  "end": 33,
+                  "text": "women",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "dobj",
+                  "lemma": "woman",
+                  "headStart": 17,
+                  "headEnd": 23,
+                  "headText": "employ"
+                }
+              ],
+              [
+                {
+                  "start": 46,
+                  "end": 54,
+                  "text": "children",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "conj",
+                  "lemma": "child",
+                  "headStart": 38,
+                  "headEnd": 41,
+                  "headText": "men"
+                },
+                {
+                  "start": 38,
+                  "end": 41,
+                  "text": "men",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "appos",
+                  "lemma": "man",
+                  "headStart": 28,
+                  "headEnd": 33,
+                  "headText": "women"
+                },
+                {
+                  "start": 28,
+                  "end": 33,
+                  "text": "women",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "dobj",
+                  "lemma": "woman",
+                  "headStart": 17,
+                  "headEnd": 23,
+                  "headText": "employ"
+                }
+              ],
+              [
+                {
+                  "start": 63,
+                  "end": 73,
+                  "text": "volunteers",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "conj",
+                  "lemma": "volunteer",
+                  "headStart": 46,
+                  "headEnd": 54,
+                  "headText": "children"
+                },
+                {
+                  "start": 46,
+                  "end": 54,
+                  "text": "children",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "conj",
+                  "lemma": "child",
+                  "headStart": 38,
+                  "headEnd": 41,
+                  "headText": "men"
+                },
+                {
+                  "start": 38,
+                  "end": 41,
+                  "text": "men",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "appos",
+                  "lemma": "man",
+                  "headStart": 28,
+                  "headEnd": 33,
+                  "headText": "women"
+                },
+                {
+                  "start": 28,
+                  "end": 33,
+                  "text": "women",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "dobj",
+                  "lemma": "woman",
+                  "headStart": 17,
+                  "headEnd": 23,
+                  "headText": "employ"
+                }
+              ]
+            ],
+            "markers": [
+              [],
+              [
+                {
+                  "start": 33,
+                  "end": 34,
+                  "text": ",",
+                  "pos": "PUNCT",
+                  "tag": ",",
+                  "dep": "punct",
+                  "lemma": ",",
+                  "headStart": 28,
+                  "headEnd": 33,
+                  "headText": "women"
+                }
+              ],
+              [
+                {
+                  "start": 41,
+                  "end": 42,
+                  "text": ",",
+                  "pos": "PUNCT",
+                  "tag": ",",
+                  "dep": "punct",
+                  "lemma": ",",
+                  "headStart": 38,
+                  "headEnd": 41,
+                  "headText": "men"
+                },
+                {
+                  "start": 33,
+                  "end": 34,
+                  "text": ",",
+                  "pos": "PUNCT",
+                  "tag": ",",
+                  "dep": "punct",
+                  "lemma": ",",
+                  "headStart": 28,
+                  "headEnd": 33,
+                  "headText": "women"
+                }
+              ],
+              [
+                {
+                  "start": 56,
+                  "end": 59,
+                  "text": "and",
+                  "pos": "CCONJ",
+                  "tag": "CC",
+                  "dep": "cc",
+                  "lemma": "and",
+                  "headStart": 46,
+                  "headEnd": 54,
+                  "headText": "children"
+                },
+                {
+                  "start": 41,
+                  "end": 42,
+                  "text": ",",
+                  "pos": "PUNCT",
+                  "tag": ",",
+                  "dep": "punct",
+                  "lemma": ",",
+                  "headStart": 38,
+                  "headEnd": 41,
+                  "headText": "men"
+                },
+                {
+                  "start": 33,
+                  "end": 34,
+                  "text": ",",
+                  "pos": "PUNCT",
+                  "tag": ",",
+                  "dep": "punct",
+                  "lemma": ",",
+                  "headStart": 28,
+                  "headEnd": 33,
+                  "headText": "women"
+                }
+              ]
+            ],
+            "separators": [
+              {
+                "start": 33,
+                "end": 35,
+                "text": ", "
+              },
+              {
+                "start": 41,
+                "end": 43,
+                "text": ", "
+              },
+              {
+                "start": 54,
+                "end": 60,
+                "text": ", and "
+              }
+            ]
+          }
+        },
+        {
+          "start": 24,
+          "end": 27,
+          "headStart": 28,
+          "headEnd": 33,
+          "head": "women",
+          "headLemma": "woman",
+          "peerStart": 60,
+          "peerEnd": 62,
+          "peerHeadStart": 63,
+          "peerHeadEnd": 73,
+          "peerHead": "volunteers",
+          "peerHeadLemma": "volunteer",
+          "evidenceStart": 0,
+          "evidenceEnd": 74,
+          "conditionalSuggestion": "2",
+          "suggestion": null,
+          "reviewSuggested": true,
+          "engine": "spaCy",
+          "engineRule": "LCB_MIXED_COUNT_LIST_REVIEW",
+          "mixedCountListEvidence": {
+            "members": [
+              {
+                "start": 24,
+                "end": 27,
+                "headStart": 28,
+                "headEnd": 33,
+                "head": "women",
+                "lemma": "woman",
+                "sourceText": "two"
+              },
+              {
+                "start": 35,
+                "end": 37,
+                "headStart": 38,
+                "headEnd": 41,
+                "head": "men",
+                "lemma": "man",
+                "sourceText": "12"
+              },
+              {
+                "start": 43,
+                "end": 45,
+                "headStart": 46,
+                "headEnd": 54,
+                "head": "children",
+                "lemma": "child",
+                "sourceText": "15"
+              },
+              {
+                "start": 60,
+                "end": 62,
+                "headStart": 63,
+                "headEnd": 73,
+                "head": "volunteers",
+                "lemma": "volunteer",
+                "sourceText": "18"
+              }
+            ],
+            "counts": [
+              {
+                "start": 24,
+                "end": 27,
+                "text": "two",
+                "pos": "NUM",
+                "tag": "CD",
+                "dep": "nummod",
+                "lemma": "two",
+                "headStart": 28,
+                "headEnd": 33,
+                "headText": "women"
+              },
+              {
+                "start": 35,
+                "end": 37,
+                "text": "12",
+                "pos": "NUM",
+                "tag": "CD",
+                "dep": "nummod",
+                "lemma": "12",
+                "headStart": 38,
+                "headEnd": 41,
+                "headText": "men"
+              },
+              {
+                "start": 43,
+                "end": 45,
+                "text": "15",
+                "pos": "NUM",
+                "tag": "CD",
+                "dep": "nummod",
+                "lemma": "15",
+                "headStart": 46,
+                "headEnd": 54,
+                "headText": "children"
+              },
+              {
+                "start": 60,
+                "end": 62,
+                "text": "18",
+                "pos": "NUM",
+                "tag": "CD",
+                "dep": "nummod",
+                "lemma": "18",
+                "headStart": 63,
+                "headEnd": 73,
+                "headText": "volunteers"
+              }
+            ],
+            "paths": [
+              [
+                {
+                  "start": 28,
+                  "end": 33,
+                  "text": "women",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "dobj",
+                  "lemma": "woman",
+                  "headStart": 17,
+                  "headEnd": 23,
+                  "headText": "employ"
+                }
+              ],
+              [
+                {
+                  "start": 38,
+                  "end": 41,
+                  "text": "men",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "appos",
+                  "lemma": "man",
+                  "headStart": 28,
+                  "headEnd": 33,
+                  "headText": "women"
+                },
+                {
+                  "start": 28,
+                  "end": 33,
+                  "text": "women",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "dobj",
+                  "lemma": "woman",
+                  "headStart": 17,
+                  "headEnd": 23,
+                  "headText": "employ"
+                }
+              ],
+              [
+                {
+                  "start": 46,
+                  "end": 54,
+                  "text": "children",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "conj",
+                  "lemma": "child",
+                  "headStart": 38,
+                  "headEnd": 41,
+                  "headText": "men"
+                },
+                {
+                  "start": 38,
+                  "end": 41,
+                  "text": "men",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "appos",
+                  "lemma": "man",
+                  "headStart": 28,
+                  "headEnd": 33,
+                  "headText": "women"
+                },
+                {
+                  "start": 28,
+                  "end": 33,
+                  "text": "women",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "dobj",
+                  "lemma": "woman",
+                  "headStart": 17,
+                  "headEnd": 23,
+                  "headText": "employ"
+                }
+              ],
+              [
+                {
+                  "start": 63,
+                  "end": 73,
+                  "text": "volunteers",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "conj",
+                  "lemma": "volunteer",
+                  "headStart": 46,
+                  "headEnd": 54,
+                  "headText": "children"
+                },
+                {
+                  "start": 46,
+                  "end": 54,
+                  "text": "children",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "conj",
+                  "lemma": "child",
+                  "headStart": 38,
+                  "headEnd": 41,
+                  "headText": "men"
+                },
+                {
+                  "start": 38,
+                  "end": 41,
+                  "text": "men",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "appos",
+                  "lemma": "man",
+                  "headStart": 28,
+                  "headEnd": 33,
+                  "headText": "women"
+                },
+                {
+                  "start": 28,
+                  "end": 33,
+                  "text": "women",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "dobj",
+                  "lemma": "woman",
+                  "headStart": 17,
+                  "headEnd": 23,
+                  "headText": "employ"
+                }
+              ]
+            ],
+            "markers": [
+              [],
+              [
+                {
+                  "start": 33,
+                  "end": 34,
+                  "text": ",",
+                  "pos": "PUNCT",
+                  "tag": ",",
+                  "dep": "punct",
+                  "lemma": ",",
+                  "headStart": 28,
+                  "headEnd": 33,
+                  "headText": "women"
+                }
+              ],
+              [
+                {
+                  "start": 41,
+                  "end": 42,
+                  "text": ",",
+                  "pos": "PUNCT",
+                  "tag": ",",
+                  "dep": "punct",
+                  "lemma": ",",
+                  "headStart": 38,
+                  "headEnd": 41,
+                  "headText": "men"
+                },
+                {
+                  "start": 33,
+                  "end": 34,
+                  "text": ",",
+                  "pos": "PUNCT",
+                  "tag": ",",
+                  "dep": "punct",
+                  "lemma": ",",
+                  "headStart": 28,
+                  "headEnd": 33,
+                  "headText": "women"
+                }
+              ],
+              [
+                {
+                  "start": 56,
+                  "end": 59,
+                  "text": "and",
+                  "pos": "CCONJ",
+                  "tag": "CC",
+                  "dep": "cc",
+                  "lemma": "and",
+                  "headStart": 46,
+                  "headEnd": 54,
+                  "headText": "children"
+                },
+                {
+                  "start": 41,
+                  "end": 42,
+                  "text": ",",
+                  "pos": "PUNCT",
+                  "tag": ",",
+                  "dep": "punct",
+                  "lemma": ",",
+                  "headStart": 38,
+                  "headEnd": 41,
+                  "headText": "men"
+                },
+                {
+                  "start": 33,
+                  "end": 34,
+                  "text": ",",
+                  "pos": "PUNCT",
+                  "tag": ",",
+                  "dep": "punct",
+                  "lemma": ",",
+                  "headStart": 28,
+                  "headEnd": 33,
+                  "headText": "women"
+                }
+              ]
+            ],
+            "separators": [
+              {
+                "start": 33,
+                "end": 35,
+                "text": ", "
+              },
+              {
+                "start": 41,
+                "end": 43,
+                "text": ", "
+              },
+              {
+                "start": 54,
+                "end": 60,
+                "text": ", and "
+              }
+            ]
+          }
+        }
+      ],
+      "nounRoles": [
+        {
+          "text": "office",
+          "dep": "nsubj",
+          "head": "employ"
+        },
+        {
+          "text": "women",
+          "dep": "dobj",
+          "head": "employ"
+        },
+        {
+          "text": "men",
+          "dep": "appos",
+          "head": "women"
+        },
+        {
+          "text": "children",
+          "dep": "conj",
+          "head": "men"
+        },
+        {
+          "text": "volunteers",
+          "dep": "conj",
+          "head": "children"
+        }
+      ]
+    },
+    {
+      "text": "The office shall employ two women, 12 men.",
+      "issues": [],
+      "nounRoles": [
+        {
+          "text": "office",
+          "dep": "nsubj",
+          "head": "employ"
+        },
+        {
+          "text": "women",
+          "dep": "dobj",
+          "head": "employ"
+        },
+        {
+          "text": "men",
+          "dep": "appos",
+          "head": "women"
+        }
+      ]
+    },
+    {
+      "text": "The office shall employ two women, 12 men, 15 children.",
+      "issues": [],
+      "nounRoles": [
+        {
+          "text": "office",
+          "dep": "nsubj",
+          "head": "employ"
+        },
+        {
+          "text": "women",
+          "dep": "dobj",
+          "head": "employ"
+        },
+        {
+          "text": "men",
+          "dep": "appos",
+          "head": "women"
+        },
+        {
+          "text": "children",
+          "dep": "appos",
+          "head": "men"
+        }
+      ]
+    },
+    {
+      "text": "The office shall employ two women, but retain 12 men, and train 15 children.",
+      "issues": [],
+      "nounRoles": [
+        {
+          "text": "office",
+          "dep": "nsubj",
+          "head": "employ"
+        },
+        {
+          "text": "women",
+          "dep": "dobj",
+          "head": "employ"
+        },
+        {
+          "text": "men",
+          "dep": "dobj",
+          "head": "retain"
+        },
+        {
+          "text": "children",
+          "dep": "dobj",
+          "head": "train"
+        }
+      ]
+    },
+    {
+      "text": "The office shall employ two women, 10 years, and 12 men.",
+      "issues": [
+        {
+          "start": 24,
+          "end": 27,
+          "headStart": 28,
+          "headEnd": 33,
+          "head": "women",
+          "headLemma": "woman",
+          "peerStart": 35,
+          "peerEnd": 37,
+          "peerHeadStart": 38,
+          "peerHeadEnd": 43,
+          "peerHead": "years",
+          "peerHeadLemma": "year",
+          "evidenceStart": 0,
+          "evidenceEnd": 56,
+          "conditionalSuggestion": "2",
+          "suggestion": null,
+          "reviewSuggested": true,
+          "engine": "spaCy",
+          "engineRule": "LCB_MIXED_COUNT_LIST_REVIEW",
+          "mixedCountListEvidence": {
+            "members": [
+              {
+                "start": 24,
+                "end": 27,
+                "headStart": 28,
+                "headEnd": 33,
+                "head": "women",
+                "lemma": "woman",
+                "sourceText": "two"
+              },
+              {
+                "start": 35,
+                "end": 37,
+                "headStart": 38,
+                "headEnd": 43,
+                "head": "years",
+                "lemma": "year",
+                "sourceText": "10"
+              },
+              {
+                "start": 49,
+                "end": 51,
+                "headStart": 52,
+                "headEnd": 55,
+                "head": "men",
+                "lemma": "man",
+                "sourceText": "12"
+              }
+            ],
+            "counts": [
+              {
+                "start": 24,
+                "end": 27,
+                "text": "two",
+                "pos": "NUM",
+                "tag": "CD",
+                "dep": "nummod",
+                "lemma": "two",
+                "headStart": 28,
+                "headEnd": 33,
+                "headText": "women"
+              },
+              {
+                "start": 35,
+                "end": 37,
+                "text": "10",
+                "pos": "NUM",
+                "tag": "CD",
+                "dep": "nummod",
+                "lemma": "10",
+                "headStart": 38,
+                "headEnd": 43,
+                "headText": "years"
+              },
+              {
+                "start": 49,
+                "end": 51,
+                "text": "12",
+                "pos": "NUM",
+                "tag": "CD",
+                "dep": "nummod",
+                "lemma": "12",
+                "headStart": 52,
+                "headEnd": 55,
+                "headText": "men"
+              }
+            ],
+            "paths": [
+              [
+                {
+                  "start": 28,
+                  "end": 33,
+                  "text": "women",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "dobj",
+                  "lemma": "woman",
+                  "headStart": 17,
+                  "headEnd": 23,
+                  "headText": "employ"
+                }
+              ],
+              [
+                {
+                  "start": 38,
+                  "end": 43,
+                  "text": "years",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "appos",
+                  "lemma": "year",
+                  "headStart": 28,
+                  "headEnd": 33,
+                  "headText": "women"
+                },
+                {
+                  "start": 28,
+                  "end": 33,
+                  "text": "women",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "dobj",
+                  "lemma": "woman",
+                  "headStart": 17,
+                  "headEnd": 23,
+                  "headText": "employ"
+                }
+              ],
+              [
+                {
+                  "start": 52,
+                  "end": 55,
+                  "text": "men",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "conj",
+                  "lemma": "man",
+                  "headStart": 38,
+                  "headEnd": 43,
+                  "headText": "years"
+                },
+                {
+                  "start": 38,
+                  "end": 43,
+                  "text": "years",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "appos",
+                  "lemma": "year",
+                  "headStart": 28,
+                  "headEnd": 33,
+                  "headText": "women"
+                },
+                {
+                  "start": 28,
+                  "end": 33,
+                  "text": "women",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "dobj",
+                  "lemma": "woman",
+                  "headStart": 17,
+                  "headEnd": 23,
+                  "headText": "employ"
+                }
+              ]
+            ],
+            "markers": [
+              [],
+              [
+                {
+                  "start": 33,
+                  "end": 34,
+                  "text": ",",
+                  "pos": "PUNCT",
+                  "tag": ",",
+                  "dep": "punct",
+                  "lemma": ",",
+                  "headStart": 28,
+                  "headEnd": 33,
+                  "headText": "women"
+                }
+              ],
+              [
+                {
+                  "start": 45,
+                  "end": 48,
+                  "text": "and",
+                  "pos": "CCONJ",
+                  "tag": "CC",
+                  "dep": "cc",
+                  "lemma": "and",
+                  "headStart": 38,
+                  "headEnd": 43,
+                  "headText": "years"
+                },
+                {
+                  "start": 33,
+                  "end": 34,
+                  "text": ",",
+                  "pos": "PUNCT",
+                  "tag": ",",
+                  "dep": "punct",
+                  "lemma": ",",
+                  "headStart": 28,
+                  "headEnd": 33,
+                  "headText": "women"
+                }
+              ]
+            ],
+            "separators": [
+              {
+                "start": 33,
+                "end": 35,
+                "text": ", "
+              },
+              {
+                "start": 43,
+                "end": 49,
+                "text": ", and "
+              }
+            ]
+          }
+        },
+        {
+          "start": 24,
+          "end": 27,
+          "headStart": 28,
+          "headEnd": 33,
+          "head": "women",
+          "headLemma": "woman",
+          "peerStart": 49,
+          "peerEnd": 51,
+          "peerHeadStart": 52,
+          "peerHeadEnd": 55,
+          "peerHead": "men",
+          "peerHeadLemma": "man",
+          "evidenceStart": 0,
+          "evidenceEnd": 56,
+          "conditionalSuggestion": "2",
+          "suggestion": null,
+          "reviewSuggested": true,
+          "engine": "spaCy",
+          "engineRule": "LCB_MIXED_COUNT_LIST_REVIEW",
+          "mixedCountListEvidence": {
+            "members": [
+              {
+                "start": 24,
+                "end": 27,
+                "headStart": 28,
+                "headEnd": 33,
+                "head": "women",
+                "lemma": "woman",
+                "sourceText": "two"
+              },
+              {
+                "start": 35,
+                "end": 37,
+                "headStart": 38,
+                "headEnd": 43,
+                "head": "years",
+                "lemma": "year",
+                "sourceText": "10"
+              },
+              {
+                "start": 49,
+                "end": 51,
+                "headStart": 52,
+                "headEnd": 55,
+                "head": "men",
+                "lemma": "man",
+                "sourceText": "12"
+              }
+            ],
+            "counts": [
+              {
+                "start": 24,
+                "end": 27,
+                "text": "two",
+                "pos": "NUM",
+                "tag": "CD",
+                "dep": "nummod",
+                "lemma": "two",
+                "headStart": 28,
+                "headEnd": 33,
+                "headText": "women"
+              },
+              {
+                "start": 35,
+                "end": 37,
+                "text": "10",
+                "pos": "NUM",
+                "tag": "CD",
+                "dep": "nummod",
+                "lemma": "10",
+                "headStart": 38,
+                "headEnd": 43,
+                "headText": "years"
+              },
+              {
+                "start": 49,
+                "end": 51,
+                "text": "12",
+                "pos": "NUM",
+                "tag": "CD",
+                "dep": "nummod",
+                "lemma": "12",
+                "headStart": 52,
+                "headEnd": 55,
+                "headText": "men"
+              }
+            ],
+            "paths": [
+              [
+                {
+                  "start": 28,
+                  "end": 33,
+                  "text": "women",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "dobj",
+                  "lemma": "woman",
+                  "headStart": 17,
+                  "headEnd": 23,
+                  "headText": "employ"
+                }
+              ],
+              [
+                {
+                  "start": 38,
+                  "end": 43,
+                  "text": "years",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "appos",
+                  "lemma": "year",
+                  "headStart": 28,
+                  "headEnd": 33,
+                  "headText": "women"
+                },
+                {
+                  "start": 28,
+                  "end": 33,
+                  "text": "women",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "dobj",
+                  "lemma": "woman",
+                  "headStart": 17,
+                  "headEnd": 23,
+                  "headText": "employ"
+                }
+              ],
+              [
+                {
+                  "start": 52,
+                  "end": 55,
+                  "text": "men",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "conj",
+                  "lemma": "man",
+                  "headStart": 38,
+                  "headEnd": 43,
+                  "headText": "years"
+                },
+                {
+                  "start": 38,
+                  "end": 43,
+                  "text": "years",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "appos",
+                  "lemma": "year",
+                  "headStart": 28,
+                  "headEnd": 33,
+                  "headText": "women"
+                },
+                {
+                  "start": 28,
+                  "end": 33,
+                  "text": "women",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "dobj",
+                  "lemma": "woman",
+                  "headStart": 17,
+                  "headEnd": 23,
+                  "headText": "employ"
+                }
+              ]
+            ],
+            "markers": [
+              [],
+              [
+                {
+                  "start": 33,
+                  "end": 34,
+                  "text": ",",
+                  "pos": "PUNCT",
+                  "tag": ",",
+                  "dep": "punct",
+                  "lemma": ",",
+                  "headStart": 28,
+                  "headEnd": 33,
+                  "headText": "women"
+                }
+              ],
+              [
+                {
+                  "start": 45,
+                  "end": 48,
+                  "text": "and",
+                  "pos": "CCONJ",
+                  "tag": "CC",
+                  "dep": "cc",
+                  "lemma": "and",
+                  "headStart": 38,
+                  "headEnd": 43,
+                  "headText": "years"
+                },
+                {
+                  "start": 33,
+                  "end": 34,
+                  "text": ",",
+                  "pos": "PUNCT",
+                  "tag": ",",
+                  "dep": "punct",
+                  "lemma": ",",
+                  "headStart": 28,
+                  "headEnd": 33,
+                  "headText": "women"
+                }
+              ]
+            ],
+            "separators": [
+              {
+                "start": 33,
+                "end": 35,
+                "text": ", "
+              },
+              {
+                "start": 43,
+                "end": 49,
+                "text": ", and "
+              }
+            ]
+          }
+        }
+      ],
+      "nounRoles": [
+        {
+          "text": "office",
+          "dep": "nsubj",
+          "head": "employ"
+        },
+        {
+          "text": "women",
+          "dep": "dobj",
+          "head": "employ"
+        },
+        {
+          "text": "years",
+          "dep": "appos",
+          "head": "women"
+        },
+        {
+          "text": "men",
+          "dep": "conj",
+          "head": "years"
+        }
+      ]
+    },
+    {
+      "text": "The program lasts two years, 12 months, and 15 days.",
+      "issues": [
+        {
+          "start": 18,
+          "end": 21,
+          "headStart": 22,
+          "headEnd": 27,
+          "head": "years",
+          "headLemma": "year",
+          "peerStart": 29,
+          "peerEnd": 31,
+          "peerHeadStart": 32,
+          "peerHeadEnd": 38,
+          "peerHead": "months",
+          "peerHeadLemma": "month",
+          "evidenceStart": 0,
+          "evidenceEnd": 52,
+          "conditionalSuggestion": "2",
+          "suggestion": null,
+          "reviewSuggested": true,
+          "engine": "spaCy",
+          "engineRule": "LCB_MIXED_COUNT_LIST_REVIEW",
+          "mixedCountListEvidence": {
+            "members": [
+              {
+                "start": 18,
+                "end": 21,
+                "headStart": 22,
+                "headEnd": 27,
+                "head": "years",
+                "lemma": "year",
+                "sourceText": "two"
+              },
+              {
+                "start": 29,
+                "end": 31,
+                "headStart": 32,
+                "headEnd": 38,
+                "head": "months",
+                "lemma": "month",
+                "sourceText": "12"
+              },
+              {
+                "start": 44,
+                "end": 46,
+                "headStart": 47,
+                "headEnd": 51,
+                "head": "days",
+                "lemma": "day",
+                "sourceText": "15"
+              }
+            ],
+            "counts": [
+              {
+                "start": 18,
+                "end": 21,
+                "text": "two",
+                "pos": "NUM",
+                "tag": "CD",
+                "dep": "nummod",
+                "lemma": "two",
+                "headStart": 22,
+                "headEnd": 27,
+                "headText": "years"
+              },
+              {
+                "start": 29,
+                "end": 31,
+                "text": "12",
+                "pos": "NUM",
+                "tag": "CD",
+                "dep": "nummod",
+                "lemma": "12",
+                "headStart": 32,
+                "headEnd": 38,
+                "headText": "months"
+              },
+              {
+                "start": 44,
+                "end": 46,
+                "text": "15",
+                "pos": "NUM",
+                "tag": "CD",
+                "dep": "nummod",
+                "lemma": "15",
+                "headStart": 47,
+                "headEnd": 51,
+                "headText": "days"
+              }
+            ],
+            "paths": [
+              [
+                {
+                  "start": 22,
+                  "end": 27,
+                  "text": "years",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "dobj",
+                  "lemma": "year",
+                  "headStart": 12,
+                  "headEnd": 17,
+                  "headText": "lasts"
+                }
+              ],
+              [
+                {
+                  "start": 32,
+                  "end": 38,
+                  "text": "months",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "appos",
+                  "lemma": "month",
+                  "headStart": 22,
+                  "headEnd": 27,
+                  "headText": "years"
+                },
+                {
+                  "start": 22,
+                  "end": 27,
+                  "text": "years",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "dobj",
+                  "lemma": "year",
+                  "headStart": 12,
+                  "headEnd": 17,
+                  "headText": "lasts"
+                }
+              ],
+              [
+                {
+                  "start": 47,
+                  "end": 51,
+                  "text": "days",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "conj",
+                  "lemma": "day",
+                  "headStart": 32,
+                  "headEnd": 38,
+                  "headText": "months"
+                },
+                {
+                  "start": 32,
+                  "end": 38,
+                  "text": "months",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "appos",
+                  "lemma": "month",
+                  "headStart": 22,
+                  "headEnd": 27,
+                  "headText": "years"
+                },
+                {
+                  "start": 22,
+                  "end": 27,
+                  "text": "years",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "dobj",
+                  "lemma": "year",
+                  "headStart": 12,
+                  "headEnd": 17,
+                  "headText": "lasts"
+                }
+              ]
+            ],
+            "markers": [
+              [],
+              [
+                {
+                  "start": 27,
+                  "end": 28,
+                  "text": ",",
+                  "pos": "PUNCT",
+                  "tag": ",",
+                  "dep": "punct",
+                  "lemma": ",",
+                  "headStart": 22,
+                  "headEnd": 27,
+                  "headText": "years"
+                }
+              ],
+              [
+                {
+                  "start": 40,
+                  "end": 43,
+                  "text": "and",
+                  "pos": "CCONJ",
+                  "tag": "CC",
+                  "dep": "cc",
+                  "lemma": "and",
+                  "headStart": 32,
+                  "headEnd": 38,
+                  "headText": "months"
+                },
+                {
+                  "start": 27,
+                  "end": 28,
+                  "text": ",",
+                  "pos": "PUNCT",
+                  "tag": ",",
+                  "dep": "punct",
+                  "lemma": ",",
+                  "headStart": 22,
+                  "headEnd": 27,
+                  "headText": "years"
+                }
+              ]
+            ],
+            "separators": [
+              {
+                "start": 27,
+                "end": 29,
+                "text": ", "
+              },
+              {
+                "start": 38,
+                "end": 44,
+                "text": ", and "
+              }
+            ]
+          }
+        },
+        {
+          "start": 18,
+          "end": 21,
+          "headStart": 22,
+          "headEnd": 27,
+          "head": "years",
+          "headLemma": "year",
+          "peerStart": 44,
+          "peerEnd": 46,
+          "peerHeadStart": 47,
+          "peerHeadEnd": 51,
+          "peerHead": "days",
+          "peerHeadLemma": "day",
+          "evidenceStart": 0,
+          "evidenceEnd": 52,
+          "conditionalSuggestion": "2",
+          "suggestion": null,
+          "reviewSuggested": true,
+          "engine": "spaCy",
+          "engineRule": "LCB_MIXED_COUNT_LIST_REVIEW",
+          "mixedCountListEvidence": {
+            "members": [
+              {
+                "start": 18,
+                "end": 21,
+                "headStart": 22,
+                "headEnd": 27,
+                "head": "years",
+                "lemma": "year",
+                "sourceText": "two"
+              },
+              {
+                "start": 29,
+                "end": 31,
+                "headStart": 32,
+                "headEnd": 38,
+                "head": "months",
+                "lemma": "month",
+                "sourceText": "12"
+              },
+              {
+                "start": 44,
+                "end": 46,
+                "headStart": 47,
+                "headEnd": 51,
+                "head": "days",
+                "lemma": "day",
+                "sourceText": "15"
+              }
+            ],
+            "counts": [
+              {
+                "start": 18,
+                "end": 21,
+                "text": "two",
+                "pos": "NUM",
+                "tag": "CD",
+                "dep": "nummod",
+                "lemma": "two",
+                "headStart": 22,
+                "headEnd": 27,
+                "headText": "years"
+              },
+              {
+                "start": 29,
+                "end": 31,
+                "text": "12",
+                "pos": "NUM",
+                "tag": "CD",
+                "dep": "nummod",
+                "lemma": "12",
+                "headStart": 32,
+                "headEnd": 38,
+                "headText": "months"
+              },
+              {
+                "start": 44,
+                "end": 46,
+                "text": "15",
+                "pos": "NUM",
+                "tag": "CD",
+                "dep": "nummod",
+                "lemma": "15",
+                "headStart": 47,
+                "headEnd": 51,
+                "headText": "days"
+              }
+            ],
+            "paths": [
+              [
+                {
+                  "start": 22,
+                  "end": 27,
+                  "text": "years",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "dobj",
+                  "lemma": "year",
+                  "headStart": 12,
+                  "headEnd": 17,
+                  "headText": "lasts"
+                }
+              ],
+              [
+                {
+                  "start": 32,
+                  "end": 38,
+                  "text": "months",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "appos",
+                  "lemma": "month",
+                  "headStart": 22,
+                  "headEnd": 27,
+                  "headText": "years"
+                },
+                {
+                  "start": 22,
+                  "end": 27,
+                  "text": "years",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "dobj",
+                  "lemma": "year",
+                  "headStart": 12,
+                  "headEnd": 17,
+                  "headText": "lasts"
+                }
+              ],
+              [
+                {
+                  "start": 47,
+                  "end": 51,
+                  "text": "days",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "conj",
+                  "lemma": "day",
+                  "headStart": 32,
+                  "headEnd": 38,
+                  "headText": "months"
+                },
+                {
+                  "start": 32,
+                  "end": 38,
+                  "text": "months",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "appos",
+                  "lemma": "month",
+                  "headStart": 22,
+                  "headEnd": 27,
+                  "headText": "years"
+                },
+                {
+                  "start": 22,
+                  "end": 27,
+                  "text": "years",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "dobj",
+                  "lemma": "year",
+                  "headStart": 12,
+                  "headEnd": 17,
+                  "headText": "lasts"
+                }
+              ]
+            ],
+            "markers": [
+              [],
+              [
+                {
+                  "start": 27,
+                  "end": 28,
+                  "text": ",",
+                  "pos": "PUNCT",
+                  "tag": ",",
+                  "dep": "punct",
+                  "lemma": ",",
+                  "headStart": 22,
+                  "headEnd": 27,
+                  "headText": "years"
+                }
+              ],
+              [
+                {
+                  "start": 40,
+                  "end": 43,
+                  "text": "and",
+                  "pos": "CCONJ",
+                  "tag": "CC",
+                  "dep": "cc",
+                  "lemma": "and",
+                  "headStart": 32,
+                  "headEnd": 38,
+                  "headText": "months"
+                },
+                {
+                  "start": 27,
+                  "end": 28,
+                  "text": ",",
+                  "pos": "PUNCT",
+                  "tag": ",",
+                  "dep": "punct",
+                  "lemma": ",",
+                  "headStart": 22,
+                  "headEnd": 27,
+                  "headText": "years"
+                }
+              ]
+            ],
+            "separators": [
+              {
+                "start": 27,
+                "end": 29,
+                "text": ", "
+              },
+              {
+                "start": 38,
+                "end": 44,
+                "text": ", and "
+              }
+            ]
+          }
+        }
+      ],
+      "nounRoles": [
+        {
+          "text": "program",
+          "dep": "nsubj",
+          "head": "lasts"
+        },
+        {
+          "text": "years",
+          "dep": "dobj",
+          "head": "lasts"
+        },
+        {
+          "text": "months",
+          "dep": "appos",
+          "head": "years"
+        },
+        {
+          "text": "days",
+          "dep": "conj",
+          "head": "months"
+        }
+      ]
+    },
+    {
+      "text": "The office shall employ two women per acre, 12 men per hectare, and 15 children.",
+      "issues": [],
+      "nounRoles": [
+        {
+          "text": "office",
+          "dep": "nsubj",
+          "head": "employ"
+        },
+        {
+          "text": "women",
+          "dep": "dobj",
+          "head": "employ"
+        },
+        {
+          "text": "acre",
+          "dep": "pobj",
+          "head": "per"
+        },
+        {
+          "text": "men",
+          "dep": "appos",
+          "head": "women"
+        },
+        {
+          "text": "hectare",
+          "dep": "pobj",
+          "head": "per"
+        },
+        {
+          "text": "children",
+          "dep": "conj",
+          "head": "men"
+        }
+      ]
+    },
+    {
+      "text": "The office shall employ two women, 12 eligible men, and 15 children.",
+      "issues": [
+        {
+          "start": 24,
+          "end": 27,
+          "headStart": 28,
+          "headEnd": 33,
+          "head": "women",
+          "headLemma": "woman",
+          "peerStart": 35,
+          "peerEnd": 37,
+          "peerHeadStart": 47,
+          "peerHeadEnd": 50,
+          "peerHead": "men",
+          "peerHeadLemma": "man",
+          "evidenceStart": 0,
+          "evidenceEnd": 68,
+          "conditionalSuggestion": "2",
+          "suggestion": null,
+          "reviewSuggested": true,
+          "engine": "spaCy",
+          "engineRule": "LCB_MIXED_COUNT_LIST_REVIEW",
+          "mixedCountListEvidence": {
+            "members": [
+              {
+                "start": 24,
+                "end": 27,
+                "headStart": 28,
+                "headEnd": 33,
+                "head": "women",
+                "lemma": "woman",
+                "sourceText": "two"
+              },
+              {
+                "start": 35,
+                "end": 37,
+                "headStart": 47,
+                "headEnd": 50,
+                "head": "men",
+                "lemma": "man",
+                "sourceText": "12"
+              },
+              {
+                "start": 56,
+                "end": 58,
+                "headStart": 59,
+                "headEnd": 67,
+                "head": "children",
+                "lemma": "child",
+                "sourceText": "15"
+              }
+            ],
+            "counts": [
+              {
+                "start": 24,
+                "end": 27,
+                "text": "two",
+                "pos": "NUM",
+                "tag": "CD",
+                "dep": "nummod",
+                "lemma": "two",
+                "headStart": 28,
+                "headEnd": 33,
+                "headText": "women"
+              },
+              {
+                "start": 35,
+                "end": 37,
+                "text": "12",
+                "pos": "NUM",
+                "tag": "CD",
+                "dep": "nummod",
+                "lemma": "12",
+                "headStart": 47,
+                "headEnd": 50,
+                "headText": "men"
+              },
+              {
+                "start": 56,
+                "end": 58,
+                "text": "15",
+                "pos": "NUM",
+                "tag": "CD",
+                "dep": "nummod",
+                "lemma": "15",
+                "headStart": 59,
+                "headEnd": 67,
+                "headText": "children"
+              }
+            ],
+            "paths": [
+              [
+                {
+                  "start": 28,
+                  "end": 33,
+                  "text": "women",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "dobj",
+                  "lemma": "woman",
+                  "headStart": 17,
+                  "headEnd": 23,
+                  "headText": "employ"
+                }
+              ],
+              [
+                {
+                  "start": 47,
+                  "end": 50,
+                  "text": "men",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "appos",
+                  "lemma": "man",
+                  "headStart": 28,
+                  "headEnd": 33,
+                  "headText": "women"
+                },
+                {
+                  "start": 28,
+                  "end": 33,
+                  "text": "women",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "dobj",
+                  "lemma": "woman",
+                  "headStart": 17,
+                  "headEnd": 23,
+                  "headText": "employ"
+                }
+              ],
+              [
+                {
+                  "start": 59,
+                  "end": 67,
+                  "text": "children",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "conj",
+                  "lemma": "child",
+                  "headStart": 47,
+                  "headEnd": 50,
+                  "headText": "men"
+                },
+                {
+                  "start": 47,
+                  "end": 50,
+                  "text": "men",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "appos",
+                  "lemma": "man",
+                  "headStart": 28,
+                  "headEnd": 33,
+                  "headText": "women"
+                },
+                {
+                  "start": 28,
+                  "end": 33,
+                  "text": "women",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "dobj",
+                  "lemma": "woman",
+                  "headStart": 17,
+                  "headEnd": 23,
+                  "headText": "employ"
+                }
+              ]
+            ],
+            "markers": [
+              [],
+              [
+                {
+                  "start": 33,
+                  "end": 34,
+                  "text": ",",
+                  "pos": "PUNCT",
+                  "tag": ",",
+                  "dep": "punct",
+                  "lemma": ",",
+                  "headStart": 28,
+                  "headEnd": 33,
+                  "headText": "women"
+                }
+              ],
+              [
+                {
+                  "start": 52,
+                  "end": 55,
+                  "text": "and",
+                  "pos": "CCONJ",
+                  "tag": "CC",
+                  "dep": "cc",
+                  "lemma": "and",
+                  "headStart": 47,
+                  "headEnd": 50,
+                  "headText": "men"
+                },
+                {
+                  "start": 33,
+                  "end": 34,
+                  "text": ",",
+                  "pos": "PUNCT",
+                  "tag": ",",
+                  "dep": "punct",
+                  "lemma": ",",
+                  "headStart": 28,
+                  "headEnd": 33,
+                  "headText": "women"
+                }
+              ]
+            ],
+            "separators": [
+              {
+                "start": 33,
+                "end": 35,
+                "text": ", "
+              },
+              {
+                "start": 50,
+                "end": 56,
+                "text": ", and "
+              }
+            ]
+          }
+        },
+        {
+          "start": 24,
+          "end": 27,
+          "headStart": 28,
+          "headEnd": 33,
+          "head": "women",
+          "headLemma": "woman",
+          "peerStart": 56,
+          "peerEnd": 58,
+          "peerHeadStart": 59,
+          "peerHeadEnd": 67,
+          "peerHead": "children",
+          "peerHeadLemma": "child",
+          "evidenceStart": 0,
+          "evidenceEnd": 68,
+          "conditionalSuggestion": "2",
+          "suggestion": null,
+          "reviewSuggested": true,
+          "engine": "spaCy",
+          "engineRule": "LCB_MIXED_COUNT_LIST_REVIEW",
+          "mixedCountListEvidence": {
+            "members": [
+              {
+                "start": 24,
+                "end": 27,
+                "headStart": 28,
+                "headEnd": 33,
+                "head": "women",
+                "lemma": "woman",
+                "sourceText": "two"
+              },
+              {
+                "start": 35,
+                "end": 37,
+                "headStart": 47,
+                "headEnd": 50,
+                "head": "men",
+                "lemma": "man",
+                "sourceText": "12"
+              },
+              {
+                "start": 56,
+                "end": 58,
+                "headStart": 59,
+                "headEnd": 67,
+                "head": "children",
+                "lemma": "child",
+                "sourceText": "15"
+              }
+            ],
+            "counts": [
+              {
+                "start": 24,
+                "end": 27,
+                "text": "two",
+                "pos": "NUM",
+                "tag": "CD",
+                "dep": "nummod",
+                "lemma": "two",
+                "headStart": 28,
+                "headEnd": 33,
+                "headText": "women"
+              },
+              {
+                "start": 35,
+                "end": 37,
+                "text": "12",
+                "pos": "NUM",
+                "tag": "CD",
+                "dep": "nummod",
+                "lemma": "12",
+                "headStart": 47,
+                "headEnd": 50,
+                "headText": "men"
+              },
+              {
+                "start": 56,
+                "end": 58,
+                "text": "15",
+                "pos": "NUM",
+                "tag": "CD",
+                "dep": "nummod",
+                "lemma": "15",
+                "headStart": 59,
+                "headEnd": 67,
+                "headText": "children"
+              }
+            ],
+            "paths": [
+              [
+                {
+                  "start": 28,
+                  "end": 33,
+                  "text": "women",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "dobj",
+                  "lemma": "woman",
+                  "headStart": 17,
+                  "headEnd": 23,
+                  "headText": "employ"
+                }
+              ],
+              [
+                {
+                  "start": 47,
+                  "end": 50,
+                  "text": "men",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "appos",
+                  "lemma": "man",
+                  "headStart": 28,
+                  "headEnd": 33,
+                  "headText": "women"
+                },
+                {
+                  "start": 28,
+                  "end": 33,
+                  "text": "women",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "dobj",
+                  "lemma": "woman",
+                  "headStart": 17,
+                  "headEnd": 23,
+                  "headText": "employ"
+                }
+              ],
+              [
+                {
+                  "start": 59,
+                  "end": 67,
+                  "text": "children",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "conj",
+                  "lemma": "child",
+                  "headStart": 47,
+                  "headEnd": 50,
+                  "headText": "men"
+                },
+                {
+                  "start": 47,
+                  "end": 50,
+                  "text": "men",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "appos",
+                  "lemma": "man",
+                  "headStart": 28,
+                  "headEnd": 33,
+                  "headText": "women"
+                },
+                {
+                  "start": 28,
+                  "end": 33,
+                  "text": "women",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "dobj",
+                  "lemma": "woman",
+                  "headStart": 17,
+                  "headEnd": 23,
+                  "headText": "employ"
+                }
+              ]
+            ],
+            "markers": [
+              [],
+              [
+                {
+                  "start": 33,
+                  "end": 34,
+                  "text": ",",
+                  "pos": "PUNCT",
+                  "tag": ",",
+                  "dep": "punct",
+                  "lemma": ",",
+                  "headStart": 28,
+                  "headEnd": 33,
+                  "headText": "women"
+                }
+              ],
+              [
+                {
+                  "start": 52,
+                  "end": 55,
+                  "text": "and",
+                  "pos": "CCONJ",
+                  "tag": "CC",
+                  "dep": "cc",
+                  "lemma": "and",
+                  "headStart": 47,
+                  "headEnd": 50,
+                  "headText": "men"
+                },
+                {
+                  "start": 33,
+                  "end": 34,
+                  "text": ",",
+                  "pos": "PUNCT",
+                  "tag": ",",
+                  "dep": "punct",
+                  "lemma": ",",
+                  "headStart": 28,
+                  "headEnd": 33,
+                  "headText": "women"
+                }
+              ]
+            ],
+            "separators": [
+              {
+                "start": 33,
+                "end": 35,
+                "text": ", "
+              },
+              {
+                "start": 50,
+                "end": 56,
+                "text": ", and "
+              }
+            ]
+          }
+        }
+      ],
+      "nounRoles": [
+        {
+          "text": "office",
+          "dep": "nsubj",
+          "head": "employ"
+        },
+        {
+          "text": "women",
+          "dep": "dobj",
+          "head": "employ"
+        },
+        {
+          "text": "men",
+          "dep": "appos",
+          "head": "women"
+        },
+        {
+          "text": "children",
+          "dep": "conj",
+          "head": "men"
+        }
+      ]
+    },
+    {
+      "text": "Two women, 12 men, and 15 children shall serve the office.",
+      "issues": [],
+      "nounRoles": [
+        {
+          "text": "women",
+          "dep": "nsubj",
+          "head": "serve"
+        },
+        {
+          "text": "men",
+          "dep": "appos",
+          "head": "women"
+        },
+        {
+          "text": "children",
+          "dep": "nsubj",
+          "head": "serve"
+        },
+        {
+          "text": "office",
+          "dep": "dobj",
+          "head": "serve"
+        }
+      ]
+    },
+    {
+      "text": "The office shall appoint two attorneys, 12 paralegals, and 15 clerks.",
+      "issues": [],
+      "nounRoles": [
+        {
+          "text": "office",
+          "dep": "nsubj",
+          "head": "appoint"
+        },
+        {
+          "text": "attorneys",
+          "dep": "dobj",
+          "head": "appoint"
+        },
+        {
+          "text": "paralegals",
+          "dep": "conj",
+          "head": "attorneys"
+        },
+        {
+          "text": "clerks",
+          "dep": "conj",
+          "head": "paralegals"
+        }
+      ]
+    },
+    {
+      "text": "The office employs two staff members, 12 contractors, and 15 volunteers.",
+      "issues": [],
+      "nounRoles": [
+        {
+          "text": "office",
+          "dep": "nsubj",
+          "head": "employs"
+        },
+        {
+          "text": "staff",
+          "dep": "compound",
+          "head": "members"
+        },
+        {
+          "text": "members",
+          "dep": "dobj",
+          "head": "employs"
+        },
+        {
+          "text": "contractors",
+          "dep": "conj",
+          "head": "members"
+        },
+        {
+          "text": "volunteers",
+          "dep": "conj",
+          "head": "contractors"
+        }
+      ]
+    },
+    {
+      "text": "The office shall employ two women, 12 men, and one hundred and two children.",
+      "issues": [
+        {
+          "start": 24,
+          "end": 27,
+          "headStart": 28,
+          "headEnd": 33,
+          "head": "women",
+          "headLemma": "woman",
+          "peerStart": 35,
+          "peerEnd": 37,
+          "peerHeadStart": 38,
+          "peerHeadEnd": 41,
+          "peerHead": "men",
+          "peerHeadLemma": "man",
+          "evidenceStart": 0,
+          "evidenceEnd": 76,
+          "conditionalSuggestion": "2",
+          "suggestion": null,
+          "reviewSuggested": true,
+          "engine": "spaCy",
+          "engineRule": "LCB_MIXED_COUNT_LIST_REVIEW",
+          "mixedCountListEvidence": {
+            "members": [
+              {
+                "start": 24,
+                "end": 27,
+                "headStart": 28,
+                "headEnd": 33,
+                "head": "women",
+                "lemma": "woman",
+                "sourceText": "two"
+              },
+              {
+                "start": 35,
+                "end": 37,
+                "headStart": 38,
+                "headEnd": 41,
+                "head": "men",
+                "lemma": "man",
+                "sourceText": "12"
+              },
+              {
+                "start": 47,
+                "end": 66,
+                "headStart": 67,
+                "headEnd": 75,
+                "head": "children",
+                "lemma": "child",
+                "sourceText": "one hundred and two"
+              }
+            ],
+            "counts": [
+              {
+                "start": 24,
+                "end": 27,
+                "text": "two",
+                "pos": "NUM",
+                "tag": "CD",
+                "dep": "nummod",
+                "lemma": "two",
+                "headStart": 28,
+                "headEnd": 33,
+                "headText": "women"
+              },
+              {
+                "start": 35,
+                "end": 37,
+                "text": "12",
+                "pos": "NUM",
+                "tag": "CD",
+                "dep": "nummod",
+                "lemma": "12",
+                "headStart": 38,
+                "headEnd": 41,
+                "headText": "men"
+              },
+              {
+                "start": 51,
+                "end": 58,
+                "text": "hundred",
+                "pos": "NUM",
+                "tag": "CD",
+                "dep": "nummod",
+                "lemma": "hundred",
+                "headStart": 67,
+                "headEnd": 75,
+                "headText": "children"
+              }
+            ],
+            "paths": [
+              [
+                {
+                  "start": 28,
+                  "end": 33,
+                  "text": "women",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "dobj",
+                  "lemma": "woman",
+                  "headStart": 17,
+                  "headEnd": 23,
+                  "headText": "employ"
+                }
+              ],
+              [
+                {
+                  "start": 38,
+                  "end": 41,
+                  "text": "men",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "appos",
+                  "lemma": "man",
+                  "headStart": 28,
+                  "headEnd": 33,
+                  "headText": "women"
+                },
+                {
+                  "start": 28,
+                  "end": 33,
+                  "text": "women",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "dobj",
+                  "lemma": "woman",
+                  "headStart": 17,
+                  "headEnd": 23,
+                  "headText": "employ"
+                }
+              ],
+              [
+                {
+                  "start": 67,
+                  "end": 75,
+                  "text": "children",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "conj",
+                  "lemma": "child",
+                  "headStart": 38,
+                  "headEnd": 41,
+                  "headText": "men"
+                },
+                {
+                  "start": 38,
+                  "end": 41,
+                  "text": "men",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "appos",
+                  "lemma": "man",
+                  "headStart": 28,
+                  "headEnd": 33,
+                  "headText": "women"
+                },
+                {
+                  "start": 28,
+                  "end": 33,
+                  "text": "women",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "dobj",
+                  "lemma": "woman",
+                  "headStart": 17,
+                  "headEnd": 23,
+                  "headText": "employ"
+                }
+              ]
+            ],
+            "markers": [
+              [],
+              [
+                {
+                  "start": 33,
+                  "end": 34,
+                  "text": ",",
+                  "pos": "PUNCT",
+                  "tag": ",",
+                  "dep": "punct",
+                  "lemma": ",",
+                  "headStart": 28,
+                  "headEnd": 33,
+                  "headText": "women"
+                }
+              ],
+              [
+                {
+                  "start": 43,
+                  "end": 46,
+                  "text": "and",
+                  "pos": "CCONJ",
+                  "tag": "CC",
+                  "dep": "cc",
+                  "lemma": "and",
+                  "headStart": 38,
+                  "headEnd": 41,
+                  "headText": "men"
+                },
+                {
+                  "start": 33,
+                  "end": 34,
+                  "text": ",",
+                  "pos": "PUNCT",
+                  "tag": ",",
+                  "dep": "punct",
+                  "lemma": ",",
+                  "headStart": 28,
+                  "headEnd": 33,
+                  "headText": "women"
+                }
+              ]
+            ],
+            "separators": [
+              {
+                "start": 33,
+                "end": 35,
+                "text": ", "
+              },
+              {
+                "start": 41,
+                "end": 47,
+                "text": ", and "
+              }
+            ]
+          }
+        },
+        {
+          "start": 24,
+          "end": 27,
+          "headStart": 28,
+          "headEnd": 33,
+          "head": "women",
+          "headLemma": "woman",
+          "peerStart": 47,
+          "peerEnd": 66,
+          "peerHeadStart": 67,
+          "peerHeadEnd": 75,
+          "peerHead": "children",
+          "peerHeadLemma": "child",
+          "evidenceStart": 0,
+          "evidenceEnd": 76,
+          "conditionalSuggestion": "2",
+          "suggestion": null,
+          "reviewSuggested": true,
+          "engine": "spaCy",
+          "engineRule": "LCB_MIXED_COUNT_LIST_REVIEW",
+          "mixedCountListEvidence": {
+            "members": [
+              {
+                "start": 24,
+                "end": 27,
+                "headStart": 28,
+                "headEnd": 33,
+                "head": "women",
+                "lemma": "woman",
+                "sourceText": "two"
+              },
+              {
+                "start": 35,
+                "end": 37,
+                "headStart": 38,
+                "headEnd": 41,
+                "head": "men",
+                "lemma": "man",
+                "sourceText": "12"
+              },
+              {
+                "start": 47,
+                "end": 66,
+                "headStart": 67,
+                "headEnd": 75,
+                "head": "children",
+                "lemma": "child",
+                "sourceText": "one hundred and two"
+              }
+            ],
+            "counts": [
+              {
+                "start": 24,
+                "end": 27,
+                "text": "two",
+                "pos": "NUM",
+                "tag": "CD",
+                "dep": "nummod",
+                "lemma": "two",
+                "headStart": 28,
+                "headEnd": 33,
+                "headText": "women"
+              },
+              {
+                "start": 35,
+                "end": 37,
+                "text": "12",
+                "pos": "NUM",
+                "tag": "CD",
+                "dep": "nummod",
+                "lemma": "12",
+                "headStart": 38,
+                "headEnd": 41,
+                "headText": "men"
+              },
+              {
+                "start": 51,
+                "end": 58,
+                "text": "hundred",
+                "pos": "NUM",
+                "tag": "CD",
+                "dep": "nummod",
+                "lemma": "hundred",
+                "headStart": 67,
+                "headEnd": 75,
+                "headText": "children"
+              }
+            ],
+            "paths": [
+              [
+                {
+                  "start": 28,
+                  "end": 33,
+                  "text": "women",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "dobj",
+                  "lemma": "woman",
+                  "headStart": 17,
+                  "headEnd": 23,
+                  "headText": "employ"
+                }
+              ],
+              [
+                {
+                  "start": 38,
+                  "end": 41,
+                  "text": "men",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "appos",
+                  "lemma": "man",
+                  "headStart": 28,
+                  "headEnd": 33,
+                  "headText": "women"
+                },
+                {
+                  "start": 28,
+                  "end": 33,
+                  "text": "women",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "dobj",
+                  "lemma": "woman",
+                  "headStart": 17,
+                  "headEnd": 23,
+                  "headText": "employ"
+                }
+              ],
+              [
+                {
+                  "start": 67,
+                  "end": 75,
+                  "text": "children",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "conj",
+                  "lemma": "child",
+                  "headStart": 38,
+                  "headEnd": 41,
+                  "headText": "men"
+                },
+                {
+                  "start": 38,
+                  "end": 41,
+                  "text": "men",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "appos",
+                  "lemma": "man",
+                  "headStart": 28,
+                  "headEnd": 33,
+                  "headText": "women"
+                },
+                {
+                  "start": 28,
+                  "end": 33,
+                  "text": "women",
+                  "pos": "NOUN",
+                  "tag": "NNS",
+                  "dep": "dobj",
+                  "lemma": "woman",
+                  "headStart": 17,
+                  "headEnd": 23,
+                  "headText": "employ"
+                }
+              ]
+            ],
+            "markers": [
+              [],
+              [
+                {
+                  "start": 33,
+                  "end": 34,
+                  "text": ",",
+                  "pos": "PUNCT",
+                  "tag": ",",
+                  "dep": "punct",
+                  "lemma": ",",
+                  "headStart": 28,
+                  "headEnd": 33,
+                  "headText": "women"
+                }
+              ],
+              [
+                {
+                  "start": 43,
+                  "end": 46,
+                  "text": "and",
+                  "pos": "CCONJ",
+                  "tag": "CC",
+                  "dep": "cc",
+                  "lemma": "and",
+                  "headStart": 38,
+                  "headEnd": 41,
+                  "headText": "men"
+                },
+                {
+                  "start": 33,
+                  "end": 34,
+                  "text": ",",
+                  "pos": "PUNCT",
+                  "tag": ",",
+                  "dep": "punct",
+                  "lemma": ",",
+                  "headStart": 28,
+                  "headEnd": 33,
+                  "headText": "women"
+                }
+              ]
+            ],
+            "separators": [
+              {
+                "start": 33,
+                "end": 35,
+                "text": ", "
+              },
+              {
+                "start": 41,
+                "end": 47,
+                "text": ", and "
+              }
+            ]
+          }
+        }
+      ],
+      "nounRoles": [
+        {
+          "text": "office",
+          "dep": "nsubj",
+          "head": "employ"
+        },
+        {
+          "text": "women",
+          "dep": "dobj",
+          "head": "employ"
+        },
+        {
+          "text": "men",
+          "dep": "appos",
+          "head": "women"
+        },
+        {
+          "text": "children",
+          "dep": "conj",
+          "head": "men"
+        }
+      ]
+    }
+  ],
+  "scope": "Actual trained model controls. Apposition labels and source-complete lists support conditional review only; count meaning, source guards and existing owners still need independent app checks."
+}

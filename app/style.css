@@ -58,6 +58,7 @@ body:not([data-review="amendments"]) #amendment-position,body:not([data-review="
 .document .current-style{outline:2px solid #c998ff;outline-offset:2px;background:#603d89}
 .reference-dialog{width:min(1250px,94vw);max-height:90vh;overflow:auto;color:#dce6f5;background:#172235;border:1px solid #60728c;border-radius:12px;padding:22px}
 .reference-dialog::backdrop{background:#0009}.reference-dialog input{background:#101c2c;color:#e0e9f5;border:1px solid #526a87;border-radius:5px;padding:8px;font:inherit}
+#reading-dialog{width:min(950px,92vw);max-height:85vh;overflow:auto;background:#182536;color:#dce6f5;border:1px solid #607792;border-radius:12px;padding:22px;box-shadow:0 18px 60px #0008}#reading-dialog::backdrop{background:#080d16bb}#reading-list form{display:flex;align-items:center;flex-wrap:wrap;gap:12px;padding:12px 0;border-bottom:1px solid #32445d}#reading-list input{background:#101c2c;color:#e0e9f5;border:1px solid #526a87;border-radius:6px;padding:8px;font:inherit;min-width:120px;max-width:100%}#reading-feedback{color:#9fb5d0}
 #guide-search{display:block;width:100%;margin-top:7px}
 .guide-layout{display:grid;grid-template-columns:minmax(230px,.7fr) minmax(0,1.3fr);gap:18px;align-items:start}
 .guide-results{max-height:62vh;overflow:auto;scrollbar-color:#456078 #151f2e}
@@ -101,3 +102,7 @@ img.brandmark{object-fit:contain;background:transparent;border:0;border-radius:0
 .guide-rule-card{min-width:0;overflow-wrap:anywhere}
 #uploaded-pdf-dialog{width:min(1000px,94vw);max-height:94vh;background:#192637;color:#dce6f5;border:1px solid #445c78;border-radius:12px;padding:16px}#uploaded-pdf-dialog::backdrop{background:#0009}.uploaded-pdf-image{overflow:auto;max-height:72vh;text-align:center}.uploaded-pdf-image canvas{max-width:100%;height:auto;background:white}.drop strong[role="link"]{cursor:pointer;text-decoration:underline;text-underline-offset:3px}.shared-review-actions #ignore-review{order:0}.shared-review-actions #undo-ignore{order:1}.shared-review-actions #ignore-all-review{order:2}.shared-review-actions #add-dictionary{order:3}.shared-review-actions #style-rule{order:4}
 .shared-review-actions #undo-ignore{order:-1}
+
+#amendment-results{height:360px;min-height:180px;max-height:60vh;overflow:auto;padding:0 12px;scrollbar-color:#506b85 #172235;border:1px solid #344760;border-radius:6px;resize:vertical}.current-amendment-issue{background:#80691e!important;color:#fff4c7!important;outline:2px solid #f2cf63;outline-offset:1px;border-radius:2px}.amendment-issue-context{padding:8px;overflow-wrap:anywhere}
+
+#authority-panel{border-top:1px solid #32445d;padding-top:14px;margin-top:16px}#authority-panel summary{cursor:pointer}#authority-entries{max-height:240px;overflow:auto;padding-left:22px}#authority-entries li{padding:5px 0;overflow-wrap:anywhere}#authority-summary{overflow-wrap:anywhere}

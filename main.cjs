@@ -1,10 +1,16 @@
-const { app, BrowserWindow, protocol, net, session, Menu } = require('electron');
+const { app, BrowserWindow, protocol, net, session, Menu, ipcMain } = require('electron');
 const path = require('node:path');
 const { pathToFileURL } = require('node:url');
+const {createEngineHost}=require('./engine-host.cjs');
+const engines=createEngineHost({runtimeRoot:app.isPackaged?path.join(process.resourcesPath,'offline-engines'):path.join(__dirname,'engines','runtime')});
+const trusted=event=>event.senderFrame===event.sender.mainFrame&&event.senderFrame.url==='compare://local/index.html';
+ipcMain.handle('offline-language:review',(event,request)=>trusted(event)?engines.review(request):{issues:[],error:'Offline language request denied.'});
+ipcMain.handle('offline-language:cancel',(event,id)=>{if(trusted(event)&&typeof id==='string')engines.cancel(id);});
+app.on('before-quit',()=>engines.stop());
 app.setName('Document Compare');
 protocol.registerSchemesAsPrivileged([{ scheme: 'compare', privileges: { standard: true, secure: true, supportFetchAPI: true, corsEnabled: true } }]);
 async function createWindow() {
-  const win = new BrowserWindow({ icon: path.join(__dirname, 'app', 'assets', 'document-compare.ico'), width: 1360, height: 920, minWidth: 850, minHeight: 650, backgroundColor: '#101722', show: false, autoHideMenuBar: true, webPreferences: { nodeIntegration: false, contextIsolation: true, sandbox: true, webSecurity: true } });
+  const win = new BrowserWindow({ icon: path.join(__dirname, 'app', 'assets', 'document-compare.ico'), width: 1360, height: 920, minWidth: 850, minHeight: 650, backgroundColor: '#101722', show: false, autoHideMenuBar: true, webPreferences: { preload:path.join(__dirname,'preload.cjs'), nodeIntegration: false, contextIsolation: true, sandbox: true, webSecurity: true } });
   win.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
   win.webContents.on('will-navigate', (event, url) => { if (url !== 'compare://local/index.html') event.preventDefault(); });
   win.once('ready-to-show', () => { if (process.env.DOCUMENT_COMPARE_QA !== '1') win.show(); });
