@@ -1,4 +1,6 @@
 import {styleContext} from './style-context.mjs';
+import {styleEvidenceGuard,cutsOriginalStyleWord} from './style-evidence.mjs';
+export const LCB_SPELLING_EVIDENCE_SCOPE='Finite close variants of listed LCB spellings validate complete original Unicode boundaries and their full matched source. Alternate-sense calender, busses, confectionary and descendant paths also validate the complete establishing calendar, transport, nominal or family cue, retaining only the spelling word as the mark. Source strikes, wrapped literals, tables and unknown exclusions cannot create a cue or word boundary. Known page heads and margins retain original offsets; valid unlisted meanings, names, additional derivatives and ordered dictionary authority remain manual.';
 // Finite close misspellings of explicitly listed LCB words. No edit-distance
 // substitution: a neighboring valid word requires its own semantic check.
 const baseSpellings=[
@@ -35,26 +37,30 @@ const extras=baseSpellings.flatMap(r=>[
 export const LCB_SPELLING_VARIANTS=[...new Map([...baseSpellings,...extras].map(r=>[r.variant,r])).values()];
 const escape=s=>s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
 const spellingLookup=new Map(LCB_SPELLING_VARIANTS.map(r=>[r.variant.toLowerCase().replace(/\s+/g,' '),r]));
-const spellingPattern=new RegExp('(?<![\\p{L}\\p{N}_])(?:'+LCB_SPELLING_VARIANTS.map(r=>r.variant.split(/\s+/).map(escape).join('\\s+')).join('|')+')(?![\\p{L}\\p{N}_])','giu');
+const spellingPattern=new RegExp('(?<![\\p{L}\\p{N}\\p{M}_])(?:'+LCB_SPELLING_VARIANTS.map(r=>r.variant.split(/\s+/).map(escape).join('\\s+')).join('|')+')(?![\\p{L}\\p{N}\\p{M}_])','giu');
 export function lcbSpellingIssues(doc,references){
  const ctx=styleContext(doc),source=ctx.source,issues=[],quotes=[...source.matchAll(/“[^”]*”|"[^"\n]*"/g)].map(m=>({start:m.index,end:m.index+m[0].length}));
+ const blocked=styleEvidenceGuard(doc,ctx);
  for(const m of source.matchAll(spellingPattern)){
   const r=spellingLookup.get(m[0].toLowerCase().replace(/\s+/g,' '));
-  const start=m.index,end=start+m[0].length,before=source.slice(Math.max(0,start-45),start),after=source.slice(end);
-  if(ctx.at(start)==='Heading'||ctx.tableAt(start)||quotes.some(q=>q.start<end&&q.end>start)||m[0]===m[0].toUpperCase())continue;
+  const start=m.index,end=start+m[0].length,beforeStart=Math.max(0,start-45),before=source.slice(beforeStart,start),after=source.slice(end);
+  let evidenceStart=start,evidenceEnd=end;
+  const leftCue=pattern=>{const cue=pattern.exec(before),anchor=cue&&beforeStart+cue.index;if(!cue||cutsOriginalStyleWord(doc,anchor)||blocked(anchor,end))return false;evidenceStart=Math.min(evidenceStart,anchor);return true;};
+  const rightCue=pattern=>{const cue=pattern.exec(after),finish=cue&&end+cue[0].length;if(!cue||cutsOriginalStyleWord(doc,finish)||blocked(start,finish))return false;evidenceEnd=Math.max(evidenceEnd,finish);return true;};
+  if(cutsOriginalStyleWord(doc,start)||cutsOriginalStyleWord(doc,end)||blocked(start,end)||ctx.at(start)==='Heading'||ctx.tableAt(start)||quotes.some(q=>q.start<end&&q.end>start)||m[0]===m[0].toUpperCase())continue;
   // Preserve quoted forms and apparent names, including sentence-start names.
   if(/^[A-Z]/.test(m[0])&&(/^\s+(?:(?:of|for|the|and|in|on)\s+)?[A-Z][a-z]/.test(after)||/\b(?:Mr|Mrs|Ms|Dr)\.\s*$/.test(before)))continue;
   // "calender" is a real industrial machine. Its meaning must be reviewed.
-  if(r.variant==='calender'&&!/^\s+(?:days?|years?|months?|quarters?)\b/i.test(after))continue;
+  if(r.variant==='calender'&&!rightCue(/^\s+(?:days?|years?|months?|quarters?)\b/i))continue;
   // "Busses" can also mean kisses. Only an explicit transport cue selects
   // the office's bus plural; unrelated senses remain manual.
-  if(r.variant==='busses'&&!/\b(?:school|public|transit|city|electric|motor|passenger)\s+$/i.test(before)&&!/^\s+[^.!?]{0,80}\b(?:public transportation|passengers|bus routes)\b/i.test(after))continue;
-  if(r.variant==='confectionary'&&!/\b(?:the|a|an|some|any|of|for|with|without)\s*$/i.test(before))continue;
+  if(r.variant==='busses'&&!leftCue(/\b(?:school|public|transit|city|electric|motor|passenger)\s+$/i)&&!rightCue(/^\s+[^.!?]{0,80}\b(?:public transportation|passengers|bus routes)\b/i))continue;
+  if(r.variant==='confectionary'&&!leftCue(/\b(?:the|a|an|some|any|of|for|with|without)\s*$/i))continue;
   // A descendent can be a valid variant/adjective; use explicit family context.
-  if(r.sourceForm==='descendant'&&!/^\s+of\s+(?:the\s+)?(?:decedent|deceased|settlor|testator|ancestor)\b/i.test(after))continue;
+  if(r.sourceForm==='descendant'&&!rightCue(/^\s+of\s+(?:the\s+)?(?:decedent|deceased|settlor|testator|ancestor)\b/i))continue;
   let suggestion=r.preferred;if(/^[A-Z]/.test(m[0]))suggestion=suggestion[0].toUpperCase()+suggestion.slice(1);
   const message='LCB page '+r.page+' lists “'+r.sourceForm+'”. This check recognizes an explicit close spelling variant, with names, quotations and known alternate meanings protected. Confirm the source PDF before accepting a correction.';
-  issues.push({start,end,text:doc.text.slice(start,end),suggestion,guideId:'lcb',guidePage:r.page,guidePrintedPage:references.lcb.pages[r.page-1].printedPage,rule:'Listed spelling',category:'LCB spelling',context:ctx.at(start),checkId:'lcb-spellings',conflict:false,message,references:[{guideId:'lcb',guideName:'LCB Style Manual',guidePage:r.page,guidePrintedPage:references.lcb.pages[r.page-1].printedPage,rule:'Spelling examples',preferred:suggestion,ruleText:message}]});
+  issues.push({start,end,evidenceStart,evidenceEnd,text:doc.text.slice(start,end),suggestion,guideId:'lcb',guidePage:r.page,guidePrintedPage:references.lcb.pages[r.page-1].printedPage,rule:'Listed spelling',category:'LCB spelling',context:ctx.at(start),checkId:'lcb-spellings',conflict:false,message,references:[{guideId:'lcb',guideName:'LCB Style Manual',guidePage:r.page,guidePrintedPage:references.lcb.pages[r.page-1].printedPage,rule:'Spelling examples',preferred:suggestion,ruleText:message}]});
  }
  return issues;
 }

@@ -74,6 +74,10 @@ export function stylisticIssues(doc,reference,rules=STYLE_RULES,{dynamic=true}={
       // conjunction. Keep the complete source range, including wrapped lines.
       const parts=variant==='and/or'?'and\\s*/\\s*or':variant.split(' ').map(escape).join('\\s+');
       for(const match of searchable.matchAll(new RegExp(`(?<![\\p{L}\\p{N}_])${parts}(?![\\p{L}\\p{N}_])`,'giu'))){
+        // Adjacent path delimiters identify this slash spelling as a technical
+        // segment, not the prohibited prose conjunction. Other syntax remains
+        // manual; the shared evidence guard protects explicit URLs and email.
+        if(variant==='and/or'&&(/[\/\\@]/u.test(doc.text[match.index-1]||'')||/[\/\\@]/u.test(doc.text[match.index+match[0].length]||'')))continue;
         // A known three-point expression owns its complete selection. An
         // uncertain or protected whole expression must not fall back to its
         // second two-point component alone.
@@ -87,6 +91,10 @@ export function stylisticIssues(doc,reference,rules=STYLE_RULES,{dynamic=true}={
           if(/\b(?:shall|must|may|can|could|will|would|should)\s*$/i.test(before)||/\bto\s*$/i.test(before)&&/^\s+to\s+[a-z]/i.test(after))continue;
         }
         if(rule.category==='Contractions'&&/^[’'](?:ve|ll|d|re|s)\b/i.test(searchable.slice(match.index+match[0].length)))continue;
+        // A new office-preference plural must not alter the last word of a
+        // formal-looking name such as Board of Advisors. This is a conservative
+        // name protection, not a claim that the name is legally authoritative.
+        if(rule.protectFormalNameTail&&/^[A-Z]/.test(match[0])&&/\b(?:Board|Council|Commission|Committee|Association|Society|Office|Department|Institute|Foundation|College|University|Academy|Federation|Court)(?:\s+(?:of|for|the|and|[A-Z][\p{L}\p{M}’'-]*)){0,8}\s+$/u.test(searchable.slice(Math.max(0,match.index-300),match.index)))continue;
         if(rule.category!=='Capitalization'&&/^[A-Z]/.test(match[0])&&(/\b[A-Z][a-z]+\s+[A-Z][a-z]+/.test(match[0])||/^\s+(?:(?:of|for|the|and|in|on)\s+)?[A-Z][a-z]/.test(searchable.slice(match.index+match[0].length))||/\b(?:Mr|Mrs|Ms|Dr)\.\s*$/.test(searchable.slice(Math.max(0,match.index-35),match.index))))continue;
         if(literalRanges.some(r=>r.start<match.index+match[0].length&&r.end>match.index))continue;
         add(match,rule,rule.preferred);

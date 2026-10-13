@@ -1,3 +1,45 @@
+Document Compare 1.21.6 release source - LCB near-completion rules
+
+Local LCB changes extend selected contraction forms, adviser/judgment regular
+plurals, complete written ratios and seven possessive noun-head inflections.
+Ratio figures retain exact strings, including integers beyond JavaScript's safe
+integer range. Calendar examples require valid four-digit dates and intact
+continuation evidence; month/year forms require a temporal cue or source entry.
+Complete quotation ownership replaces clipped look-behind excerpts and preserves
+the GPO amendment-directive exception. Source evidence guards cover finite prefix,
+spelling-sense, corporation-classification, initialism and foreign-phrase checks.
+Finite subject/auxiliary cues survive long actual PDF whitespace without turning
+an ordinary noun into an imperative. URL, email, file and explicitly labeled
+serial identifiers retain their source spellings and figures.
+
+The two-hour continuation added 91 regression tests to the preceding six local
+tests. Two controlled five-page PDFs were freshly imported through PDF.js and
+the actual layout/document pipeline. All 20 annotated review findings are found;
+the corrected counterpart has zero findings. Source selections remain exact,
+including the two-page ratio, while source strikes, tables and identifier controls
+remain protected. All ten pages were visually reviewed. These are source import
+checks, not native renderer verification or an office accuracy measurement.
+
+The final source-suite, cached corpus and fresh original-PDF results are recorded
+in STYLE_COVERAGE_STATUS.json and the retained local development-session checkpoint.
+Selected forms remain partial coverage; no whole-rule status was promoted. The 1.21.6 release is prepared for packaging and publication. Native desktop
+workflow checks were skipped at the user’s request; no native pass is claimed.
+
+Final verification: all 2,017 source tests pass. The cached comparison and fresh
+text-layer imports of 28 original Current PDFs (2,230 pages) each add or remove
+no findings compared with the sealed 1.21.5 source. Fresh imports have zero
+reading-problem pages and zero identified OCR-layer pages; this does not certify
+a raster/OCR reread. Original PDF hashes and source models remain unchanged.
+
+Published 1.21.5 native run 2026-10-13T01-48-21-709Z-49634733 passed all 21
+stages, including OCR/authority, dictionary/authority close/restart and Digest/
+final-line insertions. The complete real-bill suite ran. Packaged files and
+security settings were unchanged. Startup waited for evaluation of the packaged
+app module; all 12 runner controls pass. The previous run failed its first OCR
+drop and initial dictionary add while the verifier could act before application
+handlers were attached. No package changes were needed for this successful
+rerun. 1.21.5 was subsequently published as the verified Latest release.
+
 Document Compare 1.21.5 - Digest and final-line amendments
 
 The middle upload card is Digest/Instructional Amendments with two independent
@@ -22,7 +64,7 @@ require review. Current Version wording and placement are verified, not rewritte
 Validation: 1920 source tests, including 14 new regression tests; six controlled
 PDFs freshly imported through PDF.js in Node. Exact digest and final insertion
 match, a digest mismatch remains isolated, and excessive common-column indent
-was reproduced and corrected. Desktop renderer verification is pending. The
+was reproduced and corrected. The Digest desktop renderer stage passed. The
 unchanged preceding 1.21.4 release passed all 20 native desktop stages.
 
 The new native test-digest-final-ui.cjs covers responsive split inputs, Digest
@@ -34,4 +76,4 @@ real-bill, OCR, dictionary restart and offline engine stages (21 total).
 Limitations: controlled checks are not an office accuracy measurement. Licensed
 complete Merriam-Webster data, complete contextual rule automation, employee
 testing and missing AB 109/SB 879 drafting material remain outstanding. This
-source accompanies the 1.21.5 GitHub release; desktop verification is pending.
+build is published as the latest verified GitHub release.

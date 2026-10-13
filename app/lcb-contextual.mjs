@@ -1,5 +1,5 @@
 import {nounHeadMatch} from './style-noun-heads.mjs';
-import {styleContext,styleRangeBlocked} from './style-context.mjs';
+import {styleContext} from './style-context.mjs';
 import {predicateCompoundMatches,predicateRangeKey} from './style-predicate-evidence.mjs';
 import {productiveEndWordPredicates,productiveEndWordCandidates,listedNominalBase} from './style-end-word-predicates.mjs';
 import {LCB_PREDICATE_EXAMPLES,listedPredicateCandidates,predicateBodyDash} from './style-predicate-examples.mjs';
@@ -14,6 +14,8 @@ const initialisms=['AB','FCC','FDA','FBI','FTC','HMO','IRS','LCB','LLC','MOU','M
 // H-U-D example is letter-by-letter; undivided HUD remains an unclassified
 // pronounceable acronym, never a generic first-letter sound inference.
 const sourceInitialisms=['BLS','GAO','WWW','CIO','UFO','AEC','NSC','RFC'];
+export const KNOWN_INITIALISM_EVIDENCE_SCOPE='Finite established letter-by-letter initials require complete original article/initials evidence, including combining marks and characters masked by exclusions or strikes. Recognized interior running heads preserve complete source selections; wrapped literals, tables and identifier continuations remain protected. Unknown pronunciations and unfamiliar initials remain manual or conditional review; no word-pronounced acronym is inferred from its first letter.';
+export const FOREIGN_PHRASE_EVIDENCE_SCOPE='Seven finite ex officio/bona fide/per capita/per diem/prima facie/de minimis/inter vivos forms retain complete original token boundaries and evidence. Wrapped literal quotations, tables and masked/deleted characters cannot establish a hyphen-removal suggestion. Source spelling and physical offsets are preserved; other foreign phrases, authentic titles and linguistic meaning remain manual.';
 const initialismPattern=new RegExp('\\b(a|an)\\s+('+[...initialisms,...sourceInitialisms].map(s=>s.split('').join('\\.?\\s*')+'\\.?').join('|')+'|H-U-D)(?![\\p{L}\\p{N}_])','giu');
 export function lcbModifierForms(reference){
  const forms=[];
@@ -114,12 +116,18 @@ export function lcbContextualIssues(doc,references){
    if(baseReference)issue.references.push({guideId:'lcb',guideName:'LCB Style Manual',guidePage:baseReference.page,guidePrintedPage:String(baseReference.page),rule:'Hyphenation examples: '+baseReference.preferred,preferred:baseReference.preferred,ruleText:'LCB explicitly lists this complete base spelling. Predicate position does not discard its internal spelling.'});
   }
  }
- for(const m of source.matchAll(/\b(?:ex-officio|bona-fide|per-capita|per-diem|prima-facie|de-minimis|inter-vivos)\b/gi))add(m,m[0].replaceAll('-',' '),'Hyphenation, item 4',8,'LCB does not hyphenate foreign phrases used as adjectives.','Modifier hyphenation');
+ for(const m of source.matchAll(/\b(?:ex-officio|bona-fide|per-capita|per-diem|prima-facie|de-minimis|inter-vivos)\b/gi)){
+  const end=m.index+m[0].length;if(cutsWord(m.index)||cutsWord(end)||blockedEvidence(m.index,end))continue;
+  add(m,m[0].replaceAll('-',' '),'Hyphenation, item 4',8,'LCB does not hyphenate foreign phrases used as adjectives.','Modifier hyphenation');
+ }
  // Only established letter-by-letter initialisms; pronounceable acronyms
  // such as NASA, NATO, FEMA and HUD must not receive this article rule.
  for(const m of source.matchAll(initialismPattern)){
   const [article,initials]=m.slice(1),end=m.index+m[0].length;
-  if(initials!==initials.toUpperCase()||m[0].length>4096||styleRangeBlocked(doc,m.index,end)||ctx.literalAt(m.index,end)||doc.blocks.some(b=>b.start<end&&b.end>m.index&&ctx.tableAt(Math.max(b.start,m.index))))continue;
+  if(initials!==initials.toUpperCase()||m[0].length>4096||cutsWord(m.index)||cutsWord(end)||blockedEvidence(m.index,end))continue;
+  // A known group can also be a prefix of an identifier, never pronunciation
+  // evidence for its partial spelling. Keep its original source unchanged.
+  if(/[\\/@]/u.test(doc.text[m.index-1]||'')||/^[\\/@\-\u2010\u2011\uFFFD]/u.test(doc.text.slice(end))||/^\.[A-Za-z0-9]/u.test(doc.text.slice(end))||/\.$/.test(initials)&&/^[A-Za-z0-9]/u.test(doc.text.slice(end)))continue;
   const before=source.slice(Math.max(0,m.index-100),m.index);
   if(/^a$/i.test(article)&&/\b(?:parts?|subparts?|articles?|sections?|chapters?|paragraphs?|subparagraphs?|subdivisions?|schedules?|appendix|appendices|attachments?|exhibits?|classes?|categories?|groups?|grades?|types?|forms?|plans?|options?|vitamin|hepatitis|cal\s+grant)\s+$/i.test(before))continue;
   let wanted=/^[AEFHILMNORSX]/.test(initials)?'an':'a';if(/^[A-Z]/.test(article))wanted=wanted[0].toUpperCase()+wanted.slice(1);

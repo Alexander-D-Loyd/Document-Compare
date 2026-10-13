@@ -1,6 +1,6 @@
 {
   "date": "2026-10-12",
-  "packagedVersion": "1.21.5",
+  "packagedVersion": "1.21.6",
   "localFollowOn": false,
   "documentReview": "Offline",
   "githubPushed": true,
@@ -18,7 +18,7 @@
     "conflictExcluded": 12
   },
   "pending": [
-    "Fresh native 1.21.5 verification of digest replacement, final-line insertion and previous real-bill, OCR and offline engine workflows.",
+    "Native desktop verification of 1.21.6 was skipped at the user\u2019s request; no native pass is claimed.",
     "Broader contextual LCB/GPO methods and manual review of opinions/cover letters; partial methods are not complete rule automation.",
     "Complete licensed offline Merriam-Webster authority with first-spelling ordering.",
     "Additional AB 109/SB 879 drafting material; genuine differences remain flagged.",
@@ -365,7 +365,7 @@
   "updatedAt": "2026-10-12T00:13:05.310887+00:00",
   "currentValidation": {
     "sourceTests": 1906,
-    "nativePackagedWorkflow": "1.21.5 desktop verification pending; preceding 1.21.4 release passed 20 stages.",
+    "nativePackagedWorkflow": "1.21.6 not run at user request; unchanged 1.21.5 previously passed 21 stages.",
     "knownOlderPackageFailures": [
       "AB 2266 OCR warning expectations",
       "AB 1502 scanned clause marker",
@@ -1324,9 +1324,190 @@
     "sourceTests": 1920,
     "newTests": 14,
     "controlledPdfFiles": 6,
-    "nativeWorkflow": "pending",
+    "nativeWorkflow": {
+      "runId": "2026-10-13T01-48-21-709Z-49634733",
+      "status": "passed",
+      "passed": 21,
+      "failed": [],
+      "fullWorkflowVerified": true,
+      "digestStagePassed": true,
+      "packagedFilesUnchanged": true,
+      "securitySettingsChanged": false,
+      "applicationModuleReady": true,
+      "runnerControlTests": 12,
+      "previousFailedRun": "2026-10-13T01-30-30-506Z-bc06800f",
+      "verificationScope": "Full selected workflows, not only the recovery stages; unchanged 1.21.5 package.",
+      "dateLocal": "2026-10-12"
+    },
     "previousVersion": "1.21.4",
     "previousNativeStages": 20,
     "sourcePdfsEdited": false
-  }
+  },
+  "localVersion": "1.21.6",
+  "lcbNearCompletionFollowOn": {
+    "localVersion": "1.21.6",
+    "packaged": true,
+    "githubPushed": true,
+    "sourceTests": 2017,
+    "newTests": 97,
+    "scope": [
+      "Listed spelling and prefix original evidence",
+      "Short punctuation examples and plural phrases",
+      "Ratio source integrity and numeric precision",
+      "Complete quotation punctuation ownership",
+      "Quoted C/S corporation classification evidence",
+      "Complete canonical written and grouped ratios",
+      "Common relative and demonstrative contractions",
+      "Original supplementary-plane Unicode boundaries",
+      "Calendar/date punctuation role evidence",
+      "Complete finite meaning-verb cues through layout whitespace",
+      "Technical source literals",
+      "Separated date continuation and supported years",
+      "Known initialism article source evidence",
+      "Seven foreign phrase source evidence",
+      "Listed possessive noun-head inflections",
+      "Explicitly labeled serial identifier integrity"
+    ],
+    "remaining": [
+      "Unknown derivatives, arbitrary formal names, unlisted contractions and intended meaning remain manual.",
+      "Whole-rule automation and office accuracy remain uncertified."
+    ],
+    "cachedCurrentVersions": 28,
+    "cachedPages": 2230,
+    "addedFindings": 0,
+    "removedFindings": 0,
+    "baseline": "Sealed 1.21.5 source",
+    "freshPdfImport": true,
+    "officeAccuracyMeasured": false,
+    "sessionNewTests": 91,
+    "freshOriginalCurrentVersions": 28,
+    "freshOriginalPages": 2230,
+    "controlledPdfPages": 10,
+    "controlledFindings": 20,
+    "correctedCounterpartFindings": 0,
+    "sourcePdfsUnchanged": true,
+    "sourceSelectionsExact": true,
+    "sourceSHA256": {
+      "app/gpo-style.mjs": "79794081471e2aa954a56102f8efda7ccbb9a42a50df4bfb44478bc9b3eb8aee",
+      "app/joint-style.mjs": "8925278be83064060500ddda6bd498fa98a0880732a2db871612ac993a779193",
+      "app/lcb-contextual.mjs": "68fd619f49071e0153efff9f932a0a1bf8a7714c7a4d2b7c260be5ba2be226d4",
+      "app/style-calendar-dates.mjs": "3c377668d7e0d78897dbbd5bba066d9aedeac106f9c967574d216eaf5b65e39f",
+      "app/style-context.mjs": "3f72de5f473ab6b69cdf11527b187677f2de9eb4104c1724d471b3d0447527ce",
+      "app/style-contractions.mjs": "98b7a06e54f1f5fa423eb5e755f3d5f83a020ee8b7825df0ba9336713715d1ad",
+      "app/style-corporation-letters.mjs": "3173c145b1e013155e2795d20ea69a38e6f14efbafed6a0f5f8a0b3ae02af8cc",
+      "app/style-coverage.mjs": "4e949618cd5b2023f615c20b1afeb7b67943301cd6d54c0a20e8babf87022b65",
+      "app/style-lcb-prefixes.mjs": "32b64e996dfdf5debca9541512a563fce35fb5c9a1e04258966769dd11f8f0a0",
+      "app/style-lcb-source-sections.mjs": "c65ca4c2d90384c6effb0b342c55c549fa5d48d4cb669d78afe99eaaf017883a",
+      "app/style-lcb-spellings.mjs": "a97dfd02c5a9461c32a7e5026859965518ad0492a4d88813392839eb501d5ada",
+      "app/style-numerals.mjs": "2916e6d493f68ce58a4c12961d756d2fb0afa15142e11ecd38e31ff20a8fdc6a",
+      "app/style-punctuation.mjs": "d926b25184ee6a3663c512a70c137b14b95450615132d3280b7bf5ef8d636458",
+      "app/style-ratio-endpoints.mjs": "0ae46840fc50a508232a10d034ef97e0b3943ba4444a95cad3eaf80ec86cc0c1",
+      "app/style-ratios.mjs": "33ef049aacfadb9026e5a956f88042954542f282e875ceff572d81c94e86d62a",
+      "app/style-rule-inventory.mjs": "87ba280caba97bfc1664b79a42ce011963bb196135591adeaa4345ab91078a8b",
+      "app/style-technical-literals.mjs": "91dbeb062029908e31fe527c9d068dafb80f7536983add8449d19642796354f1",
+      "app/style-verb-evidence.mjs": "38103e8aa7ecf054a1d39b8c7029944b8b9168dd31cf3c8b3f0366fab690f6ec",
+      "app/style-word-choice.mjs": "72bd4b48e819c5d31ca71d16cb5e3fd96d9f359d84ad7c4a60adc98291af0397"
+    },
+    "nativeWorkflow": "not-run-user-request"
+  },
+  "lcbCoverageContinuation": {
+    "startedUtc": "2026-10-13T02:22:22Z",
+    "updatedUtc": "2026-10-13T04:16:38.972Z",
+    "sourceTests": 2017,
+    "newTests": 91,
+    "completedBatches": [
+      {
+        "topic": "Listed spelling and prefix original evidence",
+        "newTests": 9
+      },
+      {
+        "topic": "Short punctuation examples and plural phrases",
+        "newTests": 8
+      },
+      {
+        "topic": "Ratio source integrity and numeric precision",
+        "newTests": 7
+      },
+      {
+        "topic": "Complete quotation punctuation ownership",
+        "newTests": 7
+      },
+      {
+        "topic": "Quoted C/S corporation classification evidence",
+        "newTests": 6
+      },
+      {
+        "topic": "Complete canonical written and grouped ratios",
+        "newTests": 7
+      },
+      {
+        "topic": "Common relative and demonstrative contractions",
+        "newTests": 5
+      },
+      {
+        "topic": "Original supplementary-plane Unicode boundaries",
+        "newTests": 4
+      },
+      {
+        "topic": "Calendar/date punctuation role evidence",
+        "newTests": 6
+      },
+      {
+        "topic": "Complete finite meaning-verb cues through layout whitespace",
+        "newTests": 5
+      },
+      {
+        "topic": "Technical source literals",
+        "newTests": 5
+      },
+      {
+        "topic": "Separated date continuation and supported years",
+        "newTests": 4
+      },
+      {
+        "topic": "Known initialism article source evidence",
+        "newTests": 5
+      },
+      {
+        "topic": "Seven foreign phrase source evidence",
+        "newTests": 5
+      },
+      {
+        "topic": "Listed possessive noun-head inflections",
+        "newTests": 5
+      },
+      {
+        "topic": "Explicitly labeled serial identifier integrity",
+        "newTests": 3
+      }
+    ],
+    "inventoryEntries": 854,
+    "statusesPromoted": 0,
+    "cached": {
+      "documents": 28,
+      "pages": 2230,
+      "added": 0,
+      "removed": 0
+    },
+    "fresh": {
+      "documents": 28,
+      "pages": 2230,
+      "added": 0,
+      "removed": 0,
+      "readingProblemPages": 0
+    },
+    "controlled": {
+      "pdfs": 2,
+      "pages": 10,
+      "annotatedFindings": 20,
+      "detected": 20,
+      "correctedFindings": 0
+    },
+    "localOnly": false,
+    "nativeVerified": false,
+    "officeAccuracyMeasured": false,
+    "nativeWorkflowSkippedByUser": true
+  },
+  "nativeWorkflow": "not-run-user-request",
+  "nativeWorkflowSkippedByUser": true
 }

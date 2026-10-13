@@ -1,3 +1,12 @@
+import {CONTRACTION_EVIDENCE_SCOPE}from './style-contractions.mjs';
+import {KNOWN_INITIALISM_EVIDENCE_SCOPE,FOREIGN_PHRASE_EVIDENCE_SCOPE}from './lcb-contextual.mjs';
+import {FINITE_VERB_CUE_SCOPE}from './style-verb-evidence.mjs';
+import {TECHNICAL_LITERAL_SCOPE}from './style-technical-literals.mjs';
+import {LCB_PREFIX_EVIDENCE_SCOPE}from './style-lcb-prefixes.mjs';
+import {LCB_SPELLING_EVIDENCE_SCOPE}from './style-lcb-spellings.mjs';
+import {LCB_CORPORATION_EVIDENCE_SCOPE}from './style-corporation-letters.mjs';
+import {RATIO_SOURCE_EVIDENCE_SCOPE}from './style-ratios.mjs';
+import {LCB_SHORT_PUNCTUATION_SCOPE,LCB_QUOTE_PUNCTUATION_SCOPE,LCB_POSSESSIVE_HEAD_SCOPE}from './style-punctuation.mjs';
 import {MULTIWORD_QUANTITY_OPENING_SCOPE}from './style-opening-quantity-evidence.mjs';
 import {QUALIFIED_TIME_NOTICE_SCOPE}from './style-punctuation.mjs';
 import {CORRELATIVE_SPREAD_SCOPE}from './style-correlative-spreads.mjs';
@@ -46,6 +55,19 @@ import {LCB_SUFFIX_REVIEW_SCOPE}from './style-lcb-review-affix-boundaries.mjs';
 import {LCB_INITIALISM_ARTICLE_REVIEW_SCOPE}from './style-lcb-review-initialism-articles.mjs';
 import {LCB_FRESH_QUOTE_REVIEW_SCOPE}from './style-lcb-review-quote-ownership.mjs';
 export const CHECK_COVERAGE=[
+ {title:'Listed possessive noun-head inflections',status:'Seven selected regular noun heads',guide:'lcb',page:7,text:LCB_POSSESSIVE_HEAD_SCOPE},
+ {title:'Complete known initialism article evidence',status:'Finite established letter sounds',guide:'lcb',page:2,text:KNOWN_INITIALISM_EVIDENCE_SCOPE},
+ {title:'Complete foreign phrase evidence',status:'Seven finite source forms',guide:'lcb',page:8,text:FOREIGN_PHRASE_EVIDENCE_SCOPE},
+ {title:'Technical source identifiers',status:'Selected source-preservation safeguards',guide:'lcb',page:2,text:TECHNICAL_LITERAL_SCOPE},
+ {title:'Complete finite meaning-verb cues',status:'Selected subject and auxiliary grammar',guide:'lcb',page:3,text:FINITE_VERB_CUE_SCOPE},
+ {title:'Complete LCB prefix source evidence',status:'Finite source/root checks',guide:'lcb',page:8,text:LCB_PREFIX_EVIDENCE_SCOPE},
+ {title:'Complete listed spelling and sense evidence',status:'Finite variants and selected roles',guide:'lcb',page:3,text:LCB_SPELLING_EVIDENCE_SCOPE},
+ {title:'Complete quoted corporation classifications',status:'Two listed classifications',guide:'lcb',page:18,text:LCB_CORPORATION_EVIDENCE_SCOPE},
+ {title:'Complete ratio quantities and precision',status:'Canonical quantities and intact explicit labels',guide:'lcb',page:23,text:RATIO_SOURCE_EVIDENCE_SCOPE},
+ {title:'Short LCB punctuation examples',status:'Selected source forms and source safeguards',guide:'lcb',page:7,text:LCB_SHORT_PUNCTUATION_SCOPE},
+ {title:'Complete quotation punctuation enclosures',status:'Selected boundary punctuation',guide:'lcb',page:6,text:LCB_QUOTE_PUNCTUATION_SCOPE},
+ {title:'Complete original contraction tokens',status:'Finite source-backed checks; meaning requires review',guide:'lcb',page:2,text:CONTRACTION_EVIDENCE_SCOPE},
+ {title:'Office spelling preference plurals',status:'Selected noun forms',guide:'lcb',page:2,text:'The adviser/advisor and judgment/judgement preferences include advisers/advisors and judgments/judgements. Possessive apostrophes remain outside the marked word. Complete original word boundaries, quoted literals and selected formal-name contexts are protected. Unknown derivatives and intended meanings remain manual.'},
  {title:'Internal bill-section targets',status:'Document-local consistency review',guide:'lcb',page:22,text:'Explicit Section(s) references qualified by “of this bill” are checked against active bill-section headings when an enacting clause and section 1 establish a complete bill context. Missing targets receive reader review, without an invented replacement. External statutory references and incomplete excerpts remain protected; legal validity is not certified.'},
  {title:'Parsed predicate compounds',status:'Reader confirmation required',guide:'lcb',page:8,text:PARSED_PREDICATE_COMPOUND_SCOPE},
  {title:'Postnominal participial compounds',status:'Reader confirmation required',guide:'lcb',page:8,text:POSTNOMINAL_COMPOUND_SCOPE},

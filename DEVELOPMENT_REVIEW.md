@@ -1,37 +1,59 @@
-Document Compare 1.21.5 - Digest and final-line amendments
+Document Compare 1.21.6 LCB release
 
-The middle upload card is Digest/Instructional Amendments with two independent
-PDF inputs. Replacement digest text appears first and is labeled Digest; instructional
-amendments follow in source order with their original numbers unchanged.
-The digest replacement is confined to text between its heading and the enactment
-line. Standalone digest text and wrapped words are supported. Source strikeouts
-remain visible and are excluded from requested active wording. Both-pane marks,
-discrepancy navigation, original PDF viewing, Refresh, removal and reloading use
-the existing amendment workflow. The source PDFs are never edited.
+The 2026-10-12 continuation prioritizes selected rules close to completion.
+The source is prepared for the 1.21.6 release. The verified 1.21.5 package remains
+unchanged. Native 1.21.6 desktop checks were skipped at the user’s request. The continuation adds 91 tests to the six earlier local regressions.
 
-Digest paragraph indentation is based on the digest column, preventing a far-left
-legislative table/body from shifting every paragraph. True paragraph indentation
-is retained. No text or source offsets are changed by this display correction.
+Spelling and usage: selected relative/demonstrative contractions, adviser and
+judgment regular plurals, complete original token boundaries and finite verb
+cues are supported. Long physical whitespace no longer loses a real cue or
+manufactures an imperative. Ambiguous expansions remain alternatives. These
+style forms do not add dictionary authority or resolve unknown word meanings.
 
-After-line and end-of-bill instructions resolve to the end of the final numbered
-body line, before the zero marker. A final between-lines insertion can use an
-unprinted or empty next numbered line only at the proven end of the bill. Missing
-intermediate lines, ambiguous targets and substantive trailing material still
-require review. Current Version wording and placement are verified, not rewritten.
+Punctuation: complete quotation enclosures, selected calendar examples, plural
+include/are phrases, four-digit decade plurals and seven regular possessive
+noun-head inflections retain exact selections. The GPO amendment-directive
+exception remains. Dates and month/year forms require supported calendar and
+source context; arbitrary series and punctuation meanings remain partial.
 
-Validation: 1920 source tests, including 14 new regression tests; six controlled
-PDFs freshly imported through PDF.js in Node. Exact digest and final insertion
-match, a digest mismatch remains isolated, and excessive common-column indent
-was reproduced and corrected. Desktop renderer verification is pending. The
-unchanged preceding 1.21.4 release passed all 20 native desktop stages.
+Hyphenation and capitalization: finite prefixes, seven foreign phrases and
+quoted C/S corporation classifications use complete original source evidence.
+Tables, wrapped literals, source strikes, unknown exclusions and Unicode word
+fragments cannot manufacture these findings. Other productive compounds,
+proper-name authenticity and unfamiliar grammar remain unresolved.
 
-The new native test-digest-final-ui.cjs covers responsive split inputs, Digest
-labeling and original amendment numbers, scoped marks, mismatch navigation, final insertion before zero,
-original viewing, Refresh, independent removal, digest-only verification and
-unchanged physical source. The full runner includes this stage plus all prior
-real-bill, OCR, dictionary restart and offline engine stages (21 total).
+Numerals: complete canonical written ratios and valid grouped figure endpoints
+are recognized without rounding large integers. Complete explicit labels and
+coordinated alternatives retain their evidence. URLs, email addresses, selected
+file names and uppercase serial groups with intact identifier/code/serial labels
+are protected; adjacent ordinary quantities remain independently checked.
+Unfamiliar ratio syntax, malformed numbers and unsupported identifiers remain
+outside these finite methods.
 
-Limitations: controlled checks are not an office accuracy measurement. Licensed
-complete Merriam-Webster data, complete contextual rule automation, employee
-testing and missing AB 109/SB 879 drafting material remain outstanding. This
-source accompanies the 1.21.5 GitHub release; desktop verification is pending.
+Final verification: all 2,017 source tests pass. The cached comparison and fresh
+text-layer imports of 28 original Current PDFs (2,230 pages) each add or remove
+no findings compared with the sealed 1.21.5 source. Fresh imports have zero
+reading-problem pages and zero identified OCR-layer pages; this does not certify
+a raster/OCR reread. Original PDF hashes and source models remain unchanged.
+
+Two five-page controlled PDFs detect all 20 annotated review findings, with
+zero findings in the corrected counterpart. All ten pages were visually reviewed;
+exact source spans, physical PDF hashes and the cross-page ratio were checked.
+No inventory entry was promoted: 854 LCB rows still comprise 834 partially
+automated, 14 guide conflicts, five priority references and one manual row.
+Controlled tests do not measure office precision or recall.
+
+Source verification hashes are recorded in STYLE_COVERAGE_STATUS.json. Local
+PDF evidence and working profiles are not distributed in this public repository.
+The machine-readable scope is also recorded in STYLE_COVERAGE_STATUS.json.
+
+Next: native renderer verification remains unperformed; continue extending
+remaining grammatical and semantic roles, mixed series, quotation nesting and
+unfamiliar compound contexts. Complete licensed ordered Merriam-Webster data,
+office testing and deferred AB 109/SB 879 drafting attachments remain unavailable.
+The existing authorized-data importer remains ready.
+
+Published baseline: 1.21.5 passed all 21 native desktop stages in run
+2026-10-13T01-48-21-709Z-49634733, including Digest labeling and original
+amendment numbers, final-line insertions, OCR/authority and dictionary restart.
+The verifier readiness correction required no application security changes.

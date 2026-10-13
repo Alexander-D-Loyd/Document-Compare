@@ -1,6 +1,7 @@
 // Share immutable context only within one synchronous review. Never retain it
 // across reviews: loaded documents can gain strikeouts or corrected text.
 import {wrappedStraightQuotes} from './style-wrapped-quotes.mjs';
+import {styleTechnicalLiteralRanges}from './style-technical-literals.mjs';
 const reviewContexts=new WeakMap();
 export function styleRangeBlocked(doc,start,end){
  if((doc.struck||[]).some(r=>r.start<end&&r.end>start))return true;
@@ -25,7 +26,8 @@ export function styleContext(doc){
   const source=styleSource(doc),digest=/legislative\s+counsel[’']s\s+digest/i.exec(source),enact=/do\s+enact\s+as\s+follows\s*:/i.exec(source);
   const wrappedLiteralRanges=wrappedStraightQuotes(source,(start,end)=>styleRangeBlocked(doc,start,end));
   const literalRanges=[...[...source.matchAll(/“[^”]*”|"[^"\n]*"/g)].map(m=>({start:m.index,end:m.index+m[0].length})),...wrappedLiteralRanges];
-  const literalAt=(start,end=start+1)=>literalRanges.some(r=>r.start<end&&r.end>start);
+  const technicalRanges=styleTechnicalLiteralRanges(source,doc.text),technicalAt=(start,end=start+1)=>technicalRanges.some(r=>r.start<end&&r.end>start);
+  const literalAt=(start,end=start+1)=>literalRanges.some(r=>r.start<end&&r.end>start)||technicalAt(start,end);
   const at=offset=>enact&&offset>=enact.index+enact[0].length?'Bill':digest&&offset>=digest.index&&(!enact||offset<enact.index)?'Digest':digest||enact?'Heading':'Bill';
   const sentences=[];let begin=enact?enact.index+enact[0].length:0;
   // Scan the digest independently and preserve original offsets throughout.
@@ -60,5 +62,5 @@ export function styleContext(doc){
     return b.formatting?.headerGaps?.length>=2||/\.{3,}/.test(body)||wrappedLabel||(budget&&body&&!yearContinuation&&/^[\d\s,$().+%—–-]+$/.test(body));
   });
   const tableAt=offset=>{let lo=0,hi=tableRanges.length;while(lo<hi){const mid=(lo+hi)>>1;if(tableRanges[mid].end<=offset)lo=mid+1;else hi=mid;}return !!tableRanges[lo]&&tableRanges[lo].start<=offset;};
-  return {source,at,sentenceAt,tableAt,literalRanges,wrappedLiteralRanges,literalAt};
+  return {source,at,sentenceAt,tableAt,literalRanges,wrappedLiteralRanges,literalAt,technicalRanges,technicalAt};
 }

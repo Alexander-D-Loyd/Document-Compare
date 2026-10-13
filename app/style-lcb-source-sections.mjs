@@ -15,9 +15,9 @@ export function lcbSourceItems(page){
 
 export const LCB_OFFICE_PREFERENCE_SCOPES={
  '1':'The explicit an historical variant is checked against the LCB a historical preference. Complete source boundaries, quotes, names, strikes and tables retain their safeguards. Other h-word pronunciation and article choices remain contextual.',
- '2':'The explicit advisor variant is checked against adviser in eligible intact prose. Literal names and quotations are protected. Full ordered dictionary preference coverage is not supplied by this office example.',
+ '2':'The explicit advisor/advisors variants are checked against adviser/advisers in eligible intact prose, preserving an adjoining possessive apostrophe. Complete original word boundaries reject damaged suffixes and combining marks. Literal names and quotations are protected. These regular noun plurals extend only this listed preference; full ordered dictionary authority is not supplied by the office example.',
  '3':'Ensure versus assure receives precise checks only with the supported complete outcome object and grammatical cues, and conditional meaning review elsewhere. Reassurance of a person remains a different sense. The source alternatives do not justify replacing every assure occurrence.',
- '4':'The explicit judgement variant is checked against judgment in eligible intact prose. Literal names, quotations, headings, tables and excluded source content remain protected.',
+ '4':'The explicit judgement/judgements variants are checked against judgment/judgments in eligible intact prose, preserving an adjoining possessive apostrophe. Complete original word boundaries reject damaged suffixes and combining marks. Unknown derivatives such as judgemental, literal names, quotations, headings, tables and excluded source content remain protected.',
  '5':'The explicit marshall variant is checked against marshal in eligible intact prose. Authentic personal/entity names and literal quotations remain protected.',
  '6':'The explicit monies variant is checked against moneys in eligible intact prose. Literal quotations, names, headings, tables and uncertain source content remain protected.',
  '7':'The explicit wilful variant is checked against willful in eligible intact prose. Literal quotations, names, headings, tables and uncertain source content remain protected.'

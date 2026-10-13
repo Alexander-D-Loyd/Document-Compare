@@ -1,5 +1,7 @@
 import {styleContext} from './style-context.mjs';
+import {styleEvidenceGuard,cutsOriginalStyleWord} from './style-evidence.mjs';
 import {lexicalPrefixCandidates} from './lcb-prefix-candidates.mjs';
+export const LCB_PREFIX_EVIDENCE_SCOPE='Finite listed and lexical prefix/root checks require complete original Unicode word boundaries and the whole matched prefix/root range. Masked source letters cannot manufacture a token or open join; wrapped literal quotations, every intersecting table, strikes and unknown exclusions remain protected. Recognized margins and interior page heads preserve exact physical selections. Root recognition does not establish dictionary approval, unfamiliar meanings, authentic names or all productive prefix combinations.';
 // Recognized roots provide a format-review cue, not approval of an arbitrary
 // compound's meaning or spelling. Preserve the guide's contextual exceptions.
 const baseForms=[
@@ -40,11 +42,12 @@ const prefixLookup=new Map(LCB_PREFIX_FORMS.map(r=>[r.prefix+r.root,r]));
 const prefixPattern=new RegExp('\\b(?:'+LCB_PREFIX_FORMS.map(r=>r.prefix+(r.joinOpen===false?'-':r.hyphen?'[\\s-]*':'[\\s-]+')+r.root).sort((a,b)=>b.length-a.length).join('|')+')\\b','gi');
 export function lcbPrefixIssues(doc,references){
  const ctx=styleContext(doc),source=ctx.source,issues=[],quotes=[...source.matchAll(/“[^”]*”|"[^"\n]*"/g)].map(m=>({start:m.index,end:m.index+m[0].length}));
+ const blocked=styleEvidenceGuard(doc,ctx);
  const candidates=[...source.matchAll(prefixPattern)].map(m=>({m,r:prefixLookup.get(m[0].toLowerCase().replace(/[\s-]+/g,''))}));
  candidates.push(...lexicalPrefixCandidates(source));
  for(const {m,r} of candidates){
    const start=m.index,end=start+m[0].length,after=source.slice(end),plain=m[0].replace(/\s+/g,' ').toLowerCase();
-   if(plain===r.preferred||ctx.at(start)==='Heading'||ctx.tableAt(start)||quotes.some(q=>q.start<end&&q.end>start)||m[0]===m[0].toUpperCase()||/-[ \t]*\n/.test(m[0]))continue;
+   if(plain===r.preferred||cutsOriginalStyleWord(doc,start)||cutsOriginalStyleWord(doc,end)||blocked(start,end)||ctx.at(start)==='Heading'||ctx.tableAt(start)||quotes.some(q=>q.start<end&&q.end>start)||m[0]===m[0].toUpperCase()||/-[ \t]*\n/.test(m[0]))continue;
    // Source capitals can denote a literal agency/organization or title.
    if((!r.properRoot&&/[A-Z]/.test(m[0].slice(1)))||(/^[A-Z]/.test(m[0])&&/^\s+(?:(?:of|for|the|and|in|on)\s+)?[A-Z][a-z]/.test(after)))continue;
    // Ignore rhetorical dashes in body text, but not page-header dashes that

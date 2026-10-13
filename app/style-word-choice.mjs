@@ -117,7 +117,7 @@ export function wordChoiceIssues(doc,references){
   if(verb&&pattern!==rule.passivePattern&&!verbRange)continue;
   // Advice as a sentence-opening noun is not an imperative. An initial
   // advise correction requires a complete stated recipient instead.
-  if(rule.id==='advice-verb'&&verb?.form==='base'&&verbRange?.start===start&&!/^\s+(?:(?:the|a|an|each|all)\s+)?(?:applicants?|persons?|clients?|director|board|agency)\b/i.test(source.slice(end)))continue;
+  if(rule.id==='advice-verb'&&verb?.form==='base'&&(verbRange?.imperative||verbRange?.start===start)&&!/^\s+(?:(?:the|a|an|each|all)\s+)?(?:applicants?|persons?|clients?|director|board|agency)\b/i.test(source.slice(end)))continue;
   // A visible target word is insufficient if its matched grammatical or
   // meaning evidence comes from removed, quoted, table or unknown content.
   // Inspect only the exact match and the finite verb cue, not a broad window.
@@ -152,7 +152,7 @@ export function wordChoiceIssues(doc,references){
   const preferred=(verb?.preferred||rule.preferredForms?.[term.toLowerCase()]||rule.preferred)+(rule.plural&&/s$/i.test(term)?'s':'');
   const suggestion=/^[A-Z]/.test(term)?preferred[0].toUpperCase()+preferred.slice(1):preferred;
   if(term.replace(/\s+/g,' ')===suggestion)continue;
-  issues.push({start,end,text:doc.text.slice(start,end),suggestion,guideId:'lcb',guidePage:rule.page,guidePrintedPage:String(rule.page),rule:'Spelling and usage: '+rule.id,category:'Contextual word choice',context:ctx.at(start),checkId:'word-choice',conflict:false,message:rule.explanation+' Confirm the intended meaning before accepting the suggestion.',references:[{guideId:'lcb',guideName:'LCB Style Manual',guidePage:rule.page,guidePrintedPage:references.lcb.pages[rule.page-1].printedPage,rule:'Spelling and usage examples',preferred:suggestion,ruleText:rule.explanation}]});
+  issues.push({start,end,evidenceStart,evidenceEnd,text:doc.text.slice(start,end),suggestion,guideId:'lcb',guidePage:rule.page,guidePrintedPage:String(rule.page),rule:'Spelling and usage: '+rule.id,category:'Contextual word choice',context:ctx.at(start),checkId:'word-choice',conflict:false,message:rule.explanation+' Confirm the intended meaning before accepting the suggestion.',references:[{guideId:'lcb',guideName:'LCB Style Manual',guidePage:rule.page,guidePrintedPage:references.lcb.pages[rule.page-1].printedPage,rule:'Spelling and usage examples',preferred:suggestion,ruleText:rule.explanation}]});
  }
  return issues.sort((a,b)=>a.start-b.start);
 }

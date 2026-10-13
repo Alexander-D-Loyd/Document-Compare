@@ -40,7 +40,7 @@ export function numeralIssues(doc,references){
  // The whole-count check handles only independently recognized noun uses.
  const scaleAndParts=andCardinalParts(source);protectedRanges.push(...scaleAndParts);
  protectedRanges.push(...invalidUnconjoinedCardinalRanges(source,countedGroups.flat()));
- protectedRanges.push(...explicitRatioParts(source).map(({start,end})=>({start,end})),...numeralIdentifierRanges(source));
+ protectedRanges.push(...explicitRatioParts(source,doc,ctx).map(({start,end})=>({start,end})),...numeralIdentifierRanges(source));
  const protect=pattern=>{for(const m of source.matchAll(pattern))protectedRanges.push({start:m.index,end:m.index+m[0].length});};
  protect(new RegExp('\\b\\d+(?:\\.\\d+)?\\s+(?:'+METRIC_SYMBOLS.slice().sort((a,b)=>b.length-a.length).join('|')+')\\b','g'));
  // A bare MB/Mb or MW/mW symbol does not provide enough evidence to

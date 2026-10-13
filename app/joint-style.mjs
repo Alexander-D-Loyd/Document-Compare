@@ -102,7 +102,10 @@ export function lcbRules(reference){
     if(page)rules.push({...rule,rule:'Spelling examples',guidePage:page.page,message:'Compare this spelling with LCB’s office style.'});
   }
   const add=(variant,preferred,rule,guidePage,category='Compounding',message='Compare this form with LCB’s listed office style.')=>rules.push({variant,preferred,rule,guidePage,category,message});
-  for(const [variant,preferred] of [['advisor','adviser'],['judgement','judgment'],['marshall','marshal'],['monies','moneys'],['wilful','willful'],['an historical','a historical']])add(variant,preferred,'Spelling and usage',2,'Preferred spelling');
+  for(const [variant,preferred] of [['advisor','adviser'],['advisors','advisers'],['judgement','judgment'],['judgements','judgments'],['marshall','marshal'],['monies','moneys'],['wilful','willful'],['an historical','a historical']]){
+    add(variant,preferred,'Spelling and usage',2,'Preferred spelling');
+    if(['advisors','judgements'].includes(variant))rules.at(-1).protectFormalNameTail=true;
+  }
   for(const [variant,preferred,page] of [
     ['mobile home','mobilehome',12],['mobile homes','mobilehomes',4],['healthcare','health care',11],
     ['by-laws','bylaws',9],['co-payment','copayment',10],['co-worker','coworker',10],['data base','database',10],
@@ -341,6 +344,6 @@ function reviewStylisticIssues(doc,references,engineIssues=[],includeReviewSugge
   // Every check uses the same newly recognized wrapped literal context.
   // Corrections to quote-boundary punctuation remain independently active.
   const wrappedLiteralBlocks=i=>!['Punctuation: Quotation Marks','8.120'].includes(i.rule)&&context.wrappedLiteralRanges.some(r=>r.start<i.end&&r.end>i.start);
-  return combined.filter(i=>!i.conflict&&(!wrappedLiteralBlocks(i)||['lcb-designated-title-creation-review','lcb-fresh-definition-term-review'].includes(i.checkId))&&(i.checkId==='california-entities'||!ignoredConflictRanges.some(r=>r.start<i.end&&r.end>i.start)&&(['lcb-created-title-reference-review','lcb-created-title-identity-review','lcb-designated-title-reference-review','lcb-designated-title-creation-review'].includes(i.checkId)||!names.some(r=>r.start<i.end&&r.end>i.start)))&&(['table-figures','lcb-table-cell-figures','lcb-table-cell-review'].includes(i.checkId)||!context.tableAt(i.start))).sort((a,b)=>a.start-b.start||a.end-b.end).map((i,id)=>({...i,id,matchText:source.slice(i.start,i.end).replace(/-[ \t]*\n\s*/g,'-').replace(/\s+/g,' ').trim()}));
+  return combined.filter(i=>!i.conflict&&!context.technicalAt(i.start,i.end)&&(!wrappedLiteralBlocks(i)||['lcb-designated-title-creation-review','lcb-fresh-definition-term-review'].includes(i.checkId))&&(i.checkId==='california-entities'||!ignoredConflictRanges.some(r=>r.start<i.end&&r.end>i.start)&&(['lcb-created-title-reference-review','lcb-created-title-identity-review','lcb-designated-title-reference-review','lcb-designated-title-creation-review'].includes(i.checkId)||!names.some(r=>r.start<i.end&&r.end>i.start)))&&(['table-figures','lcb-table-cell-figures','lcb-table-cell-review'].includes(i.checkId)||!context.tableAt(i.start))).sort((a,b)=>a.start-b.start||a.end-b.end).map((i,id)=>({...i,id,matchText:source.slice(i.start,i.end).replace(/-[ \t]*\n\s*/g,'-').replace(/\s+/g,' ').trim()}));
 }
 
