@@ -4,6 +4,7 @@ import {budgetContext,budgetLeaderRanges} from './budget-layout.mjs';
 import guideSpellings from './data/lcb-spelling-words.json' with {type:'json'};
 import {guidePhraseSpellingRanges} from './spelling-guide-phrases.mjs';
 import {statuteChapterSpellingRanges} from './spelling-statute-chapters.mjs';
+import {billJrBoxes} from './amendment-jr-box.mjs';
 const guideCompounds=guideSpellings.words.filter(r=>r.word.includes('-')).map(r=>r.word);
 const compoundPattern=new RegExp('(?<![\\p{L}\\p{N}_])(?:'+guideCompounds.map(word=>word.split('-').map(s=>s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('[-\\u2010\\u2011]')).join('|')+')(?:[’\']s)?(?![\\p{L}\\p{N}_])','giu');
 export function classify(text) {
@@ -104,13 +105,20 @@ export function makeDocument(pages, name, pageStrikes=[], pageFormatting=[], wor
     offset = block.end + 1;
   }));
   const text = pages.join('\n');
+  const jrBoxes=billJrBoxes(blocks,pages);
+  for(const notice of jrBoxes)for(const range of notice.ranges){
+    const block=blocks.find(b=>b.start===range.start&&b.end===range.end);
+    block.ignored=true;block.jrBox=true;
+    for(let i=excluded.length-1;i>=0;i--)if(excluded[i].start>=range.start&&excluded[i].end<=range.end)excluded.splice(i,1);
+    excluded.push({...range});
+  }
   const lastContent=blocks.findLast(b=>!b.ignored),finalLine=blocks.findLast(b=>b.margin&&b.text.slice(b.margin.length).trim());
   if(lastContent&&finalLine&&lastContent.start>finalLine.end&&/^[0O]$/.test(lastContent.text.trim())){
     lastContent.ignored=true;lastContent.layoutLabel=true;excluded.push({start:lastContent.start,end:lastContent.end});
   }
   // Use the document's printed text column on short pages as well. A sparse
   // final page must not infer its column from a single indented body line.
-  const columnBlocks=blocks.filter(b=>b.formatting&&b.text.slice(b.margin.length).trim()&&
+  const columnBlocks=blocks.filter(b=>!b.jrBox&&b.formatting&&b.text.slice(b.margin.length).trim()&&
     (b.margin||(b.text.length>40&&b.formatting.right-b.formatting.x>b.formatting.pageWidth*.4)));
   const columns=new Map();
   for(const b of columnBlocks){
@@ -202,7 +210,7 @@ export function makeDocument(pages, name, pageStrikes=[], pageFormatting=[], wor
     while(strikeIndex<mergedStrikes.length&&mergedStrikes[strikeIndex].end<=token.start)strikeIndex++;
     const span=mergedStrikes[strikeIndex];return !span||span.start>=token.end;
   });
-  return {name, pages:pages.length, rawPages:pages, blocks, text, tokens, effectiveTokens, struck, excluded, comparisonExcluded, wrappedWords, spelling:[], changeLocations:{}};
+  return {name, pages:pages.length, rawPages:pages, blocks, text, tokens, effectiveTokens, struck, excluded, comparisonExcluded, wrappedWords, spelling:[], changeLocations:{},...(jrBoxes.length?{jrBoxes}:{})};
 }
 export function spellingCandidates(doc) {
   let rangeIndex=0;

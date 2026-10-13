@@ -1,4 +1,6 @@
 import {digestRange} from './change-scope.mjs';
+import {isAmendmentMetadataLine} from './amendment-metadata.mjs';
+import {digestChangedRanges} from './digest-delta.mjs';
 export const amendmentName=result=>result.digest?'Digest':`Amendment ${result.number}`;
 
 // A digest is a replacement of front matter only. The enactment line is the
@@ -14,17 +16,18 @@ export function digestPayload(doc){
  const enactment=/The people of the State of California do enact as follows\s*:/i.exec(doc.text);
  if(enactment&&!heading)throw Error('The Digest upload includes a legislative body without an identifiable digest heading. Upload replacement digest text only.');
  const start=heading?heading.index+heading[0].length:0,end=enactment?.index??doc.text.length;
- const tokens=(doc.effectiveTokens||doc.tokens).filter(t=>t.start>=start&&t.end<=end);
+ const metadata=doc.blocks.filter(b=>isAmendmentMetadataLine(b.text));
+ const tokens=(doc.effectiveTokens||doc.tokens).filter(t=>t.start>=start&&t.end<=end&&!metadata.some(b=>b.start<t.end&&b.end>t.start));
  if(!tokens.length)throw Error('No replacement digest text was found.');
  return {text:tokens.map(t=>t.value).join(' '),tokens,start,end};
 }
 export function digestRule(doc){
  let insertText='',error='';try{insertText=digestPayload(doc).text;}catch(e){error=e.message;}
- return {number:'Digest',digest:true,source:insertText,directive:'Replace the legislative counsel’s digest with the uploaded Digest text.',insertText,action:'replace',title:false,heading:false,beforeLine:null,between:null,page:null,lineStart:null,lineEnd:null,deleteText:[],error};
+ return {number:'Digest',digest:true,source:insertText,directive:'Apply the changes shown in the uploaded Digest to the legislative counsel’s digest.',insertText,action:'replace',title:false,heading:false,beforeLine:null,between:null,page:null,lineStart:null,lineEnd:null,deleteText:[],error};
 }
-export function digestDisplay(doc){
+export function digestDisplay(doc,previousDoc=null){
  const {start,end,tokens:sourceTokens}=digestPayload(doc),lines=[];const strikes=[],segments=[];
- for(const block of doc.blocks.filter(b=>!b.ignored&&!b.runningHead&&b.start<end&&b.end>start)){
+ for(const block of doc.blocks.filter(b=>!b.ignored&&!b.runningHead&&!isAmendmentMetadataLine(b.text)&&b.start<end&&b.end>start)){
   const from=Math.max(start,block.start+block.margin.length),to=Math.min(end,block.end),raw=doc.text.slice(from,to),leading=raw.length-raw.trimStart().length,text=raw.trim();if(!text)continue;
   const at=lines.join('\n').length+(lines.length?1:0);
   segments.push({from:from+leading,to:from+leading+text.length,at});
@@ -33,5 +36,6 @@ export function digestDisplay(doc){
  }
  const offset=(value,ending=false)=>{const s=segments.find(s=>ending?value>s.from&&value<=s.to:value>=s.from&&value<s.to);return s?s.at+value-s.from:null;};
  const tokens=sourceTokens.map(t=>({...t,start:offset(t.start),end:offset(t.end,true)})).filter(t=>t.start!==null&&t.end!==null);
- return {directive:{text:digestRule(doc).directive,strikes:[]},payload:{text:lines.join('\n'),strikes,tokens}};
+ const additions=previousDoc?digestChangedRanges(digestPayload(previousDoc).tokens,tokens).currentRanges:[];
+ return {directive:{text:digestRule(doc).directive,strikes:[]},payload:{text:lines.join('\n'),strikes,tokens,additions}};
 }

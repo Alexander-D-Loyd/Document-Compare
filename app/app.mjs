@@ -11,7 +11,9 @@ import * as pdfjs from './vendor/pdf.mjs';
 import { makeDocument, spellingCandidates, comparisonTokens, substantiveTokens, activeText } from './core.mjs';
 import { loadDictionary, saveWord, removeWord, normalizeWord, isAccepted } from './personal-dictionary.mjs';
 import { extractPageLayout,hasVisiblePdfContent } from './pdf-strikes.mjs';
+import {pdfFontStyle} from './pdf-font-style.mjs';
 import { printedAmendmentItems } from './amendment-markings.mjs';
+import {jrBoxPageNotices,jrBoxMetadata,markJrBoxGeometry} from './amendment-jr-box.mjs';
 import { ocrDictionary,repairOcrSpacing,isOcrStyle,repairOcrInstructions } from './ocr-text.mjs';
 import {createOfflineOcr} from './offline-ocr.mjs';
 import {readScannedInstructions} from './read-scanned-instructions.mjs';
@@ -20,7 +22,7 @@ import {pageReadingProblems,largeRasterCoverage} from './pdf-page-quality.mjs';
 import {correctPdfReading} from './correct-pdf-reading.mjs';
 import { reviewOutline } from './review-outline.mjs';
 import {sequenceFind} from './sequence-find.mjs';
-import { amendmentDeletionRanges } from './amendment-highlights.mjs';
+import { amendmentDeletionRanges, amendmentAdditionRanges, amendmentReviewRanges } from './amendment-highlights.mjs';
 import { searchGuide } from './gpo-style.mjs';
 import {STYLE_GUIDES,guideById} from './style-guides.mjs';
 import {loadStyleTerms,saveStyleTerms,searchStyleTerms} from './custom-style.mjs';
@@ -139,7 +141,7 @@ function invalidateResults() {
 function metadata(side) {
   const doc = side==='reference'?externalDocs[referenceBill]:side==='amendments'?amendmentsDoc:side==='digest'?digestDoc:docs[side];
   $('name' + side).textContent = doc.name;
-  $('meta' + side).textContent = side==='digest'?`${doc.pages} page${doc.pages===1?'':'s'} · Digest · click to replace`:side==='amendments'?`${doc.pages} page${doc.pages===1?'':'s'} · ${parseAmendments(doc.text).length} amendment(s)${doc.endMarkerPage?` · ends at - 0 - on page ${doc.endMarkerPage}`:doc.ignoredFromPage?` · mockup pages ${doc.ignoredFromPage}–${doc.sourcePages} ignored`:''} · click to replace`:`${doc.pages} page${doc.pages === 1 ? '' : 's'} · ${doc.tokens.filter(t=>/[\p{L}\p{N}]/u.test(t.value)).length.toLocaleString()} words · click to replace`;
+  $('meta' + side).textContent = side==='digest'?`${doc.pages} page${doc.pages===1?'':'s'} · Digest · click to replace`:side==='amendments'?`${doc.pages} page${doc.pages===1?'':'s'} · ${parseAmendments(doc.text).length} amendment(s)${doc.endMarkerPage?` · ends at - 0 - on page ${doc.endMarkerPage}`:doc.ignoredFromPage?` · mockup pages ${doc.ignoredFromPage}–${doc.sourcePages} ignored`:''}${jrBoxMetadata(doc.jrBoxes)} · click to replace`:`${doc.pages} page${doc.pages === 1 ? '' : 's'} · ${doc.tokens.filter(t=>/[\p{L}\p{N}]/u.test(t.value)).length.toLocaleString()} words${jrBoxMetadata(doc.jrBoxes)} · click to replace`;
   if(side!=='amendments'&&doc.ocr){$('meta'+side).textContent+=' · '+billReadingSummary(doc);}
 }
 
@@ -182,7 +184,7 @@ async function readFile(file, side) {
     const data = new Uint8Array(await file.arrayBuffer());
     if(versions[side]!==version)return;
     if (!new TextDecoder().decode(data.slice(0, 1024)).includes('%PDF-')) throw Error('This file is not a valid PDF.');
-    task = pdfjs.getDocument({ data, isEvalSupported: false, enableXfa: false, cMapUrl: new URL('./vendor/cmaps/', import.meta.url).href, cMapPacked: true, standardFontDataUrl: new URL('./vendor/standard_fonts/', import.meta.url).href, wasmUrl: new URL('./vendor/wasm/', import.meta.url).href });
+    task = pdfjs.getDocument({ data, isEvalSupported: false, enableXfa: false, fontExtraProperties:true, cMapUrl: new URL('./vendor/cmaps/', import.meta.url).href, cMapPacked: true, standardFontDataUrl: new URL('./vendor/standard_fonts/', import.meta.url).href, wasmUrl: new URL('./vendor/wasm/', import.meta.url).href });
     pdfTasks[side]=task;
     // Do not request or retain document passwords.
     task.onPassword = () => { task.destroy(); };
@@ -191,7 +193,7 @@ async function readFile(file, side) {
     const pages = [],pageStrikes=[],pageFormatting=[];
     let hasOcr=false;const scanQuality=[];
     const blankPages = [],readingProblems=[];
-    let total = 0,ignoredFromPage=null,endMarkerPage=null;
+    let total = 0,ignoredFromPage=null,endMarkerPage=null;const jrBoxes=[];
     for (let p = 1; p <= pdf.numPages; p++) {
       if (versions[side] !== version) return;
       $('meta' + side).textContent = `Reading page ${p} of ${pdf.numPages}…`;
@@ -200,7 +202,7 @@ async function readFile(file, side) {
       const operators=await page.getOperatorList();
       const fontStyles={...tc.styles};
       for(const name of Object.keys(fontStyles)){
-        try{const font=page.commonObjs.get(name);fontStyles[name]={...fontStyles[name],name:font.name,bold:!!font.bold,italic:!!font.italic};}catch{}
+        try{fontStyles[name]=pdfFontStyle(fontStyles[name],page.commonObjs.get(name));}catch{}
       }
       let items=side==='amendments'?printedAmendmentItems(tc.items,fontStyles,page.view[2]-page.view[0],page.view[3]-page.view[1]):tc.items;
       if(side==='amendments'&&Object.values(fontStyles).some(isOcrStyle)){
@@ -209,6 +211,8 @@ async function readFile(file, side) {
         items=items.map(item=>typeof item.str==='string'&&isOcrStyle(fontStyles[item.fontName])?{...item,str:repairOcrSpacing(item.str,words)}:item);
       }
       let layout=extractPageLayout(items,operators,pdfjs.OPS,fontStyles,page.view[2]-page.view[0]);
+      markJrBoxGeometry(layout,operators,pdfjs.OPS);
+      if(side==='amendments')jrBoxes.push(...jrBoxPageNotices({text:layout.text,annotations:await page.getAnnotations(),page:p}));
       if(side==='amendments'&&isProposedAmendmentsPage(layout.text)){
         ignoredFromPage=p;page.cleanup();break;
       }
@@ -220,6 +224,7 @@ async function readFile(file, side) {
         localOcr??=await createOfflineOcr();checkCancelled();
         const scan=await readScannedInstructions(page,localOcr,pdfjs.OPS,checkCancelled,message=>{$('meta'+side).textContent=`Page ${p} of ${pdf.numPages} · ${message}`;},layout,{bill:side!=='amendments'});
         layout=scan.layout;
+        if(side==='amendments')for(const notice of jrBoxPageNotices({text:layout.text,page:p}))if(!jrBoxes.some(n=>n.page===notice.page&&n.text===notice.text))jrBoxes.push(notice);
         if(side==='amendments'&&isProposedAmendmentsPage(layout.text)){ignoredFromPage=p;page.cleanup();break;}
         end=side==='amendments'?instructionsEnd(layout.text):-1;
         scanQuality.push({page:p,...scan.quality});
@@ -255,7 +260,7 @@ async function readFile(file, side) {
     const heads=document.blocks.filter(b=>isBudgetRunningHead(document,b));
     if(heads.length){document.tokens=document.tokens.filter(t=>!heads.some(b=>t.start>=b.start&&t.end<=b.end));document.effectiveTokens=document.effectiveTokens.filter(t=>!heads.some(b=>t.start>=b.start&&t.end<=b.end));}
     document.ocr=hasOcr;document.scanQuality=scanQuality;
-    if(side==='amendments'){document.sourcePages=pdf.numPages;document.ignoredFromPage=ignoredFromPage;document.endMarkerPage=endMarkerPage;document.scanQuality=scanQuality;}
+    if(side==='amendments'){document.sourcePages=pdf.numPages;document.ignoredFromPage=ignoredFromPage;document.endMarkerPage=endMarkerPage;document.scanQuality=scanQuality;document.jrBoxes=[...(document.jrBoxes||[]),...jrBoxes.filter(n=>!(document.jrBoxes||[]).some(existing=>existing.page===n.page&&existing.text===n.text))];}
     if(side==='reference'){legislativeBody(document,requestedBill);$('status').textContent=docs.every(Boolean)?'Ready to compare document text.':'Choose the other PDF to continue.';externalDocs[requestedBill]=document;}else if(side==='amendments')amendmentsDoc=document;else if(side==='digest'){digestPayload(document);digestDoc=document;}else docs[side]=document;
     metadata(side);
     uploadedFiles.set(side,file);$('name'+side).title='Open this PDF';$('name'+side).setAttribute('role','link');$('name'+side).tabIndex=0;
@@ -382,22 +387,22 @@ function renderDocument(root, doc, changes, side) {
       const issue=doc.spelling[i];
       for(const span of issue.spans||[issue])if(span.end>start&&span.start<end&&!block.ignored&&!block.runningHead)spells.push({...issue,start:span.start,end:span.end});
     }
-    const amendments=side===1&&reviewMode==='amendments'?amendmentResults.filter((_,i)=>i===amendmentIndex).flatMap(result=>result.evidence.map(e=>({start:e.currentOffset,end:e.currentEndOffset??e.currentOffset,directive:result.directive}))).filter(r=>r.start<end&&r.end>start):[];
+    const amendments=side===1&&reviewMode==='amendments'?amendmentAdditionRanges(amendmentResults[amendmentIndex]).filter(r=>r.start<end&&r.end>start):[];
     const amendmentCoverage=amendmentResults.flatMap(result=>result.evidence.map(e=>({start:side?e.currentOffset:e.previousOffset,end:side?e.currentEndOffset:e.previousEndOffset}))).filter(r=>r.end>r.start&&r.start<end&&r.end>start);
     const active=side===0&&reviewMode==='amendments'?amendmentResults[amendmentIndex]:null;
     const currentReview=side===1&&reviewMode==='amendments'?amendmentResults[amendmentIndex]:null;
     const comparisons=currentReview?currentReview.evidence.map((e,i)=>({...e,id:`A${currentReview.number}.${i+1}`})):[];
-    const reviewRanges=comparisons.filter(e=>e.currentOffset<end&&e.currentEndOffset>start);
-    const differences=reviewRanges.flatMap(e=>e.differenceRanges||[]).filter(r=>r.start<end&&r.end>start);
-    const missing=comparisons.flatMap(e=>(e.missingPoints||[]).map(p=>({...p,id:e.id}))).filter(p=>p.offset>=start&&p.offset<=end);
+    const reviewRanges=amendmentReviewRanges(currentReview).filter(e=>e.currentOffset<end&&e.currentEndOffset>start);
+    const differences=comparisons.flatMap(e=>e.differenceRanges||[]).filter(r=>r.start<end&&r.end>start);
+    const missing=comparisons.flatMap(e=>(e.missingPoints||[]).map((p,n)=>({...p,id:currentReview.digest?`${e.id}.M${n+1}`:e.id}))).filter(p=>p.offset>=start&&p.offset<=end);
     if(currentReview&&activeAmendmentIssue?.expectedText&&activeAmendmentIssue.i===amendmentIndex&&activeAmendmentIssue.currentStart===activeAmendmentIssue.currentEnd&&activeAmendmentIssue.currentStart>=start&&activeAmendmentIssue.currentStart<=end&&!missing.some(p=>p.offset===activeAmendmentIssue.currentStart))missing.push({offset:activeAmendmentIssue.currentStart,text:activeAmendmentIssue.expectedText,id:'selected-issue'});
-    const sourceEdits=active?active.evidence.map((e,i)=>({start:e.previousOffset,end:e.previousEndOffset??e.previousOffset,id:`A${active.number}.${i+1}`})):[];
+    const sourceEdits=active?active.evidence.flatMap((e,i)=>(e.previousDeletionRanges??[{start:e.previousOffset,end:e.previousEndOffset??e.previousOffset}]).map((r,n)=>({...r,id:`A${active.number}.${i+1}${active.digest?'.D'+(n+1):''}`}))):[];
     const deletions=deletionHighlights.filter(r=>r.start<end&&r.end>start);
-    const insertions=active?.action==='insert'?sourceEdits.map(r=>r.start):active?.action==='replace'?sourceEdits.map(r=>r.end):[];
+    const insertions=active?.digest?active.evidence.flatMap(e=>(e.previousInsertionPoints||[]).map(p=>p.offset)):active?.action==='insert'?sourceEdits.map(r=>r.start):active?.action==='replace'?sourceEdits.map(r=>r.end):[];
     const points=[...new Set(insertions)].filter(at=>at>=start&&at<=end);
     const appendInsertion=at=>{
       if(!points.includes(at))return;
-      const marker=document.createElement('span');const afterLine=active.afterLine!=null||active.billEnd||active.patches?.some(p=>p.finalInsertion);const between=!afterLine&&(!!active.between||active.beforeLine!=null);marker.className=between?'amendment-insertion amendment-between-arrow':afterLine?'amendment-insertion amendment-after-arrow':'amendment-insertion amendment-selection';marker.textContent=between||afterLine?'➜':'+';if(afterLine)row.style.marginBottom='16px';if(between)row.style.marginTop=`max(16px, ${row.style.marginTop||'0px'})`;marker.dataset.outlineGroup=sourceEdits.find(r=>r.start===at||r.end===at)?.id||active.number;marker.dataset.amendmentInsertion=active.number;marker.dataset.sourceOffset=at;marker.title=active.directive;marker.setAttribute('aria-label',`${amendmentName(active)}: insert text here`);marker.tabIndex=0;body.append(marker);
+      const marker=document.createElement('span');const afterLine=active.afterLine!=null||active.billEnd||active.patches?.some(p=>p.finalInsertion);const between=!afterLine&&(!!active.between||active.beforeLine!=null);marker.className=between?'amendment-insertion amendment-between-arrow':afterLine?'amendment-insertion amendment-after-arrow':'amendment-insertion amendment-selection';marker.textContent=between||afterLine?'➜':'+';if(afterLine)row.style.marginBottom='16px';if(between)row.style.marginTop=`max(16px, ${row.style.marginTop||'0px'})`;marker.dataset.outlineGroup=sourceEdits.find(r=>r.start===at||r.end===at)?.id||(active.digest?`Digest.P${at}`:active.number);marker.dataset.amendmentInsertion=active.number;marker.dataset.sourceOffset=at;marker.title=active.directive;marker.setAttribute('aria-label',`${amendmentName(active)}: insert text here`);marker.tabIndex=0;body.append(marker);
     };
     const grammars=side===1&&reviewMode==='language'?grammarIssues.filter(r=>r.start<end&&r.end>start):[];
     const styles=side===1&&reviewMode==='style'&&!block.ignored&&!block.runningHead?styleIssues.filter(r=>r.start<end&&r.end>start):[];
@@ -1089,7 +1094,7 @@ function focusAmendment(result,scroll){
   if(!result)return;
   const evidence=result.evidence[0];if(!evidence||!compared)return;
   docs.forEach((doc,side)=>{
-    const root=$(side?'right':'left'),offset=side?(!result.insertText.trim()&&evidence.currentDeletionRanges?.length?evidence.currentDeletionRanges[0].start:evidence.currentOffset):evidence.previousOffset;
+    const root=$(side?'right':'left'),offset=result.digest?(side?evidence.currentAdditionRanges?.[0]?.start??evidence.differenceRanges?.[0]?.start??evidence.currentDeletionRanges?.[0]?.start??evidence.currentOffset:evidence.previousDeletionRanges?.[0]?.start??evidence.previousInsertionPoints?.[0]?.offset??evidence.previousOffset):side?(!result.insertText.trim()&&evidence.currentDeletionRanges?.length?evidence.currentDeletionRanges[0].start:evidence.currentOffset):evidence.previousOffset;
     const row=locationTarget(doc,root,offset);row?.classList.add('amendment-focus');
     if(scroll){
       const marker=side===0?Array.from(root.querySelectorAll('[data-amendment-insertion]')).find(el=>Number(el.dataset.sourceOffset)===offset):null;
@@ -1114,7 +1119,7 @@ function renderAmendments(){
   if(result?.readingWarnings?.length){const review=document.createElement('button');review.className='quiet';review.textContent='Review PDF Reading';review.addEventListener('click',showReadingReview);$('amendment-status').append(' ',review);}
   $('amendment-position').textContent=result?`${amendmentName(result)}${result.digest?'':` of ${amendmentResults.filter(r=>!r.digest).length}`} · ${amendmentLabels[result.status]}`:'';
   if(!result)return;
-  const display=result.digest&&digestDoc?digestDisplay(digestDoc):amendmentsDoc?amendmentDisplays(amendmentsDoc).find(d=>d.number===(result.sourceNumber??result.number)):null;
+  const display=result.digest&&digestDoc?digestDisplay(digestDoc,docs[0]):amendmentsDoc?amendmentDisplays(amendmentsDoc).find(d=>d.number===(result.sourceNumber??result.number)):null;
   const card=document.createElement('div');card.className='amendment-card';
   const directive=document.createElement('p');directive.className='amendment-directive';appendAmendmentText(directive,display?.directive||{text:result.directive,strikes:[]});
   card.append(directive);
@@ -1153,13 +1158,14 @@ function renderAmendments(){
 }
 function appendAmendmentText(root,styled,missing=[],focused=[]){
   const cuts=new Set([0,styled.text.length]);
-  for(const range of [...styled.strikes,...missing,...focused]){cuts.add(range.start);cuts.add(range.end);}
+  for(const range of [...styled.strikes,...(styled.additions||[]),...missing,...focused]){cuts.add(range.start);cuts.add(range.end);}
   const offsets=[...cuts].sort((a,b)=>a-b);
   for(let i=0;i<offsets.length-1;i++){
     const start=offsets[i],end=offsets[i+1],struck=styled.strikes.some(r=>r.start<=start&&r.end>=end);
     const flagged=!struck&&missing.some(r=>r.start<=start&&r.end>=end);
     const span=document.createElement(flagged?'mark':'span');span.textContent=styled.text.slice(start,end);
     if(struck){span.className='pdf-struck';span.title='Crossed out in the amendment PDF';}
+    if(!struck&&styled.additions?.some(r=>r.start<=start&&r.end>=end))span.classList.add('amendment-added');
     if(flagged){span.className='amendment-missing';const issueKey=missing.find(r=>r.start<=start&&r.end>=end)?.issueKey;if(issueKey)span.dataset.issueKey=issueKey;}if(focused.some(r=>r.start<=start&&r.end>=end))span.classList.add('current-amendment-issue');root.append(span);
   }
 }
@@ -1373,7 +1379,7 @@ for(const pane of [$('left'),$('right')]){
   pane.addEventListener('keydown',selectIssue);
 }
 // Explicit, read-only interface for QA; never exposes file access or execution.
-export function snapshot() { return { docs: docs.map(doc => doc && ({ name: doc.name, pages: doc.pages, blocks: doc.blocks, struck:doc.struck, ocr:doc.ocr, scanQuality:doc.scanQuality })), digestDoc:digestDoc&&({name:digestDoc.name,pages:digestDoc.pages,text:digestDoc.text,struck:digestDoc.struck,scanQuality:digestDoc.scanQuality}), amendmentsDoc:amendmentsDoc&&({text:amendmentsDoc.text,struck:amendmentsDoc.struck,scanQuality:amendmentsDoc.scanQuality}), status: $('status').textContent, resultsVisible: !$('results').hidden, changeCount, changeIndex, languageCount:languageIssues.length,languageIndex,spellingCount:spellingIssues.length, spellingIndex, amendmentResults, amendmentIndex, reviewMode, styleIssues, styleCount:styleIssues.length, styleIndex, styleChecked, grammarCount:grammarIssues.length, grammarIndex, amendmentIssueCount:issueAmendments().length }; }
+export function snapshot() { return { docs: docs.map(doc => doc && ({ name: doc.name, pages: doc.pages, blocks: doc.blocks, struck:doc.struck, ocr:doc.ocr, scanQuality:doc.scanQuality, jrBoxes:doc.jrBoxes })), digestDoc:digestDoc&&({name:digestDoc.name,pages:digestDoc.pages,text:digestDoc.text,struck:digestDoc.struck,scanQuality:digestDoc.scanQuality}), amendmentsDoc:amendmentsDoc&&({text:amendmentsDoc.text,struck:amendmentsDoc.struck,scanQuality:amendmentsDoc.scanQuality,jrBoxes:amendmentsDoc.jrBoxes}), status: $('status').textContent, resultsVisible: !$('results').hidden, changeCount, changeIndex, languageCount:languageIssues.length,languageIndex,spellingCount:spellingIssues.length, spellingIndex, amendmentResults, amendmentIndex, reviewMode, styleIssues, styleCount:styleIssues.length, styleIndex, styleChecked, grammarCount:grammarIssues.length, grammarIndex, amendmentIssueCount:issueAmendments().length }; }
 
 
 

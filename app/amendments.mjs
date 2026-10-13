@@ -6,6 +6,7 @@ import {diffArrays} from './vendor/diff/diff/array.js';
 import {sequenceDiff} from './sequence-diff.mjs';
 import {amendmentDiscrepancies} from './amendment-discrepancies.mjs';
 import {amendmentWordDiff} from './amendment-word-diff.mjs';
+import {digestChangedRanges} from './digest-delta.mjs';
 import {splitHistoryChanges} from './history-rows.mjs';
 import {isAmendmentMetadataLine as metadataLine} from './amendment-metadata.mjs';
 const canonical=value=>value.normalize('NFKC').replace(/[“”]/g,'"').replace(/[‘’]/g,"'");
@@ -76,6 +77,7 @@ export function parseAmendments(text){
     const between=/between\s+lines?\s+(\d+)\s+and\s+(\d+)/i.exec(directive);
     const beforeLine=/\bbefore\s+(?:the\s+)?line\s+(\d+)\b/i.exec(directive);
     const afterLine=/\bafter\s+(?:the\s+)?(?:last\s+)?line\s+(\d+)\b/i.exec(directive);
+    const relativeLine=/\b(above|below)\s+(?:the\s+)?line\s+(\d+)\b/i.exec(directive);
     const billEnd=/\b(?:at\s+(?:the\s+)?end\s+of\s+(?:the\s+)?bill|after\s+(?:the\s+)?(?:last|final)\s+line(?:\s+of\s+(?:the\s+)?bill)?(?=\s*[,;:]|\s+insert\b))\b/i.test(directive);
     const lines=/\blines?\s+(\d+)(?:\s*(?:to|through|and|[-–—])\s*(\d+))?/i.exec(directive);
     const page=/\bpage\s+(\d+)/i.exec(directive);
@@ -91,7 +93,7 @@ export function parseAmendments(text){
     if(action==='unsupported')error='Instruction wording is not supported. Review this amendment manually.';
     if(inserting && !marker)error='The insertion text is not clearly separated by “insert:”.';
     if(inserting && !insertText)error='No insertion text was found after “insert:”.';
-    return {number:section.number,source,directive,insertText,action,page:page?Number(page[1]):null,title,heading,lineStart:lines?Number(lines[1]):null,lineEnd:lines?Number(lines[2]||lines[1]):null,between:between?[Number(between[1]),Number(between[2])]:null,beforeLine:beforeLine?Number(beforeLine[1]):null,afterLine:afterLine?Number(afterLine[1]):null,billEnd,anchor:anchor?quotes(anchor[2])[0]:null,position:anchor?.[1]?.toLowerCase()||null,deleteText:quotes(deletion?.[1]||''),occurrence,all:/\ball\s+occurrences\b/i.test(directive),externalReference,error};
+    return {number:section.number,source,directive,insertText,action,page:page?Number(page[1]):null,title,heading,lineStart:lines?Number(lines[1]):null,lineEnd:lines?Number(lines[2]||lines[1]):null,between:between?[Number(between[1]),Number(between[2])]:null,beforeLine:beforeLine?Number(beforeLine[1]):null,afterLine:afterLine?Number(afterLine[1]):null,relativeLine:relativeLine?{position:relativeLine[1].toLowerCase(),line:Number(relativeLine[2])}:null,billEnd,anchor:anchor?quotes(anchor[2])[0]:null,position:anchor?.[1]?.toLowerCase()||null,deleteText:quotes(deletion?.[1]||''),occurrence,all:/\ball\s+occurrences\b/i.test(directive),externalReference,error};
   });
 }
 function scopedBlocks(rule,doc){
@@ -145,6 +147,18 @@ function compile(rule,doc){
   const tokens=doc.effectiveTokens||doc.tokens,blocks=scopedBlocks(rule,doc);
   const indices=tokens.map((token,i)=>blocks.some(b=>token.start>=b.start+b.margin.length && token.start<b.end)&&blocks.some(b=>token.end>b.start+b.margin.length && token.end<=b.end)?i:-1).filter(i=>i>=0);
   const replacement=phrase(rule.insertText,doc.text);
+  // Heading/title instructions count their physical text rows, not the
+  // enacted body's printed margin numbers. Keep this resolution scoped to
+  // the identified heading/title and a single explicit relative line.
+  if(rule.relativeLine||(rule.heading||rule.title)&&(rule.beforeLine!=null||rule.afterLine!=null)){
+    if(rule.action!=='insert'||!(rule.heading||rule.title)||rule.heading&&rule.title||rule.between||rule.anchor)throw Error('A heading/title relative-line instruction must identify one insertion line.');
+    const locations=[...rule.directive.matchAll(/\b(?:above|below|before|after)\s+(?:the\s+)?line\s+\d+\b/gi)];
+    if(locations.length!==1||blocks.length!==1||!rule.lineStart||rule.lineStart!==rule.lineEnd||rule.page&&rule.page!==blocks[0].page)throw Error('The heading/title insertion line is ambiguous or outside its identified scope.');
+    const before=rule.relativeLine?rule.relativeLine.position==='above':rule.beforeLine!=null;
+    const sourceOffset=before?blocks[0].start+blocks[0].margin.length:blocks[0].end;
+    const next=tokens.findIndex(t=>t.start>=sourceOffset),boundary=next<0?tokens.length:next;
+    return [{start:boundary,end:boundary,replacement,sourceOffset}];
+  }
   // Only the final legislative line may stand in for an unprinted following
   // line. Never guess a missing line on an intermediate page.
   const final=doc.blocks.findLast(b=>!b.ignored&&!b.runningHead&&b.margin&&b.text.slice(b.margin.length).trim());
@@ -304,9 +318,11 @@ function testPatch(patch,expectedTokens,origins,map,previous,current,prevDoc,cur
     }
   }
   const currentDeletionRanges=[];
+  const requestedDigestChanges=patch.digest?digestChangedRanges(previous.slice(patch.start,patch.end),expectedTokens.slice(patch.expectedStart,patch.expectedEnd)):null;
+  const displayedDigestChanges=patch.digest?digestChangedRanges(previous.slice(patch.start,patch.end),current.slice(currentStart,currentEnd)):null;
   if(patch.end>patch.start){
     const from=digestRange?.start??(left<0?0:current[map[left]].end),to=digestRange?.end??(right>=map.length?currentDoc.text.length:current[map[right]].start);
-    const deleted=previous.slice(patch.start,patch.end).map(t=>canonical(t.value));
+    const deleted=(requestedDigestChanges?.removed??previous.slice(patch.start,patch.end)).map(t=>canonical(t.value));
     const candidates=(currentDoc.tokens||[]).map((t,index)=>({...t,index})).filter(t=>t.start>=from&&t.end<=to);
     const crossed=t=>(currentDoc.struck||[]).some(r=>r.start<t.end&&r.end>t.start);
     const collect=tokens=>{
@@ -336,11 +352,11 @@ function testPatch(patch,expectedTokens,origins,map,previous,current,prevDoc,cur
     };
     // Original PDF strike-outs are absent from the active verification stream,
     // but remain visible and need their own localized deletion highlights.
-    collect(candidates.filter(crossed));
-    if(!patch.replacement.length||status==='not-implemented')collect(candidates.filter(t=>!crossed(t)));
+    if(deleted.length)collect(candidates.filter(crossed));
+    if(deleted.length&&(!patch.replacement.length||status==='not-implemented'))collect(candidates.filter(t=>!crossed(t)));
     currentDeletionRanges.sort((a,b)=>a.start-b.start);
   }
-  return {status,orderingViolation,previousOffset,previousEndOffset,currentOffset,currentEndOffset,currentDeletionRanges,currentPage:block?.page,currentLine:block?.margin?.trim()||'',expected:expected.join(' '),actual:textOf(currentDoc,current,currentStart,currentEnd),original:textOf(prevDoc,previous,oldStart,oldEnd),expectedParts,actualParts,differenceRanges,missingPoints,discrepancies:amendmentDiscrepancies(wordingDiff,current,currentStart)};
+  return {status,orderingViolation,previousOffset,previousEndOffset,currentOffset,currentEndOffset,currentDeletionRanges,...(patch.digest?{previousDeletionRanges:requestedDigestChanges.previousRanges,previousInsertionPoints:requestedDigestChanges.previousInsertionPoints,currentAdditionRanges:displayedDigestChanges.currentRanges}:{}),currentPage:block?.page,currentLine:block?.margin?.trim()||'',expected:expected.join(' '),actual:textOf(currentDoc,current,currentStart,currentEnd),original:textOf(prevDoc,previous,oldStart,oldEnd),expectedParts,actualParts,differenceRanges,missingPoints,discrepancies:amendmentDiscrepancies(wordingDiff,current,currentStart)};
 }
 function amendmentPlan(instructionText,prevDoc,currentDoc,externalDocs={},digestDoc=null){
   const instructions=instructionText.trim()?parseAmendments(instructionText):[];

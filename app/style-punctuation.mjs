@@ -3,11 +3,12 @@ import {canonicalWrittenValue} from './style-numerals.mjs';
 import {dividedCalendarDates,validCompleteCalendarDate} from './style-calendar-dates.mjs';
 import {simplePunctuationWordSeries} from './style-list-phrases.mjs';
 import {percentageOpeningEvidence} from './style-percentage-openings.mjs';
+import {percentageValueMatches} from './style-percentage-values.mjs';
 import {styleEvidenceGuard,cutsOriginalStyleWord,originalBodyStyleContext} from './style-evidence.mjs';
 import {createNounQuantityReader}from './style-noun-quantities.mjs';
 import {styleSingleQuoteRanges}from './style-single-quote-ranges.mjs';
 import {cutsOriginalSourceWord} from './style-introduced-lists.mjs';
-export const LCB_SHORT_PUNCTUATION_SCOPE='Selected LCB6/7 apostrophe, full-date/month-year, listed possessive, parenthetic and existing-law examples validate complete original Unicode source spans, protecting strikes, wrapped literals, tables and unknown exclusions. The include/are plural is the regular inflection of includes/is without changing verb agreement. Four-digit decade plurals require an intact plural/punctuation continuation and reject currency/identifier fragments; possessive decade meanings remain manual. Under existing law requires an intact complete sentence or explicit Digest entry, not any printed newline or a prefix hidden by source deletion. Full dates require a valid four-digit Gregorian date and intact English prose continuation; month/year forms require a temporal cue or source entry to protect person names. Other calendar meanings and historical calendar systems remain manual. Recognized interior heads preserve original marks; arbitrary phrase roles and punctuation remain manual.';
+export const LCB_SHORT_PUNCTUATION_SCOPE='Selected LCB6/7 apostrophe, full-date/month-year, listed possessive, parenthetic and existing-law examples validate complete original Unicode source spans, protecting strikes, wrapped literals, tables and unknown exclusions. The include/are plural is the regular inflection of includes/is without changing verb agreement. Four-digit decade plurals require an intact plural/punctuation continuation and reject currency/identifier fragments; possessive decade meanings remain manual. Under existing law requires an intact complete sentence or explicit Digest entry, not any printed newline or a prefix hidden by source deletion. Full dates require a valid four-digit Gregorian date and intact English prose continuation; month/year forms require a temporal cue or source entry to protect person names. Recognized months may have incorrect capitalization: punctuation and divided-day suggestions preserve source case, with month capitalization checked independently. Other calendar meanings and historical calendar systems remain manual. Recognized interior heads preserve original marks; arbitrary phrase roles and punctuation remain manual.';
 export const LCB_QUOTE_PUNCTUATION_SCOPE='Period/comma placement and redundant final-period checks use complete recognized quotation enclosures beyond the former 600-character excerpt, preserving closing-mark-only selections across known page heads. Source strikes, unknown exclusions, every table and unverified/inch-mark enclosures cannot establish evidence. Complete finite amendment-directive leads preserve the GPO outside-punctuation exception, including statutory language. Ellipses, complex nesting, unknown directive meanings and whole-rule compliance remain manual.';
 export const LCB_POSSESSIVE_HEAD_SCOPE='Seven selected regular noun-head singular/plural inflections extend the listed attorney’s fees, contractor’s license, master’s degree, farmers’ market, cashier’s checks, mechanic’s liens and traveler’s checks examples. The listed possessor and apostrophe form are retained; this is an explicit grammatical extension, not seven additional source quotations. Exact original phrase evidence, wrapped quotations and selected official-name protections remain. Unfamiliar head derivatives and possessive meaning remain manual.';
 const listedPossessives=[['workers compensation','workers’ compensation'],['attorneys fees','attorney’s fees'],['drivers license','driver’s license'],['drivers licenses','driver’s licenses'],['farmers market','farmers’ market'],['homeowners insurance','homeowners’ insurance'],['masters degree','master’s degree'],['travelers checks','traveler’s checks'],['contractors license','contractor’s license'],['cashiers checks','cashier’s checks'],['mechanics liens','mechanic’s liens']];
@@ -32,7 +33,7 @@ export function contextualPunctuationIssues(doc,references){
  const quoteOwners=new Map(ctx.literalRanges.map(r=>[r.end-1,r]));
  const quoteOwner=index=>{const owner=quoteOwners.get(index);if(!owner||!/[“"]/.test(doc.text[owner.start]||'')||!/[”"]/.test(doc.text[index]||'')||/\d/u.test(doc.text[owner.start-1]||'')||quoteBoundaryBlocked(owner.start,owner.end))return null;return owner;};
  const amendmentQuote=owner=>{const start=ctx.sentenceAt(owner.start).start,lead=ctx.source.slice(start,owner.start);return /\b(?:insert|strike(?:\s+out)?|delete|replace|substitute|change)\b[^.!?]*\b(?:words?|text|phrase|term|language)\b[^.!?]*$/i.test(lead);};
- const guardedExamples=new Set(['Punctuation: Apostrophes','Punctuation: Full dates','Punctuation: Month and year','Punctuation: Listed possessive forms','Punctuation: Listed parenthetic phrases','Punctuation: Introductory existing-law phrase']);
+ const guardedExamples=new Set(['Punctuation: Apostrophes','Punctuation: Full dates','Punctuation: Month and year','Punctuation: Listed possessive forms','Punctuation: Listed parenthetic phrases','Punctuation: Introductory existing-law phrase','Numerals: Percent']);
  const add=(m,suggestion,rule,page,message,guideId='lcb',conflict=false)=>{
   suggestion=suggestion.replace(/\s+/g,' ');
   if(!['Punctuation: Quotation Marks','8.120'].includes(rule)&&quoted(m))return;
@@ -75,11 +76,9 @@ export function contextualPunctuationIssues(doc,references){
   add(target,suggestion,'Punctuation: Time possessives',m[3].toLowerCase()==='notice'?7:6,'LCB uses possessive time expressions, including “90 days’ notice” and “one week’s notice.” This complete recognized count immediately qualifies the stated noun. Larger written-number corrections remain independent; ambiguous fraction counts and tables are protected.');
  }
  for(const m of ctx.source.matchAll(/\b(?:your[’']s|her[’']s|our[’']s|their[’']s|its[’'])(?=\s|[.,;:!?)]|$)/gi))add(m,m[0].replace(/[’']/g,''),'8.8',208,'GPO 8.8 says possessive pronouns do not take an apostrophe; “it’s” as a contraction is checked separately.','gpo');
- for(const m of ctx.source.matchAll(/\b\d+(?:\.\d+)?(?:\s*%|\s+percent\b)/gi)){
-  if(ctx.tableAt(m.index))continue;
-  if(/[\/⁄]\s*$/.test(ctx.source.slice(Math.max(0,m.index-5),m.index)))continue;
-  const number=m[0].match(/^\d+(?:\.\d+)?/)[0];
-  if(/^\d+$/.test(number)&&percentageOpeningEvidence(doc,ctx,m.index,m.index+number.length))continue;
+ for(const m of percentageValueMatches(doc,ctx)){
+  const number=m.number;
+  if(/^\d+(?:,\d{3})*$/.test(number)&&percentageOpeningEvidence(doc,ctx,m.index,m.index+number.length))continue;
   const kind=ctx.at(m.index),symbol=/%$/.test(m[0]);if(kind==='Bill'&&symbol)add(m,m[0].replace(/\s*%$/,' percent'),'Numerals: Percent',23,'LCB bill text uses figures followed by “percent”; the digest uses the % symbol.');
   if(kind==='Digest'&&!symbol)add(m,m[0].replace(/\s+percent$/i,'%'),'Numerals: Percent',23,'LCB digest text uses the % symbol; GPO 10.5 prefers the spelled form in ordinary prose. This conflicting choice is excluded from Stylistic Check.','lcb',true);
  }
@@ -100,11 +99,14 @@ export function contextualPunctuationIssues(doc,references){
   const continuation=/^\s+[A-Za-z]+/u.exec(ctx.source.slice(part.end));
   add({index:part.start,0:part.text,evidenceEnd:continuation?part.end+continuation[0].length:part.end},part.suggestion+(continuation?',':''),'Punctuation: Full dates',7,'This complete calendar date has a separated pair of day digits. LCB page 7 shows contiguous day figures in a month-day-year date, with a comma after the year when the sentence continues. A following English prose word must have intact complete source evidence. This may be source spacing or PDF reading; verify the original PDF before editing. The source text is preserved.');
  }
- for(const m of ctx.source.matchAll(new RegExp('\\b('+months+')\\s+(\\d{1,2}),\\s+(\\d{4})(?=\\s+[A-Za-z])','g'))){
+ // Month capitalization has its own check. Date punctuation still applies
+ // to a recognized month with incorrect case, preserving that source case
+ // so the two independent suggestions do not silently rewrite each other.
+ for(const m of ctx.source.matchAll(new RegExp('\\b('+months+')\\s+(\\d{1,2}),\\s+(\\d{4})(?=\\s+[A-Za-z])','gi'))){
   const end=m.index+m[0].length,continuation=/^\s+[A-Za-z]+/u.exec(ctx.source.slice(end));if(!continuation||!validCompleteCalendarDate(m[1],Number(m[2]),Number(m[3])))continue;m.evidenceEnd=end+continuation[0].length;
   add(m,m[0]+',','Punctuation: Full dates',7,'LCB shows a comma following the year in a complete month-day-year date when the sentence continues. A valid four-digit Gregorian date and intact following prose word establish this selected punctuation context; date meaning remains manual.');
  }
- for(const m of ctx.source.matchAll(new RegExp('\\b(?:'+months+'),\\s+[1-9]\\d{3}\\b','g'))){
+ for(const m of ctx.source.matchAll(new RegExp('\\b(?:'+months+'),\\s+[1-9]\\d{3}\\b','gi'))){
   const lead=calendarLead(m.index);if(lead===null)continue;m.evidenceStart=lead;
   add(m,m[0].replace(',',''),'Punctuation: Month and year',7,'LCB writes a month and year without a separating comma, as in “April 2001.” This occurrence has an intact temporal introducer or source-entry boundary; person-name and unexplained label contexts remain manual.');
  }

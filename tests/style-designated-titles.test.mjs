@@ -31,7 +31,7 @@ test('quoted title only can establish a witness but quoted clauses and quoted la
  for(const text of ['This act shall be known as the “Community Data Sharing Act of 2026." '+tail,'This act shall be known as the "Community Data Sharing Act of 2026.” '+tail])assert.equal(designatedOfficialTitleRecords(doc(text)).length,0,text);
 });
 test('lowercase naming clauses including title-only quotes are reviewable without invented capitalization',()=>{
- for(const text of ['This law shall be known as the community safety law.','This code shall be known as the “Community safety Code.”']){const d=doc(text),[i]=designatedTitleCreationIssues(d,refs);assert.ok(i,text);assert.equal(i.suggestion,null);assert.equal(text.slice(i.start,i.end),i.text);assert.ok(jointStylisticIssues(d,refs,{includeReviewSuggestions:true}).some(x=>x.checkId===i.checkId));}
+ for(const text of ['This law shall be known as the community safety law.','This code shall be known as the “Community safety Code.”']){const d=doc(text),[i]=designatedTitleCreationIssues(d,refs);assert.ok(i,text);assert.equal(i.suggestion,null);assert.equal(text.slice(i.start,i.end),i.text);assert.equal(jointStylisticIssues(d,refs,{includeReviewSuggestions:true}).some(x=>x.checkId===i.checkId),!text.includes('“'),'unquoted creation remains reviewable; quoted title is accepted');}
  assert.equal(designatedTitleCreationIssues(doc(clause),refs).length,0);
 });
 test('years larger names historical prose renamed names and earlier references cannot establish identity by substring',()=>{

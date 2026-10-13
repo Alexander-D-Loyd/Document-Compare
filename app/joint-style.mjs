@@ -18,6 +18,7 @@ import {phrasalInflectionIssues} from './style-phrasal-inflections.mjs';
 import {nominalPluralIssues} from './style-nominal-plurals.mjs';
 import {largeOrdinalIssues} from './style-large-ordinals.mjs';
 import {styleWordDivisionView} from './style-word-divisions.mjs';
+import {billQuotedTermProtection} from './style-quoted-terms.mjs';
 import {OFFLINE_MODIFIERS,GENERAL_MODIFIER_REVIEW_RULE}from './offline-rules.mjs';
 import {lcbSemanticReviewIssues}from './style-lcb-review-meanings.mjs';
 import {lcbUnknownMoneyReviewIssues}from './style-lcb-review-money-context.mjs';
@@ -344,6 +345,7 @@ function reviewStylisticIssues(doc,references,engineIssues=[],includeReviewSugge
   // Every check uses the same newly recognized wrapped literal context.
   // Corrections to quote-boundary punctuation remain independently active.
   const wrappedLiteralBlocks=i=>!['Punctuation: Quotation Marks','8.120'].includes(i.rule)&&context.wrappedLiteralRanges.some(r=>r.start<i.end&&r.end>i.start);
-  return combined.filter(i=>!i.conflict&&!context.technicalAt(i.start,i.end)&&(!wrappedLiteralBlocks(i)||['lcb-designated-title-creation-review','lcb-fresh-definition-term-review'].includes(i.checkId))&&(i.checkId==='california-entities'||!ignoredConflictRanges.some(r=>r.start<i.end&&r.end>i.start)&&(['lcb-created-title-reference-review','lcb-created-title-identity-review','lcb-designated-title-reference-review','lcb-designated-title-creation-review'].includes(i.checkId)||!names.some(r=>r.start<i.end&&r.end>i.start)))&&(['table-figures','lcb-table-cell-figures','lcb-table-cell-review'].includes(i.checkId)||!context.tableAt(i.start))).sort((a,b)=>a.start-b.start||a.end-b.end).map((i,id)=>({...i,id,matchText:source.slice(i.start,i.end).replace(/-[ \t]*\n\s*/g,'-').replace(/\s+/g,' ').trim()}));
+  const quotedTermProtected=billQuotedTermProtection(doc,context);
+  return combined.filter(i=>!i.conflict&&!quotedTermProtected(i)&&!context.technicalAt(i.start,i.end)&&(!wrappedLiteralBlocks(i)||['lcb-designated-title-creation-review','lcb-fresh-definition-term-review'].includes(i.checkId))&&(i.checkId==='california-entities'||!ignoredConflictRanges.some(r=>r.start<i.end&&r.end>i.start)&&(['lcb-created-title-reference-review','lcb-created-title-identity-review','lcb-designated-title-reference-review','lcb-designated-title-creation-review'].includes(i.checkId)||!names.some(r=>r.start<i.end&&r.end>i.start)))&&(['table-figures','lcb-table-cell-figures','lcb-table-cell-review'].includes(i.checkId)||!context.tableAt(i.start))).sort((a,b)=>a.start-b.start||a.end-b.end).map((i,id)=>({...i,id,matchText:source.slice(i.start,i.end).replace(/-[ \t]*\n\s*/g,'-').replace(/\s+/g,' ').trim()}));
 }
 

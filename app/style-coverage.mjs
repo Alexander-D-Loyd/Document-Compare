@@ -54,7 +54,11 @@ import {LCB_CREATED_TITLE_IDENTITY_REVIEW_SCOPE}from './style-lcb-review-created
 import {LCB_SUFFIX_REVIEW_SCOPE}from './style-lcb-review-affix-boundaries.mjs';
 import {LCB_INITIALISM_ARTICLE_REVIEW_SCOPE}from './style-lcb-review-initialism-articles.mjs';
 import {LCB_FRESH_QUOTE_REVIEW_SCOPE}from './style-lcb-review-quote-ownership.mjs';
+import {LCB_PERCENTAGE_VALUE_SCOPE}from './style-percentage-values.mjs';
+import {CALENDAR_SOURCE_EVIDENCE_SCOPE}from './style-calendar.mjs';
 export const CHECK_COVERAGE=[
+ {title:'Complete percentage values and source evidence',status:'Selected LCB percentage formatting',guide:'lcb',page:23,text:LCB_PERCENTAGE_VALUE_SCOPE},
+ {title:'Complete calendar capitalization evidence',status:'Finite source-backed calendar checks',guide:'lcb',page:22,text:CALENDAR_SOURCE_EVIDENCE_SCOPE},
  {title:'Listed possessive noun-head inflections',status:'Seven selected regular noun heads',guide:'lcb',page:7,text:LCB_POSSESSIVE_HEAD_SCOPE},
  {title:'Complete known initialism article evidence',status:'Finite established letter sounds',guide:'lcb',page:2,text:KNOWN_INITIALISM_EVIDENCE_SCOPE},
  {title:'Complete foreign phrase evidence',status:'Seven finite source forms',guide:'lcb',page:8,text:FOREIGN_PHRASE_EVIDENCE_SCOPE},

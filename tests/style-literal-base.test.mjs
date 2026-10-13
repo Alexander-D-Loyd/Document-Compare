@@ -7,5 +7,5 @@ test('base guide checks preserve contractions, usage and source spellings in lit
  }}
 });
 test('literal protection does not suppress adjacent active prose checks',()=>{
- const text='The term “advisor” is quoted, but the advisor shall not use and/or.';const issues=jointStylisticIssues(makeDocument([text],'Current'),refs);assert.ok(issues.some(i=>i.suggestion==='adviser'&&i.start===text.lastIndexOf('advisor')));assert.ok(issues.some(i=>i.suggestion==='or'));
+ const text='The term “advisor” is quoted, but the advisor shall not use and/or.';const issues=jointStylisticIssues(makeDocument([text],'Current'),refs);assert.ok(!issues.some(i=>i.suggestion==='adviser'),'every exact occurrence of the quoted term is accepted in this document');assert.ok(issues.some(i=>i.suggestion==='or'));
 });

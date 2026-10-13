@@ -1,9 +1,9 @@
 {
-  "date": "2026-10-12",
-  "packagedVersion": "1.21.6",
+  "date": "2026-10-13",
+  "packagedVersion": "1.21.7",
   "localFollowOn": false,
   "documentReview": "Offline",
-  "githubPushed": true,
+  "githubPushed": false,
   "wholeRuleCertification": false,
   "inventory": {
     "Reference priority": 5,
@@ -18,11 +18,12 @@
     "conflictExcluded": 12
   },
   "pending": [
-    "Native desktop verification of 1.21.6 was skipped at the user\u2019s request; no native pass is claimed.",
+    "Native desktop verification of 1.21.7 is unavailable in the execution environment; 1.21.5 remains the last native-verified release.",
     "Broader contextual LCB/GPO methods and manual review of opinions/cover letters; partial methods are not complete rule automation.",
     "Complete licensed offline Merriam-Webster authority with first-spelling ordering.",
     "Additional AB 109/SB 879 drafting material; genuine differences remain flagged.",
-    "Independent exhaustive human-annotated office benchmark; controlled fixed annotations and source witnesses are now implemented."
+    "Independent exhaustive human-annotated office benchmark; controlled fixed annotations and source witnesses are now implemented.",
+    "Source-confirmed budget display fixes: preserve large amount-column gaps and ordinary run font sizes independently of larger margin labels."
   ],
   "note": "Partial coverage means a selected contextual check exists. It does not certify all usages, measured detection accuracy, or complete automatic coverage.",
   "dictionaryAuthority": {
@@ -362,7 +363,7 @@
     "target": "More accurate issue detection than an experienced human reader; not yet established.",
     "offlineEngineEvaluation": "Candidates researched; no engine installed, integrated or performance-validated in this checkpoint."
   },
-  "updatedAt": "2026-10-12T00:13:05.310887+00:00",
+  "updatedAt": "2026-10-11T17:13:05.310887-07:00",
   "currentValidation": {
     "sourceTests": 1906,
     "nativePackagedWorkflow": "1.21.6 not run at user request; unchanged 1.21.5 previously passed 21 stages.",
@@ -1256,7 +1257,7 @@
     "report": "DEVELOPMENT_REVIEW.md"
   },
   "lcbQuantityTimeFollowOn": {
-    "at": "2026-10-11T23:33:16.431317+00:00",
+    "at": "2026-10-11T16:33:16.431317-07:00",
     "localOnly": true,
     "packaged": false,
     "sourceTests": 1893,
@@ -1343,11 +1344,11 @@
     "previousNativeStages": 20,
     "sourcePdfsEdited": false
   },
-  "localVersion": "1.21.6",
+  "localVersion": "1.21.7",
   "lcbNearCompletionFollowOn": {
     "localVersion": "1.21.6",
     "packaged": true,
-    "githubPushed": true,
+    "githubPushed": false,
     "sourceTests": 2017,
     "newTests": 97,
     "scope": [
@@ -1387,6 +1388,7 @@
     "correctedCounterpartFindings": 0,
     "sourcePdfsUnchanged": true,
     "sourceSelectionsExact": true,
+    "proofCheckpoint": "../lcb-coverage-session-2026-10-12/session.json",
     "sourceSHA256": {
       "app/gpo-style.mjs": "79794081471e2aa954a56102f8efda7ccbb9a42a50df4bfb44478bc9b3eb8aee",
       "app/joint-style.mjs": "8925278be83064060500ddda6bd498fa98a0880732a2db871612ac993a779193",
@@ -1508,6 +1510,40 @@
     "officeAccuracyMeasured": false,
     "nativeWorkflowSkippedByUser": true
   },
-  "nativeWorkflow": "not-run-user-request",
-  "nativeWorkflowSkippedByUser": true
+  "nativeWorkflow": "not-run-execution-environment-unavailable",
+  "nativeWorkflowSkippedByUser": false,
+  "localSourceVersion": "1.21.7",
+  "localFollowOnScope": "Digest word-level deltas, bill-local quoted-term authority, JR Box notices, source font/heading fixes, bounded LCB source/meaning/percentage/calendar extensions and completed all-87-edition hyphenation audit.",
+  "quotedTermPolicy": {
+    "source": "Active Current Version, including digest and heading",
+    "initialCapitalizationDifferences": true,
+    "interiorFormPreserved": true,
+    "documentLocal": true,
+    "persistentDictionaryChanged": false,
+    "scope": "Style preferences within matching complete quoted-term occurrences are suppressed. Clause-boundary punctuation and surrounding wording remain independently checked."
+  },
+  "localSourceChecks": {
+    "tests": 2107,
+    "passed": 2107,
+    "failed": 0,
+    "parserPrecisionTests": 14,
+    "nativeDesktop": "not run; existing execution environment cannot start Electron",
+    "publishedBaseline": "1.21.6"
+  },
+  "allAvailableBillHyphenationAudit": {
+    "documents": 87,
+    "bills": 44,
+    "pages": 4506,
+    "hyphenBefore": 6620,
+    "hyphenAfter": 5355,
+    "removed": 1266,
+    "added": 1,
+    "selectedRangesVerified": 6622,
+    "physicalFileCopiesVerified": 133,
+    "allPhysicalPdfsUnchanged": true,
+    "allSourceModelsUnchanged": true,
+    "officeAccuracyMeasured": false,
+    "nativeDesktopVerified": false,
+    "limitation": "Remaining general questions need judgment; strict generic attachment can omit plausible unproven questions. No whole-rule certification."
+  }
 }

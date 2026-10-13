@@ -1,4 +1,49 @@
-Document Compare 1.21.6 LCB release
+Document Compare 1.21.7 release verification
+
+Digest verification still checks the complete uploaded text, but amendment colors
+and outlines mark only changed portions: red deletions and blue additions. Digest
+keeps its own label and the instructional amendment numbers stay unchanged.
+Quoted terms establish style authority only in the active Current Version;
+initial-letter capitalization may differ, while internal spelling, punctuation
+and compound form must match. No authority carries over to another bill or
+changes the personal dictionary.
+
+JR Box administrative notices are excluded from amendment/language streams and
+reported on the upload card. AB 224 heading-row insertion verifies; original
+italic faces and the verified TimesLDC/MinionPC serif families are preserved.
+
+Fresh imports and actual offline parser checks cover all 87 available distinct
+bill editions, 44 bills and 4,506 pages. Hyphenation findings/questions fall from
+6,620 to 5,355: 1,266 removed and one existing lower-priority question exposed.
+Quoted authority, duplicate questions, complete prepositional roles, nonnominal
+heads and selected recipient/participle roles account for the changes. All 133
+physical file copies retain their SHA-256; 6,622 selected source ranges were
+checked. Reader-recognized divisions include 211 cross-page words. These counts
+are a regression audit, not measured office precision or recall. Stricter generic
+attachment can omit plausible but unproven review questions; precise listed
+modifier controls remain active.
+
+Selected LCB extensions cover explicit anytime/pleaded verb forms, alternate-year
+frequency, complete birth/preface meaning cues, complete grouped/decimal percentage
+values and valid calendar capitalization/date contexts. Source strikes, masks,
+Unicode fragments, tables, quotations and unrelated meanings remain protected.
+The added word-choice, percentage and calendar checks preserve existing findings
+on all 87 original reader models. No whole-rule status is promoted.
+
+All 2,107 JavaScript tests and 14 trained spaCy controls pass. Actual AB 224
+and AB 76 reader/verification proofs pass. The final font correction was freshly
+imported on all 87 PDFs and leaves every prepared language chunk/source mapping
+unchanged. Native Electron and browser renderer verification remain unavailable
+in this execution environment; no native desktop pass is claimed. Version 1.21.5
+remains the last release with completed native workflow verification.
+
+Two further source-confirmed budget display issues remain: large numeric amount
+columns collapse into ordinary spaces, and 12-point margin labels can enlarge
+10-point body runs. Original text, amount values and strike spans remain intact.
+These rendering fixes are deferred rather than included without validation.
+
+Prior release record: Document Compare 1.21.6
+
 
 The 2026-10-12 continuation prioritizes selected rules close to completion.
 The source is prepared for the 1.21.6 release. The verified 1.21.5 package remains
@@ -43,8 +88,7 @@ No inventory entry was promoted: 854 LCB rows still comprise 834 partially
 automated, 14 guide conflicts, five priority references and one manual row.
 Controlled tests do not measure office precision or recall.
 
-Source verification hashes are recorded in STYLE_COVERAGE_STATUS.json. Local
-PDF evidence and working profiles are not distributed in this public repository.
+Proof files and source hashes: ../lcb-coverage-session-2026-10-12/session.json.
 The machine-readable scope is also recorded in STYLE_COVERAGE_STATUS.json.
 
 Next: native renderer verification remains unperformed; continue extending

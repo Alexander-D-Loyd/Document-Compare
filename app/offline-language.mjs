@@ -11,6 +11,8 @@ import {sourceNameRanges} from './style-source-names.mjs';
 import {OFFLINE_MODIFIERS,GENERAL_MODIFIER_REVIEW_RULE}from './offline-rules.mjs';
 import {openIncomeQualifierBefore}from './style-income-qualifiers.mjs';
 import {PARSED_NUMBER_RELATION_RULE,mapParsedNumberRelation}from './style-parsed-number-relations.mjs';
+import {inStatePrepositionalEvidence}from './style-in-state-evidence.mjs';
+import {nonNominalModifierHeadEvidence}from './style-modifier-head-evidence.mjs';
 export function listedModifierSelection(rule,text){
  const words=text.split(/[\s-]+/u),expected=rule.preferred.split('-');
  if(words.length!==expected.length)return null;
@@ -114,6 +116,8 @@ export function mapOfflineIssues(doc,plan,raw,kind){
    if(generalReview&&lexicalHyphenBefore(doc.text,selected.start))continue;
    if(!(generalReview?genericLexical:suggestion)||!head||head.start<selected.end||head.end>evidence.end||!nominalGap.test(plan.text.slice(issue.end,issue.headStart))||!nominalHead.test(issue.head)||plan.text.slice(issue.headStart,issue.headEnd)!==issue.head||blocked(selected.start,head.end)||singles.some(r=>r.start<head.end&&r.end>selected.start))continue;
    if(rule?.preferred==='low-income'&&openIncomeQualifierBefore(plan.text,issue.start))continue;
+   if(rule?.engineRule==='LCB_IN_STATE_MODIFIER'&&inStatePrepositionalEvidence(doc,ctx,selected.start,selected.end,head.end))continue;
+   if(nonNominalModifierHeadEvidence(doc,ctx,head))continue;
    // styleSource normalizes dash glyphs for existing rules. A body em/en dash
    // must not become a missing component hyphen; identified heads stay masked.
    if([...doc.text.slice(selected.start,selected.end).matchAll(/[\u2012-\u2015]/gu)].some(m=>ctx.source[selected.start+m.index]==='-'))continue;

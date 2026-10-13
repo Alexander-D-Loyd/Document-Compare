@@ -9,8 +9,8 @@ test('divided valid calendar days receive one complete spacing suggestion and pr
  assert.deepEqual(check('On June 3 0, 2019 the board acted.').map(i=>i.suggestion),['June 30, 2019,']);
 });
 test('calendar spacing requires an actual valid month day year expression',()=>{
- for(const text of ['June 30, 2019','February 2 9, 2024','February 2 9, 2000'])assert.equal(dividedCalendarDates(text).length,text.includes('2 9')?1:0);
- for(const text of ['February 3 0, 2024','February 2 9, 1900','April 3 1, 2027','June 3 or 0 workers','Unknown 3 0, 2019','june 3 0, 2019'])assert.equal(dividedCalendarDates(text).length,0,text);
+ for(const text of ['February 2 9, 2024','February 2 9, 2000','june 3 0, 2019'])assert.equal(dividedCalendarDates(text).length,1,text);
+ for(const text of ['June 30, 2019','February 3 0, 2024','February 2 9, 1900','April 3 1, 2027','June 3 or 0 workers','Unknown 3 0, 2019'])assert.equal(dividedCalendarDates(text).length,0,text);
 });
 test('complete date selection survives printed margins and a page boundary without mutating text',()=>{
  const doc=makeDocument(['ASSEMBLY BILL No. 121\nThe people do enact as follows:\nline 1 Until June 3\n97','AB 121 — 2 —\nline 1 0, 2019. Appoint 3 workers.'],'Current'),original=doc.text,issues=jointStylisticIssues(doc,refs);

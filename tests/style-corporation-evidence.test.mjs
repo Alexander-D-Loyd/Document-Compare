@@ -18,7 +18,7 @@ test('classification evidence spanning a source table cannot supply a noun role'
 });
 test('recognized physical page heads preserve complete classification evidence and exact letter-only marks',()=>{
  const doc=makeDocument(['ASSEMBLY BILL No. 121\nThe people do enact as follows:\nline 1 The “s”\n97','AB 121 — 2 —\nline 1 corporations shall report.'],'Current'),before=JSON.stringify(doc),found=check(doc);assert.equal(found.length,1);assert.equal(found[0].text,'s');assert.equal(doc.text.slice(found[0].start,found[0].end),'s');assert.ok(doc.text.slice(found[0].evidenceStart,found[0].evidenceEnd).includes('corporations'));assert.equal(JSON.stringify(doc),before);
- assert.ok(jointStylisticIssues(doc,refs).some(i=>i.checkId==='corporation-letter'));
+ assert.ok(!jointStylisticIssues(doc,refs).some(i=>i.checkId==='corporation-letter'),'quoted Current Version form overrides the direct source classification finding');
 });
 test('enclosing literal contexts remain distinct from the one-letter quoted classification form',()=>{
  for(const text of ['The text reads “the "c" corporation shall report” as a literal.','The text reads "the clause\n“s” corporations shall report" as a literal.','The “c” corporation Institute is named.','The “x” corporation is named.'])assert.equal(check(text).length,0,text);

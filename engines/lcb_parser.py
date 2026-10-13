@@ -257,6 +257,26 @@ def attached(span,head):
   resolved.update(path)
  return True
 
+PROVIDED_RECIPIENT=re.compile(r'(?<!\w)(?:provide|provides|provided|providing)\s+(?:the|a|an)\s+(?P<recipient>(?:licensing\s+)?(?:authority|agency|board|department|commission|court|applicant|person|employee|recipient|licensee))\s+valid\s+$',re.I)
+SINGULAR_PREPOSITIONAL_OBJECT=re.compile(r'(?<!\w)(?:from|to|by|for|with)\s+an?\s+(?:(?:local|state|regional|federal|county|municipal|public|private|other|and|or)\s+)*$',re.I)
+def source_object_boundary(span,head):
+ """Complete source cues keep separate objects out of unit modifiers.
+
+ spaCy can incorrectly attach the recipient authority in "provides the
+ licensing authority valid documentation" to documentation, or the agency
+ in "from a local or state agency certified records" to records. A listed
+ provider/recipient/valid-document relation is an explicit double object.
+ The singular article of a complete prepositional object cannot govern the
+ following plural head. Unknown recipients, qualifiers and object forms
+ remain manual; an actual agency-certified modifier stays available.
+ """
+ doc=span.doc;sentence=span[0].sent
+ if head.lower_ in {'documentation','documents','records','forms','information'}:
+  before=doc.text[sentence.start_char:head.idx];match=PROVIDED_RECIPIENT.search(before)
+  if match and span.start_char>=sentence.start_char+match.start('recipient')and span.end_char<=head.idx:return True
+ first=span[0]
+ return first.tag_=='NN'and head.tag_=='NNS'and bool(SINGULAR_PREPOSITIONAL_OBJECT.search(doc.text[sentence.start_char:first.idx]))
+
 def noun_sequence_reviews(doc):
  """Complete noun-prefix roles; compound meaning remains unconfirmed.
 
@@ -283,6 +303,12 @@ def noun_sequence_reviews(doc):
    if len(sequence)<3:continue
    span=doc[first.i:sequence[-1].i];head=sequence[-1]
   if len(span)<2 or head.pos_ not in {'NOUN','PROPN'}or any(t.dep_ not in {'compound','nmod'}for t in span)or protected_verb_use(span)or not attached(span,head):continue
+  if source_object_boundary(span,head):continue
+  # LCB's open "greenhouse gases" (p. 10) and GPO's "greenhouse gas"
+  # (p. 72) identify this environmental noun. Before emissions it retains
+  # that clear noun meaning; GPO 6.16 does not demand a temporary hyphen.
+  # Do not exempt a longer phrase or a separate gas-free modifier.
+  if span.text.casefold()=='greenhouse gas'and head.lemma_.casefold()=='emission':continue
   if head.dep_ in {'compound','nmod'}:continue
   governing=head.head
   if governing!=root and governing.pos_=='VERB'and not(finite(governing)or any(t.lower_=='to'and t.dep_ in {'aux','mark'}for t in governing.children)):continue
@@ -316,11 +342,32 @@ def qualified_noun_prefix_reviews(doc):
   # qualification being reviewed here (e.g. new school policies).
   if any((t.dep_!='amod'or t.head.i not in nouns)if t.pos_=='ADJ'else t.dep_ not in {'compound','nmod'}for t in span):continue
   if protected_verb_use(span)or not attached(span,head):continue
+  if source_object_boundary(span,head):continue
   governing=head.head
   if governing!=root and governing.pos_=='VERB'and not(finite(governing)or any(t.lower_=='to'and t.dep_ in {'aux','mark'}for t in governing.children)):continue
   predicate={'start':root.idx,'end':root.idx+len(root.text),'text':root.text,'pos':root.pos_,'tag':root.tag_,'finiteAuxiliaries':[{'start':t.idx,'end':t.idx+len(t.text),'text':t.text,'pos':t.pos_,'tag':t.tag_,'dep':t.dep_}for t in root.children if finite(t)and t.dep_ in {'aux','auxpass','cop'}]}
   components=[{'start':t.idx,'end':t.idx+len(t.text),'text':t.text,'pos':t.pos_,'dep':t.dep_,'headStart':t.head.idx,'headEnd':t.head.idx+len(t.head.text),'headText':t.head.text}for t in span]
   yield {'start':first.idx,'end':span[-1].idx+len(span[-1].text),'headStart':head.idx,'headEnd':head.idx+len(head.text),'head':head.text,'evidenceStart':first.sent.start_char,'evidenceEnd':first.sent.end_char,'suggestion':None,'engine':'spaCy','engineRule':'LCB_GENERAL_UNIT_MODIFIER_REVIEW','reviewSuggested':True,'reviewVariant':'qualified-noun-prefix','attachmentMethod':'qualified-noun-prefix-role-review','nounRoleEvidence':{'components':components,'predicate':predicate}}
+
+def complete_noun_prefix_reviews(doc):
+ """One complete question for a source prefix and its same nominal head.
+
+ A qualified prefix and its contained noun suffix can describe the same
+ unit-modifier uncertainty. Keep the complete qualifier evidence instead
+ of asking the reader twice. Independent heads or source sentences remain
+ independent questions; this does not establish compound meaning.
+ """
+ groups={}
+ for issue in [*noun_sequence_reviews(doc),*qualified_noun_prefix_reviews(doc)]:
+  key=tuple(issue[k]for k in ['headStart','headEnd','evidenceStart','evidenceEnd'])
+  groups.setdefault(key,[]).append(issue)
+ retained=[]
+ for group in groups.values():
+  furthest=-1
+  for issue in sorted(group,key=lambda i:(i['start'],-i['end'])):
+   if issue['end']<=furthest:continue
+   retained.append(issue);furthest=issue['end']
+ yield from sorted(retained,key=lambda i:(i['start'],i['end']))
 
 PREDICATE_COMPOUND_RULE='LCB_PARSED_PREDICATE_COMPOUND_REVIEW'
 LINKING_LEMMAS={'be','remain','become','seem','appear'}
@@ -480,9 +527,11 @@ class ListedModifierParser:
    if protected_verb_use(span):continue
    head=nominal_head(doc,span)
    if head is None or not doc.text[second.idx+len(second.text):doc[span.end].idx].isspace():continue
-   if second.pos_=='ADJ'and second.tag_ not in {'VBG','VBN','VBD'}and not attached(span,head):continue
+   # A participle label alone cannot turn a reduced relative, a recipient or
+   # a prepositional object into a pre-noun unit modifier. Every selected
+   # component must reach the actual nominal head, not only ordinary ADJs.
+   if not attached(span,head)or source_object_boundary(span,head):continue
    yield {'start':first.idx,'end':second.idx+len(second.text),'headStart':head.idx,'headEnd':head.idx+len(head.text),'head':head.text,'evidenceStart':first.sent.start_char,'evidenceEnd':first.sent.end_char,'suggestion':None,'engine':'spaCy','engineRule':'LCB_GENERAL_UNIT_MODIFIER_REVIEW','reviewSuggested':True,'reviewVariant':variant,'attachmentMethod':'general-role-review'}
-  yield from noun_sequence_reviews(doc)
-  yield from qualified_noun_prefix_reviews(doc)
+  yield from complete_noun_prefix_reviews(doc)
   yield from predicate_compound_reviews(doc)
   yield from postnominal_compound_reviews(doc)

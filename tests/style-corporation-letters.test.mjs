@@ -4,7 +4,7 @@ const refs=Object.fromEntries(['lcb','gpo'].map(id=>[id,JSON.parse(fs.readFileSy
 const check=t=>jointStylisticIssues(makeDocument([t],'Current'),refs);
 test('independently quoted corporation classification letters retain quotes and noun',()=>{
  for(const r of LCB_CORPORATION_LETTERS)for(const [a,b] of [['“','”'],['"','"']]){
-  const t='The '+a+r.letter.toLowerCase()+b+' corporation is registered.',i=check(t).find(i=>i.checkId==='corporation-letter');assert.ok(i,t);assert.equal(i.text,r.letter.toLowerCase());assert.equal(i.suggestion,r.letter);assert.equal(t.slice(i.start,i.end),i.text);assert.equal(check(t.slice(0,i.start)+r.letter+t.slice(i.end)).length,0);assert.ok(refs.lcb.pages[r.page-1].text.includes(r.preferred));
+  const t='The '+a+r.letter.toLowerCase()+b+' corporation is registered.',i=corporationLetterIssues(makeDocument([t],'Current'),refs).find(i=>i.checkId==='corporation-letter');assert.ok(i,t);assert.ok(!check(t).some(i=>i.checkId==='corporation-letter'),'quoted form overrides source preference');assert.equal(i.text,r.letter.toLowerCase());assert.equal(i.suggestion,r.letter);assert.equal(t.slice(i.start,i.end),i.text);assert.equal(check(t.slice(0,i.start)+r.letter+t.slice(i.end)).length,0);assert.ok(refs.lcb.pages[r.page-1].text.includes(r.preferred));
  }
  const rows=styleRuleInventory(refs);for(const r of LCB_CORPORATION_LETTERS)assert.equal(rows.find(x=>x.guide==='lcb'&&x.page===r.page&&x.text===r.preferred).status,'Partially automated');
 });

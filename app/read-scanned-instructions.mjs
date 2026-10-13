@@ -16,7 +16,10 @@ export async function readScannedInstructions(page,worker,OPS,checkCancelled=()=
  canvas.width=Math.ceil(viewport.width);canvas.height=Math.ceil(viewport.height);
  const context=canvas.getContext('2d',{willReadFrequently:true});
  try{
-  await page.render({canvasContext:context,viewport,background:'rgb(255,255,255)'}).promise;checkCancelled();
+  // Native instruction extraction reads page contents, excluding annotations.
+  // Keep local OCR consistent, so administrative JR/ink annotations cannot
+  // become insertion text when OCR fails to recognize the end marker.
+  await page.render({canvasContext:context,viewport,background:'rgb(255,255,255)',...(!bill?{annotationMode:0}:{})}).promise;checkCancelled();
   const originalImage=context.getImageData(0,0,canvas.width,canvas.height);
   const marker=bill?null:scannedEndMarker(originalImage,scale);
   progress('Checking scanned text locally…');
