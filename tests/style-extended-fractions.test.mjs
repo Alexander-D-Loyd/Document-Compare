@@ -11,7 +11,7 @@ test('dates, references, mixed quantities, ambiguous fractions and literal readi
  for(const text of ['File on 1/22 of this year.','See Section 1/32 of the code.','Use 3 1/32 of the amount.','Use three and one thirty-second of the amount.','Use 1/32 units.','The term “1/32 of the amount” is literal.','Use 1/32 of the amount........100'])assert.equal(fractionIssues(makeDocument([text],'Current'),refs).length,0,text);
  const doc=makeDocument(['Use 1/32 of the amount.'],'Current');doc.struck=[{start:4,end:8}];assert.equal(fractionIssues(doc,refs).length,0);
 });
-test('digest disagreements remain excluded and wrapped source offsets remain precise',()=>{
- const text='LEGISLATIVE COUNSEL’S DIGEST\nUse one thirty-second of the appropriation.';assert.ok(fractionIssues(makeDocument([text],'Current'),refs).some(i=>i.conflict));assert.equal(jointStylisticIssues(makeDocument([text],'Current'),refs).length,0);
+test('Digest fraction forms follow LCB and wrapped source offsets remain precise',()=>{
+ const text='LEGISLATIVE COUNSEL’S DIGEST\nUse one thirty-second of the appropriation.';assert.ok(fractionIssues(makeDocument([text],'Current'),refs).some(i=>i.conflict));assert.deepEqual(jointStylisticIssues(makeDocument([text],'Current'),refs).map(i=>i.suggestion),['1⁄32']);
  const doc=makeDocument(['line 1 Use 1/32\nline 2 of the appropriation.'],'Current');const i=fractionIssues(doc,refs)[0];assert.equal(doc.text.slice(i.start,i.end),'1/32');assert.equal(i.suggestion,'one thirty-second');
 });

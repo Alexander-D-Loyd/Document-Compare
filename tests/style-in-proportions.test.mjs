@@ -9,9 +9,9 @@ test('population proportions retain one shared expression and the LCB ten thresh
  assert.equal(check('One in 10 applicants qualifies.').length,0);
  assert.equal(check('The rule covers one in five applicants over 18 months.').length,0);
 });
-test('digest conflicts, dates, identifiers, unknown roles and quoted copy remain protected',()=>{
+test('dates, identifiers, unknown roles and quotes remain protected while Digest counts follow LCB',()=>{
  for(const text of ['The quote “one in ten applicants” is literal.','Use Section 1 in Article 10.','One in ten years was selected.','The range is one in ten.','The rule covers 10 in 5 applicants.'])assert.equal(inProportionIssues(makeDocument([text],'Current'),refs).length,0,text);
- const digest='LEGISLATIVE COUNSEL’S DIGEST\nThe rule covers one in five applicants.';assert.equal(inProportionIssues(makeDocument([digest],'Current'),refs).length,0);assert.equal(check(digest).length,0);
+ const digest='LEGISLATIVE COUNSEL’S DIGEST\nThe rule covers one in five applicants.';assert.equal(inProportionIssues(makeDocument([digest],'Current'),refs).length,0);assert.deepEqual(check(digest).map(i=>i.suggestion),['5']);
  const doc=makeDocument(['The rule covers one in ten applicants.'],'Current');doc.struck=[{start:16,end:26}];assert.equal(inProportionIssues(doc,refs).length,0);
 });
 test('wrapped population proportions highlight the full expression',()=>{

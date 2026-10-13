@@ -1,3 +1,84 @@
+Document Compare 1.21.10 — current release verification
+
+Digest selection now uses one regular amendment outline per page while preserving
+exact red removed/blue added ranges. The shared trash clears both optional uploads
+and cancels pending reads without removing Previous or Current Version PDFs.
+
+Style checks use explicit guide provisions and complete source witnesses. Applicable
+LCB choices take priority over GPO; compliant LCB wording remains quiet. Generic
+English compound, fuzzy entity and inferred relationship generators stay disabled.
+Selected numeric modifiers, listed retirement-system names, the Fourteenth Amendment,
+et seq. and printed web page noun contexts receive bounded checks and actual citations.
+Quoted bill-local terms, source strikes, uncertain readings, names and tables remain
+protected. Grammar and spelling are separate language-engine checks.
+
+All 1,963 source tests pass with no failures or skips. Fresh read-only replay covers
+11 original PDFs / 2,105 pages / nine amendment results and exact AB 224 Digest ranges;
+nine source guards and four engine/style boundary probes pass. The staged runtime
+smoke confirms actual grammar/style engines, source mapping and cancellation/recovery.
+Package/source hashes and ZIP integrity are checked separately. Native 1.21.10
+workflow/appearance remains unrun; no native pass or office precision/recall is claimed.
+
+All 663 canonical lexical entries are audited, but an audited row is not a fully
+automated rule. Listed forms retain meaning/role limits; range punctuation, other
+quotation provisions, Opinion/Cover-letter contexts and external authorities remain
+incomplete. Complete licensed Merriam-Webster data and deferred drafting attachments
+are unavailable. Further LCB implementation is paused after this publication at the
+user's request. Complete LCB remains the priority before new GPO coverage.
+
+Historical records below retain the scope and policy of their original runs.
+Historical corpus counts are not the current release's finding count or accuracy.
+
+---
+
+Document Compare 1.21.9 — local source-backed style stabilization
+
+The production Stylistic Check now uses explicit LCB/GPO provisions and supported
+source conditions. New coverage is on hold. Findings are human review prompts,
+not declarations of error or legal intent.
+
+1. Unsupported generic noun-phrase, entry-level, unlisted participle/suffix,
+   fuzzy entity/title identity, missing legal-target and inferred cross-clause
+   numerical relationship generators are removed from production routing.
+2. The parser retains 75 exact printed LCB unit-modifier forms with complete
+   direct source-role witnesses. The unlisted data-sharing special case and
+   noun-adjacent/quotation fallback questions are disabled. Prefix joining
+   requires a printed whole form or the explicit ex/self/quasi boundary rule;
+   -ly checks require selected complete adverb/participle/noun constructions.
+   Visible em/en/figure dashes cannot manufacture a compound hyphen.
+3. Shared exceptions preserve bill-local quoted forms (including initial-letter
+   case variation), names, legislative identifiers, literals, tables, strikes,
+   physical word divisions and recognized page heads. Existing guide-conflict
+   exclusions remain. Exact printed capitalization may raise a name component's
+   case, but cannot lower established capital letters inside a protected title.
+4. Retained findings show an actual guide provision/example or a clearly labelled
+   full source-page fallback and a concrete review task. Saved/imported office
+   preferences identify their own source; an office list is not dictionary
+   authority. The optional generic-hyphenation checkbox is removed.
+5. Grammar/spelling retain their independent language checks. The staged worker
+   no longer generates speculative style number/compound families. Actual
+   LanguageTool/spaCy stdin/stdout smoke, UTF-16/cross-page mapping, cancellation,
+   recovery and payload rejection pass; grammar mode is unchanged.
+6. All 1,897 active source tests pass. Historical prototype tests are archived
+   with SHA256 manifests and are not counted as active coverage. The final
+   current-parser replay covers 87 editions/44 bills/4,506 pages: 5,355 historical
+   hyphen findings become 132 retained findings, with 5,223 removed and none added.
+   All 133 original file copies and full source models remain unchanged; 5,355
+   physical selected ranges are verified. The fixed 11-original/2,105-page PDF
+   baseline, nine Digest/instruction results and exact AB224 changed ranges pass.
+
+Counts establish behavior and source integrity, not office accuracy or full-rule
+certification. Native Electron appearance/workflow has not been verified here.
+Historical desktop fixtures are aligned with printed data-processing examples
+and strict style eligibility; fresh PDF.js/staged-runtime checks pass. Native
+desktop execution remains pending. Budget column-gap/font display
+follow-ups, licensed full dictionary data and employee testing remain separate.
+Published GitHub/output baseline remains 1.21.7; this source is local only.
+
+The 1.21.8 optional-question presentation policy is superseded by this source
+eligibility policy. Its JR Box numbered-body positioning correction is retained.
+
+Prior release record:
 Document Compare 1.21.7 release verification
 
 Digest verification still checks the complete uploaded text, but amendment colors

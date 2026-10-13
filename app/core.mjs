@@ -141,7 +141,10 @@ export function makeDocument(pages, name, pageStrikes=[], pageFormatting=[], wor
       f.centered=(Math.abs((f.x+f.right)/2-center)<width*.015||Math.abs((f.x+f.right)/2-f.pageWidth/2)<f.pageWidth*.01)&&(f.right-f.x<width*.97||f.runs.some(r=>r.bold||r.smallCaps));
     }
     if(f.headerGaps?.length||b.ignored){
-      const gaps=f.headerGaps||[],cuts=[0,...gaps.flatMap(g=>[g.start,g.end]),b.text.length].sort((a,b)=>a-b);
+      // A JR notice is still a numbered source row. Its line label and
+      // number are rendered in the gutter, not in its positioned body.
+      const contentStart=b.jrBox?b.margin.length:0;
+      const gaps=f.headerGaps||[],cuts=[contentStart,...gaps.flatMap(g=>[g.start,g.end]).filter(at=>at>=contentStart),b.text.length].sort((a,b)=>a-b);
       f.headerParts=[];
       for(let i=0;i<cuts.length-1;i++){
         const start=cuts[i],end=cuts[i+1];
@@ -149,7 +152,7 @@ export function makeDocument(pages, name, pageStrikes=[], pageFormatting=[], wor
         const runs=f.runs.filter(r=>!r.space&&r.start<end&&r.end>start);if(!runs.length)continue;
         const left=runs[0].x,right=runs.at(-1).x+runs.at(-1).width,width=c.right-c.left;
         const center=(left+right)/2;
-        const anchor=Math.abs(center-(c.left+c.right)/2)<width*.03?'center':Math.abs(right-c.right)<width*.03?'right':'left';
+        const anchor=b.jrBox?'left':Math.abs(center-(c.left+c.right)/2)<width*.03?'center':Math.abs(right-c.right)<width*.03?'right':'left';
         f.headerParts.push({start,end,anchor,position:anchor==='center'?(center-c.left)/width:anchor==='right'?(c.right-right)/width:(left-c.left)/width});
       }
     }

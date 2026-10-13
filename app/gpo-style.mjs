@@ -1,7 +1,6 @@
-import {LY_ADVERBS} from './ly-adverbs.mjs';
 import {threePointCompassCandidates,threePointCompassIssues} from './style-compass-directions.mjs';
 import {styleEvidenceGuard} from './style-evidence.mjs';
-import {multiAdverbCandidates,multiAdverbHead} from './style-multi-adverb-modifiers.mjs';
+import {multiAdverbCandidates,multiAdverbHead,lyModifierCandidates,lyModifierHead} from './style-multi-adverb-modifiers.mjs';
 // Explicit close variants of GPO forms; no arbitrary near-word substitutions.
 // Suggestions are advisory: a phrase can have a legitimate contextual exception.
 export const STYLE_RULES = [
@@ -103,12 +102,13 @@ export function stylisticIssues(doc,reference,rules=STYLE_RULES,{dynamic=true}={
   }
   if(dynamic){
   // Restrict -ly checks to actual adverbs, excluding family-, early-, etc.
-  const adverbs=LY_ADVERBS.join('|'),adverbQuotes=[...searchable.matchAll(/“[^”]*”|"[^"\n]*"/g)].map(m=>({start:m.index,end:m.index+m[0].length}));
+  const adverbQuotes=[...searchable.matchAll(/“[^”]*”|"[^"\n]*"/g)].map(m=>({start:m.index,end:m.index+m[0].length}));
+  const bodyDash=match=>[...doc.text.slice(match.index,match.index+match[0].length)].some((c,n)=>/[\u2012-\u2015]/u.test(c)&&/\S/u.test(searchable[match.index+n]));
   const multiAdverbs=multiAdverbCandidates(searchable),owners=[...multiAdverbs,...multiAdverbCandidates(doc.text.replace(/[\u2010-\u2015]/g,'-'))];
-  for(const match of multiAdverbs){const head=multiAdverbHead(match,searchable);if(head)add(match,{rule:'6.20',category:'Modifier hyphenation',message:'LCB8 item3 and GPO6.20 omit hyphens in this selected three-word modifier with two adverbs. Confirm the ordinary noun role.'},head.suggestion,head.end);}
+  for(const match of multiAdverbs){if(bodyDash(match))continue;const head=multiAdverbHead(match,searchable);if(head)add(match,{rule:'6.20',category:'Modifier hyphenation',message:'LCB8 item3 and GPO6.20 omit hyphens in this selected three-word modifier with two adverbs. Confirm the ordinary noun role.'},head.suggestion,head.end);}
   // Even an uncertain whole role must not fall back to a misleading correction
   // of its first two words. Original candidates also own masked fragments.
-  for(const match of searchable.matchAll(new RegExp(`\\b(?:${adverbs})-[a-z]+\\b`,'gi')))if(!owners.some(m=>m.index<=match.index&&m.index+m[0].length>=match.index+match[0].length)&&!adverbQuotes.some(r=>r.start<match.index+match[0].length&&r.end>match.index))add(match,{rule:'6.20',category:'Modifier hyphenation',message:'GPO omits the hyphen after an adverb ending in -ly.'},match[0].replace('-',' '));
+  for(const match of lyModifierCandidates(searchable))if(!bodyDash(match)&&!owners.some(m=>m.index<=match.index&&m.index+m[0].length>=match.index+match[0].length)&&!adverbQuotes.some(r=>r.start<match.index+match[0].length&&r.end>match.index)){const head=lyModifierHead(match,searchable);if(head)add(match,{rule:'6.20',category:'Modifier hyphenation',message:'LCB and GPO omit the hyphen in this selected -ly adverb and participle construction before its complete noun. Confirm the adjective meaning in context.'},head.suggestion,head.end);}
   // A spelled-out compound number retains its words; only the missing hyphen is suggested.
   for(const match of searchable.matchAll(/\b(?:twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety)\s+(?:one|two|three|four|five|six|seven|eight|nine)\b/gi))add(match,{rule:'6.36',category:'Numerical compounding',message:'GPO hyphenates the elements of spelled-out compound numbers from twenty-one through ninety-nine.'},fold(match[0]).replace(' ','-'));
   // Only compare the specific unit-modifier phrases illustrated by GPO, retaining noun context.

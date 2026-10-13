@@ -1,29 +1,30 @@
 {
   "date": "2026-10-13",
-  "packagedVersion": "1.21.7",
+  "packagedVersion": "1.21.10",
   "localFollowOn": false,
   "documentReview": "Offline",
-  "githubPushed": false,
+  "githubPushed": true,
   "wholeRuleCertification": false,
   "inventory": {
     "Reference priority": 5,
-    "Partially automated": 834,
-    "Manual review required": 1,
+    "Partially automated": 830,
+    "Manual review required": 5,
     "Excluded guide conflict": 14
   },
   "canonicalLexical": {
     "total": 663,
-    "partial": 651,
-    "manual": 0,
+    "partial": 647,
+    "manual": 4,
     "conflictExcluded": 12
   },
   "pending": [
-    "Native desktop verification of 1.21.7 is unavailable in the execution environment; 1.21.5 remains the last native-verified release.",
-    "Broader contextual LCB/GPO methods and manual review of opinions/cover letters; partial methods are not complete rule automation.",
-    "Complete licensed offline Merriam-Webster authority with first-spelling ordering.",
-    "Additional AB 109/SB 879 drafting material; genuine differences remain flagged.",
-    "Independent exhaustive human-annotated office benchmark; controlled fixed annotations and source witnesses are now implemented.",
-    "Source-confirmed budget display fixes: preserve large amount-column gaps and ordinary run font sizes independently of larger margin labels."
+    "Native desktop workflow/appearance verification of 1.21.10 remains unrun.",
+    "Remaining bounded LCB implementation is paused after publication at user request; complete LCB before new GPO coverage.",
+    "Inclusive reference ranges, Digest fractional-percent notation, other quotation provisions and Opinion/Cover-letter contexts remain incomplete.",
+    "Complete licensed offline Merriam-Webster authority.",
+    "Additional AB 109/SB 879 drafting material, deferred at user request.",
+    "Independent employee/office benchmark when available.",
+    "Source-confirmed budget column-gap/font display follow-ups."
   ],
   "note": "Partial coverage means a selected contextual check exists. It does not certify all usages, measured detection accuracy, or complete automatic coverage.",
   "dictionaryAuthority": {
@@ -1344,7 +1345,7 @@
     "previousNativeStages": 20,
     "sourcePdfsEdited": false
   },
-  "localVersion": "1.21.7",
+  "localVersion": "1.21.8",
   "lcbNearCompletionFollowOn": {
     "localVersion": "1.21.6",
     "packaged": true,
@@ -1512,8 +1513,8 @@
   },
   "nativeWorkflow": "not-run-execution-environment-unavailable",
   "nativeWorkflowSkippedByUser": false,
-  "localSourceVersion": "1.21.7",
-  "localFollowOnScope": "Digest word-level deltas, bill-local quoted-term authority, JR Box notices, source font/heading fixes, bounded LCB source/meaning/percentage/calendar extensions and completed all-87-edition hyphenation audit.",
+  "localSourceVersion": "1.21.10",
+  "localFollowOnScope": "Release: explicit legislative guide stabilization, LCB priority, selected printed forms, simplified Digest outlines and shared optional-upload removal.",
   "quotedTermPolicy": {
     "source": "Active Current Version, including digest and heading",
     "initialCapitalizationDifferences": true,
@@ -1523,27 +1524,69 @@
     "scope": "Style preferences within matching complete quoted-term occurrences are suppressed. Clause-boundary punctuation and surrounding wording remain independently checked."
   },
   "localSourceChecks": {
-    "tests": 2107,
-    "passed": 2107,
+    "tests": 1963,
+    "passed": 1963,
     "failed": 0,
-    "parserPrecisionTests": 14,
-    "nativeDesktop": "not run; existing execution environment cannot start Electron",
-    "publishedBaseline": "1.21.6"
+    "parserPrecisionTests": 22,
+    "stagedRuntimeSmoke": "passed; four grammar corrections, exact printed style positives, eight quiet controls, UTF-16/cross-page selection, cancellation/recovery and invalid payload",
+    "nativeDesktop": "not run; Electron startup unavailable in this execution environment",
+    "publishedBaseline": "1.21.7"
   },
   "allAvailableBillHyphenationAudit": {
     "documents": 87,
     "bills": 44,
     "pages": 4506,
-    "hyphenBefore": 6620,
-    "hyphenAfter": 5355,
-    "removed": 1266,
-    "added": 1,
-    "selectedRangesVerified": 6622,
+    "hyphenBefore": 5355,
+    "hyphenAfter": 132,
+    "removed": 5223,
+    "added": 0,
+    "selectedRangesVerified": 5355,
     "physicalFileCopiesVerified": 133,
     "allPhysicalPdfsUnchanged": true,
     "allSourceModelsUnchanged": true,
     "officeAccuracyMeasured": false,
     "nativeDesktopVerified": false,
-    "limitation": "Remaining general questions need judgment; strict generic attachment can omit plausible unproven questions. No whole-rule certification."
-  }
+    "limitation": "Fresh current 75-form parser candidates on immutable trained syntax and unchanged actual PDF models; counts do not measure office precision/recall or certify complete rules.",
+    "historicalVersion": "1.21.9 stabilization baseline; not current 1.21.10 finding counts"
+  },
+  "stabilization": {
+    "furtherRuleExpansion": "paused after publication at user request",
+    "policy": "explicit guide and established source condition; no optional speculative mode",
+    "retainedHyphenFindings": 132,
+    "unsupportedHyphenFindingsRetired": 5223,
+    "editionsReplayed": 87,
+    "nativeDesktopVerified": false,
+    "officeAccuracyMeasured": false,
+    "prototypeTestsArchived": true,
+    "fixedPdfBaseline": {
+      "originals": 11,
+      "pages": 2105,
+      "digestInstructionResults": 9,
+      "sourceAndGeometryUnchanged": true
+    },
+    "guideEvidence": "Actual provision/example or labelled source-page fallback; office preference provenance distinct",
+    "quotedTerms": "Bill local; exact interior spelling/case/punctuation with authorized initial-letter case variation; no cross-bill authority",
+    "historicalHyphenCountsVersion": "1.21.9"
+  },
+  "sourceVersion": "1.21.10",
+  "guidePriority": {
+    "primary": "LCB",
+    "scope": "Applicable explicit printed forms in supported contexts; compliant LCB stays quiet; unknown roles remain manual."
+  },
+  "currentReleaseValidation": {
+    "version": "1.21.10",
+    "tests": 1963,
+    "passed": 1963,
+    "failed": 0,
+    "pdfOriginals": 11,
+    "pdfPages": 2105,
+    "amendmentResults": 9,
+    "digestDeltaUnchanged": true,
+    "nativeDesktopVerified": false,
+    "officeAccuracyMeasured": false,
+    "lexicalRowsAudited": 663,
+    "wholeRuleCertification": false
+  },
+  "inventoryHistoricalVersion": "1.21.7",
+  "canonicalLexicalHistoricalVersion": "1.21.7"
 }

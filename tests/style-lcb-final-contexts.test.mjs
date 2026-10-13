@@ -16,14 +16,14 @@ test('the last contextual mappings preserve quotes, strikeouts and exact offsets
   const quoted=r.bad.replace(found.text,'“'+found.text+'”');assert.equal(check(quoted).filter(i=>i.suggestion===r.suggestion).length,0,quoted);
  }
 });
-test('scoped guide conflicts do not hide independent errors or invent coverage',()=>{
- for(const t of ['The Central Valley of California is described.','The central valley of California is described.','California’s Central Valley is described.','See Subchapter 2 of the California Code of Regulations.','See subchapter 2 of the Code of Federal Regulations.','During the 2025-26 Regular Session of the Legislature.','During the 2025-26 regular session of the Legislature.','The quarter horse race is held.','The quarter horserace is held.'])assert.equal(check(t).length,0,t);
- const found=check('The Central Valley of California has 3 public members.');assert.deepEqual(found.map(i=>i.suggestion),['three']);
- const rows=styleRuleInventory(refs);for(const text of ['horse race (all forms)','quarter horse race','central valley','Subchapter (with number, Cal. Code Regs. and federal usages)','Regular Session of the Legislature (with year)'])assert.equal(rows.find(r=>r.text===text).status,'Excluded guide conflict',text);
- // Canonical entries have selected checks or explicit conflict treatment;
+test('supported printed LCB choices take priority without hiding independent errors or inventing full coverage',()=>{
+ for(const [t,preferred]of [['The Central Valley of California is described.','central valley'],['California’s Central Valley is described.','central valley'],['See subchapter 2 of the Code of Federal Regulations.','Subchapter'],['During the 2025-26 regular session of the Legislature.','Regular Session'],['The quarter horserace is held.','horse race']])assert.deepEqual(check(t).map(i=>i.suggestion),[preferred],t);for(const t of ['The central valley of California is described.','See Subchapter 2 of the California Code of Regulations.','During the 2025-26 Regular Session of the Legislature.','The quarter horse race is held.'])assert.equal(check(t).length,0,t);
+ const found=check('The Central Valley of California has 3 public members.');assert.deepEqual(found.map(i=>i.suggestion),['central valley','three']);
+ const rows=styleRuleInventory(refs);for(const text of ['horse race (all forms)','quarter horse race','central valley','Subchapter (with number, Cal. Code Regs. and federal usages)','Regular Session of the Legislature (with year)'])assert.equal(rows.find(r=>r.text===text).status,'Partially automated',text);
+ // Canonical entries expose manual prefix gaps alongside selected checks/conflicts;
  // The supplied entity snapshot is available; the distinct opinions and
  // cover-letter workflow remains explicitly unsupported by bill checks.
- assert.equal(rows.filter(r=>r.id.startsWith('lcb-entry-')&&r.status==='Manual review required').length,0);
- assert.deepEqual(rows.filter(r=>r.guide==='lcb'&&r.status==='Manual review required').map(r=>r.id),['lcb-21-opinions-and-cover-letters-source']);
+ assert.equal(rows.filter(r=>r.id.startsWith('lcb-entry-')&&r.status==='Manual review required').length,4);
+ assert.deepEqual(rows.filter(r=>r.guide==='lcb'&&r.status==='Manual review required').map(r=>r.id),['lcb-21-opinions-and-cover-letters-source','lcb-entry-9-bi-all-one-word','lcb-entry-11-in-as-a-prefix-generally-one-word','lcb-entry-12-multi-all-uses-one-word','lcb-entry-12-non-as-a-prefix-generally-one-word']);
  assert.ok(!rows.some(r=>r.guide==='lcb'&&r.status==='Fully automated'));
 });

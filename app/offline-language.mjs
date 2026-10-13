@@ -1,16 +1,10 @@
-import {MIXED_COUNT_LIST_RULE,mapMixedCountList}from './style-mixed-count-lists.mjs';
-import {COORDINATED_NUMBER_RELATION_RULE,mapCoordinatedNumberRelation}from './style-coordinated-number-relations.mjs';
-import {POSTNOMINAL_COMPOUND_RULE,mapPostnominalCompound}from './style-postnominal-compounds.mjs';
-import {PARSED_PREDICATE_COMPOUND_RULE,mapPredicateCompound}from './style-parsed-predicate-compounds.mjs';
-import {mapIntactRelativePredicate}from './style-relative-predicate-witness.mjs';
-import {mapNounSequenceEvidence,isNounPrefixReview}from './offline-noun-sequences.mjs';
+import {validateListedModifierWitness} from './offline-style.mjs';
 import {styleWordDivisionView} from './style-word-divisions.mjs';
 import {styleContext} from './style-context.mjs';
 import {styleEvidenceGuard,cutsOriginalStyleWord} from './style-evidence.mjs';
 import {sourceNameRanges} from './style-source-names.mjs';
-import {OFFLINE_MODIFIERS,GENERAL_MODIFIER_REVIEW_RULE}from './offline-rules.mjs';
+import {OFFLINE_MODIFIERS}from './offline-rules.mjs';
 import {openIncomeQualifierBefore}from './style-income-qualifiers.mjs';
-import {PARSED_NUMBER_RELATION_RULE,mapParsedNumberRelation}from './style-parsed-number-relations.mjs';
 import {inStatePrepositionalEvidence}from './style-in-state-evidence.mjs';
 import {nonNominalModifierHeadEvidence}from './style-modifier-head-evidence.mjs';
 export function listedModifierSelection(rule,text){
@@ -28,7 +22,6 @@ export function listedModifierSelection(rule,text){
  return /^[A-Z]/u.test(words[0])?rule.preferred[0].toUpperCase()+rule.preferred.slice(1):rule.preferred;
 }
 const lowerNominalWord="[\\p{Ll}][\\p{Ll}\\p{M}\\p{N}'’]*",acronymWord='[A-Z]{2,}s?',nominalWord='(?:'+lowerNominalWord+'|'+acronymWord+')',nominalGap=new RegExp('^\\s+(?:'+nominalWord+'(?:-'+nominalWord+')*\\s+)*$','u'),nominalHead=new RegExp('^(?:'+lowerNominalWord+'|'+acronymWord+')$','u');
-function lexicalHyphenBefore(text,start){let at=start-1;while(at>=0&&/\s/u.test(text[at]))at--;if(at<0||!/[\u2010-\u2015-]/u.test(text[at]))return false;at--;while(at>=0&&/\s/u.test(text[at]))at--;return at>=0&&/\p{L}/u.test(text[at]);}
 // Analysis text is a separate view. Neither PDF display nor comparison text
 // is changed. Every reported UTF-16 offset must map back to original evidence.
 export function prepareOfflineLanguage(doc){
@@ -72,27 +65,16 @@ export function prepareOfflineLanguage(doc){
  return {text,chunks,range};
 }
 export function mapOfflineIssues(doc,plan,raw,kind){
- const ctx=styleContext(doc),blocked=styleEvidenceGuard(doc,ctx),withoutLiteralBlock=styleEvidenceGuard(doc,{...ctx,literalAt:()=>false}),names=sourceNameRanges(ctx.source),singles=[...ctx.source.matchAll(/(?<![\p{L}\p{N}\p{M}_])(?:‘[^’]*’|'[^']*')/gu)].map(m=>({start:m.index,end:m.index+m[0].length})),out=[];
+ const ctx=styleContext(doc),blocked=styleEvidenceGuard(doc,ctx),names=sourceNameRanges(ctx.source),singles=[...ctx.source.matchAll(/(?<![\p{L}\p{N}\p{M}_])(?:‘[^’]*’|'[^']*')/gu)].map(m=>({start:m.index,end:m.index+m[0].length})),out=[];
  for(const issue of raw||[]){
+  if(!['grammar','style'].includes(kind)||kind==='style'&&!OFFLINE_MODIFIERS.some(r=>r.engineRule===issue.engineRule))continue;
   const selected=plan.range(issue.start,issue.end),evidence=plan.range(issue.evidenceStart,issue.evidenceEnd);
   if(!selected||!evidence||!plan.text.slice(issue.start,issue.end).trim()||selected.start<evidence.start||selected.end>evidence.end||/[\uD800-\uDFFF]/u.test(ctx.source.slice(evidence.start,evidence.end))||cutsOriginalStyleWord(doc,selected.start)||cutsOriginalStyleWord(doc,selected.end)||ctx.at(selected.start)==='Heading'||names.some(r=>r.start<selected.end&&r.end>selected.start))continue;
   const quotedEvidence=blocked(evidence.start,evidence.end)||singles.some(r=>r.start<evidence.end&&r.end>evidence.start);
-  // Unrelated quoted labels do not hide an intact unquoted modifier. Keep
-  // every other complete-sentence safeguard and downgrade this path to
-  // reader review because masked quotation text can affect the parse.
-  if(quotedEvidence&&(kind==='grammar'||withoutLiteralBlock(evidence.start,evidence.end))){
-   if(kind==='style'&&issue.engineRule===PARSED_PREDICATE_COMPOUND_RULE){const mapped=mapIntactRelativePredicate(doc,plan,issue,selected,evidence,ctx);if(mapped)out.push(mapped);}continue;
-  }
-  if(kind==='style'&&issue.engineRule===PARSED_NUMBER_RELATION_RULE){
-   if(quotedEvidence)continue;
-   const mapped=mapParsedNumberRelation(doc,plan,issue,selected,evidence);if(mapped)out.push(mapped);continue;
-  }
-  if(kind==='style'&&issue.engineRule===COORDINATED_NUMBER_RELATION_RULE){if(!quotedEvidence){const mapped=mapCoordinatedNumberRelation(doc,plan,issue,selected,evidence);if(mapped)out.push(mapped);}continue;}
-  if(kind==='style'&&issue.engineRule===MIXED_COUNT_LIST_RULE){if(!quotedEvidence){const mapped=mapMixedCountList(doc,plan,issue,selected,evidence);if(mapped)out.push(mapped);}continue;}
-  if(kind==='style'&&issue.engineRule===PARSED_PREDICATE_COMPOUND_RULE){const mapped=mapPredicateCompound(doc,plan,issue,selected,evidence);if(mapped)out.push(mapped);continue;}
-  if(kind==='style'&&issue.engineRule===POSTNOMINAL_COMPOUND_RULE){if(!quotedEvidence){const mapped=mapPostnominalCompound(doc,plan,issue,selected,evidence);if(mapped)out.push(mapped);}continue;}
-  const generalReview=kind==='style'&&issue.engineRule===GENERAL_MODIFIER_REVIEW_RULE&&issue.reviewSuggested===true&&issue.suggestion===null&&['open-modifier','ly-hyphen','noun-sequence','qualified-noun-prefix'].includes(issue.reviewVariant);
-  if(!generalReview&&(typeof issue.suggestion!=='string'||!issue.suggestion.trim()))continue;
+  // Uncertain full sentence evidence cannot establish an applicable style
+  // condition. No adjacent-noun or quotation fallback manufactures a flag.
+  if(quotedEvidence)continue;
+  if(typeof issue.suggestion!=='string'||!issue.suggestion.trim())continue;
   if(kind==='grammar'){
    if(!['AGREEMENT_SENT_START','APOS_ARE','FEWER_LESS','SPACY_REQUIRED_INFINITIVE_REVIEW'].includes(issue.engineRule))continue;
    if(issue.engineRule==='SPACY_REQUIRED_INFINITIVE_REVIEW'){
@@ -110,18 +92,19 @@ export function mapOfflineIssues(doc,plan,raw,kind){
   }else{
    const head=plan.range(issue.headStart,issue.headEnd);
    const rule=OFFLINE_MODIFIERS.find(r=>r.engineRule===issue.engineRule);
-   const matchText=plan.text.slice(issue.start,issue.end),suggestion=generalReview?null:rule&&listedModifierSelection(rule,matchText);
-   const genericLexical=generalReview&&(isNounPrefixReview(issue)?/^(?:\p{Lu}?\p{Ll}+|\p{Ll}+)(?:\s+\p{Ll}+)+$/u.test(matchText):issue.reviewVariant==='open-modifier'?/^(?:\p{Lu}?\p{Ll}+|\p{Ll}+)\s+\p{Ll}+$/u.test(matchText):/^\p{Ll}+ly\s*-\s*\p{Ll}+$/u.test(matchText));
-   const nounRoleEvidence=isNounPrefixReview(issue)?mapNounSequenceEvidence(doc,plan,issue):null;if(isNounPrefixReview(issue)&&!nounRoleEvidence)continue;
-   if(generalReview&&lexicalHyphenBefore(doc.text,selected.start))continue;
-   if(!(generalReview?genericLexical:suggestion)||!head||head.start<selected.end||head.end>evidence.end||!nominalGap.test(plan.text.slice(issue.end,issue.headStart))||!nominalHead.test(issue.head)||plan.text.slice(issue.headStart,issue.headEnd)!==issue.head||blocked(selected.start,head.end)||singles.some(r=>r.start<head.end&&r.end>selected.start))continue;
+   const role=validateListedModifierWitness(plan,issue,rule);if(!role)continue;
+   const matchText=plan.text.slice(issue.start,issue.end),suggestion=listedModifierSelection(rule,matchText);
+   if(!suggestion||!head||head.start<selected.end||head.end>evidence.end||!nominalGap.test(plan.text.slice(issue.end,issue.headStart))||!nominalHead.test(issue.head)||plan.text.slice(issue.headStart,issue.headEnd)!==issue.head||blocked(selected.start,head.end)||singles.some(r=>r.start<head.end&&r.end>selected.start))continue;
    if(rule?.preferred==='low-income'&&openIncomeQualifierBefore(plan.text,issue.start))continue;
    if(rule?.engineRule==='LCB_IN_STATE_MODIFIER'&&inStatePrepositionalEvidence(doc,ctx,selected.start,selected.end,head.end))continue;
    if(nonNominalModifierHeadEvidence(doc,ctx,head))continue;
    // styleSource normalizes dash glyphs for existing rules. A body em/en dash
    // must not become a missing component hyphen; identified heads stay masked.
    if([...doc.text.slice(selected.start,selected.end).matchAll(/[\u2012-\u2015]/gu)].some(m=>ctx.source[selected.start+m.index]==='-'))continue;
-   out.push({...selected,text:doc.text.slice(selected.start,selected.end),matchText,suggestion,evidenceStart:evidence.start,evidenceEnd:evidence.end,engine:'spaCy',engineRule:issue.engineRule,head:issue.head,reviewSuggested:quotedEvidence||issue.reviewSuggested===true,...(generalReview?{reviewVariant:issue.reviewVariant,reviewKind:'general-unit-modifier',...(nounRoleEvidence?{nounRoleEvidence}:{})}:{}),attachmentMethod:quotedEvidence?'local-quote-review':generalReview?'general-role-review':issue.reviewSuggested===true?'noun-adjacent-review':'direct'});
+   const mapRole=r=>{const span=plan.range(r.start,r.end),parent=plan.range(r.headStart,r.headEnd);return span&&parent?{...r,...span,headStart:parent.start,headEnd:parent.end,sourceText:doc.text.slice(span.start,span.end)}:null;};
+   const components=role.components.map(mapRole),mappedHead=mapRole(role.head),predicate=mapRole(role.predicate),auxiliaries=role.predicate.finiteAuxiliaries.map(mapRole);
+   if(components.some(r=>!r)||!mappedHead||!predicate||auxiliaries.some(r=>!r))continue;
+   out.push({...selected,text:doc.text.slice(selected.start,selected.end),matchText,suggestion,evidenceStart:evidence.start,evidenceEnd:evidence.end,engine:'spaCy',engineRule:issue.engineRule,head:issue.head,reviewSuggested:false,attachmentMethod:'direct',modifierRoleEvidence:{kind:role.kind,components,head:mappedHead,predicate:{...predicate,finiteAuxiliaries:auxiliaries}}});
   }
  }
  return out;

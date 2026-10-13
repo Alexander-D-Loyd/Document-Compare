@@ -20,11 +20,11 @@ test('desktop reader review integrates unfamiliar whole lists without changing p
  assert.equal(JSON.stringify(doc),saved);
  assert.ok(CHECK_COVERAGE.some(c=>c.title==='Unfamiliar series punctuation'&&c.page===6&&c.text.includes('reader-review')));
 });
-test('desktop entity identity review preserves the complete local registry witness',()=>{
- const doc=makeDocument(['The State Board of the Education shall administer the program.'],'Current');
- assert.equal(jointStylisticIssues(doc,refs).filter(i=>i.checkId==='lcb-entity-identity-review').length,0);
- const found=jointStylisticIssues(doc,refs,{includeReviewSuggestions:true}).filter(i=>i.checkId==='lcb-entity-identity-review');
- assert.equal(found.length,1);assert.equal(found[0].text,'State Board of the Education');assert.equal(found[0].suggestion,null);assert.ok(found[0].entityMatches.some(m=>m.name==='State Board of Education'&&m.citation));
+test('fuzzy entity identity remains quiet while exact registry capitalization is retained',()=>{
+ const doc=makeDocument(['The State Board of the Education shall administer the program.'],'Current'),saved=JSON.stringify(doc);
+ for(const includeReviewSuggestions of [false,true])assert.equal(jointStylisticIssues(doc,refs,{includeReviewSuggestions}).filter(i=>i.checkId==='lcb-entity-identity-review').length,0);
+ assert.equal(JSON.stringify(doc),saved);
+ assert.ok(jointStylisticIssues(makeDocument(['The state board of education shall administer the program.'],'Current'),refs).some(i=>i.suggestion==='State Board of Education'));
 });
 test('source-created title guard prevents a generic prefix spelling change and offers full-title review',()=>{
  const doc=makeDocument(['The Medi-Cal anti-fraud special deposit fund is hereby created in the State Treasury.'],'Current');
@@ -33,12 +33,11 @@ test('source-created title guard prevents a generic prefix spelling change and o
   const titles=found.filter(i=>i.checkId==='lcb-created-official-title-review');assert.equal(titles.length,Number(includeReviewSuggestions));if(titles.length){assert.equal(titles[0].text,'Medi-Cal anti-fraud special deposit fund');assert.equal(titles[0].suggestion,null);}
  }
 });
-test('suffix review preserves a whole divided compound and remains reader-only',()=>{
+test('unlisted suffix segmentation stays quiet without changing divided source text',()=>{
  const doc=makeDocument(['The applicant receives citi-\nzen-ship-based assistance.'],'Current',[],[],words),saved=JSON.stringify(doc);
  assert.equal(jointStylisticIssues(doc,refs).filter(i=>i.checkId==='lcb-suffix-boundary-review').length,0);
  const found=jointStylisticIssues(doc,refs,{includeReviewSuggestions:true}).filter(i=>i.checkId==='lcb-suffix-boundary-review');
- assert.equal(found.length,1);assert.equal(found[0].text,'citi-\nzen-ship-based');assert.equal(found[0].suggestion,null);assert.equal(found[0].reviewSuggested,true);
- assert.deepEqual(found[0].references.map(r=>r.guideId),['lcb','gpo']);assert.equal(JSON.stringify(doc),saved);
+ assert.equal(found.length,0);assert.equal(JSON.stringify(doc),saved);assert.ok(doc.text.includes('citi-\nzen-ship-based'));
  const divided=makeDocument(['The applicant receives citizen-\nship assistance.'],'Current',[],[],words);
  assert.equal(jointStylisticIssues(divided,refs,{includeReviewSuggestions:true}).filter(i=>i.checkId==='lcb-suffix-boundary-review').length,0);
  assert.ok(CHECK_COVERAGE.some(c=>c.title==='Selected suffix boundaries'&&c.page===8));
@@ -85,26 +84,27 @@ test('later source-created titles protect listed spelling while preserving indep
  }
  const onlyCase=jointStylisticIssues(makeDocument([creation+'Money shall be deposited in the medi-cal Anti-Fraud Special Deposit Fund.'],'Current'),refs,{includeReviewSuggestions:true});assert.ok(onlyCase.some(i=>i.suggestion==='Medi-Cal'));assert.ok(!onlyCase.some(i=>i.checkId==='lcb-created-title-reference-review'));
 });
-test('internal title identity review detects a valid-word substitution with complete original source provenance',()=>{
+test('valid-word near-title substitutions remain quiet and preserve original source text',()=>{
  for(const text of ['The Community Transportation Rebate Fund is hereby created in the State Treasury. Money shall be deposited in the Community Transportation Relate Fund.','The Elig-\nible applicant shall apply. The Community Transpor-\ntation Rebate Fund is hereby created in the State Treasury. Money shall be deposited in the Community Transpor-\ntation Rel-\nate Fund.']){
   const doc=makeDocument([text],'Current',[],[],words),saved=JSON.stringify(doc);assert.equal(jointStylisticIssues(doc,refs).filter(i=>i.checkId==='lcb-created-title-identity-review').length,0);
-  const found=jointStylisticIssues(doc,refs,{includeReviewSuggestions:true}).filter(i=>i.checkId==='lcb-created-title-identity-review');assert.equal(found.length,1,text);const i=found[0],w=i.titleWitness,c=i.titleIdentityEvidence;
-  assert.equal(i.suggestion,null);assert.equal(i.reviewSuggested,true);assert.equal(doc.text.slice(i.start,i.end),i.text);assert.equal(w.name,'Community Transportation Rebate Fund');assert.equal(doc.text.slice(w.start,w.end),w.text);assert.equal(doc.text.slice(w.evidenceStart,w.evidenceEnd),w.declarationText);assert.equal(c.canonical,'Rebate');assert.equal(c.actual,'Relate');assert.equal(doc.text.slice(c.start,c.end).replace(/-\s*\n\s*/g,''),'Relate');assert.equal(c.sourceText,doc.text.slice(c.start,c.end));assert.equal(JSON.stringify(doc),saved);
+  const found=jointStylisticIssues(doc,refs,{includeReviewSuggestions:true}).filter(i=>i.checkId==='lcb-created-title-identity-review');assert.equal(found.length,0,text);assert.equal(JSON.stringify(doc),saved);
+  for(const w of doc.wrappedWords.filter(w=>w.recognized))assert.equal(w.spans.map(s=>doc.text.slice(s.start,s.end)).join(''),w.word);
  }
- assert.ok(CHECK_COVERAGE.some(c=>c.title==='Near-matching source-created fund and account titles'&&c.page===17&&c.status==='Contextual title identity review'));
+ assert.ok(CHECK_COVERAGE.some(c=>c.title==='Near-matching source-created fund and account titles'&&c.page===17));
 });
 test('near-title identity uncertainty preserves an unchanged source-established hyphen without altering the typo',()=>{
  for(const includeReviewSuggestions of [false,true]){
   const doc=makeDocument(['The Medi-Cal Anti-Fraud Special Deposit Fund is hereby created in the State Treasury. Money shall be deposited in the Medi-Cal anti-fraud Special Depostt Fund.'],'Current'),saved=JSON.stringify(doc),found=jointStylisticIssues(doc,refs,{includeReviewSuggestions});
-  assert.ok(!found.some(i=>i.checkId==='lcb-prefixes'&&i.suggestion==='antifraud'));const identity=found.filter(i=>i.checkId==='lcb-created-title-identity-review');assert.equal(identity.length,Number(includeReviewSuggestions));if(identity.length){assert.equal(identity[0].suggestion,null);assert.equal(identity[0].text,'Medi-Cal anti-fraud Special Depostt Fund');assert.equal(identity[0].titleIdentityEvidence.sourceText,'Depostt');}assert.equal(JSON.stringify(doc),saved);
+  assert.ok(!found.some(i=>i.checkId==='lcb-prefixes'&&i.suggestion==='antifraud'));assert.equal(found.filter(i=>i.checkId==='lcb-created-title-identity-review').length,0);assert.ok(doc.text.includes('anti-fraud Special Depostt Fund'));assert.equal(JSON.stringify(doc),saved);
  }
- const ordinary=jointStylisticIssues(makeDocument(['An anti-fraud program shall provide assistance.'],'Current'),refs);assert.ok(ordinary.some(i=>i.checkId==='lcb-prefixes'&&i.suggestion==='antifraud'));
+ const ordinary=jointStylisticIssues(makeDocument(['A self employed person shall provide assistance.'],'Current'),refs);assert.ok(ordinary.some(i=>i.suggestion==='self-employed'));
 });
 
 test('title provenance retains grammatical hyphens in creation and later references after body word divisions',()=>{
  const source='An Elig-\nible applicant shall apply. The Medi-Cal Anti-\nFraud Special Deposit Fund is hereby created in the State Treasury. Money shall be deposited in the medi-cal anti-\nfraud special Deposit Fund. Money shall be deposited in the Medi-Cal anti-\nfraud Special Depostt Fund.';
  const doc=makeDocument([source],'Current',[],[],words),saved=JSON.stringify(doc),findings=jointStylisticIssues(doc,refs,{includeReviewSuggestions:true});
- for(const checkId of ['lcb-created-title-reference-review','lcb-created-title-identity-review']){
+ assert.equal(findings.filter(i=>i.checkId==='lcb-created-title-identity-review').length,0);
+ for(const checkId of ['lcb-created-title-reference-review']){
   const items=findings.filter(i=>i.checkId===checkId);assert.equal(items.length,1,checkId);const i=items[0],w=i.titleWitness;
   assert.equal(w.name,'Medi-Cal Anti-Fraud Special Deposit Fund');assert.equal(doc.text.slice(w.start,w.end),w.text);assert.equal(doc.text.slice(w.evidenceStart,w.evidenceEnd),w.declarationText);assert.ok(w.text.includes('Anti-\nFraud'));assert.equal(doc.text.slice(i.start,i.end),i.text);assert.ok(i.text.includes('anti-\nfraud'));assert.equal(i.suggestion,null);
   for(const c of i.titleCaseEvidence||[])assert.equal(doc.text.slice(c.start,c.end).replace(/-\s*\n\s*/g,'-'),c.actual);

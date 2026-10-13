@@ -7,7 +7,14 @@ const participles='preserved owned funded operated trained approved licensed reg
 const separator='(?:\\s*-\\s*|\\s+)';
 const pattern=new RegExp('(?<![\\p{L}\\p{N}\\p{M}_])('+adverb+')'+separator+'('+adverb+'|well)'+separator+'('+participles+')(?![\\p{L}\\p{N}\\p{M}_])','giu');
 // The additional heads are exact GPO6.20 example nouns, not guessed -s roots.
-const head=new RegExp('^\\s+(?:'+nounHeadPattern+'|specimens?|moments?|usages?)(?![\\p{L}\\p{N}\\p{M}_])','iu');
+const head=new RegExp('^\\s+(?:'+nounHeadPattern+'|specimens?|moments?|usages?|subsidiar(?:y|ies))(?![\\p{L}\\p{N}\\p{M}_])','iu');
+const lyPattern=new RegExp('(?<![\\p{L}\\p{N}\\p{M}_])('+adverb+')-('+participles+')(?![\\p{L}\\p{N}\\p{M}_])','giu');
+export const lyModifierCandidates=source=>[...source.matchAll(lyPattern)];
+export function lyModifierHead(match,source){
+ const end=match.index+match[0].length,noun=head.exec(source.slice(end));if(!noun)return null;
+ if(/[A-Z]/u.test(match[0].slice(1))&&/^[ \t\n]+[A-Z]/u.test(noun[0]))return null;
+ return {end:end+noun[0].length,suggestion:match[0].replace('-',' ')};
+}
 export const multiAdverbCandidates=source=>[...source.matchAll(pattern)];
 export function multiAdverbHead(match,source){
  const end=match.index+match[0].length,noun=head.exec(source.slice(end));

@@ -5,7 +5,7 @@ const check=t=>jointStylisticIssues(makeDocument([t],'Current'),refs);
 test('zero bill counts fall back to GPO without inventing an LCB zero rule',()=>{
  const i=check('There are 0 applicants.').find(i=>i.checkId==='numerals');assert.ok(i);assert.equal(i.suggestion,'zero');assert.equal(i.guideId,'gpo');assert.equal(i.rule,'12.23');assert.equal(check('There are zero applicants.').length,0);
  assert.ok(!check('There are 0 or 10 applicants.').some(i=>i.suggestion==='zero'));
- for(const body of ['There are 0 applicants.','There are zero applicants.'])assert.equal(check('LEGISLATIVE COUNSEL’S DIGEST\n'+body).length,0,body);
+ assert.equal(check('LEGISLATIVE COUNSEL’S DIGEST\nThere are 0 applicants.').length,0);assert.deepEqual(check('LEGISLATIVE COUNSEL’S DIGEST\nThere are zero applicants.').map(i=>i.suggestion),['0']);
  assert.equal(check('The charge is 0 percent.').length,0);
 });
 test('signed quantities and exponents do not get isolated cardinal-word replacements',()=>{

@@ -49,11 +49,11 @@ test('PDF margins and recognized interior running heads preserve complete percen
  head.formatting={};head.runningHead=false;head.layoutLabel=false;assert.equal(percent(doc).length,0);
 });
 
-test('sentence opening spelling and excluded Digest preference remain unchanged',()=>{
+test('sentence-opening spelling and the printed LCB Digest percent preference remain independent',()=>{
  assert.equal(check('60% is allocated.').length,0);
  assert.deepEqual(jointStylisticIssues(makeDocument(['60% is allocated.'],'Current'),refs).filter(i=>i.checkId==='opening-percentages').map(i=>i.suggestion),['Sixty percent']);
  assert.equal(check('50,000% is allocated.').length,0);
  assert.deepEqual(jointStylisticIssues(makeDocument(['50,000% is allocated.'],'Current'),refs).filter(i=>i.checkId==='opening-percentages').map(i=>i.suggestion),['Fifty thousand percent']);
- const doc=makeDocument(['LEGISLATIVE COUNSEL’S DIGEST\nThe rate is 50,000 percent.'],'Current');assert.deepEqual(percent(doc).map(i=>[i.text,i.suggestion,i.conflict]),[['50,000 percent','50,000%',true]]);assert.equal(jointStylisticIssues(doc,refs).some(i=>i.rule==='Numerals: Percent'),false);
+ const doc=makeDocument(['LEGISLATIVE COUNSEL’S DIGEST\nThe rate is 50,000 percent.'],'Current');assert.deepEqual(percent(doc).map(i=>[i.text,i.suggestion,i.conflict]),[['50,000 percent','50,000%',true]]);assert.deepEqual(jointStylisticIssues(doc,refs).filter(i=>i.rule==='Numerals: Percent').map(i=>i.suggestion),['50,000%']);
  const body=makeDocument(['The rate is 0.5%.'],'Current');assert.deepEqual(percentageValueMatches(body,styleContext(body)).map(m=>m.number),['0.5']);
 });

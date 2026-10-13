@@ -23,9 +23,9 @@ test('verbs, prepositions, literal names, tables and source strikeouts are prote
  for(const text of ['The workers shall check up on the issue.','They drive in a car.','The agency shall set aside money.','The term “check up” is required.','The term "set aside" is defined.','The Check Up is a product.','CHECK UP IS REQUIRED','Budget Act of 2026\nThe check up is required................ 1000'])assert.equal(check(text).length,0,text);
  const doc=makeDocument(['The check up is required.'],'Current');doc.struck=[{start:4,end:12}];assert.equal(gpoNominalIssues(doc,refs).length,0);
 });
-test('worker-facing joint checks include noun forms without changing conflicting guide policy',()=>{
+test('worker-facing joint checks retain noun forms beside the primary LCB healthcare preference',()=>{
  const doc=makeDocument(['The check up is required. The phase in is required. Use healthcare. The workers shall check up on the issue.'],'Current');
- const issues=jointStylisticIssues(doc,refs);assert.ok(issues.some(i=>i.suggestion==='checkup'&&i.guidePage===137));assert.ok(issues.some(i=>i.suggestion==='phase-in'));assert.ok(!issues.some(i=>i.conflict||/healthcare/.test(i.text)));
+ const issues=jointStylisticIssues(doc,refs);assert.ok(issues.some(i=>i.suggestion==='checkup'&&i.guidePage===137));assert.ok(issues.some(i=>i.suggestion==='phase-in'));assert.ok(issues.some(i=>i.text==='healthcare'&&i.suggestion==='health care'&&i.guideId==='lcb'));assert.ok(!issues.some(i=>i.conflict));
 });
 test('wrapped noun phrases highlight only the source compound with exact offsets',()=>{
  const doc=makeDocument(['line 1 The check\nline 2 up is required.'],'Current');const issues=gpoNominalIssues(doc,refs);assert.equal(issues.length,1);assert.equal(issues[0].suggestion,'checkup');assert.equal(doc.text.slice(issues[0].start,issues[0].end),issues[0].text);

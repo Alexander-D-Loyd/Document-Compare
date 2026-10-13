@@ -176,12 +176,12 @@ test('directional capitalization coverage cites the exact agreeing example with 
  const rule=styleRuleInventory(refs).find(r=>r.id==='gpo-3.23');assert.equal(rule.page,48);assert.equal(rule.status,'Partially automated');assert.match(rule.scope,/southern California/);assert.match(rule.scope,/GPO 3.22/);assert.match(rule.scope,/other unencoded geographic meanings remain manual/);
 });
 
-test('modifier chains retain a partial grammatical scope and honest source authority',()=>{
- const rule=styleRuleInventory(refs).find(r=>r.id==='gpo-6.15');assert.equal(rule.status,'Partially automated');assert.match(rule.scope,/two intervening source-listed modifiers/);assert.match(rule.scope,/SB79/);assert.match(rule.scope,/not a source-listed dictionary spelling/);assert.match(rule.scope,/ambiguous chains/);
+test('modifier coverage identifies printed forms and retired unlisted entry guesses',()=>{
+ const rule=styleRuleInventory(refs).find(r=>r.id==='gpo-6.15');assert.equal(rule.status,'Partially automated');assert.match(rule.scope,/exact printed LCB\/GPO forms/);assert.match(rule.scope,/entry-level.*disabled/);assert.match(rule.scope,/specific complete noun evidence/);assert.match(rule.scope,/no whole-rule or accuracy certification/);
 });
 
-test('finite participle evidence scope preserves its grammar limits and source boundaries',()=>{
- const rule=styleRuleInventory(refs).find(r=>r.id==='gpo-6.15');assert.equal(rule.status,'Partially automated');assert.match(rule.scope,/65-character/);assert.match(rule.scope,/wrapped literals, table rows and unknown ignored/);assert.match(rule.scope,/intact alternative cue/);
+test('unlisted participle guesses are disabled while complete source conditions remain required',()=>{
+ const rule=styleRuleInventory(refs).find(r=>r.id==='gpo-6.15');assert.equal(rule.status,'Partially automated');assert.match(rule.scope,/unlisted participle guesses/);assert.match(rule.scope,/Complete source, noun and role evidence/);assert.match(rule.scope,/Quoted bill-local forms/);
 });
 
 test('office definition scope records exact source bindings and unresolved hierarchy limits',()=>{

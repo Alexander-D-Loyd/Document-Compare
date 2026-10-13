@@ -11,7 +11,7 @@ test('quoted names, unrelated words and struck text are preserved',()=>{
  const doc=makeDocument(['Use degrees celsius.'],'Current');doc.struck=[{start:12,end:19}];assert.equal(measurementIssues(doc,refs).length,0);
 });
 
-test('the centigrade/Celsius guide choice is excluded under the user policy',()=>{
- for(const term of ['centigrade','Centigrade','Celsius'])assert.equal(jointStylisticIssues(makeDocument(['Use 20 degrees '+term+'.'],'Current'),refs).length,0,term);
+test('LCB lowercase centigrade takes priority without replacing independently chosen Celsius',()=>{
+ assert.deepEqual(jointStylisticIssues(makeDocument(['Use 20 degrees Centigrade.'],'Current'),refs).map(i=>i.suggestion),['centigrade']);for(const term of ['centigrade','Celsius'])assert.equal(jointStylisticIssues(makeDocument(['Use 20 degrees '+term+'.'],'Current'),refs).length,0,term);assert.equal(jointStylisticIssues(makeDocument(['The term “Centigrade” is stated. Use degrees Centigrade.'],'Current'),refs).length,0);
  assert.ok(refs.lcb.pages[17].text.includes('centigrade'));assert.ok(refs.gpo.pages[249].text.includes('Preferred form (superseding Centigrade)'));
 });

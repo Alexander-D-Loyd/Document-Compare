@@ -1,3 +1,5 @@
+import {MULTIWORD_QUANTITY_OPENING_SCOPE}from './style-opening-quantity-evidence.mjs';
+import {applyCoveragePolicy} from './style-coverage-policy.mjs';
 import {CONTRACTION_EVIDENCE_SCOPE}from './style-contractions.mjs';
 import {KNOWN_INITIALISM_EVIDENCE_SCOPE,FOREIGN_PHRASE_EVIDENCE_SCOPE}from './lcb-contextual.mjs';
 import {FINITE_VERB_CUE_SCOPE}from './style-verb-evidence.mjs';
@@ -7,7 +9,6 @@ import {LCB_SPELLING_EVIDENCE_SCOPE}from './style-lcb-spellings.mjs';
 import {LCB_CORPORATION_EVIDENCE_SCOPE}from './style-corporation-letters.mjs';
 import {RATIO_SOURCE_EVIDENCE_SCOPE}from './style-ratios.mjs';
 import {LCB_SHORT_PUNCTUATION_SCOPE,LCB_QUOTE_PUNCTUATION_SCOPE,LCB_POSSESSIVE_HEAD_SCOPE}from './style-punctuation.mjs';
-import {MULTIWORD_QUANTITY_OPENING_SCOPE}from './style-opening-quantity-evidence.mjs';
 import {QUALIFIED_TIME_NOTICE_SCOPE}from './style-punctuation.mjs';
 import {CORRELATIVE_SPREAD_SCOPE}from './style-correlative-spreads.mjs';
 import {MIXED_COUNT_LIST_SCOPE}from './style-mixed-count-lists.mjs';
@@ -185,5 +186,5 @@ export const CHECK_COVERAGE=[
  {title:'Conflicting guide rules',status:'Excluded from Stylistic Check',text:'Known LCB/GPO disagreements are excluded from purple highlights, counts and navigation, regardless of which guide the current wording follows. Independent nonconflicting rules remain checked. Both sources stay searchable; not every possible conflict has been encoded.',guide:'lcb',page:1},
  {title:'Custom Terms',status:'Exact case-sensitive check',text:'Saved words or phrases are checked with their exact capitalization in active Current Version text. Optional replacements are suggestions. Terms can be searched, added and removed in Custom Terms.',guide:'lcb',page:1},
  {title:'Other GPO chapters and document meaning',status:'Manual review required',text:'The entire GPO manual is searchable. Typography, abbreviations, tabular work, citations, scientific notation, specialized usages and semantic consistency are not exhaustively checked. No findings means no supported rule detected a discrepancy; it does not certify compliance with either manual.',guide:'gpo',page:19}
-];
+].map(applyCoveragePolicy);
 export function searchCoverage(query=''){const terms=query.toLowerCase().trim().split(/\s+/).filter(Boolean);return CHECK_COVERAGE.filter(item=>terms.every(term=>(item.title+' '+item.status+' '+item.text).toLowerCase().includes(term)));}

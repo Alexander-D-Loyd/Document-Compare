@@ -13,7 +13,7 @@ test('missing initial range marks retain full values and source connectors under
 });
 test('quoted labels, ordinary prose quantities and unknown mark meanings stay independently reviewed',()=>{
  for(const [text,term,suggestion]of [['The list contains 2 "wide" labels.','2','two'],['The list contains 4 parts.','4','four'],['There are 3 panels, each 2" wide.','3','three'],['The term is 2" unknown.','2','two']])assert.ok(find(text).some(i=>i.text===term&&i.suggestion===suggestion),text);
- assert.equal(dimensionMarkParts('The tag is 2"wide".' ).length,0);assert.equal(find('Use 3 inches of material.').length,0,'Written measure conflict remains excluded');
+ assert.equal(dimensionMarkParts('The tag is 2"wide".' ).length,0);assert.deepEqual(find('Use 3 inches of material.').map(i=>[i.text,i.suggestion]),[['3','three']]);
 });
 test('mixed-unit endpoints, angles, chemistry and incomplete expressions do not infer a repeated physical unit',()=>{
  for(const t of ['The range is 5′–7″ long.','The coordinates are 33°15′21″ N.','The compound is 1′,2′-biphenyl.','The range is 5 to 7".','The value is 1,005–7′ long.','The reading is 3.5.2" wide.'])assert.equal(find(t).some(i=>i.rule==='10.6'),false,t);

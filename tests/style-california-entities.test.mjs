@@ -25,7 +25,7 @@ test('unknown, longer, literal and short office names do not become missing-list
  const d=makeDocument(['line 1 The department of\nline 2 consumer affairs shall act.'],'Current'),i=jointStylisticIssues(d,refs).find(i=>i.checkId==='california-entities');assert.ok(i);assert.equal(d.text.slice(i.start,i.end),i.text);d.struck=[{start:i.start,end:i.end}];assert.equal(californiaEntityReview(d,refs).issues.length,0);
 });
 test('remaining LCB reference rule has partial implementation without whole-rule certification',()=>{
- const rows=styleRuleInventory(refs),rule=rows.find(r=>r.id==='lcb-17-7');assert.equal(rule.status,'Partially automated');assert.match(rule.scope,/snapshot/);assert.match(rule.scope,/remain manual/);assert.deepEqual(rows.filter(r=>r.guide==='lcb'&&r.status==='Manual review required').map(r=>r.id),['lcb-21-opinions-and-cover-letters-source']);assert.ok(!rows.some(r=>r.guide==='lcb'&&r.status==='Fully automated'));
+ const rows=styleRuleInventory(refs),rule=rows.find(r=>r.id==='lcb-17-7');assert.equal(rule.status,'Partially automated');assert.match(rule.scope,/snapshot/);assert.match(rule.scope,/remain manual/);assert.deepEqual(rows.filter(r=>r.guide==='lcb'&&r.status==='Manual review required').map(r=>r.id),['lcb-21-opinions-and-cover-letters-source','lcb-entry-9-bi-all-one-word','lcb-entry-11-in-as-a-prefix-generally-one-word','lcb-entry-12-multi-all-uses-one-word','lcb-entry-12-non-as-a-prefix-generally-one-word']);assert.ok(!rows.some(r=>r.guide==='lcb'&&r.status==='Fully automated'));
 });
 
 test('every eligible entity keeps its complete identity through a printed internal word division',()=>{
@@ -64,10 +64,10 @@ test('entity division joining requires a physical line boundary and exact comple
  const doc=makeDocument(['line 1 The department of consu-\nline 2 mer affairs shall act.'],'Current'),before=doc.text;californiaEntityReview(doc,refs);assert.equal(doc.text,before,'Review does not rewrite source text');
 });
 
-test('complete supplied entity case stays independent of generic compound-word guide conflicts',()=>{
+test('complete supplied entity case stays protected while generic LCB lexical choices take priority',()=>{
  for(const name of ['State Department of Health Care Services','California Healthcare Workforce Policy Commission']){
   for(const text of [name.toLowerCase(),name.toLowerCase().replace(/\p{L}{5,}/u,w=>w.slice(0,3)+'-\nline 2 '+w.slice(3))])assert.deepEqual(check('line 1 The '+text+' shall act.').map(i=>[i.suggestion,i.checkId]),[[name,'california-entities']]);
   assert.equal(check('The '+name+' shall act.').length,0);
  }
- for(const t of ['The board provides healthcare benefits.','The board provides health care benefits.'])assert.equal(check(t).length,0,'Generic guide disagreements remain excluded');
+ assert.deepEqual(check('The board provides healthcare benefits.').map(i=>i.suggestion),['health care']);assert.equal(check('The board provides health care benefits.').length,0);
 });

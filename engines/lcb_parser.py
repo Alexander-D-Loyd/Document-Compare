@@ -1,8 +1,9 @@
-"""Source-listed unit modifiers, with explicit uncertainty for reader review.
+"""Exact source-listed unit modifiers with complete local role witnesses.
 
-Direct grammatical attachment supplies a stronger witness. An open listed
-phrase immediately before a noun can also be a review suggestion; the parser
-does not manufacture a corrected sentence to establish its own evidence.
+Production candidates require direct attribution to an adjacent complete noun
+in intact finite-clause evidence. Missing or uncertain roles are quiet; no
+generic compound, predicate, postnominal or noun-adjacent fallback is generated.
+Legacy analytical helpers remain available only to explicit nonproduction calls.
 """
 import re
 
@@ -474,10 +475,33 @@ def postnominal_compound_reviews(doc):
   if relative:proof['finiteRelative']=relative
   yield {'start':span.start_char,'end':span.end_char,'evidenceStart':span[0].sent.start_char,'evidenceEnd':span[0].sent.end_char,'suggestion':None,'engine':'spaCy','engineRule':POSTNOMINAL_COMPOUND_RULE,'reviewSuggested':True,'postnominalRoleEvidence':proof}
 
+def listed_token_role(t):
+ return {'start':t.idx,'end':t.idx+len(t.text),'text':t.text,'pos':t.pos_,'tag':t.tag_,'dep':t.dep_,'headStart':t.head.idx,'headEnd':t.head.idx+len(t.head.text),'headText':t.head.text}
+
+LISTED_COMPONENT_EDGES={'compound','amod','nmod','advmod','npadvmod','poss','case','det','prep','pobj','neg'}
+
+def listed_attachment(span,head):
+ if head.pos_ not in {'NOUN','PROPN'}or head.tag_ not in {'NN','NNS','NNP','NNPS'}or head.dep_ in {'compound','nmod'}:return False
+ if any(t.pos_ in {'AUX','PRON','CCONJ','SCONJ'}or t.dep_ in {'nsubj','nsubjpass','csubj','csubjpass'}for t in span):return False
+ if any(t.pos_=='VERB'and(t.tag_ not in {'VBG','VBN'}or t.dep_!='amod')for t in span):return False
+ for first in span:
+  if first.is_punct:
+   if first.text!='-':return False
+   continue
+  token=first;seen=set()
+  while token!=head:
+   if not span.start<=token.i<span.end or token.i in seen or token.dep_ not in LISTED_COMPONENT_EDGES:return False
+   seen.add(token.i)
+   if token.head==head and token.dep_ not in {'compound','amod','nmod'}:return False
+   token=token.head
+ return True
+
 class ListedModifierParser:
  def __init__(self,rules):
   self.rules=[]
   for rule in rules:
+   # Reject the removed general-principle spelling even with stale config.
+   if rule.get('engineRule')=='LCB_DATA_SHARING_MODIFIER':continue
    expression=r'(?<![\w-])'+r'[\s-]+'.join(re.escape(word).replace('’',"[’']")for word in rule['preferred'].split('-'))+r'(?![\w-])'
    self.rules.append((rule,re.compile(expression,re.I)))
 
@@ -488,50 +512,13 @@ class ListedModifierParser:
     if normalized[:1].lower()+normalized[1:]==rule['preferred']:continue
     span=doc.char_span(match.start(),match.end(),alignment_mode='strict')
     if span is None or span.end>=len(doc):continue
-    sentence=span[0].sent
-    # Retain the whole following nominal sequence, including unfamiliar
-    # adjectives, noun adjuncts, acronym heads and internal lexical hyphens.
-    # Stop at a predicate, preposition, conjunction or sentence boundary.
-    head=nominal_head(doc,span)
-    if head is None or not doc.text[match.end():doc[span.end].idx].isspace():continue
-    # A real sentence predicate within the selected phrase is a verb use.
-    if protected_verb_use(span):continue
-    internal_subject=any(t.dep_ in {'nsubj','nsubjpass','csubj','csubjpass'}and span.start<=t.head.i<span.end for t in span)
-    # Reporting complements can omit 'that'. Subject evidence is protective
-    # even when the parser labels an embedded past verb as an adjective.
-    if internal_subject and sentence.root.lemma_.casefold()in REPORTING_VERBS:continue
-    direct=not internal_subject and attached(span,head)
-    yield {'start':match.start(),'end':match.end(),'headStart':head.idx,'headEnd':head.idx+len(head.text),'head':head.text,'evidenceStart':sentence.start_char,'evidenceEnd':sentence.end_char,'suggestion':rule['preferred'],'engine':'spaCy','engineRule':rule['engineRule'],'reviewSuggested':not direct,'attachmentMethod':'direct'if direct else'noun-adjacent-review'}
-  # A separate reader-review family covers unfamiliar lexical compounds.
-  # These are candidate roles, not proof that two words form a lexical unit.
-  # Keep the vocabulary unrestricted without treating every noun pair as an
-  # error. A noun + adjective/participle or a true -ly adverb is required.
-  for first in doc:
-   if not first.text.isalpha()or first.pos_ not in {'NOUN','ADV'}:continue
-   if lexical_hyphen_before(doc.text,first.idx):continue
-   secondIndex=first.i+1
-   if secondIndex>=first.sent.end:continue
-   hyphen=doc[secondIndex].text=='-'
-   if hyphen:secondIndex+=1
-   if secondIndex>=first.sent.end:continue
-   second=doc[secondIndex]
-   if not second.text.isalpha()or not(second.pos_=='ADJ'or second.tag_ in {'VBG','VBN'}or(second.tag_=='VBD'and second.dep_ in {'amod','acl','ccomp'})):continue
-   # An explicit present-participle clause after its noun is a reduced
-   # relative (students attending colleges), not a lexical unit modifier.
-   if second.tag_=='VBG'and(second.dep_ in {'acl','prep','advcl','pcomp'}or first.dep_ in {'nsubj','nsubjpass','csubj'}):continue
-   variant='ly-hyphen'if first.pos_=='ADV'and first.lower_.endswith('ly')and hyphen else'open-modifier'if first.pos_=='NOUN'and not hyphen else None
-   if variant is None:continue
-   bridge=doc.text[first.idx+len(first.text):second.idx]
-   if not(re.fullmatch(r'\s*-\s*',bridge)if hyphen else bridge.isspace()):continue
-   span=doc[first.i:second.i+1]
-   if protected_verb_use(span):continue
-   head=nominal_head(doc,span)
-   if head is None or not doc.text[second.idx+len(second.text):doc[span.end].idx].isspace():continue
-   # A participle label alone cannot turn a reduced relative, a recipient or
-   # a prepositional object into a pre-noun unit modifier. Every selected
-   # component must reach the actual nominal head, not only ordinary ADJs.
-   if not attached(span,head)or source_object_boundary(span,head):continue
-   yield {'start':first.idx,'end':second.idx+len(second.text),'headStart':head.idx,'headEnd':head.idx+len(head.text),'head':head.text,'evidenceStart':first.sent.start_char,'evidenceEnd':first.sent.end_char,'suggestion':None,'engine':'spaCy','engineRule':'LCB_GENERAL_UNIT_MODIFIER_REVIEW','reviewSuggested':True,'reviewVariant':variant,'attachmentMethod':'general-role-review'}
-  yield from complete_noun_prefix_reviews(doc)
-  yield from predicate_compound_reviews(doc)
-  yield from postnominal_compound_reviews(doc)
+    sentence=span[0].sent;head=doc[span.end]
+    # The actual adjacent noun must be the complete nominal head, not an
+    # inferred later noun across a modifier/nominal sequence or clause.
+    if head.sent!=sentence or not doc.text[match.end():head.idx].isspace()or lexical_hyphen_before(doc.text,span.start_char):continue
+    if protected_verb_use(span)or not listed_attachment(span,head)or source_object_boundary(span,head):continue
+    root=sentence.root;aux=[t for t in root.children if t.pos_ in {'VERB','AUX'}and t.tag_ in {'VBD','VBP','VBZ','MD'}and t.dep_ in {'aux','auxpass','cop'}]
+    if root.pos_ not in {'VERB','AUX'}or(root.tag_ not in {'VBD','VBP','VBZ','MD'}and not aux):continue
+    predicate={**listed_token_role(root),'finiteAuxiliaries':[listed_token_role(t)for t in sorted(aux,key=lambda t:t.idx)]}
+    proof={'kind':'exact-listed-attributive','components':[listed_token_role(t)for t in span],'head':listed_token_role(head),'predicate':predicate}
+    yield {'start':match.start(),'end':match.end(),'headStart':head.idx,'headEnd':head.idx+len(head.text),'head':head.text,'evidenceStart':sentence.start_char,'evidenceEnd':sentence.end_char,'suggestion':rule['preferred'],'engine':'spaCy','engineRule':rule['engineRule'],'reviewSuggested':False,'attachmentMethod':'direct','modifierRoleEvidence':proof}

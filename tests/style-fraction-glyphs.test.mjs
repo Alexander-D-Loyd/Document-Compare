@@ -10,6 +10,10 @@ test('standalone Unicode fractions retain their exact glyph span and fraction va
 test('sentence-opening fraction corrections begin with a capital',()=>{
  for(const t of ['½ of the funds is allocated.','1/2 of the funds is allocated.'])assert.ok(check(t).some(i=>i.suggestion==='One-half'),t);
 });
-test('mixed glyphs, percentages, identifiers, units, quotes and digest conflicts stay protected',()=>{
- for(const t of ['Wait 3½ hours.','A person is 70½ years of age.','Wait 3 ½ hours.','Wait three and ½ hours.','Allocate ½ percent.','See Section ½.','Use a ¾-ton truck.','The term “½ of the amount” is literal.','LEGISLATIVE COUNSEL’S DIGEST\nAllocate ½ of the amount.'])assert.ok(!check(t).some(i=>i.checkId==='fractions'),t);
+test('mixed glyphs and source guards remain protected while Digest fraction wording follows LCB',()=>{
+ for(const t of ['Wait 3½ hours.','A person is 70½ years of age.','Wait 3 ½ hours.','Wait three and ½ hours.','Allocate ½ percent.','See Section ½.','Use a ¾-ton truck.','The term “½ of the amount” is literal.'])assert.ok(!check(t).some(i=>i.checkId==='fractions'),t);
+ assert.equal(check('LEGISLATIVE COUNSEL’S DIGEST\nAllocate ½ of the amount.').length,0,'The native fraction glyph already uses a figure in Digest text.');
+ const written='LEGISLATIVE COUNSEL’S DIGEST\nAllocate one-half of the amount.',found=check(written).filter(i=>i.checkId==='fractions');
+ assert.deepEqual(found.map(i=>i.suggestion),['1⁄2']);assert.equal(written.slice(found[0].start,found[0].end),'one-half');
+ assert.equal(check('LEGISLATIVE COUNSEL’S DIGEST\nThe term “one-half of the amount” is literal.').length,0);
 });

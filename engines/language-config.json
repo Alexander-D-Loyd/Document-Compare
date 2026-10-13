@@ -9,11 +9,6 @@
   ],
   "lcbModifiers": [
     {
-      "engineRule": "LCB_DATA_SHARING_MODIFIER",
-      "phrase": "data sharing",
-      "preferred": "data-sharing"
-    },
-    {
       "engineRule": "LCB_DATA_PROCESSING_MODIFIER",
       "phrase": "data processing",
       "preferred": "data-processing"

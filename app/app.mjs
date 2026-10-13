@@ -1,4 +1,6 @@
 import {digestDisplay,digestPayload,amendmentName} from './digest-amendment.mjs';
+import {styleReviewView} from './style-review-view.mjs';
+import {STYLE_REVIEW_SCOPE,STYLE_EXCEPTION_SUMMARY} from './style-finding-policy.mjs';
 import {billReadingSummary,applyBillReadingWarnings}from './bill-ocr-policy.mjs';
 import {validateAuthority,authorityIndex,authorityAccepts,authorityStore}from './offline-authority.mjs';
 import {legislativeBody} from './external-amendments.mjs';
@@ -22,7 +24,7 @@ import {pageReadingProblems,largeRasterCoverage} from './pdf-page-quality.mjs';
 import {correctPdfReading} from './correct-pdf-reading.mjs';
 import { reviewOutline } from './review-outline.mjs';
 import {sequenceFind} from './sequence-find.mjs';
-import { amendmentDeletionRanges, amendmentAdditionRanges, amendmentReviewRanges } from './amendment-highlights.mjs';
+import { amendmentDeletionRanges, amendmentAdditionRanges, amendmentReviewRanges, amendmentOutlineGroup } from './amendment-highlights.mjs';
 import { searchGuide } from './gpo-style.mjs';
 import {STYLE_GUIDES,guideById} from './style-guides.mjs';
 import {loadStyleTerms,saveStyleTerms,searchStyleTerms} from './custom-style.mjs';
@@ -68,7 +70,7 @@ let languageIssues=[],languageIndex=-1,languageChecked=false;
 let languageRequestId=null,styleRequestId=null,spellingAbort=null,styleEngineWarning='',languageEngineWarning='';
 let personalWords = new Set();
 let dictionaryError = '';
-let styleIssues=[],styleIndex=-1,styleWorker=null,styleSequence=0,styleChecked=false;
+let allStyleIssues=[],styleIssues=[],styleIndex=-1,styleWorker=null,styleSequence=0,styleChecked=false;
 const guideReferencePromises=new Map(),guidePdfPromises=new Map(),guideViews=new Map(STYLE_GUIDES.map(g=>[g.id,{page:g.defaultPage,query:''}]));
 const guideTabs=[...STYLE_GUIDES,{id:'custom',title:'Custom Terms'},{id:'coverage',title:'Check Coverage'}];guideViews.set('custom',{query:''});guideViews.set('coverage',{query:''});
 let customTerms=[],customTermsError='';
@@ -106,7 +108,8 @@ function resetSpelling() {
 }
 
 function availability() {
-  for(const side of [0,'digest','amendments',1])$('remove'+side).disabled=!(loading[side]||(side==='amendments'?amendmentsDoc:side==='digest'?digestDoc:docs[side]));
+  for(const side of [0,1])$('remove'+side).disabled=!(loading[side]||docs[side]);
+  $('removeamendments').disabled=!(loading.digest||loading.amendments||digestDoc||amendmentsDoc);
   updateIgnoreControls();
   $('compare').disabled = !docs.every(Boolean) || loading[0] || loading[1] || !!compareWorker;
   $('review-amendments').disabled = !docs.every(Boolean) || !hasAmendments() || Object.values(loading).some(Boolean) || !!amendmentWorker;
@@ -289,22 +292,25 @@ async function readFile(file, side) {
 }
 
 function removeFile(side){
-  uploadedFiles.delete(side);$('name'+side).removeAttribute('role');$('name'+side).removeAttribute('tabindex');$('name'+side).removeAttribute('title');
+  const sides=side==='amendments'?['digest','amendments']:[side];
+  for(const slot of sides){
+    uploadedFiles.delete(slot);$('name'+slot).removeAttribute('role');$('name'+slot).removeAttribute('tabindex');$('name'+slot).removeAttribute('title');
+    versions[slot]++;pdfTasks[slot]?.destroy().catch(()=>{});pdfTasks[slot]=null;loading[slot]=false;
+    if(slot==='amendments')amendmentsDoc=null;else if(slot==='digest')digestDoc=null;else docs[slot]=null;
+    $('file'+slot).value='';$('error'+slot).textContent='';$('drop'+slot).classList.remove('drag');
+    $('name'+slot).textContent=slot==='amendments'?'Instructional Amendments':slot==='digest'?'Digest':'Drop a PDF here';
+    $('meta'+slot).textContent=slot==='amendments'||slot==='digest'?'or click to choose a PDF · optional':'or click to choose a file · up to 50 MB';
+  }
   versions.reference++;pdfTasks.reference?.destroy().catch(()=>{});loading.reference=false;
   for(const key of Object.keys(externalDocs))delete externalDocs[key];referenceBill=null;$('reference-dialog').close();
-  versions[side]++;pdfTasks[side]?.destroy().catch(()=>{});pdfTasks[side]=null;loading[side]=false;
-  if(side==='amendments')amendmentsDoc=null;else if(side==='digest')digestDoc=null;else docs[side]=null;
   invalidateResults();setReviewMode('changes');
-  $('file'+side).value='';$('error'+side).textContent='';$('drop'+side).classList.remove('drag');
-  $('name'+side).textContent=side==='amendments'?'Instructional Amendments':side==='digest'?'Digest':'Drop a PDF here';
-  $('meta'+side).textContent=side==='amendments'||side==='digest'?'or click to choose a PDF · optional':'or click to choose a file · up to 50 MB';
   for(const id of ['left','right']){$(id).replaceChildren();$(id+'-name').textContent='';$(id+'-page').value='1';$(id+'-page-total').textContent='0';}
   $('added').textContent='';$('removed').textContent='';availability();
   if(docs.every(Boolean))runComparison(true);else $('status').textContent=docs.some(Boolean)?'Choose the other PDF to continue.':'Choose two PDFs to begin. Your files stay on this computer.';
 }
 for (const side of [0,'digest','amendments',1]) {
   const drop = $('drop' + side), input = $('file' + side);
-  $('remove'+side).addEventListener('click',()=>removeFile(side));
+  if(side!=='digest')$('remove'+side).addEventListener('click',()=>removeFile(side));
   drop.addEventListener('click', event => {if(event.target.closest('#name'+side)&&uploadedFiles.has(side))openUploadedPdf(side);else input.click();});
   $('name'+side).addEventListener('keydown',event=>{if(uploadedFiles.has(side)&&['Enter',' '].includes(event.key)){event.preventDefault();event.stopPropagation();openUploadedPdf(side);}});
   input.addEventListener('change', () => { if (input.files[0]) readFile(input.files[0], side); input.value = ''; });
@@ -402,7 +408,7 @@ function renderDocument(root, doc, changes, side) {
     const points=[...new Set(insertions)].filter(at=>at>=start&&at<=end);
     const appendInsertion=at=>{
       if(!points.includes(at))return;
-      const marker=document.createElement('span');const afterLine=active.afterLine!=null||active.billEnd||active.patches?.some(p=>p.finalInsertion);const between=!afterLine&&(!!active.between||active.beforeLine!=null);marker.className=between?'amendment-insertion amendment-between-arrow':afterLine?'amendment-insertion amendment-after-arrow':'amendment-insertion amendment-selection';marker.textContent=between||afterLine?'➜':'+';if(afterLine)row.style.marginBottom='16px';if(between)row.style.marginTop=`max(16px, ${row.style.marginTop||'0px'})`;marker.dataset.outlineGroup=sourceEdits.find(r=>r.start===at||r.end===at)?.id||(active.digest?`Digest.P${at}`:active.number);marker.dataset.amendmentInsertion=active.number;marker.dataset.sourceOffset=at;marker.title=active.directive;marker.setAttribute('aria-label',`${amendmentName(active)}: insert text here`);marker.tabIndex=0;body.append(marker);
+      const marker=document.createElement('span');const afterLine=active.afterLine!=null||active.billEnd||active.patches?.some(p=>p.finalInsertion);const between=!afterLine&&(!!active.between||active.beforeLine!=null);marker.className=between?'amendment-insertion amendment-between-arrow':afterLine?'amendment-insertion amendment-after-arrow':'amendment-insertion amendment-selection';marker.textContent=between||afterLine?'➜':'+';if(afterLine)row.style.marginBottom='16px';if(between)row.style.marginTop=`max(16px, ${row.style.marginTop||'0px'})`;marker.dataset.outlineGroup=amendmentOutlineGroup(active,sourceEdits.find(r=>r.start===at||r.end===at)?.id||active.number);marker.dataset.amendmentInsertion=active.number;marker.dataset.sourceOffset=at;marker.title=active.directive;marker.setAttribute('aria-label',`${amendmentName(active)}: insert text here`);marker.tabIndex=0;body.append(marker);
     };
     const grammars=side===1&&reviewMode==='language'?grammarIssues.filter(r=>r.start<end&&r.end>start):[];
     const styles=side===1&&reviewMode==='style'&&!block.ignored&&!block.runningHead?styleIssues.filter(r=>r.start<end&&r.end>start):[];
@@ -414,7 +420,7 @@ function renderDocument(root, doc, changes, side) {
     for(const range of [...edits,...spells,...grammars,...styles,...strikes,...amendments,...amendmentCoverage,...deletions,...differences,...reviewRanges.map(e=>({start:e.currentOffset,end:e.currentEndOffset}))]){boundaries.add(Math.max(start,range.start));boundaries.add(Math.min(end,range.end));}
     const appendComparisonMarkers=at=>{
       for(const p of missing.filter(p=>p.offset===at)){
-        const marker=document.createElement('span');marker.className='amendment-missing amendment-selection';marker.dataset.issueOffset=p.offset;if(activeAmendmentIssue?.i===amendmentIndex&&activeAmendmentIssue.currentStart===p.offset)marker.classList.add('current-amendment-issue');marker.textContent='[missing text]';marker.title=currentReview.directive;marker.setAttribute('aria-label',`${p.id}: missing requested text: ${p.text}`);marker.dataset.amendmentMissing=p.id;marker.dataset.outlineGroup=p.id;body.append(marker);
+        const marker=document.createElement('span');marker.className='amendment-missing amendment-selection';marker.dataset.issueOffset=p.offset;if(activeAmendmentIssue?.i===amendmentIndex&&activeAmendmentIssue.currentStart===p.offset)marker.classList.add('current-amendment-issue');marker.textContent='[missing text]';marker.title=currentReview.directive;marker.setAttribute('aria-label',`${p.id}: missing requested text: ${p.text}`);marker.dataset.amendmentMissing=p.id;marker.dataset.outlineGroup=amendmentOutlineGroup(currentReview,p.id);body.append(marker);
       }
     };
     const cuts=[...boundaries].sort((a,b)=>a-b);
@@ -455,10 +461,11 @@ function renderDocument(root, doc, changes, side) {
       const part=f?.headerParts?.find(p=>p.start<=a-block.start&&p.end>=b-block.start);
       const chunkParent=headerParents.get(part)||body;
       const selected=selectionRange&&!block.ignored&&!block.runningHead&&!(side===0&&struck)&&!(side===1&&deleted)&&!!(side===1?currentReview?.insertText:active?.insertText)?.trim();
+      const outlineGroup=amendmentOutlineGroup(side===1?currentReview:active,selectionRange?.id);
       if(selected){
         let wrapper=chunkParent.lastElementChild;
-        if(!wrapper?.classList.contains('amendment-selection')||wrapper.dataset.selectionText!=='true'||wrapper.dataset.outlineGroup!==selectionRange.id){
-          wrapper=document.createElement('span');wrapper.className='amendment-selection';wrapper.dataset.selectionText='true';wrapper.dataset.outlineGroup=selectionRange.id;chunkParent.append(wrapper);
+        if(!wrapper?.classList.contains('amendment-selection')||wrapper.dataset.selectionText!=='true'||wrapper.dataset.outlineGroup!==outlineGroup){
+          wrapper=document.createElement('span');wrapper.className='amendment-selection';wrapper.dataset.selectionText='true';wrapper.dataset.outlineGroup=outlineGroup;chunkParent.append(wrapper);
         }
         wrapper.append(chunk);
       }else chunkParent.append(chunk);
@@ -647,12 +654,8 @@ function ignoreLanguage(all){
 function ignoreStyle(all){
   const issue=styleIssues[styleIndex];if(!issue||styleWorker||reviewMode!=='style')return;
   const oldIndex=styleIndex,text=docs[1].text;reviewIgnores.ignore('style',issue,text,all);
-  styleIssues=styleIssues.filter(i=>!reviewIgnores.has('style',i,text));styleIndex=-1;renderDocuments();
-  $('next-style').disabled=!styleIssues.length;$('previous-style').disabled=!styleIssues.length;$('style-rule').disabled=true;
   guideContext=null;$('guide-rule-context').hidden=true;
-  if(styleIssues.length)selectStyle(Math.min(oldIndex,styleIssues.length-1));
-  else $('style-status').textContent='No remaining style findings. Ignore choices apply only to the loaded files; Refresh restores them.';
-  updateIgnoreControls();
+  applyStyleReviewView(issue.id,oldIndex);
 }
 function updateLanguageNavigation(){
   languageIssues=[...spellingIssues.map((r,i)=>({kind:'spelling',index:i,start:r.start})),...grammarIssues.map((r,i)=>({kind:'grammar',index:i,start:r.start}))].sort((a,b)=>a.start-b.start||a.kind.localeCompare(b.kind));
@@ -717,9 +720,9 @@ function addToDictionary(){
 function resetStyle(){
   cancelOfflineLanguage(styleRequestId);styleRequestId=null;
   styleEngineWarning='';
-  styleSequence++;styleWorker?.terminate();styleWorker=null;styleIssues=[];styleIndex=-1;styleChecked=false;
+  styleSequence++;styleWorker?.terminate();styleWorker=null;allStyleIssues=[];styleIssues=[];styleIndex=-1;styleChecked=false;
   $('previous-style').disabled=true;$('next-style').disabled=true;$('style-rule').disabled=true;
-  $('style-status').textContent='Check similar wording against style guides · conflicting guide rules are excluded.';
+  $('style-status').textContent='Review explicit LCB and GPO rules and applicable legislative exceptions.';
   updateIgnoreControls();
 }
 function selectStyle(index){
@@ -729,15 +732,29 @@ function selectStyle(index){
   const issue=styleIssues[index],matches=$('right').querySelectorAll(`[data-style-ids~="${issue.id}"]`);
   matches.forEach(el=>el.classList.add('current-style'));scrollInPane($('right'),matches[0]);
   const block=docs[1].blocks.find(b=>b.start<=issue.start&&b.end>issue.start);
-  const recommendation=issue.matchesPrimary||!issue.suggestion?'':`Suggested: “${issue.suggestion}”.`;
+  const officePreference=issue.guideId==='custom'||issue.dictionaryEvidence?.authority==='Office preference list';
+  const recommendation=issue.matchesPrimary||!issue.suggestion?'':`${officePreference?'Saved replacement':'Guide form'} to compare: “${issue.suggestion}”.`;
   const references=issue.references.map(r=>`${guideById(r.guideId).title} ${r.rule}, p. ${r.guidePrintedPage}`).join(' · ');
-  $('style-status').textContent=`${issue.reviewSuggested?'Review Suggestion':'Potential discrepancy'} ${index+1} of ${styleIssues.length} · p. ${block?.page||1}${issue.context?' · '+issue.context+' text':''} · ${issue.category}: “${issue.matchText||issue.text}”. ${recommendation} ${issue.message} ${references}${issue.conflict?' · LCB takes priority.':''}`+(styleEngineWarning?' '+styleEngineWarning:'');
+  $('style-status').textContent=`${officePreference?'Office preference review':'Style review'} ${index+1} of ${styleIssues.length} · p. ${block?.page||1}${issue.context?' · '+issue.context+' text':''} · ${issue.category}: “${issue.matchText||issue.text}”. ${recommendation} ${issue.message} ${references}${issue.conflict?' · LCB takes priority.':''}`+(styleEngineWarning?' '+styleEngineWarning:'');
   $('style-rule').disabled=false;
   updateIgnoreControls();
 }
 function nextStyle(direction=1){
   setReviewMode('style');if(!styleIssues.length)return;
   selectStyle(styleIndex<0?(direction>0?0:styleIssues.length-1):(styleIndex+direction+styleIssues.length)%styleIssues.length);
+}
+function applyStyleReviewView(preferredId=null,preferredIndex=0){
+  const view=styleReviewView(allStyleIssues,{accept:issue=>!reviewIgnores.has('style',issue,docs[1].text)});
+  styleIssues=view.issues;styleIndex=-1;
+  $('previous-style').disabled=!styleIssues.length;$('next-style').disabled=!styleIssues.length;$('style-rule').disabled=true;
+  const reviewCount=styleIssues.filter(issue=>issue.reviewSuggested).length,discrepancyCount=styleIssues.length-reviewCount;
+  $('style-status').textContent=(styleIssues.length?`${discrepancyCount} guide-form comparison${discrepancyCount===1?'':'s'} · ${reviewCount} contextual review${reviewCount===1?'':'s'} requiring judgment · use arrows to review.`:'No findings from the supported guide checks. Manual review is still needed for unautomated rules.')+(styleEngineWarning?' '+styleEngineWarning:'');
+  renderDocuments();
+  if(styleIssues.length&&reviewMode==='style'){
+    const retained=styleIssues.findIndex(i=>i.id===preferredId);
+    selectStyle(retained>=0?retained:Math.min(Math.max(0,preferredIndex),styleIssues.length-1));
+  }
+  availability();updateIgnoreControls();
 }
 async function checkStyle(){
   if(!compared||compareWorker||!docs[1]||styleWorker)return;
@@ -746,17 +763,14 @@ async function checkStyle(){
   resetStyle();const seq=++styleSequence;
   await authorityReady;if(seq!==styleSequence||!compared||!docs[1])return;
   styleWorker=new Worker('./style-worker.mjs',{type:'module'});availability();
-  $('style-status').textContent='Checking Current Version against selected style rules · conflicting guide rules are excluded…';
+  $('style-status').textContent='Checking Current Version against explicit LCB and GPO rules…';
   const finish=()=>{cancelOfflineLanguage(styleRequestId);styleWorker?.terminate();styleWorker=null;styleRequestId=null;availability();};
   styleWorker.onerror=()=>{if(seq!==styleSequence)return;finish();$('style-status').textContent='Stylistic check could not finish. Try again.';};
   styleWorker.onmessage=({data})=>{
     if(seq!==styleSequence)return;finish();
     if(data.error){$('style-status').textContent=data.error;return;}
-    styleIssues=data.issues.filter(issue=>!reviewIgnores.has('style',issue,docs[1].text));styleChecked=true;styleIndex=-1;
-    $('previous-style').disabled=!styleIssues.length;$('next-style').disabled=!styleIssues.length;
-    const reviewCount=styleIssues.filter(issue=>issue.reviewSuggested).length,discrepancyCount=styleIssues.length-reviewCount;
-    $('style-status').textContent=(styleIssues.length?`${discrepancyCount} potential discrepancy${discrepancyCount===1?'':'s'} · ${reviewCount} review suggestion${reviewCount===1?'':'s'} requiring judgment · use arrows to review.`:'No potential discrepancies found by the supported checks. See Style Guides → Check Coverage for rules requiring manual review.')+(native.warning?' '+native.warning:'');
-    renderDocuments();if(styleIssues.length&&reviewMode==='style')selectStyle(0);updateIgnoreControls();
+    allStyleIssues=data.issues;styleChecked=true;styleIndex=-1;
+    applyStyleReviewView();
   };
   const doc=docs[1],id=styleRequestId='style-'+crypto.randomUUID(),native=await reviewOfflineLanguage(doc,'style',id);
   if(seq!==styleSequence||native.cancelled||!styleWorker)return;
@@ -808,14 +822,35 @@ function closeGuide(){guideRenderSequence++;guideRenderTask?.cancel();guideRende
 function renderGuideContext(){
   $('guide-rule-context').hidden=!guideContext;
   const root=$('guide-rules');root.replaceChildren();if(!guideContext)return;
-  $('guide-conflict-note').textContent=guideContext.conflict?guideContext.conflictNote:'LCB is the primary standard. GPO is used for rules not covered by the selected LCB checks.';
+  const officePreference=guideContext.guideId==='custom'||guideContext.dictionaryEvidence?.authority==='Office preference list';
+  $('guide-conflict-note').textContent=officePreference?'This finding comes from a saved or imported office preference. It is not a spelling error or a claim that LCB/GPO lists this word.':guideContext.conflict?guideContext.conflictNote:'LCB is the primary standard. GPO supplies secondary guidance. '+STYLE_EXCEPTION_SUMMARY;
+  const task=document.createElement('article');task.className='guide-rule-card';
+  const taskTitle=document.createElement('strong');taskTitle.textContent='Review this finding';
+  const taskText=document.createElement('p');taskText.textContent=guideContext.reviewTask||guideContext.message;
+  const scope=document.createElement('p');scope.textContent=officePreference?'Confirm the selected office preference and intended meaning before editing. Listed alternatives remain accepted forms.':STYLE_REVIEW_SCOPE;
+  task.append(taskTitle,taskText,scope);root.append(task);
   for(const reference of guideContext.references){
     const box=document.createElement('article');box.className='guide-rule-card';
     const title=document.createElement('strong');title.textContent=`${guideById(reference.guideId).title}${reference.guideId==='lcb'?' · Primary':''} · ${reference.rule} · p. ${reference.guidePrintedPage}`;
     const form=document.createElement('p');form.textContent=`${reference.guideId==='lcb'?'Recommended LCB form':'GPO form'}: “${reference.preferred}”`;
-    const rule=document.createElement('p');rule.textContent=reference.ruleText;
+    const rule=document.createElement('p');rule.textContent=reference.sourcePassage?.text||reference.ruleText;
+    const sourceLabel=document.createElement('p');sourceLabel.textContent=reference.sourcePassage?.kind||'Checking condition — consult the original guide page';
     const button=document.createElement('button');button.className='quiet';button.textContent=`View ${guideById(reference.guideId).title} page`;button.addEventListener('click',()=>selectGuide(reference.guideId,reference.guidePage));
-    box.append(title);if(reference.preferred)box.append(form);box.append(rule,button);root.append(box);
+    box.append(title);if(reference.preferred)box.append(form);box.append(sourceLabel,rule,button);root.append(box);
+  }
+  if(guideContext.modifierRoleEvidence){
+    const evidence=guideContext.modifierRoleEvidence,box=document.createElement('article');box.className='guide-rule-card';
+    const title=document.createElement('strong');title.textContent='Listed modifier context';
+    const text=document.createElement('p');text.textContent=`“${guideContext.matchText||guideContext.text}” directly precedes “${evidence.head.text}”. Confirm the unit-modifier meaning and any exception before editing.`;
+    box.append(title,text);root.append(box);
+  }
+  if(guideContext.dictionaryEvidence){
+    const evidence=guideContext.dictionaryEvidence,box=document.createElement('article');box.className='guide-rule-card';
+    const title=document.createElement('strong');title.textContent=`Imported source: ${evidence.authority} · ${evidence.edition}`;
+    const source=document.createElement('p');source.textContent=evidence.source;
+    const entries=document.createElement('p');entries.textContent='Source entries: '+evidence.entries.map(r=>`${r.entry}: ${r.preferred}`).join(' · ');
+    const note=document.createElement('p');note.textContent=officePreference?'Review the supplied office preference and intended sense.':'Confirm the selected dictionary entry and intended sense; its other listed spellings remain accepted.';
+    box.append(title,source,entries,note);root.append(box);
   }
   if(guideContext.entityMatches?.length){
     for(const match of guideContext.entityMatches){

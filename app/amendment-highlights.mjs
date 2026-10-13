@@ -1,3 +1,8 @@
+// A selected Digest is one amendment, even when its delta has many disjoint
+// words. Reuse the regular per-page contour instead of boxing each fragment.
+export function amendmentOutlineGroup(result,rangeId){
+ return result?.digest?`A${result.number}.Digest`:rangeId;
+}
 export function amendmentDeletionRanges(doc,result,side){
   if(!result)return [];
   return result.evidence.flatMap((e,i)=>{

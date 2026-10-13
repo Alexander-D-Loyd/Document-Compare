@@ -25,9 +25,9 @@ test('distinct units and identifier lists leave neighboring quantities independe
  assert.deepEqual(check('The office grants 2 permits or 13 years.').map(i=>[i.text,i.suggestion]),[['2','two']]);
  assert.deepEqual(check('The board includes 4 veterinarians under Article 4, 1 technician under Section 1, and 3 members under Sections 3 and 4.').map(i=>[i.text,i.suggestion]),[['4','four'],['1','one'],['3','three']]);
 });
-test('sentence-opening and digest disagreements remain excluded from displayed corrections',()=>{
- assert.equal(check('One or thirteen years is allowed.').filter(i=>i.text==='thirteen').length,0);
- assert.equal(check('LEGISLATIVE COUNSEL’S DIGEST\nThe term is one or 13 years.').filter(i=>i.text==='one').length,0);
+test('sentence-opening and Digest related counts follow distinct LCB forms',()=>{
+ assert.deepEqual(check('One or thirteen years is allowed.').filter(i=>i.text==='thirteen').map(i=>i.suggestion),['13']);
+ assert.equal(check('LEGISLATIVE COUNSEL’S DIGEST\nThe term is one or 13 years.').filter(i=>i.text==='one').length,0,'LCB Digest retains its printed one exception');
 });
 test('every interior source strike or unknown exclusion prevents a fabricated shared-unit relationship',()=>{
  const text='The term is one or thirteen years.';for(const field of ['struck','excluded'])for(let at=text.indexOf('one');at<text.indexOf('years')+5;at++){const doc=makeDocument([text],'Current');doc[field].push({start:at,end:at+1});assert.ok(!numeralIssues(doc,refs).some(i=>i.text==='one'&&i.suggestion==='1'),field+' '+at);}

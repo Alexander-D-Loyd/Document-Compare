@@ -42,6 +42,13 @@ function coordinatedPluralObject(ctx,start,end,after){
  return left&&right?{start:beforeStart+left.index,end:end+right[0].length}:null;
 }
 const lexicalTailStart=(source,end)=>{let start=end;while(start>0&&/\s/.test(source[start-1]))start--;while(start>0&&!/\s/.test(source[start-1]))start--;return start;};
+function standaloneWebpageNounEvidence(source,start,end){
+ // Actual SB3 supplies an intact determiner + existing modifier + webpage
+ // followed by "for". This is noun-role evidence for the printed web page
+ // entry, not a style prescription for stand-alone or other modifiers.
+ const modifierStart=lexicalTailStart(source,start),cueStart=lexicalTailStart(source,modifierStart),left=source.slice(cueStart,start),right=/^\s+for\b/i.exec(source.slice(end));
+ return /^(?:a|an|the|each|every|its|their|our|your)\s+stand-alone\s+$/i.test(left)&&/\bstand-alone\s+$/.test(left)&&right?{start:cueStart,end:end+right[0].length}:null;
+}
 export function listedNounIssues(doc,references){
  const ctx=styleContext(doc),source=ctx.source,issues=[],quoted=[...source.matchAll(/“[^”]*”|"[^"\n]*"/g)].map(m=>({start:m.index,end:m.index+m[0].length}));
  const protectedVerb=createListedNounVerbProtection(doc,ctx);
@@ -62,6 +69,8 @@ export function listedNounIssues(doc,references){
    for(const cue of [head,cashAnalysis,ownershipHead].filter(Boolean))evidence.push({start,end:end+cue[0].length});
    if(assist)evidence.push({start:beforeStart+assist.index,end:end+cashResources[0].length});
    const article=nounCue.exec(before),count=r.selectedPlural&&quantityBefore(start),ending=pluralEnding.exec(after);
+   const standaloneWebpage=r.variant==='webpage'?standaloneWebpageNounEvidence(source,start,end):null;
+   if(standaloneWebpage)evidence.push(standaloneWebpage);
    const countEvidence=r.countedTimeUnit&&count?{start:count.start,end}:null;
    if(r.selectedPlural){
     // A plural ending alone does not establish a noun role: in "The text
@@ -76,7 +85,7 @@ export function listedNounIssues(doc,references){
    if(protectedVerb(start,end,r.variant))continue;
    if(r.preferred==='workday'&&/^\s+and\s+night\b/i.test(after))continue;
    let suggestion=r.preferred;if(/^[A-Z]/.test(m[0]))suggestion=suggestion[0].toUpperCase()+suggestion.slice(1);
-   const message='LCB page '+r.page+' lists “'+(r.sourceForm||r.preferred)+'”. '+(valid(countEvidence)?'An explicit quantity establishes this schoolday time-unit noun, including a following coordinated action. The regular plural preserves the source compound spelling; unlisted time expressions remain manual. ':r.selectedPlural?'The selected regular plural keeps that source compound form and requires a determiner/count with complete nominal evidence, an explicit plural finite predicate at a clause opening, a selected shared prepositional noun phrase, or a recognized noun-modifier head. Unlisted inflections and ambiguous roles remain manual. ':'This occurrence has a noun or recognized noun-modifier cue. ')+'Confirm it is ordinary prose rather than a literal source name.';
+   const message='LCB page '+r.page+' lists “'+(r.sourceForm||r.preferred)+'”. '+(valid(standaloneWebpage)?'An intact determiner, existing stand-alone modifier and following for preposition establish this exact listed web page noun. The modifier itself is not an LCB spelling prescription. ':valid(countEvidence)?'An explicit quantity establishes this schoolday time-unit noun, including a following coordinated action. The regular plural preserves the source compound spelling; unlisted time expressions remain manual. ':r.selectedPlural?'The selected regular plural keeps that source compound form and requires a determiner/count with complete nominal evidence, an explicit plural finite predicate at a clause opening, a selected shared prepositional noun phrase, or a recognized noun-modifier head. Unlisted inflections and ambiguous roles remain manual. ':'This occurrence has a noun or recognized noun-modifier cue. ')+'Confirm it is ordinary prose rather than a literal source name.';
    const cites=[{guideId:'lcb',guideName:'LCB Style Manual',guidePage:r.page,guidePrintedPage:references.lcb.pages[r.page-1].printedPage,rule:'Hyphenation examples',preferred:suggestion,ruleText:message}];
    if(references.gpo&&['cashflow','home ownership'].includes(r.preferred)){
     const page=r.preferred==='cashflow'?136:159,ruleText=r.preferred==='cashflow'?'GPO’s Compounding Examples explicitly prints cashflow as one word on PDF page 136/printed 122, agreeing with LCB page 9. The recognized noun/head role is a bounded implementation context, not a separately printed resource rule.':'GPO’s home list begins on PDF page 158/printed 144 and continues on PDF page 159/printed 145. The continued #ownership entry specifies a space in home ownership, agreeing with LCB page 11. Literal source names and unknown grammatical roles remain protected.';

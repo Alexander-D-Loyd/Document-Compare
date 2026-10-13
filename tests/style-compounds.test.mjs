@@ -31,10 +31,10 @@ test('real-corpus line division and extended mandate names are not compound erro
  assert.equal(check('The work-load applies.')[0].suggestion,'workload');
 });
 
-test('expanded compounds ignore the conflicting ground-water form',()=>{
+test('expanded compounds retain the explicit LCB groundwater priority',()=>{
  const guides={...refs,gpo:JSON.parse(fs.readFileSync(new URL('../app/data/gpo-reference.json',import.meta.url)))};
  const issue=jointStylisticIssues(makeDocument(['Compare ground water levels.'],'Current'),guides).find(i=>i.text==='ground water');
- assert.equal(issue,undefined);
+ assert.ok(issue);assert.equal(issue.suggestion,'groundwater');assert.equal(issue.guideId,'lcb');assert.equal(issue.conflict,false);
 });
 
 test('ordinary noun plurals and fixed hyphenated nouns retain inflections and open exceptions',()=>{

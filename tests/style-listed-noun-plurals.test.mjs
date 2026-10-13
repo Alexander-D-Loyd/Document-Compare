@@ -63,10 +63,10 @@ test('AB 121 counted schoolday units retain their nominal role before a followin
  assert.equal(joint('Charter schools operate a minimum of 175 schooldays and report at least 75 percent of attendance.').length,0);
 });
 
-test('schoolday spelling preserves the duration numeral conflict and ordinary day expressions',()=>{
- const found=joint('Operate 3 school days and report attendance.');assert.deepEqual(found.map(i=>[i.text,i.suggestion]),[['school days','schooldays']]);
+test('schoolday spelling and its duration count follow LCB while ordinary day expressions stay independent',()=>{
+ const found=joint('Operate 3 school days and report attendance.');assert.deepEqual(found.map(i=>[i.text,i.suggestion]),[['3','three'],['school days','schooldays']]);
  assert.deepEqual(raw('Operate three school days and report attendance.').map(i=>i.suggestion),['schooldays']);
- for(const text of ['Operate 3 schooldays and report attendance.','Operate three schooldays and report attendance.','Operate 3, 4, or 5 schooldays.']){assert.equal(joint(text).length,0,text);const issues=numeralIssues(makeDocument([text],'Current'),refs);assert.ok(issues.length);assert.ok(issues.every(i=>i.conflict),'Both numeral forms retain their existing LCB/GPO duration disagreement.');}
+ assert.deepEqual(joint('Operate 3 schooldays and report attendance.').map(i=>i.suggestion),['three']);assert.equal(joint('Operate three schooldays and report attendance.').length,0);assert.deepEqual(joint('Operate 3, 4, or 5 schooldays.').map(i=>i.suggestion),['three','four','five']);
  assert.equal(raw('Operate 175 calendar days and report attendance.').length,0);
  assert.equal(raw('A school days unfamiliar continuation.').length,0,'No quantity or complete nominal boundary supplies the role.');
 });

@@ -1,21 +1,21 @@
 # Document Compare
 
-Offline Windows desktop app for legislative PDF comparison and amendment/style review. This is the **1.21.7 release source**. Digest highlights show only changed words; quoted terms establish bill-local style authority, JR Boxes are indicated separately, and selected LCB checks require stronger original-source evidence. Native workflow verification of this release is unavailable; 1.21.5 remains the last version with a completed native pass.
+Offline Windows desktop app for legislative PDF comparison and amendment/style review. This is the **1.21.10 release source**. Digest selection uses regular amendment outlines; the shared trash clears both optional uploads. Style findings are limited to explicit supported LCB/GPO provisions, with LCB priority and legislative exceptions. Native desktop verification of this release remains unrun.
 
-## Download
+## Run the packaged app
 
-Extract the entire **Document-Compare-Windows-1.21.7.zip** and open **Document Compare/Document Compare.exe**. Keep the runtime and resources together. No installation or development tools are required. PDF and language review run locally.
+Extract the entire **Document-Compare-Windows-1.21.10.zip** and open **Document Compare/Document Compare.exe**. Keep the runtime and resources together. No installation or development tools are required. PDF and language review run locally.
 
 ## Features
 
 - Previous Version, Digest/Instructional Amendments (two independent slots) and Current Version PDF drop boxes; up to 50 MB and 1,500 pages per PDF.
 - Word/punctuation comparison independent of margin numbering, wrapping and page breaks; digest differences excluded from ordinary change highlighting. The uploaded replacement digest appears first under the label Digest; instructional amendment numbers remain exactly as printed in the instructions.
-- Digest-only verification, source strikeouts, failed-load recovery, independent replacement/removal and retained digest uploads on Refresh. The digest heading/enactment boundary confines verification to front matter.
+- Digest-only verification, source strikeouts, failed-load recovery, independent replacement and shared removal of both optional uploads and retained digest uploads on Refresh. The digest heading/enactment boundary confines verification to front matter.
 - Explicit after-line/end-of-bill insertion and final between-lines insertion when the following number is unprinted. Missing intermediate lines remain unresolved, and the inserted text must precede the bill’s end marker.
 - Amendment verification and complete-range navigation, including referenced bill bodies, source strikeouts, insertion arrows and separate discrepancy navigation.
 - Separate Changes, Amendments, Spelling & Grammar, and Stylistic Check modes with forward/backward arrows.
 - Current-only language checking, case-sensitive dictionary and custom style terms, Ignore/Ignore All and Undo.
-- Searchable LCB/GPO sources and honest check-coverage inventory. Conflicting LCB/GPO recommendations are excluded from style findings.
+- Searchable LCB/GPO sources and honest check-coverage inventory. Applicable printed LCB provisions take priority where the guides disagree; unknown conditions remain manual.
 - Local authorized-data spelling importer; see OFFLINE_AUTHORITY.md. Complete Merriam-Webster data is not bundled.
 - On-demand local OCR for printed bill scans, with uncertainty and embedded-text disagreement warnings.
 - Offline California Entities snapshot and selected LanguageTool/spaCy contextual methods. Engines start on demand and do not send text online.
@@ -24,7 +24,7 @@ Blue indicates additions, red deletions, yellow non-amendment changes, and purpl
 
 ## Validation and limitations
 
-All 2,107 JavaScript tests and 14 trained spaCy controls pass. Fresh reading and hyphenation review cover 87 distinct editions of 44 bills (4,506 pages); findings/questions fall from 6,620 to 5,355 with physical source ranges and file hashes verified. Additional source evidence controls preserve all existing word-choice, calendar and percentage findings on that corpus. These are regression checks, not an office accuracy measurement. Native desktop verification remains unavailable; archive integrity is checked separately. See TESTING_REPORT.md and DEVELOPMENT_REVIEW.md for scope, tradeoffs and remaining budget display issues.
+All 1,963 source tests pass. Fresh replay of 11 actual PDFs (2,105 pages) preserves nine amendment results and exact AB 224 Digest change ranges. Source guards, staged offline-engine checks and package integrity are verified separately. These are regression checks, not an office accuracy measurement. Native desktop workflow and appearance verification of 1.21.10 remains unrun. See TESTING_REPORT.md and DEVELOPMENT_REVIEW.md for current scope and historical checks.
 
 Full contextual LCB/GPO automation and the complete ordered Merriam-Webster authority remain incomplete. Genuine SB 879 differences and missing drafting attachments remain flagged. Office-wide precision/recall has not been measured; controlled tests are not an exhaustive human benchmark.
 
@@ -45,4 +45,4 @@ For full offline language-engine functionality, copy the Windows release's `Docu
 
 Run `npm start` to launch the source app. Run `npm test` after restoring the two reference JSON files to execute the complete source suite. The launcher exits with an explicit setup message if those references are missing; it does not label a skipped suite as passed.
 
-The public source ZIP contains the same source as the release tag, including development setup scripts. Generated OCR/assets and reference files are restored as above. The Windows ZIP contains the complete runtime. Native desktop workflow checks of 1.21.6 were skipped at the user’s request. The renderer blocks external network requests, and native engine requests are restricted to the trusted app frame.
+The public source ZIP contains the same source as the release tag, including development setup scripts. Generated OCR/assets and reference files are restored as above. The Windows ZIP contains the complete runtime. Native desktop workflow verification of 1.21.10 remains unrun. The renderer blocks external network requests, and native engine requests are restricted to the trusted app frame.

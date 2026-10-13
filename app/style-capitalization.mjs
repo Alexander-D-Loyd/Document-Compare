@@ -1,5 +1,6 @@
 import {styleContext,styleRangeBlocked} from './style-context.mjs';
 import {supremeCourtAgreement} from './style-supreme-court-context.mjs';
+import {styleEvidenceGuard,cutsOriginalStyleWord} from './style-evidence.mjs';
 const escape=s=>s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
 const names=[
  [9,'Conflict of Interest Code'],
@@ -13,10 +14,12 @@ lower.push([18,'class II'],[18,'class B']);
 export {names as CAPITALIZATION_NAMES,lower as CAPITALIZATION_DESCRIPTIONS};
 export function capitalizationIssues(doc,references){
  const ctx=styleContext(doc),source=ctx.source,issues=[];
+ const blockedEvidence=styleEvidenceGuard(doc,ctx);
  const add=(m,preferred,page,rule,message)=>{
   preferred=preferred.replace(/\s+/g,' ');const listedPreferred=preferred;
   if(ctx.at(m.index)==='Heading'||ctx.tableAt(m.index)||ctx.literalAt(m.index,m.index+m[0].length)||m[0]===m[0].toUpperCase())return;
   if(styleRangeBlocked(doc,m.index,m.index+m[0].length))return;
+  if(cutsOriginalStyleWord(doc,m.index)||cutsOriginalStyleWord(doc,m.index+m[0].length)||blockedEvidence(m.index,m.index+m[0].length))return;
   const supremeAgreement=listedPreferred==='Supreme Court'?supremeCourtAgreement(doc,m.index,m.index+m[0].length):null;
   if(listedPreferred==='Supreme Court'&&!supremeAgreement)return;
   const sentence=ctx.sentenceAt(m.index),prefix=source.slice(sentence.start,m.index).replace(/^[\s”"’']*(?:\([a-z\d]+\)\s*)*/i,'').trim();

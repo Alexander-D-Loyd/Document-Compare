@@ -94,8 +94,10 @@ def check(job,cancel):
      results.append({**candidate,**{field:base+u16(text[:candidate[field]])for field in ['start','end','evidenceStart','evidenceEnd']}})
   else:
    doc=nlp(text)
-   from itertools import chain
-   for candidate in chain(modifierParser.candidates(doc),parserModule.number_relation_candidates(doc)):
+   # Style output is restricted to exact printed catalogue modifiers with
+   # source role witnesses. Generic number/compound reader guesses are not
+   # produced; grammar mode keeps its independent language-engine contract.
+   for candidate in modifierParser.candidates(doc):
     a,b=candidate['evidenceStart'],candidate['evidenceEnd']
     if (not chunk['completeStart']and not text[:a].strip())or(not chunk['completeEnd']and not text[b:].strip()):continue
     results.append(source_candidate_to_plan(candidate,text,base))

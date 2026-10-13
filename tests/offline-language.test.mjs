@@ -3,6 +3,7 @@ import {prepareOfflineLanguage,mapOfflineIssues,mergeOfflineGrammar,reviewOfflin
 import {jointStylisticIssues}from '../app/joint-style.mjs';
 import {OFFLINE_MODIFIERS}from '../app/offline-rules.mjs';
 import {CHECK_COVERAGE}from '../app/style-coverage.mjs';
+import {listedModifierWitness}from './helpers/listed-modifier-witness.mjs';
 const refs=Object.fromEntries(['lcb','gpo'].map(id=>[id,JSON.parse(fs.readFileSync(new URL('../app/data/'+id+'-reference.json',import.meta.url)))]));
 const make=t=>makeDocument(Array.isArray(t)?t:[t],'Current');
 test('source-confirmed passive infinitive review preserves its exact phrase and validated conditional suggestion',()=>{
@@ -10,10 +11,10 @@ test('source-confirmed passive infinitive review preserves its exact phrase and 
  for(const altered of [{...raw,engine:'LanguageTool'},{...raw,reviewSuggested:false},{...raw,suggestion:'required to submit'}])assert.equal(mapOfflineIssues(doc,p,[altered],'grammar').length,0);
  for(const field of ['struck','excluded'])for(let at=0;at<text.length;at++){const bad=make(text);bad[field].push({start:at,end:at+1});assert.equal(mapOfflineIssues(bad,p,[raw],'grammar').length,0,field+' '+at);}
 });
-test('unrelated quotes permit local modifier review without weakening grammar or damaged source guards',()=>{
+test('unrelated quoted sentence evidence does not create a local modifier fallback',()=>{
  for(const text of ['The agency must use high quality scanners described as "advanced".','The agency describes a "scanner" and requires high quality interfaces.',"The term 'sensor' applies to high quality scanners."]){
   const d=make(text),p=prepareOfflineLanguage(d),head=text.includes('interfaces')?'interfaces':'scanners',raw={...issue(p,'high quality','style',head),suggestion:'high-quality',engineRule:'LCB_HIGH_QUALITY_MODIFIER'},saved=JSON.stringify(d),mapped=mapOfflineIssues(d,p,[raw],'style');
-  assert.equal(mapped.length,1,text);assert.equal(mapped[0].attachmentMethod,'local-quote-review');assert.equal(mapped[0].reviewSuggested,true);assert.equal(d.text.slice(mapped[0].start,mapped[0].end),'high quality');assert.equal(JSON.stringify(d),saved);
+  assert.deepEqual(mapped,[],text);assert.equal(JSON.stringify(d),saved);
   for(const field of ['struck','excluded'])for(const fragment of ['high','quality',head,' quality']){const bad=make(text),at=bad.text.indexOf(fragment);bad[field].push({start:at,end:at+1});assert.equal(mapOfflineIssues(bad,p,[raw],'style').length,0,field+' '+fragment);}
  }
  for(const text of ['The agency requires "high quality" scanners.','The agency requires high quality "scanners".','The agency requires high quality "optical" scanners.']){const d=make(text),p=prepareOfflineLanguage(d),raw={...issue(p,'high quality','style','scanners'),suggestion:'high-quality',engineRule:'LCB_HIGH_QUALITY_MODIFIER'};assert.equal(mapOfflineIssues(d,p,[raw],'style').length,0,text);}
@@ -21,7 +22,8 @@ test('unrelated quotes permit local modifier review without weakening grammar or
 });
 function issue(plan,term,kind='grammar',head='program'){
  const start=plan.text.indexOf(term),headStart=plan.text.indexOf(head,start+term.length);
- return {start,end:start+term.length,evidenceStart:0,evidenceEnd:plan.text.length,suggestion:kind==='grammar'?'are':'data-sharing',message:'Check agreement',engineRule:kind==='grammar'?'AGREEMENT_SENT_START':'LCB_DATA_SHARING_MODIFIER',head,headStart,headEnd:headStart+head.length};
+ const value={start,end:start+term.length,evidenceStart:0,evidenceEnd:plan.text.length,suggestion:kind==='grammar'?'are':'data-processing',message:'Check agreement',engine:kind==='grammar'?'LanguageTool':'spaCy',engineRule:kind==='grammar'?'AGREEMENT_SENT_START':'LCB_DATA_PROCESSING_MODIFIER',head,headStart,headEnd:headStart+head.length};
+ if(kind==='style')Object.assign(value,{reviewSuggested:false,attachmentMethod:'direct',modifierRoleEvidence:listedModifierWitness(plan,value)});return value;
 }
 test('offline grammar offsets preserve source line numbers wrapping and Unicode',()=>{
  const doc=make('line 1 The reports\nline 2 is available. 😀'),saved=JSON.stringify(doc),p=prepareOfflineLanguage(doc),raw=issue(p,'is');
@@ -35,11 +37,11 @@ test('source-aware engine mapping protects every part of sentence evidence',()=>
 test('quotes running headings and name contexts stay separate from language evidence',()=>{
  for(const text of ['The title "The reports is available." applies.',"The title 'The reports is available.' applies.",'ASSEMBLY BILL No. 9998\nThe people do enact as follows:\nline 1 The reports are available.']){const p=prepareOfflineLanguage(make(text));assert.ok(!p.text.includes('reports is'));assert.ok(!p.text.includes('ASSEMBLY BILL'));}
 });
-test('parser attachment extends LCB data-sharing before additional nouns and deduplicates agreements',()=>{
- for(const head of ['program','system','practices','policies','agreement']){const d=make('The agency requires a data sharing '+head+'.'),p=prepareOfflineLanguage(d),mapped=mapOfflineIssues(d,p,[issue(p,'data sharing','style',head)],'style');assert.equal(mapped.length,1);const results=jointStylisticIssues(d,refs,{engineIssues:mapped}).filter(i=>i.suggestion==='data-sharing');assert.equal(results.length,1,head);assert.equal(results[0].guideId,'lcb');assert.ok(results[0].references.some(r=>r.guideId==='gpo'));}
+test('printed data-processing candidates require complete direct source role proof',()=>{
+ for(const head of ['program','system','practices','policies','agreement']){const d=make('The agency requires a data processing '+head+'.'),p=prepareOfflineLanguage(d),mapped=mapOfflineIssues(d,p,[issue(p,'data processing','style',head)],'style');assert.equal(mapped.length,1);const results=jointStylisticIssues(d,refs,{engineIssues:mapped}).filter(i=>i.suggestion==='data-processing');assert.equal(results.length,1,head);assert.equal(results[0].guideId,'lcb');assert.ok(results[0].references.some(r=>r.guideId==='lcb'&&r.guidePage===10));}
 });
 test('unknown engine rules invalid offsets apparent titles and incomplete attachments cannot add findings',()=>{
- const d=make('The agency requires a data sharing program.'),p=prepareOfflineLanguage(d),raw=issue(p,'data sharing','style');
+ const d=make('The agency requires a data processing program.'),p=prepareOfflineLanguage(d),raw=issue(p,'data processing','style');
  for(const bad of [{...raw,start:-1},{...raw,end:p.text.length+1},{...raw,evidenceStart:raw.end},{...raw,engineRule:'UNKNOWN'},{...raw,head:'Program'},{...raw,headStart:raw.headStart+1}])assert.deepEqual(mapOfflineIssues(d,p,[bad],'style'),[]);
  const x=make('The reports is available.'),q=prepareOfflineLanguage(x);assert.deepEqual(mapOfflineIssues(x,q,[{...issue(q,'is'),engineRule:'COMMA_PERIOD_CONFUSION'}],'grammar'),[]);
 });
@@ -81,12 +83,13 @@ test('every original sentence cue and connector protects new parser modifiers fr
  }
 });
 
-test('complete listed modifier replaces conflicting contained generic prefix guess',()=>{
- const d=make('The agency requires non work related capabilities.'),p=prepareOfflineLanguage(d),raw={...issue(p,'non work related','style','capabilities'),engineRule:'LCB_NON_WORK_RELATED_MODIFIER',suggestion:'non-work-related',reviewSuggested:true};
- const baseline=jointStylisticIssues(d,refs);assert.ok(baseline.some(i=>i.suggestion==='nonwork'));
+test('complete printed modifier has precedence without an invented prefix or fallback',()=>{
+ const d=make('The agency requires non work related capabilities.'),p=prepareOfflineLanguage(d),raw={...issue(p,'non work related','style','capabilities'),engineRule:'LCB_NON_WORK_RELATED_MODIFIER',suggestion:'non-work-related'};
+ const baseline=jointStylisticIssues(d,refs);assert.ok(!baseline.some(i=>i.suggestion==='nonwork'));
  const mapped=mapOfflineIssues(d,p,[raw],'style'),reviewed=jointStylisticIssues(d,refs,{engineIssues:mapped});
  assert.equal(reviewed.filter(i=>i.suggestion==='non-work-related').length,1);assert.ok(!reviewed.some(i=>i.suggestion==='nonwork'));
- const full=reviewed.find(i=>i.suggestion==='non-work-related');assert.equal(d.text.slice(full.start,full.end),'non work related');assert.ok(full.message.startsWith('Review Suggested:'));assert.equal(full.reviewSuggested,true);assert.ok(full.references.some(r=>r.guidePage===12));
+ const full=reviewed.find(i=>i.suggestion==='non-work-related');assert.equal(d.text.slice(full.start,full.end),'non work related');assert.notEqual(full.reviewSuggested,true);assert.ok(full.references.some(r=>r.guidePage===12));
+ assert.deepEqual(mapOfflineIssues(d,p,[{...raw,reviewSuggested:true,attachmentMethod:'noun-adjacent-review'}],'style'),[]);
 });
 
 test('listed modifier mapping preserves complete partial forms and capitalization',()=>{
@@ -97,8 +100,8 @@ test('listed modifier mapping preserves complete partial forms and capitalizatio
   ['The agency serves the limited english proficient population.','limited english proficient','limited-English-proficient']
   ,['The agency serves the limited-english-proficient population.','limited-english-proficient','limited-English-proficient']
  ]){
-  const rule=OFFLINE_MODIFIERS.find(r=>r.preferred.toLowerCase()===preferred.toLowerCase()),head=text.match(/(instrument|election|capabilities|population)\b/)[0],d=make(text),p=prepareOfflineLanguage(d),raw={...issue(p,term,'style',head),engineRule:rule.engineRule,suggestion:rule.preferred,reviewSuggested:true},mapped=mapOfflineIssues(d,p,[raw],'style');
-  assert.equal(mapped.length,1,text);assert.equal(mapped[0].suggestion,preferred);assert.equal(d.text.slice(mapped[0].start,mapped[0].end),term);assert.equal(mapped[0].reviewSuggested,true);
+  const rule=OFFLINE_MODIFIERS.find(r=>r.preferred.toLowerCase()===preferred.toLowerCase()),head=text.match(/(instrument|election|capabilities|population)\b/)[0],d=make(text),p=prepareOfflineLanguage(d),raw={...issue(p,term,'style',head),engineRule:rule.engineRule,suggestion:rule.preferred},mapped=mapOfflineIssues(d,p,[raw],'style');
+  assert.equal(mapped.length,1,text);assert.equal(mapped[0].suggestion,preferred);assert.equal(d.text.slice(mapped[0].start,mapped[0].end),term);assert.equal(mapped[0].reviewSuggested,false);
  }
 });
 
@@ -117,6 +120,6 @@ test('listed modifiers protect source exceptions titles complete forms and body 
  }
 });
 
-test('coverage describes catalogue review suggestions without certifying complete automation',()=>{
- const row=CHECK_COVERAGE.find(r=>r.title==='Offline language engines');assert.ok(row.text.includes('75'));assert.ok(row.text.includes('Review Suggested'));assert.ok(row.text.includes('whole-rule'));assert.ok(row.text.includes('Current Version'));
+test('coverage describes exact catalogue witnesses and retired speculative fallbacks',()=>{
+ const row=CHECK_COVERAGE.find(r=>r.title==='Offline language engines');assert.ok(row.text.includes('75'));assert.ok(row.text.includes('direct grammatical'));assert.ok(row.text.includes('disabled'));assert.ok(row.text.includes('no adjacent-noun or quotation fallback'));assert.ok(row.text.includes('full-rule'));
 });

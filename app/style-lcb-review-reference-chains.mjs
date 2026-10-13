@@ -12,7 +12,34 @@ const join=/^\s*(?:,\s*(?:(?:and|or)\s+)?|(?:and|or|to|through)\s+)/i;
 const terminal=/^\s*(?:[,;.)]|$)|^\s+(?:of|in|under|pursuant|apply|applies|provide|provides|govern|governs|shall|must|may|will|are|is|as|that|which|have|has|relating|commencing|above|below|inclusive|et\s+seq)\b/i;
 const constitution=/^\s+of\s+(?:the\s+)?(?:(?:California|United\s+States|federal|state)\s+)?Constitution(?:\s+of\s+(?:the\s+)?State\s+of\s+California)?\b/i;
 const intersects=(rows,start,end)=>rows.some(r=>r.start<end&&r.end>start);
-export const LCB_REFERENCE_CHAIN_SCOPE='Complete source-anchored legal-reference chains check canonical written serial numbers after Section, Chapter, Part, Division, Paragraph and related structural labels, including mixed figure/word lists, direct ranges and parenthesized suffixes. Every connecting source word and label is intact evidence; each changed number retains its exact original selection. Existing precise checks retain precedence. Ordinary quantities, unresolved terminal nouns, malformed numerical expressions, source strikes, literals, tables, headings, unknown exclusions and Unicode fragments are protected. Explicit constitutional Article references receive identity review rather than an asserted Arabic replacement; existing Roman forms remain clear. LCB’s exact Fourteenth Amendment example has a precise figure-ordinal check. This checks notation and source-listed examples, not legal cross-reference validity or general constitutional identity.';
+export const LCB_REFERENCE_CHAIN_SCOPE='Complete source-anchored legal-reference chains check canonical written serial numbers after Section, Chapter, Part, Division, Paragraph and related structural labels, including mixed figure/word lists, direct ranges and parenthesized suffixes. Every connecting source word and label is intact evidence; each changed number retains its exact original selection. Existing precise checks retain precedence. Ordinary quantities, unresolved terminal nouns, malformed numerical expressions, source strikes, literals, tables, headings, unknown exclusions and Unicode fragments are protected. Explicit constitutional Article references receive identity review rather than an asserted Arabic replacement; existing Roman forms remain clear. The exact complete Fourteenth Amendment to the United States Constitution example owns its written or figure ordinal before generic Bill/Digest formatting and checks selected word case against that printed name. Full original phrase evidence remains required; other amendment identities are not inferred. This checks notation and source-listed examples, not legal cross-reference validity or general constitutional identity.';
+
+const namedAmendmentWords=['Fourteenth','Amendment','to','the','United','States','Constitution'];
+// This one complete phrase is actually printed on LCB22. Its identity is not
+// inferred from a nearby amendment, a constitutional ordinal or a fuzzy name.
+function namedAmendmentEvidence(doc,ctx){
+ const blocked=styleEvidenceGuard(doc,ctx),out=[];
+ for(const m of ctx.source.matchAll(/(?<![\p{L}\p{N}\p{M}_])(?:14th|fourteenth)\s+Amendment\s+to\s+the\s+United\s+States\s+Constitution(?![\p{L}\p{N}\p{M}_])/giu)){
+  const end=m.index+m[0].length;
+  if(ctx.at(m.index)==='Heading'||cutsOriginalStyleWord(doc,m.index)||cutsOriginalStyleWord(doc,end)||/[-\u2010-\u2015]/u.test(doc.text[m.index-1]||'')||/[-\u2010-\u2015]/u.test(doc.text[end]||'')||blocked(m.index,end)||m[0]===m[0].toUpperCase())continue;
+  const words=[...m[0].matchAll(/\S+/gu)].map((w,n)=>({start:m.index+w.index,end:m.index+w.index+w[0].length,text:w[0],preferred:namedAmendmentWords[n]}));
+  if(words.length!==namedAmendmentWords.length)continue;
+  out.push({start:m.index,end,words});
+ }
+ return out;
+}
+
+function billSectionEtSequenceIssues(doc,references,ctx,existingIssues){
+ const enact=/\bdo\s+enact\s+as\s+follows\s*:/iu.exec(ctx.source);
+ if(!enact||styleEvidenceGuard(doc,ctx)(enact.index,enact.index+enact[0].length))return [];
+ const blocked=styleEvidenceGuard(doc,ctx),issues=[];
+ for(const m of ctx.source.matchAll(/(?<![\p{L}\p{N}\p{M}_])Sections?\s+\d+(?:\.\d+)*\s+(?<term>et\.)\s+seq\.(?![\p{L}\p{N}\p{M}_])/giu)){
+  const evidenceStart=m.index,evidenceEnd=m.index+m[0].length,start=m.index+m[0].indexOf(m.groups.term),end=start+m.groups.term.length;
+  if(ctx.at(start)!=='Bill'||cutsOriginalStyleWord(doc,evidenceStart)||cutsOriginalStyleWord(doc,evidenceEnd)||blocked(evidenceStart,evidenceEnd)||intersects(existingIssues,start,end))continue;
+  issues.push({start,end,text:doc.text.slice(start,end),suggestion:'et',evidenceStart,evidenceEnd,guideId:'lcb',guidePage:22,guidePrintedPage:references.lcb.pages[21].printedPage,rule:'Numerals: Code Sections and Constitution',category:'Bill Reference Notation',context:'Bill',confidence:'Rule check',reviewSuggested:false,checkId:'lcb-bill-et-seq',conflict:false,message:'LCB’s Bill example is “Section 123 et seq.” The word et has no period; seq. retains its period. This complete numeric Section reference establishes only the printed notation, not the cited section’s legal identity or validity.',references:[{guideId:'lcb',guideName:'LCB Style Manual',guidePage:22,guidePrintedPage:references.lcb.pages[21].printedPage,rule:'Numerals: Code Sections and Constitution',preferred:'et',ruleText:'Section 123 et seq. (bill)'}]});
+ }
+ return issues;
+}
 
 function referenceChains(doc,ctx){
  const source=ctx.source,blocked=styleEvidenceGuard(doc,ctx),numeric=numericExpressionGuard(doc,ctx),written=writtenQuantityEvidenceGuard(doc,ctx),scales=new Map(andCardinalParts(source).map(r=>[r.start,r])),chains=[];
@@ -66,11 +93,12 @@ function review(doc,references,existingIssues,kind){
   const start=chain.start,end=start+chain.label.length;if(intersects(existingIssues,start,end))continue;
   issues.push({start,end,text:doc.text.slice(start,end),suggestion:null,conditionalSuggestion:chain.label+'s',rule:'Numerals: Code Sections and Constitution',guideId:'lcb',guidePage:22,guidePrintedPage:'22',category:'Coordinated Reference Review',context:ctx.at(start),confidence:'Review Suggested',reviewSuggested:true,reviewKind:'reference-number-agreement',checkId:'lcb-reference-number-agreement-review',conflict:false,matchesPrimary:false,message:'Review Suggested: A singular structural label introduces multiple identifiers joined by “and” or a range. LCB distinguishes “Sections 123 and 124” and “Sections 123 to 130” from the permitted alternative “Section 123 or 124”. Verify whether this coordinated reference requires a plural label; no replacement has been selected.',references:[{guideId:'lcb',guideName:'LCB Style Manual',rule:'Numerals: Code Sections and Constitution',guidePage:22,guidePrintedPage:String(references.lcb.pages[21].printedPage),preferred:null,ruleText:'Sections 123 and 124; Section 123 or 124; Sections 123 to 130, inclusive.'}]});
  }
- if(kind==='precise')for(const m of ctx.source.matchAll(/(?<![\p{L}\p{N}\p{M}_])(?<term>14th)\s+Amendment\s+to\s+the\s+United\s+States\s+Constitution\b/giu)){
-  const start=m.index,end=start+m.groups.term.length,blocked=styleEvidenceGuard(doc,ctx);
-  if(ctx.at(start)==='Heading'||cutsOriginalStyleWord(doc,start)||blocked(m.index,m.index+m[0].length)||intersects(existingIssues,start,end))continue;
-  issues.push({start,end,text:doc.text.slice(start,end),suggestion:'Fourteenth',rule:'Numerals: Code Sections and Constitution',guideId:'lcb',guidePage:22,guidePrintedPage:'22',category:'Named Constitutional Amendment',context:ctx.at(start),confidence:'Rule check',checkId:'lcb-named-amendment',conflict:false,matchesPrimary:false,message:'LCB explicitly lists “Fourteenth Amendment to the United States Constitution”. Preserve the named amendment’s written ordinal.',references:[{guideId:'lcb',guideName:'LCB Style Manual',rule:'Numerals: Code Sections and Constitution',guidePage:22,guidePrintedPage:'22',preferred:'Fourteenth',ruleText:'Fourteenth Amendment to the United States Constitution.'},{guideId:'gpo',guideName:'GPO Style Manual',rule:'12.19',guidePage:295,guidePrintedPage:String(references.gpo.pages[294].printedPage),preferred:'Fourteenth',ruleText:'Numbers appearing as part of proper names or in connection with serious and dignified subjects and formal writing are spelled out.'}]});
+ if(kind==='precise')for(const evidence of namedAmendmentEvidence(doc,ctx))for(const word of evidence.words){
+  const {start,end,preferred}=word;if(word.text===preferred||intersects(existingIssues,start,end))continue;
+  const ordinal=word===evidence.words[0];
+  issues.push({start,end,text:doc.text.slice(start,end),suggestion:preferred,evidenceStart:evidence.start,evidenceEnd:evidence.end,rule:'Numerals: Code Sections and Constitution',guideId:'lcb',guidePage:22,guidePrintedPage:'22',category:'Named Constitutional Amendment',context:ctx.at(start),confidence:'Rule check',checkId:'lcb-named-amendment',conflict:false,matchesPrimary:false,message:'LCB explicitly lists “Fourteenth Amendment to the United States Constitution”. Preserve the exact printed name and written ordinal; this complete phrase, rather than a generic amendment identity, establishes the selected word.',references:[{guideId:'lcb',guideName:'LCB Style Manual',rule:'Numerals: Code Sections and Constitution',guidePage:22,guidePrintedPage:'22',preferred,ruleText:'Fourteenth Amendment to the United States Constitution.'},...(ordinal?[{guideId:'gpo',guideName:'GPO Style Manual',rule:'12.19',guidePage:295,guidePrintedPage:String(references.gpo.pages[294].printedPage),preferred,ruleText:'Numbers appearing as part of proper names or in connection with serious and dignified subjects and formal writing are spelled out.'}]:[])]});
  }
+ if(kind==='precise')issues.push(...billSectionEtSequenceIssues(doc,references,ctx,existingIssues));
  return issues.sort((a,b)=>a.start-b.start||a.end-b.end);
 }
 function run(doc,references,options,kind){
@@ -83,4 +111,10 @@ export const lcbConstitutionalReferenceReviewIssues=(doc,references,options={})=
 export const lcbStructuralReferenceReviewIssues=(doc,references,options={})=>run(doc,references,options,'structural');
 export const lcbCoordinatedReferenceReviewIssues=(doc,references,options={})=>run(doc,references,options,'plural');
 // These source-bound protection ranges apply even when reader-review suggestions are hidden.
-export const lcbReferenceIdentityProtectionRanges=(doc,references)=>[...lcbConstitutionalReferenceReviewIssues(doc,references),...lcbStructuralReferenceReviewIssues(doc,references)].map(({start,end,supersedesCheckIds})=>({start,end,supersedesCheckIds}));
+export const lcbReferenceIdentityProtectionRanges=(doc,references)=>{
+ const ranges=[...lcbConstitutionalReferenceReviewIssues(doc,references),...lcbStructuralReferenceReviewIssues(doc,references)].map(({start,end,supersedesCheckIds})=>({start,end,supersedesCheckIds}));
+ // The printed complete name owns its ordinal before generic Bill/Digest
+ // ordinal formatting, even when the source's initial capitals are missing.
+ for(const evidence of namedAmendmentEvidence(doc,styleContext(doc)))ranges.push({start:evidence.words[0].start,end:evidence.words[0].end,supersedesCheckIds:['numerals']});
+ return ranges;
+};

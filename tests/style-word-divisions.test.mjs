@@ -5,7 +5,7 @@ import compounds from '../app/data/style-division-compounds.json' with {type:'js
 const refs=Object.fromEntries(['lcb','gpo'].map(id=>[id,JSON.parse(fs.readFileSync(new URL('../app/data/'+id+'-reference.json',import.meta.url)))])),words=await workerWords();
 const make=t=>makeDocument(Array.isArray(t)?t:[t],'Current',[],[],words),check=t=>jointStylisticIssues(make(t),refs);
 test('existing contextual rules receive recognized words split inside the modifier, head or jurisdiction',()=>{
- for(const [bad,preferred] of [['The high qual-\nity services shall apply.','high-quality'],['The data sharing agree-\nment shall apply.','data-sharing'],['The Califor-\nnia supreme court shall act.','Supreme Court'],['The output is measured in Kilow-\natt (kW).','kilowatt'],['The county Treas-\nurer shall act.','treasurer']]){const d=make(bad);assert.ok(d.wrappedWords.some(w=>w.recognized),bad);const found=jointStylisticIssues(d,refs);assert.ok(found.some(i=>i.suggestion===preferred),bad+' '+JSON.stringify(found.map(i=>i.suggestion)));}
+ for(const [bad,preferred] of [['The high qual-\nity services shall apply.','high-quality'],['The data processing agree-\nment shall apply.','data-processing'],['The Califor-\nnia supreme court shall act.','Supreme Court'],['The output is measured in Kilow-\natt (kW).','kilowatt'],['The county Treas-\nurer shall act.','treasurer']]){const d=make(bad);assert.ok(d.wrappedWords.some(w=>w.recognized),bad);const found=jointStylisticIssues(d,refs);assert.ok(found.some(i=>i.suggestion===preferred),bad+' '+JSON.stringify(found.map(i=>i.suggestion)));}
 });
 test('finite explicitly checked spelling variants also survive physical word divisions without dictionary acceptance',()=>{
  const d=make('The assig-\nnner shall act.');assert.ok(d.wrappedWords.some(w=>w.word==='assignner'&&!w.recognized));assert.deepEqual(jointStylisticIssues(d,refs).map(i=>i.suggestion),['assigner']);
@@ -56,3 +56,6 @@ test('every protected listed compound retains its true hyphen at each physical d
 test('finite role and expression variants reach their original contextual rules across word divisions',()=>{
  for(const [text,wanted]of [['The xr-\nay images are retained.','x-ray'],['The costeffec-\ntively process applies.','cost-effectively'],['The revi-\nvver shall act.','reviver']])assert.ok(check(text).some(i=>i.suggestion===wanted),text+' '+JSON.stringify(check(text).map(i=>i.suggestion)));
 });
+
+
+

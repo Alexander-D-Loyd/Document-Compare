@@ -10,8 +10,8 @@ test('crossed species, magnification, ordinary lists, quoted formulas and tables
  assert.equal(check('Early June × Bright is a breeding cross. Use × 4 magnification. A + B are labels. The term “formula A + B” is quoted. The formula total + revenue is complex.').length,0);
  const doc=makeDocument(['Use the formula A + B.'],'Current');doc.struck=[{start:doc.text.indexOf('A +'),end:doc.text.indexOf('A +')+5}];assert.equal(jointStylisticIssues(doc,refs).filter(i=>i.checkId==='symbols').length,0);
 });
-test('simple repeated percent series is distinguished from distinct labeled percentages and digest conflicts',()=>{
+test('simple repeated percent series stays distinct from labels and the printed LCB Digest percent form',()=>{
  assert.deepEqual(check('The prices rose 12 percent, 15 percent, and 19 percent.').map(i=>i.suggestion),['12, 15, and 19 percent']);
  assert.equal(check('The prices rose 12, 15, and 19 percent. Apply a 12 percent increase, a 15 percent decrease, and a 19 percent allowance.').length,0);
- assert.equal(jointStylisticIssues(makeDocument(['LEGISLATIVE COUNSEL’S DIGEST\nThe prices rose 12 percent, 15 percent, and 19 percent.'],'Current'),refs).length,0);
+ assert.deepEqual(jointStylisticIssues(makeDocument(['LEGISLATIVE COUNSEL’S DIGEST\nThe prices rose 12 percent, 15 percent, and 19 percent.'],'Current'),refs).map(i=>i.suggestion),['12%','15%','19%']);
 });

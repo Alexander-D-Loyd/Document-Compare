@@ -2,11 +2,11 @@ import test from 'node:test';import assert from 'node:assert/strict';import fs f
 import {makeDocument} from '../app/core.mjs';import {jointStylisticIssues} from '../app/joint-style.mjs';import {styleContext,withStyleContext} from '../app/style-context.mjs';import {CAPITALIZATION_NAMES} from '../app/style-capitalization.mjs';
 const refs=Object.fromEntries(['lcb','gpo'].map(id=>[id,JSON.parse(fs.readFileSync(new URL('../app/data/'+id+'-reference.json',import.meta.url)))]));
 const check=t=>jointStylisticIssues(makeDocument([t],'Current'),refs);
-test('literal quotes protect ratio, measurement, capitalization and data-sharing wording',()=>{
- for(const quote of [['“','”'],['"','"']])for(const term of ['ratio of one to five','5kg','3:00 a.m.','3 o’clock a.m.','5 ° C','calworks Program','Vitamin c','data sharing agreement','The Legislative analyst’s office']){
+test('literal quotes protect ratio, measurement, capitalization and data-processing wording',()=>{
+ for(const quote of [['“','”'],['"','"']])for(const term of ['ratio of one to five','5kg','3:00 a.m.','3 o’clock a.m.','5 ° C','calworks Program','Vitamin c','data processing agreement','The Legislative analyst’s office']){
   const text='The term '+quote[0]+term+quote[1]+' is literal.';assert.equal(check(text).length,0,text);
  }
- for(const text of ['The ratio of one to five applies.','Use 5kg of material.','The calworks Program applies.','A data sharing agreement applies.'])assert.ok(check(text).length,text);
+ for(const text of ['The ratio of one to five applies.','Use 5kg of material.','The calworks Program applies.','A data processing agreement applies.'])assert.ok(check(text).length,text);
 });
 test('specific manual-listed names are checked without external entity assumptions',()=>{
  for(const [page,name] of CAPITALIZATION_NAMES.filter(([page,name])=>/Vallejo|Riverside|Homeland|Analyst|United States Constitutions/.test(name))){
@@ -20,3 +20,6 @@ test('shared literal context stays transient and refreshes after source replacem
  withStyleContext(doc,()=>assert.equal(styleContext(doc).literalRanges.length,1));
  doc.text=doc.text.replace('“',' ').replace('”',' ');assert.equal(styleContext(doc).literalRanges.length,0);
 });
+
+
+

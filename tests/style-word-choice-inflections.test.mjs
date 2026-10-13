@@ -34,7 +34,7 @@ test('selected verb findings preserve margins, page offsets, removed text and re
  const table=makeDocument(['The agency has insured accuracy........ 100'],'Current');assert.equal(wordChoiceIssues(table,refs).length,0);
  const heading=makeDocument(['The agency has insured accuracy\nLEGISLATIVE COUNSEL’S DIGEST\nThe agency acts.\nThe people of the State of California do enact as follows:\nThe agency acts.'],'Current');assert.equal(wordChoiceIssues(heading,refs).length,0);
 });
-test('known guide conflicts remain excluded alongside independent expanded word-choice findings',()=>{
+test('LCB lexical and duration choices remain active beside independent word-choice findings',()=>{
  const d=makeDocument(['The agency has insured accuracy. Use healthcare. Provide 4 days’ notice.'],'Current'),issues=jointStylisticIssues(d,refs);
- assert.ok(issues.some(i=>i.suggestion==='ensured'));assert.ok(!issues.some(i=>i.conflict||/healthcare|4/.test(i.text)));
+ assert.ok(issues.some(i=>i.suggestion==='ensured'));assert.ok(issues.some(i=>i.text==='healthcare'&&i.suggestion==='health care'));assert.ok(issues.some(i=>i.text==='4'&&i.suggestion==='four'));assert.ok(!issues.some(i=>i.conflict));
 });

@@ -20,11 +20,14 @@ test('version strings, numbered buildings, committees and spaced chapter citatio
  assert.deepEqual(corrections('Allow 1 year under 8 Cal. Code Regs., 3401.').map(i=>i.suggestion),['one']);
 });
 test('literal source names are preserved while ordinary uses of the same compounds are checked',()=>{
- const doc=makeDocument(['The Department of Healthcare Access and Infor-\nline 1 mation acts. The Missing Persons DNA Data Base Fund pays. California Health-\nline 2 care, Research and Prevention Tobacco Tax Act applies. Municipal Storm\nline 3 Water and Urban Runoff Discharges Mandate applies. School Bus Safety I and II applies. Centers for Medicare and Medicaid Services\nline 4 approved projects continue. Ordinary storm water and data sharing agreements remain.'],'Current');
- const corrections=jointStylisticIssues(doc,refs).filter(i=>!i.matchesPrimary);assert.deepEqual(corrections.map(i=>i.suggestion),['stormwater','data-sharing']);
+ const doc=makeDocument(['The Department of Healthcare Access and Infor-\nline 1 mation acts. The Missing Persons DNA Data Base Fund pays. California Health-\nline 2 care, Research and Prevention Tobacco Tax Act applies. Municipal Storm\nline 3 Water and Urban Runoff Discharges Mandate applies. School Bus Safety I and II applies. Centers for Medicare and Medicaid Services\nline 4 approved projects continue. Ordinary storm water and data processing agreements remain.'],'Current');
+ const corrections=jointStylisticIssues(doc,refs).filter(i=>!i.matchesPrimary);assert.deepEqual(corrections.map(i=>i.suggestion),['stormwater','data-processing']);
 });
 test('a citation continues across a PDF page header without treating the next identifier as a quantity',()=>{
  const doc=makeDocument(['Budget Act of 2026.\nline 1 Chs. 4','AB 109 — 2 —\nItem Amount\nline 1 and 5, Stats. 2025.\nline 2 A report covers 1 year.'],'Current');
  const heading=doc.blocks.find(b=>b.text==='Item Amount');heading.formatting={headerParts:[{},{}]};
  assert.deepEqual(numeralIssues(doc,refs).filter(i=>!i.matchesPrimary).map(i=>i.suggestion),['one']);
 });
+
+
+

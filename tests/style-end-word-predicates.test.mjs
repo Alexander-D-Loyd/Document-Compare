@@ -8,7 +8,7 @@ const refs=Object.fromEntries(['lcb','gpo'].map(id=>[id,JSON.parse(fs.readFileSy
 const review=t=>jointStylisticIssues(makeDocument([t],'Current'),refs).filter(i=>i.rule==='Hyphenation, item 2 and End words');
 
 test('LCB productive end words use complete lexical bases beyond the fixed root list',()=>{
- const scope=styleRuleInventory(refs).find(r=>r.id==='gpo-6.18');assert.equal(scope.status,'Partially automated');assert.match(scope.scope,/remain manual/);
+ const scope=styleRuleInventory(refs).find(r=>r.id==='gpo-6.18');assert.equal(scope.status,'Partially automated');assert.match(scope.scope,/manual/);
  for(const form of ['cloud-based','web-based','content-based','location-based','performance-based','project-related','minister-approved','district-adopted']){
   const open=form.replaceAll('-',' ');
   for(const text of ['The program is '+form+'.','The program shall be fully '+form+' for this purpose.','The program remains '+form+' when used.']){

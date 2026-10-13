@@ -19,13 +19,13 @@ test('finite close spelling variants reject Unicode suffixes and prefixes withou
  for(const row of LCB_SPELLING_VARIANTS)for(const extra of ['é','\u0301'])for(const body of [extra+row.variant,row.variant+extra])assert.equal(spelling('The '+body+' is shown.').length,0,body);
 });
 test('masked source suffixes and prefixes cannot manufacture prefix or spelling tokens',()=>{
- for(const [check,form]of [[prefix,'non-negotiable'],[prefix,'anti individual'],[prefix,'antiEnglish'],[spelling,'cemetary'],[spelling,'payor']])for(const edge of ['left','right'])for(const kind of ['struck','excluded']){
+ for(const [check,form]of [[prefix,'non-profit'],[prefix,'self control'],[prefix,'antiSemitism'],[spelling,'cemetary'],[spelling,'payor']])for(const edge of ['left','right'])for(const kind of ['struck','excluded']){
   const value=edge==='left'?'x'+form:form+'x',text='The '+value+' applies.',doc=makeDocument([text],'Current'),start=4+(edge==='left'?0:form.length);
   doc[kind]=[...(doc[kind]||[]),{start,end:start+1}];assert.equal(check(doc).length,0,JSON.stringify({form,edge,kind}));
  }
 });
 test('masked source characters between prefix and root do not establish an open compound',()=>{
- for(const form of ['non x negotiable','self x control','anti x individual'])for(const kind of ['struck','excluded']){
+ for(const form of ['non x profit','self x control','anti x Semitism'])for(const kind of ['struck','excluded']){
   const text='The '+form+' applies.',doc=makeDocument([text],'Current'),start=text.indexOf('x');doc[kind]=[...(doc[kind]||[]),{start,end:start+1}];assert.equal(prefix(doc).length,0,form+' '+kind);
  }
 });
@@ -35,16 +35,16 @@ test('complete spelling sense evidence cannot be supplied by struck or unknown e
  }
 });
 test('wrapped source quotations protect prefix and close spelling detectors independently',()=>{
- for(const [check,form]of [[prefix,'non-negotiable'],[prefix,'antiEnglish'],[spelling,'cemetary'],[spelling,'wilfully']])assert.equal(check('The term "a clause\n'+form+' applies" is literal.').length,0,form);
+ for(const [check,form]of [[prefix,'non-profit'],[prefix,'antiSemitism'],[spelling,'cemetary'],[spelling,'wilfully']])assert.equal(check('The term "a clause\n'+form+' applies" is literal.').length,0,form);
 });
 test('joint LCB review preserves damaged-token protection at complete source offsets',()=>{
- for(const form of ['non-negotiable','antiEnglish','cemetary']){
+ for(const form of ['non-profit','antiSemitism','cemetary']){
   const text='The '+form+'x applies.',doc=makeDocument([text],'Current');doc.struck=[{start:4+form.length,end:5+form.length}];assert.equal(family(doc).length,0,form);
  }
 });
 test('intact noun and prefix source spans remain active across recognized margins and page heads',()=>{
- const doc=makeDocument(['ASSEMBLY BILL No. 577\nline 1 The people of the State of California do enact as follows:\nline 2 The non\n94','AB 577 — 2 —\nline 1 negotiable program applies.\nline 2 The cemetary is shown.'],'Current'),before=JSON.stringify(doc),issues=family(doc);
- assert.ok(issues.some(i=>i.suggestion==='nonnegotiable'));assert.ok(issues.some(i=>i.suggestion==='cemetery'));for(const i of issues)assert.equal(doc.text.slice(i.start,i.end),i.text);assert.equal(JSON.stringify(doc),before);
+ const doc=makeDocument(['ASSEMBLY BILL No. 577\nline 1 The people of the State of California do enact as follows:\nline 2 The quasi\n94','AB 577 — 2 —\nline 1 judicial program applies.\nline 2 The cemetary is shown.'],'Current');for(const block of doc.blocks.filter(b=>b.ignored))block.formatting={headerParts:[{text:block.text}]};const before=JSON.stringify(doc),issues=family(doc);
+ assert.ok(issues.some(i=>i.suggestion==='quasi-judicial'));assert.ok(issues.some(i=>i.suggestion==='cemetery'));for(const i of issues)assert.equal(doc.text.slice(i.start,i.end),i.text);assert.equal(JSON.stringify(doc),before);
 });
 test('LCB explicitly listed willfully has complete adverb variant coverage',()=>{
  assert.ok(refs.lcb.pages[4].text.split('\n').some(line=>line.trim()==='willfully'));

@@ -15,10 +15,11 @@ test('source column and paragraph geometry keeps wrapped capitalization entries 
  const capital=styleRuleInventory(refs).find(r=>r.id==='lcb-entry-18-county-employees-retirement-law-of-1937');assert.equal(capital.status,'Partially automated');assert.ok(capital.scope.includes('authentic referents'));
 });
 
-test('excluded lexical guide disagreements are not represented as active spelling or case checks',()=>{
+test('source inventory labels printed LCB priority as partial contextual coverage',()=>{
  const entries=styleRuleInventory(refs).filter(r=>r.id.startsWith('lcb-entry-'));
- for(const form of ['health care','federal government']){const item=entries.find(r=>r.text===form);assert.equal(item.status,'Excluded guide conflict');assert.ok(item.scope.includes('excluded'));}
- const collective=entries.find(r=>r.text==='collective bargaining (n., u.m.)');assert.ok(collective.scope.includes('known guide disagreements'));
+ for(const form of ['health care','federal government']){const item=entries.find(r=>r.text===form);assert.equal(item.status,'Partially automated');assert.ok(item.scope.includes('LCB takes priority'));assert.ok(item.scope.includes('unfamiliar roles'));}
+ const collective=entries.find(r=>r.text==='collective bargaining (n., u.m.)');assert.match(collective.scope,/LCB priority/);assert.match(collective.scope,/noun and modifier contexts/);assert.match(collective.scope,/unfamiliar syntax and meaning remain manual/);assert.ok(!collective.scope.includes('excluded as known guide disagreements'));
+ const african=entries.find(r=>r.text==='African American');assert.match(african.scope,/LCB priority/);assert.match(african.scope,/Unencoded contexts remain manual/);assert.ok(!african.scope.includes('excluded where the guides disagree'));
 });
 test('discrete entries distinguish selected checks from unimplemented contextual forms',()=>{
  const entries=styleRuleInventory(refs).filter(r=>r.id.startsWith('lcb-entry-'));assert.ok(entries.find(r=>r.text==='cost-effective (u.m.)').scope.includes('recognized noun head'));

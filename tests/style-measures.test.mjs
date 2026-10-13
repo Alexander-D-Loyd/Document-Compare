@@ -19,5 +19,5 @@ test('measurement checks retain source offsets across margins and exclude crosse
 
 test('combined review preserves figure-unit symbols while still checking fully written measures',()=>{
  const good=jointStylisticIssues(makeDocument(['Use 3 kg and 4 min.'],'Current'),refs);assert.equal(good.filter(i=>!i.matchesPrimary).length,0);
- const bad=jointStylisticIssues(makeDocument(['Use 3 kgs. Wait 4 minutes.'],'Current'),refs);assert.ok(bad.some(i=>i.text==='3 kgs'&&i.suggestion==='3 kg'));assert.ok(!bad.some(i=>i.text==='4'));
+ const bad=jointStylisticIssues(makeDocument(['Use 3 kgs. Wait 4 minutes.'],'Current'),refs);assert.ok(bad.some(i=>i.text==='3 kgs'&&i.suggestion==='3 kg'));assert.ok(bad.some(i=>i.text==='4'&&i.suggestion==='four'&&i.guideId==='lcb'));
 });

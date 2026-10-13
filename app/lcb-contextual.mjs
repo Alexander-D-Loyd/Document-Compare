@@ -17,6 +17,7 @@ const sourceInitialisms=['BLS','GAO','WWW','CIO','UFO','AEC','NSC','RFC'];
 export const KNOWN_INITIALISM_EVIDENCE_SCOPE='Finite established letter-by-letter initials require complete original article/initials evidence, including combining marks and characters masked by exclusions or strikes. Recognized interior running heads preserve complete source selections; wrapped literals, tables and identifier continuations remain protected. Unknown pronunciations and unfamiliar initials remain manual or conditional review; no word-pronounced acronym is inferred from its first letter.';
 export const FOREIGN_PHRASE_EVIDENCE_SCOPE='Seven finite ex officio/bona fide/per capita/per diem/prima facie/de minimis/inter vivos forms retain complete original token boundaries and evidence. Wrapped literal quotations, tables and masked/deleted characters cannot establish a hyphen-removal suggestion. Source spelling and physical offsets are preserved; other foreign phrases, authentic titles and linguistic meaning remain manual.';
 const initialismPattern=new RegExp('\\b(a|an)\\s+('+[...initialisms,...sourceInitialisms].map(s=>s.split('').join('\\.?\\s*')+'\\.?').join('|')+'|H-U-D)(?![\\p{L}\\p{N}_])','giu');
+const printedForeignPages=new Map([['ex officio',3],['de minimis',3],['inter vivos',4],['bona fide',9],['per capita',12],['per diem',12]]);
 export function lcbModifierForms(reference){
  const forms=[];
  for(const p of reference.pages.filter(p=>p.page>=9&&p.page<=14)){
@@ -46,7 +47,14 @@ export function lcbContextualIssues(doc,references){
   // valid body fragments. The renderer excludes those labels from highlights.
   if((doc.struck||[]).some(r=>r.start<m.index+m[0].length&&r.end>m.index))return;
   if(issues.some(i=>i.start===m.index&&i.end===m.index+m[0].length&&i.suggestion===suggestion))return;
-  issues.push({start:m.index,end:m.index+m[0].length,text:doc.text.slice(m.index,m.index+m[0].length),suggestion,guideId:'lcb',guidePage:page,guidePrintedPage:String(page),rule,category,context:ctx.at(m.index),checkId:'lcb-contextual',conflict:false,references:[{guideId:'lcb',guideName:'LCB Style Manual',guidePage:page,guidePrintedPage:String(page),rule,preferred:suggestion,ruleText:message}],message});
+   const citations=[{guideId:'lcb',guideName:'LCB Style Manual',guidePage:page,guidePrintedPage:String(page),rule,preferred:suggestion,ruleText:message}];
+   // Page16 expressly prescribes these endings in unit-modifier position.
+   // Keep the discrete lexical/base citation and add that actual provision;
+   // this changes attribution only after the caller established the role.
+   if(page!==16&&category==='Modifier hyphenation'&&(/^(?:Hyphenation examples:|Hyphenation, item 1$)/.test(rule))&&/-(?:adopted|approved|based|related)$/i.test(suggestion))citations.push({guideId:'lcb',guideName:'LCB Style Manual',guidePage:16,guidePrintedPage:'16',rule:'Hyphenation: End words',preferred:suggestion,ruleText:'LCB page16 prescribes a hyphen before -adopted, -approved, -based and -related in unit-modifier position.'});
+   const foreignForm=suggestion.toLowerCase(),foreignPage=rule==='Hyphenation, item 4'&&page===8&&printedForeignPages.get(foreignForm),foreignEntry=foreignPage&&references.lcb.pages[foreignPage-1].lexicalEntries?.find(entry=>entry.split(' (')[0]===foreignForm);
+   if(foreignEntry)citations.push({guideId:'lcb',guideName:'LCB Style Manual',guidePage:foreignPage,guidePrintedPage:String(foreignPage),rule:'Printed foreign phrase: '+foreignForm,preferred:foreignForm,ruleText:foreignEntry});
+   issues.push({start:m.index,end:m.index+m[0].length,text:doc.text.slice(m.index,m.index+m[0].length),suggestion,guideId:'lcb',guidePage:page,guidePrintedPage:String(page),rule,category,context:ctx.at(m.index),checkId:'lcb-contextual',conflict:false,references:citations,message});
  };
  // Explicitly listed unit-modifier forms, with a recognized noun head.
  // The same open phrase as a noun or predicate remains accepted.

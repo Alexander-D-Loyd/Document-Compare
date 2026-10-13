@@ -27,7 +27,7 @@ test('numbered and known page-head wrapping keeps whole exact selections and sou
  for(const [a,b,c,n]of cases){const d=make(['ASSEMBLY BILL No. 9999\nThe people do enact as follows:\nline 1 The '+a+'-'+b+'-','AB 9999 — 2 —\nline 1 '+c+' '+n+' is available.']);d.blocks.find(b=>b.ignored).formatting={headerParts:[{}]};const saved=JSON.stringify(d),r=direct(d);assert.equal(r.length,1,a);assert.equal(r[0].suggestion,[a,b,c].join(' '));assert.match(d.text.slice(r[0].start,r[0].end),/AB 9999/);assert.equal(JSON.stringify(d),saved);}
 });
 test('capitalization and dash variants preserve a complete advisory selection',()=>{
- for(const phrase of ['Unusually well-preserved','UNUSUALLY-WELL-PRESERVED','unusually‑well–preserved']){const d=make(phrase+' specimen is available.'),r=direct(d);assert.equal(r.length,1,phrase);assert.equal(d.text.slice(r[0].start,r[0].end),phrase);assert.equal(r[0].suggestion,phrase===phrase.toUpperCase()?'UNUSUALLY WELL PRESERVED':/^[A-Z]/.test(phrase)?'Unusually well preserved':'unusually well preserved');}
+ for(const phrase of ['Unusually well-preserved','UNUSUALLY-WELL-PRESERVED','unusually‑well‐preserved']){const d=make(phrase+' specimen is available.'),r=direct(d);assert.equal(r.length,1,phrase);assert.equal(d.text.slice(r[0].start,r[0].end),phrase);assert.equal(r[0].suggestion,phrase===phrase.toUpperCase()?'UNUSUALLY WELL PRESERVED':/^[A-Z]/.test(phrase)?'Unusually well preserved':'unusually well preserved');}
 });
 test('masked parent words cannot leave independent partial warnings',()=>{
  for(const [a,b,c,n]of cases)for(const word of [a,b,c]){const d=make('The '+a+'-'+b+'-'+c+' '+n+' is available.'),at=d.text.indexOf(word)+1;d.struck=[{start:at,end:at+1}];assert.equal(direct(d).length,0,a+' '+word);}
@@ -36,4 +36,11 @@ test('source citations and visible coverage state the finite scope honestly',()=
  assert.match(refs.lcb.pages[7].text,/adverb ending in/);assert.match(refs.gpo.pages[115].text,/unusually well preserved specimen/);
  const scope=CHECK_COVERAGE.find(r=>r.title==='Complete multi-adverb modifiers');assert.equal(scope.page,8);assert.match(scope.text,/longer chains/);assert.match(scope.text,/no universal/);
  const inventory=styleRuleInventory(refs);assert.match(inventory.find(r=>r.id==='gpo-6.20').scope,/longer chains/);assert.match(inventory.find(r=>r.id==='lcb-8-3').scope,/three-word/);
+});
+
+test('visible body em/en/figure dashes cannot manufacture an -ly hyphenation finding',()=>{
+ for(const dash of ['—','–','‒','―'])for(const text of ['The federally'+dash+'funded programs apply.','The newly'+dash+'well'+dash+'trained personnel act.']){
+  const doc=make(text),saved=JSON.stringify(doc);assert.equal(direct(doc).length,0,text);assert.equal(joint(doc).length,0,text);assert.equal(JSON.stringify(doc),saved);
+ }
+ for(const hyphen of ['-','‐','‑'])assert.ok(joint(make('The publicly'+hyphen+'owned utility applies.')).some(i=>i.suggestion==='publicly owned'));
 });

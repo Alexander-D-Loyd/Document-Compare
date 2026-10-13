@@ -17,7 +17,7 @@ test('explicit names resolve significant prefix case without rewriting ambiguous
 });
 test('SI symbols remain figures while ordinary durations and legal references keep separate rules',()=>{
  for(const symbol of METRIC_SYMBOLS){const issues=jointStylisticIssues(makeDocument(['Use 5 '+symbol+' of material.'],'Current'),refs);assert.ok(!issues.some(i=>i.checkId==='numerals'&&i.text==='5'),symbol);}
- const doc=makeDocument(['Wait 1 year under Article 1 and Section 1.'],'Current'),raw=numeralIssues(doc,refs);assert.ok(raw.some(i=>i.suggestion==='one'&&i.conflict));assert.ok(!raw.some(i=>i.text==='1'&&i.start>15));assert.equal(jointStylisticIssues(doc,refs).length,0,'The known duration disagreement remains excluded under the user policy.');
+ const doc=makeDocument(['Wait 1 year under Article 1 and Section 1.'],'Current'),raw=numeralIssues(doc,refs);assert.ok(raw.some(i=>i.suggestion==='one'&&i.conflict));assert.ok(!raw.some(i=>i.text==='1'&&i.start>15));assert.deepEqual(jointStylisticIssues(doc,refs).map(i=>[i.text,i.suggestion]),[['1','one']]);
 });
 test('source wrapping keeps precise symbol highlights and deleted definitions stay excluded',()=>{
  const doc=makeDocument(['line 1 Use milligrams\nline 2 (MG) of material.'],'Current');const i=metricDefinitionIssues(doc,refs)[0];assert.equal(doc.text.slice(i.start,i.end),'MG');assert.equal(i.suggestion,'mg');doc.struck=[{start:i.start,end:i.end}];assert.equal(metricDefinitionIssues(doc,refs).length,0);

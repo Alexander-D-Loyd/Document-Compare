@@ -50,6 +50,7 @@ export function compoundIssues(doc,references){
   // Do not infer a spelling correction inside an all-capital heading or an
   // apparent title continued by another capitalized word.
   const text=doc.text.slice(m.index,m.index+m[0].length),after=source.slice(m.index+m[0].length);
+  if([...text.matchAll(/[\u2012-\u2015]/gu)].some(d=>source[m.index+d.index]==='-'))return; // Body punctuation is not a compound-word hyphen; masked heads are separate.
   if(m[0]===m[0].toUpperCase()||/^[A-Z]/.test(m[0])&&(/\b[A-Z][a-z]+\s+[A-Z][a-z]+/.test(m[0])||/^\s+(?:(?:and|of|for|the|in|on)\s+)?[A-Z][a-z]/.test(after)))return;
   if(!item.preferred.includes(' ')&&/-[ \t]*\n/.test(m[0]))return; // PDF end-of-line division of a valid solid compound.
   let suggestion=item.preferred;if(/^[A-Z]/.test(m[0]))suggestion=suggestion[0].toUpperCase()+suggestion.slice(1);

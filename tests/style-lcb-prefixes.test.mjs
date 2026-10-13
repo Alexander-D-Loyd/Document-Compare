@@ -2,10 +2,11 @@ import test from 'node:test';import assert from 'node:assert/strict';import fs f
 import {makeDocument} from '../app/core.mjs';import {LCB_PREFIX_FORMS,lcbPrefixIssues} from '../app/style-lcb-prefixes.mjs';import {jointStylisticIssues} from '../app/joint-style.mjs';
 const refs=Object.fromEntries(['lcb','gpo'].map(id=>[id,JSON.parse(fs.readFileSync(new URL('../app/data/'+id+'-reference.json',import.meta.url)))]));
 const check=t=>lcbPrefixIssues(makeDocument([t],'Current'),refs);
-test('every recognized prefix/root checks its source rule and accepts the preferred form',()=>{
+test('legacy prefix roots are active only for complete printed forms or an explicit boundary exception',()=>{
  for(const r of LCB_PREFIX_FORMS)for(const bad of r.joinOpen===false?[r.prefix+'-'+r.root]:r.hyphen?[r.prefix+' '+r.root,r.prefix+r.root]:[r.prefix+' '+r.root,r.prefix+'-'+r.root]){
-  const text='The '+bad+' program applies.',found=check(text);assert.equal(found.length,1,bad);assert.equal(found[0].suggestion,r.preferred);assert.equal(text.slice(found[0].start,found[0].end),bad);assert.equal(check(text.replace(bad,r.preferred)).length,0);
-  assert.ok(jointStylisticIssues(makeDocument([text],'Current'),refs).some(i=>i.suggestion===r.preferred),bad);
+  const literal=r.preferred.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),printed=refs.lcb.pages.filter(p=>p.page>=2&&p.page<=16).some(p=>(p.lexicalEntries||[]).some(entry=>new RegExp('(?<![\\p{L}\\p{N}\\p{M}_-])'+literal+'(?![\\p{L}\\p{N}\\p{M}_-])','iu').test(entry))),exception=['ex','self','quasi'].includes(r.prefix),eligible=printed||exception;
+  const text='The '+bad+' program applies.',doc=makeDocument([text],'Current'),before=JSON.stringify(doc),found=lcbPrefixIssues(doc,refs);assert.equal(found.length,eligible?1:0,bad);assert.equal(JSON.stringify(doc),before);assert.equal(check(text.replace(bad,r.preferred)).length,0);
+  if(eligible){assert.equal(found[0].suggestion,r.preferred);assert.equal(text.slice(found[0].start,found[0].end),bad);assert.ok(jointStylisticIssues(makeDocument([text],'Current'),refs).some(i=>i.suggestion===r.preferred),bad);}else assert.ok(!jointStylisticIssues(doc,refs).some(i=>i.checkId==='lcb-prefixes'&&i.suggestion===r.preferred),bad);
  }
 });
 test('prefix exceptions and word boundaries preserve valid and literal wording',()=>{

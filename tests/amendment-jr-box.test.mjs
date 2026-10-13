@@ -54,3 +54,13 @@ test('four matching thin painted edges establish a physical box independently of
  const text='ASSEMBLY BILL No. 76\nline 1 Existing law.\nline 2 '+notice+'\nO',formats=[null,null,{x:100,right:340,height:12,baseline:540,runs:[],pageWidth:612},null];
  markJrBoxGeometry({lines:formats},ops,OPS);const d=makeDocument([text],'bill',[],[formats]);assert.equal(d.jrBoxes.length,1);assert.equal(d.jrBoxes[0].code,undefined);assert.equal(d.effectiveTokens.some(t=>t.value==='matter'),false);
 });
+test('numbered JR body anchors to its original text column rather than the hidden line label',()=>{
+ const prefix='ASSEMBLY BILL No. 76\nline 1 Existing law.',body=notice.replace('deleted','omitted')+' (JR11)',text=prefix+'\nline 14 '+body+'\nO';
+ const format=(x,right,runs)=>({x,right,runs,pageWidth:612,height:12,bodyHeight:12,leading:13,headerGaps:[]});
+ const bodyStart='line 14 '.length,sourceRuns=[{start:0,end:4,x:21,width:18,space:false},{start:5,end:7,x:48,width:12,space:false},{start:7,end:8,x:60,width:40,space:true},{start:bodyStart,end:bodyStart+body.length,x:100,width:240,space:false,bold:true,font:'sans-serif'}];
+ const formats=[null,format(48,384,[{start:7,end:20,x:48,width:336,space:false}]),format(100,340,sourceRuns),null],savedRuns=structuredClone(sourceRuns),d=makeDocument([text],'Current',[],[formats]),block=d.blocks.find(b=>b.jrBox),part=block.formatting.headerParts[0];
+ assert.equal(block.margin,'line 14 ');assert.equal(block.text.slice(block.margin.length),body);assert.equal(d.text,text);
+ assert.equal(part.start,block.margin.length);assert.equal(part.end,block.text.length);assert.equal(part.anchor,'left');assert.equal(part.position,(100-48)/(384-48));
+ assert.ok(part.position>=0,'JR body cannot be positioned left of its source body column');assert.deepEqual(block.formatting.runs,savedRuns);
+ assert.equal(block.ignored,true);assert.equal(d.effectiveTokens.some(t=>t.value==='JR11'),false);
+});

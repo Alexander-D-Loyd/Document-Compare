@@ -19,13 +19,13 @@ test('durations, dates, monetary values and independent clause counts do not for
 test('uncertain antecedents, conditions, citations and quotations do not create related counts',()=>{
  for(const t of ['The term “The board has 11 members, of whom three are appointed and eight are elected.” is literal.','Under Section 11, three are appointed and eight are elected.','The board has 11 members, of whom three are appointed if funds are available and eight are elected.','The task takes 11 hours, of which three are paid and eight are unpaid.'])assert.equal(check(t).length,0,t);
 });
-test('partitive findings retain exact positions across printed line numbers and the digest conflict exception',()=>{
+test('partitive findings retain exact positions across printed line numbers and the Digest one exception',()=>{
  const doc=makeDocument(['line 1 The agency has 13 workers, of whom six are licensed,\nline 2 six are registered, and one is certified.'],'Current'),found=jointStylisticIssues(doc,refs).filter(i=>i.checkId==='numerals');
  assert.deepEqual(found.map(i=>i.suggestion),['6','6','1']);for(const i of found)assert.equal(doc.text.slice(i.start,i.end),i.text);
  assert.deepEqual(check('LEGISLATIVE COUNSEL’S DIGEST\nThe agency has 13 workers, of whom six are licensed, six are registered, and one is certified.').map(i=>i.suggestion),['6','6']);
 });
-test('complete larger written wholes are recognized and sentence-opening guide conflicts stay excluded',()=>{
+test('complete larger written wholes retain sentence-opening words and related LCB figures',()=>{
  assert.deepEqual(check('The agency has twenty-one members, of whom three are appointed and eighteen are elected.').map(i=>i.suggestion),['21','3','18']);
- assert.equal(check('Thirteen workers, of whom six are licensed, six are registered, and one is certified.').length,0);
- assert.deepEqual(check('13 workers, of whom six are licensed, six are registered, and one is certified.').map(i=>i.suggestion),['Thirteen']);
+ assert.deepEqual(check('Thirteen workers, of whom six are licensed, six are registered, and one is certified.').map(i=>i.suggestion),['6','6','1']);
+ assert.deepEqual(check('13 workers, of whom six are licensed, six are registered, and one is certified.').map(i=>i.suggestion),['Thirteen','6','6','1']);
 });

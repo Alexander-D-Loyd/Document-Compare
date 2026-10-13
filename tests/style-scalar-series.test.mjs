@@ -35,8 +35,8 @@ test('nested durations, different units and unknown clauses are never pulled int
  assert.equal(check('The packet includes 10 forms and two reports that shall be filed.').length,0);
  assert.equal(check('The term “includes 10 forms and three reports” is literal.').length,0);
 });
-test('digest count lists exclude the actual one-versus-1 guide disagreement but retain agreed figure checks',()=>{
- const a='LEGISLATIVE COUNSEL’S DIGEST\nThe packet includes 10 forms, 1 report, and 3 documents.';assert.equal(check(a).length,0);
+test('Digest count lists preserve the LCB one exception and use figures for other small values',()=>{
+ const a='LEGISLATIVE COUNSEL’S DIGEST\nThe packet includes 10 forms, 1 report, and 3 documents.';assert.deepEqual(check(a).map(i=>i.suggestion),['one']);
  const b='LEGISLATIVE COUNSEL’S DIGEST\nThe packet includes 10 forms, one report, and three documents.',found=check(b);assert.deepEqual(found.map(i=>i.suggestion),['3']);
 });
 test('whole larger written leading counts share the list expression without pulling in nested modifiers',()=>{
