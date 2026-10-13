@@ -1,6 +1,6 @@
 {
-  "date": "2026-10-11",
-  "packagedVersion": "1.21.4",
+  "date": "2026-10-12",
+  "packagedVersion": "1.21.5",
   "localFollowOn": false,
   "documentReview": "Offline",
   "githubPushed": true,
@@ -18,6 +18,7 @@
     "conflictExcluded": 12
   },
   "pending": [
+    "Fresh native 1.21.5 verification of digest replacement, final-line insertion and previous real-bill, OCR and offline engine workflows.",
     "Broader contextual LCB/GPO methods and manual review of opinions/cover letters; partial methods are not complete rule automation.",
     "Complete licensed offline Merriam-Webster authority with first-spelling ordering.",
     "Additional AB 109/SB 879 drafting material; genuine differences remain flagged.",
@@ -364,7 +365,7 @@
   "updatedAt": "2026-10-12T00:13:05.310887+00:00",
   "currentValidation": {
     "sourceTests": 1906,
-    "nativePackagedWorkflow": "All 20 native 1.21.4 desktop stages passed.",
+    "nativePackagedWorkflow": "1.21.5 desktop verification pending; preceding 1.21.4 release passed 20 stages.",
     "knownOlderPackageFailures": [
       "AB 2266 OCR warning expectations",
       "AB 1502 scanned clause marker",
@@ -374,7 +375,39 @@
     "officeAccuracyBenchmark": "Deferred at user request; precision/recall not established.",
     "ruleScope": "Selected automated and reader-review methods; full contextual LCB/GPO automation remains incomplete.",
     "packagedSourceSuite": "Source tests passed; exact shipped source bytes checked against that source.",
-    "packagedRuntimeIntegrity": "Actual grammar/style positive and corrected controls through bundled Python/Java/model; all 7912 engine files unchanged. Electron IPC/UI pending."
+    "packagedRuntimeIntegrity": "Actual grammar/style positive and corrected controls through bundled Python/Java/model; all 7912 engine files unchanged. Electron IPC/UI pending.",
+    "priorNativeOutcome": {
+      "version": "1.21.3",
+      "at": "2026-10-11T23:11:19.713Z",
+      "runId": "2026-10-11T22-41-29-240Z-d39cb746",
+      "report": "work/offline-engine-evaluation/packaged-workflow-runs/2026-10-11T22-41-29-240Z-d39cb746/result.json",
+      "reportSHA256": "7089461090ac12dea9c0d6bae31ac8eacc8fde678bd09be56b584a0d79291fc6",
+      "nativeStagesPassed": 19,
+      "nativeStagesTotal": 19,
+      "failedStages": [],
+      "remainingFailure": null,
+      "fullWorkflowVerified": true,
+      "verificationBasis": "The complete rerun passed all 19 stages on the identical package. The original failed report is preserved.",
+      "evidence": [
+        {
+          "report": "work/offline-engine-evaluation/packaged-workflow-runs/2026-10-11T22-29-46-521Z-b9ae574e/result.json",
+          "sha256": "75c411dadc0603add8af66dcd2afbb61888e6d0a3578914e5afc57ee0138c483",
+          "passed": 18,
+          "total": 19
+        },
+        {
+          "report": "work/offline-engine-evaluation/packaged-workflow-runs/2026-10-11T22-41-29-240Z-d39cb746/result.json",
+          "sha256": "7089461090ac12dea9c0d6bae31ac8eacc8fde678bd09be56b584a0d79291fc6",
+          "passed": 19,
+          "total": 19
+        }
+      ],
+      "packageManifestSHA256": "215b62a23fcf98ae158b8a81ea1ded3136ed5d2a2596e980aa9f6987ccfc719d",
+      "packagedFilesUnchanged": true,
+      "securitySettingsChanged": false,
+      "packagedBuildChanged": false,
+      "overallOfficeAccuracyMeasured": false
+    }
   },
   "validationHistoryBefore1210": {
     "tests": 1235,
@@ -1181,7 +1214,7 @@
   "validation": {
     "tests": 1906,
     "sourceTestsPassed": true,
-    "nativePackagedWorkflowPassed": true
+    "nativePackagedWorkflowPassed": false
   },
   "currentRuleInventory": {
     "sourcePassages": 59,
@@ -1284,7 +1317,16 @@
     "addedFindings": 0,
     "removedFindings": 0,
     "officeAccuracyMeasured": false,
-    "nativeWorkflow": "passed",
+    "nativeWorkflow": "pending",
     "report": "DEVELOPMENT_REVIEW.md"
+  },
+  "digestFinalReview": {
+    "sourceTests": 1920,
+    "newTests": 14,
+    "controlledPdfFiles": 6,
+    "nativeWorkflow": "pending",
+    "previousVersion": "1.21.4",
+    "previousNativeStages": 20,
+    "sourcePdfsEdited": false
   }
 }

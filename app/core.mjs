@@ -1,4 +1,4 @@
-import {isBudgetRunningHead} from './change-scope.mjs';
+import {isBudgetRunningHead,digestRange} from './change-scope.mjs';
 import {historyTokens} from './history-rows.mjs';
 import {budgetContext,budgetLeaderRanges} from './budget-layout.mjs';
 import guideSpellings from './data/lcb-spelling-words.json' with {type:'json'};
@@ -104,6 +104,10 @@ export function makeDocument(pages, name, pageStrikes=[], pageFormatting=[], wor
     offset = block.end + 1;
   }));
   const text = pages.join('\n');
+  const lastContent=blocks.findLast(b=>!b.ignored),finalLine=blocks.findLast(b=>b.margin&&b.text.slice(b.margin.length).trim());
+  if(lastContent&&finalLine&&lastContent.start>finalLine.end&&/^[0O]$/.test(lastContent.text.trim())){
+    lastContent.ignored=true;lastContent.layoutLabel=true;excluded.push({start:lastContent.start,end:lastContent.end});
+  }
   // Use the document's printed text column on short pages as well. A sparse
   // final page must not infer its column from a single indented body line.
   const columnBlocks=blocks.filter(b=>b.formatting&&b.text.slice(b.margin.length).trim()&&
@@ -113,10 +117,17 @@ export function makeDocument(pages, name, pageStrikes=[], pageFormatting=[], wor
     const f=b.formatting,c=columns.get(f.pageWidth)||{left:f.x,right:f.right};
     c.left=Math.min(c.left,f.x);c.right=Math.max(c.right,f.right);columns.set(f.pageWidth,c);
   }
+  const digest=digestRange({text}),digestColumns=new Map();
+  // A wide table or a differently positioned enacted body must not shift
+  // every digest paragraph. Preserve paragraph-relative source indentation.
+  for(const b of columnBlocks.filter(b=>digest&&!b.ignored&&!b.margin&&b.start>=digest.start&&b.end<=digest.end)){
+    const f=b.formatting,left=digestColumns.get(f.pageWidth);digestColumns.set(f.pageWidth,left===undefined?f.x:Math.min(left,f.x));
+  }
   for(const b of blocks){
     const f=b.formatting,c=f&&columns.get(f.pageWidth);if(!c)continue;
     f.columnLeft=c.left;f.columnRight=c.right;
     f.indent=Math.max(0,(f.x-c.left)/Math.max(1,c.right-c.left));
+    if(digest&&!b.margin&&!b.ignored&&b.start>=digest.start&&b.end<=digest.end&&digestColumns.has(f.pageWidth))f.indent=Math.max(0,(f.x-digestColumns.get(f.pageWidth))/Math.max(1,c.right-c.left));
     if(!b.margin){
       const width=c.right-c.left,center=(c.left+c.right)/2;
       f.centered=(Math.abs((f.x+f.right)/2-center)<width*.015||Math.abs((f.x+f.right)/2-f.pageWidth/2)<f.pageWidth*.01)&&(f.right-f.x<width*.97||f.runs.some(r=>r.bold||r.smallCaps));

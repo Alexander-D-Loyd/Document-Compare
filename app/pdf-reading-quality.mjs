@@ -1,5 +1,6 @@
 import {isAmendmentMetadataLine} from './amendment-metadata.mjs';
 export function amendmentReadingWarnings(doc){
+ if(!doc)return [];
  const headings=[...doc.text.matchAll(/(?:^|\n)\s*Amendment\s*(\d+)\s*(?=\n|$)/gi)];
  const warnings=[];let pageOffset=0;
  for(const [index,page] of doc.rawPages.entries()){
@@ -19,7 +20,7 @@ export function amendmentReadingWarnings(doc){
 }
 export function applyAmendmentReadingWarnings(results,warnings){
  return results.map(result=>{
-  const readings=warnings.filter(w=>w.number===String(result.number));
+  const readings=result.digest?[]:warnings.filter(w=>w.number===String(result.sourceNumber??result.number));
   if(!readings.length)return result;
   const pages=[...new Set(readings.map(w=>w.page))].join(', '),examples=[...new Set(readings.map(w=>w.text))].slice(0,4).map(t=>'“'+t+'”').join(', ');
   return {...result,status:'needs-review',readingWarnings:readings,message:`PDF reading needs review on amendment page${pages.includes(',')?'s':''} ${pages}: ${examples}. Open the Instructional Amendments PDF to confirm these characters. Text discrepancies remain highlighted; an uncertain OCR reading is not a confirmed amendment error.`};

@@ -1,14 +1,16 @@
 # Document Compare
 
-Offline Windows desktop application for comparing legislative PDFs and reviewing instructional amendments. Version **1.21.4** passed all **20 native packaged-workflow stages**, plus **1,906 source tests**. The fixed offline-engine benchmark detected all 132 annotated problems across 235 controlled cases. These tests do not measure office-wide precision or recall.
+Offline Windows desktop application for comparing legislative PDFs and reviewing instructional amendments. Version **1.21.5** adds separate Digest uploads and final-line insertion fixes. All **1,920 source tests** pass; native desktop verification of this build is pending. The preceding 1.21.4 release passed all 20 native stages. The fixed offline-engine benchmark detected all 132 annotated problems across 235 controlled cases. These tests do not measure office-wide precision or recall.
 
 ## Download
 
-Download **Document-Compare-Windows-1.21.4.zip** from the [1.21.4 release](https://github.com/Alexander-D-Loyd/Document-Compare/releases/tag/v1.21.4), extract the entire ZIP and run **Document Compare/Document Compare.exe**. Keep all runtime/resources files together. No account, development tools, API key or internet connection is required for document review. SHA-256 checksums are provided with the release.
+Download **Document-Compare-Windows-1.21.5.zip** from the [1.21.5 release](https://github.com/Alexander-D-Loyd/Document-Compare/releases/tag/v1.21.5), extract the entire ZIP and run **Document Compare/Document Compare.exe**. Keep all runtime/resources files together. No account, development tools, API key or internet connection is required for document review. SHA-256 checksums are provided with the release.
 
 ## Current features
 
-- Previous/Current PDF comparison and instructional amendment verification, with full-span highlighting and both-pane navigation.
+- Previous/Current PDF comparison and separate Digest/Instructional Amendments uploads. Digest appears first under the label Digest; all instructional amendment numbers remain exactly as printed. Digest-only replacement verification uses the existing full-span highlights, discrepancy navigation, original PDF viewer, Refresh and removal controls.
+- Digest paragraphs use their own left baseline, preserving paragraph indents without borrowing a far-left enacted-body column.
+- Explicit after-line and end-of-bill insertions resolve before the zero marker. Final between-lines instructions support an unprinted or empty following line; missing intermediate lines remain unresolved. Both-pane navigation and insertion markers retain the source location.
 - On-demand local OCR for printed bills and amendments, including hybrid image/text pages, separate line-number reading and explicit uncertainty warnings. Rotated scanned bills require an upright readable copy.
 - Current-only spelling, grammar and LCB/GPO style review, using bundled LanguageTool/spaCy methods, the California Entities snapshot, personal dictionary, custom terms and Ignore/Undo.
 - Authorized local spelling-authority JSON importer with ordered preferences, source/edition/hash provenance and persistent storage. Complete Merriam-Webster data is not bundled. See OFFLINE_AUTHORITY.md.

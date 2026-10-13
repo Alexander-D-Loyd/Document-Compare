@@ -1,4 +1,5 @@
 import {externalBillReference,resolveExternalPayload} from './external-amendments.mjs';
+import {digestRule,digestBodyRange,digestPayload} from './digest-amendment.mjs';
 import {repairOcrDirective} from './ocr-text.mjs';
 import {substantiveTokens} from './core.mjs';
 import {diffArrays} from './vendor/diff/diff/array.js';
@@ -74,6 +75,8 @@ export function parseAmendments(text){
     const action=deleting?(inserting?'replace':'delete'):(inserting?'insert':'unsupported');
     const between=/between\s+lines?\s+(\d+)\s+and\s+(\d+)/i.exec(directive);
     const beforeLine=/\bbefore\s+(?:the\s+)?line\s+(\d+)\b/i.exec(directive);
+    const afterLine=/\bafter\s+(?:the\s+)?(?:last\s+)?line\s+(\d+)\b/i.exec(directive);
+    const billEnd=/\b(?:at\s+(?:the\s+)?end\s+of\s+(?:the\s+)?bill|after\s+(?:the\s+)?(?:last|final)\s+line(?:\s+of\s+(?:the\s+)?bill)?(?=\s*[,;:]|\s+insert\b))\b/i.test(directive);
     const lines=/\blines?\s+(\d+)(?:\s*(?:to|through|and|[-–—])\s*(\d+))?/i.exec(directive);
     const page=/\bpage\s+(\d+)/i.exec(directive);
     const title=/\bin\s+the\s+title\b/i.test(directive);
@@ -88,7 +91,7 @@ export function parseAmendments(text){
     if(action==='unsupported')error='Instruction wording is not supported. Review this amendment manually.';
     if(inserting && !marker)error='The insertion text is not clearly separated by “insert:”.';
     if(inserting && !insertText)error='No insertion text was found after “insert:”.';
-    return {number:section.number,source,directive,insertText,action,page:page?Number(page[1]):null,title,heading,lineStart:lines?Number(lines[1]):null,lineEnd:lines?Number(lines[2]||lines[1]):null,between:between?[Number(between[1]),Number(between[2])]:null,beforeLine:beforeLine?Number(beforeLine[1]):null,anchor:anchor?quotes(anchor[2])[0]:null,position:anchor?.[1]?.toLowerCase()||null,deleteText:quotes(deletion?.[1]||''),occurrence,all:/\ball\s+occurrences\b/i.test(directive),externalReference,error};
+    return {number:section.number,source,directive,insertText,action,page:page?Number(page[1]):null,title,heading,lineStart:lines?Number(lines[1]):null,lineEnd:lines?Number(lines[2]||lines[1]):null,between:between?[Number(between[1]),Number(between[2])]:null,beforeLine:beforeLine?Number(beforeLine[1]):null,afterLine:afterLine?Number(afterLine[1]):null,billEnd,anchor:anchor?quotes(anchor[2])[0]:null,position:anchor?.[1]?.toLowerCase()||null,deleteText:quotes(deletion?.[1]||''),occurrence,all:/\ball\s+occurrences\b/i.test(directive),externalReference,error};
   });
 }
 function scopedBlocks(rule,doc){
@@ -107,7 +110,7 @@ function scopedBlocks(rule,doc){
     blocks=rule.lineStart?found.slice(rule.lineStart-1,rule.lineEnd):found;
   }else{
     if(rule.page)blocks=blocks.filter(b=>b.page===rule.page);
-    if(rule.lineStart && !rule.between && rule.beforeLine===null){
+    if(rule.lineStart && !rule.between && rule.beforeLine===null && rule.afterLine==null){
       blocks=blocks.filter(b=>{const n=Number(b.margin.match(/\d+/)?.[0]);return n>=rule.lineStart&&n<=rule.lineEnd;});
       if(!blocks.some(b=>Number(b.margin.match(/\d+/)?.[0])===rule.lineStart)||!blocks.some(b=>Number(b.margin.match(/\d+/)?.[0])===rule.lineEnd))throw Error('The complete printed margin-line range was not found.');
     }
@@ -132,10 +135,34 @@ function choose(matches,rule){
 }
 function compile(rule,doc){
   if(rule.error)throw Error(rule.error);
+  if(rule.digest){
+    const range=digestBodyRange(doc),tokens=doc.effectiveTokens||doc.tokens;
+    const indices=tokens.map((t,i)=>t.start>=range.start&&t.end<=range.end?i:-1).filter(i=>i>=0);
+    if(!indices.length)throw Error('The Previous Version has no readable digest text.');
+    return [{start:indices[0],end:indices.at(-1)+1,replacement:phrase(rule.insertText,doc.text),sourceOffset:tokens[indices[0]].start,digest:true}];
+  }
   if(!rule.title&&(/\bstrike\s+out\s+pages?\s+\d+/i.test(rule.directive)||(rule.directive.match(/\b(?:strike\s+out|delete|remove)\b/gi)||[]).length>1))return compileCompound(rule,doc);
   const tokens=doc.effectiveTokens||doc.tokens,blocks=scopedBlocks(rule,doc);
   const indices=tokens.map((token,i)=>blocks.some(b=>token.start>=b.start+b.margin.length && token.start<b.end)&&blocks.some(b=>token.end>b.start+b.margin.length && token.end<=b.end)?i:-1).filter(i=>i>=0);
   const replacement=phrase(rule.insertText,doc.text);
+  // Only the final legislative line may stand in for an unprinted following
+  // line. Never guess a missing line on an intermediate page.
+  const final=doc.blocks.findLast(b=>!b.ignored&&!b.runningHead&&b.margin&&b.text.slice(b.margin.length).trim());
+  const atFinalLine=block=>block===final&&doc.blocks.filter(b=>b.start>=block.end&&!b.ignored&&!b.runningHead&&(!b.margin||b.text.slice(b.margin.length).trim())).every(b=>/^[-–—]?\s*[0Oo]\s*[-–—]?$/.test(b.text.trim()));
+  const afterBlock=block=>{
+    const sourceOffset=block.end,next=tokens.findIndex(t=>t.start>=sourceOffset),boundary=next<0?tokens.length:next;
+    return [{start:boundary,end:boundary,replacement,sourceOffset,finalInsertion:atFinalLine(block)}];
+  };
+  if(rule.billEnd){
+    if(rule.action!=='insert'||!final||rule.page&&rule.page!==final.page||!atFinalLine(final))throw Error('The final legislative line and end of the bill could not be confirmed.');
+    return afterBlock(final);
+  }
+  if(rule.afterLine!=null){
+    if(rule.action!=='insert'||!rule.page)throw Error('An after-line insertion must specify a page and printed margin line.');
+    const targets=blocks.filter(b=>Number(b.margin.match(/\d+/)?.[0])===rule.afterLine);
+    if(targets.length!==1)throw Error('The referenced printed margin line must be present and unique.');
+    return afterBlock(targets[0]);
+  }
   if(rule.beforeLine!==null){
     if(rule.action!=='insert'||rule.title||rule.heading)throw Error('A before-line instruction must specify an insertion before a printed margin line.');
     const targets=blocks.filter(b=>Number(b.margin.match(/\d+/)?.[0])===rule.beforeLine);
@@ -149,7 +176,8 @@ function compile(rule,doc){
     if(!rule.page)throw Error('The page for the between-lines insertion is not specified.');
     const before=blocks.filter(b=>Number(b.margin.match(/\d+/)?.[0])===rule.between[0]);
     const after=blocks.filter(b=>Number(b.margin.match(/\d+/)?.[0])===rule.between[1]);
-    if(before.length!==1||after.length!==1)throw Error('Both printed margin lines must be present and unique on the referenced page.');
+    if(before.length===1&&(!after.length||after.length===1&&!after[0].text.slice(after[0].margin.length).trim())&&rule.between[1]===rule.between[0]+1&&atFinalLine(before[0]))return afterBlock(before[0]);
+    if(before.length!==1||after.length!==1)throw Error('Both printed margin lines must be present and unique on the referenced page, unless the insertion follows the final legislative line.');
     const boundary=tokens.findIndex(t=>t.start>=after[0].start+after[0].margin.length);
     const previous=tokens[boundary-1];
     if(boundary<0||!previous||previous.end>before[0].end||previous.start<before[0].start)throw Error('The two referenced lines are not adjacent in the extracted source text.');
@@ -159,7 +187,7 @@ function compile(rule,doc){
     if(rule.anchor){return choose(occurrences(tokens,phrase(rule.anchor,doc.text),indices),rule).map(match=>({start:rule.position==='before'?match.start:match.end,end:rule.position==='before'?match.start:match.end,replacement,sourceOffset:rule.position==='before'?tokens[match.start].start:tokens[match.end-1].end}));}
     if(!indices.length)throw Error('No text could be resolved at the insertion location.');
     if(/\bat\s+(?:the\s+)?(?:end|beginning|start)\b/i.test(rule.directive)){
-      const atEnd=/\bat\s+(?:the\s+)?end\b/i.test(rule.directive),boundary=atEnd?indices.at(-1)+1:indices[0];return [{start:boundary,end:boundary,replacement}];
+      const atEnd=/\bat\s+(?:the\s+)?end\b/i.test(rule.directive),boundary=atEnd?indices.at(-1)+1:indices[0];return [{start:boundary,end:boundary,replacement,sourceOffset:atEnd?tokens[indices.at(-1)].end:tokens[indices[0]].start,finalInsertion:atEnd&&!!final&&tokens[indices.at(-1)].end===final.end&&atFinalLine(final)}];
     }
     throw Error('An insertion must identify an anchor, adjacent margin lines, or an explicit beginning/end location.');
   }
@@ -223,8 +251,14 @@ function testPatch(patch,expectedTokens,origins,map,previous,current,prevDoc,cur
   let left=patch.expectedStart-1,right=patch.expectedEnd;
   while(left>=0&&map[left]===null&&patch.expectedStart-left<=128)left--;
   while(right<map.length&&map[right]===null&&right-patch.expectedEnd<=128)right++;
-  if((left>=0&&map[left]===null)||(right<map.length&&map[right]===null)||patch.expectedStart-left>128||right-patch.expectedEnd>128)throw Error('Nearby unchanged text could not be matched reliably in the Current Version.');
+  if(!patch.digest&&((left>=0&&map[left]===null)||(right<map.length&&map[right]===null)||patch.expectedStart-left>128||right-patch.expectedEnd>128))throw Error('Nearby unchanged text could not be matched reliably in the Current Version.');
   let currentStart=left<0?0:map[left]+1,currentEnd=right>=map.length?current.length:map[right];
+  const digestRange=patch.digest?digestBodyRange(currentDoc):null;
+  if(digestRange){
+    left=patch.expectedStart-1;right=patch.expectedEnd;
+    const next=current.findIndex(t=>t.start>=digestRange.start),after=current.findIndex(t=>t.start>=digestRange.end);
+    currentStart=next<0?current.length:next;currentEnd=after<0?current.length:after;
+  }
   if(currentEnd<currentStart)throw Error('The surrounding text alignment is ambiguous.');
   // An unrelated edit to a neighboring word can widen the unchanged anchors.
   // For a pure insertion, an exact contiguous payload with one immediate
@@ -245,12 +279,15 @@ function testPatch(patch,expectedTokens,origins,map,previous,current,prevDoc,cur
   let oldStart=patch.start,oldEnd=patch.end;
   for(const origin of origins.slice(left+1,right)){oldStart=Math.min(oldStart,origin.start);oldEnd=Math.max(oldEnd,origin.end);}
   const actual=values(current.slice(currentStart,currentEnd)),original=values(previous.slice(oldStart,oldEnd));
-  const status=equals(expected,actual)?'implemented':equals(original,actual)?'not-implemented':'incorrect';
+  let status=equals(expected,actual)?'implemented':equals(original,actual)?'not-implemented':'incorrect';
   const previousOffset=patch.sourceOffset??previous[Math.min(patch.start,previous.length-1)]?.start??0;
   const previousEndOffset=patch.end>patch.start?previous[patch.end-1].end:previousOffset;
   const currentOffset=current[Math.min(currentStart,current.length-1)]?.start??0;
   const block=currentDoc.blocks.find(b=>b.end>=currentOffset)||currentDoc.blocks.at(-1);
   const currentEndOffset=currentEnd>currentStart?current[currentEnd-1].end:(current[currentStart]?.end??currentOffset);
+  const endMarker=patch.finalInsertion&&currentDoc.blocks.findLast(b=>!b.margin&&/^[-–—]?\s*[0Oo]\s*[-–—]?$/.test(b.text.trim()));
+  const orderingViolation=!!endMarker&&currentEnd>currentStart&&currentEndOffset>endMarker.start;
+  if(orderingViolation)status='incorrect';
   let actualIndex=currentStart;
   const expectedParts=[],actualParts=[],differenceRanges=[],missingPoints=[];
   const wordingDiff=amendmentWordDiff(expected,actual);
@@ -268,7 +305,7 @@ function testPatch(patch,expectedTokens,origins,map,previous,current,prevDoc,cur
   }
   const currentDeletionRanges=[];
   if(patch.end>patch.start){
-    const from=left<0?0:current[map[left]].end,to=right>=map.length?currentDoc.text.length:current[map[right]].start;
+    const from=digestRange?.start??(left<0?0:current[map[left]].end),to=digestRange?.end??(right>=map.length?currentDoc.text.length:current[map[right]].start);
     const deleted=previous.slice(patch.start,patch.end).map(t=>canonical(t.value));
     const candidates=(currentDoc.tokens||[]).map((t,index)=>({...t,index})).filter(t=>t.start>=from&&t.end<=to);
     const crossed=t=>(currentDoc.struck||[]).some(r=>r.start<t.end&&r.end>t.start);
@@ -303,10 +340,13 @@ function testPatch(patch,expectedTokens,origins,map,previous,current,prevDoc,cur
     if(!patch.replacement.length||status==='not-implemented')collect(candidates.filter(t=>!crossed(t)));
     currentDeletionRanges.sort((a,b)=>a.start-b.start);
   }
-  return {status,previousOffset,previousEndOffset,currentOffset,currentEndOffset,currentDeletionRanges,currentPage:block?.page,currentLine:block?.margin?.trim()||'',expected:expected.join(' '),actual:textOf(currentDoc,current,currentStart,currentEnd),original:textOf(prevDoc,previous,oldStart,oldEnd),expectedParts,actualParts,differenceRanges,missingPoints,discrepancies:amendmentDiscrepancies(wordingDiff,current,currentStart)};
+  return {status,orderingViolation,previousOffset,previousEndOffset,currentOffset,currentEndOffset,currentDeletionRanges,currentPage:block?.page,currentLine:block?.margin?.trim()||'',expected:expected.join(' '),actual:textOf(currentDoc,current,currentStart,currentEnd),original:textOf(prevDoc,previous,oldStart,oldEnd),expectedParts,actualParts,differenceRanges,missingPoints,discrepancies:amendmentDiscrepancies(wordingDiff,current,currentStart)};
 }
-function amendmentPlan(instructionText,prevDoc,currentDoc,externalDocs={}){
-  const rules=parseAmendments(instructionText).map(rule=>{
+function amendmentPlan(instructionText,prevDoc,currentDoc,externalDocs={},digestDoc=null){
+  const instructions=instructionText.trim()?parseAmendments(instructionText):[];
+  const ordered=digestDoc?[digestRule(digestDoc),...instructions]:instructions;
+  const rules=ordered.map(rule=>{
+    if(rule.digest){try{digestBodyRange(prevDoc);digestBodyRange(currentDoc);digestPayload(digestDoc);return rule;}catch(e){return {...rule,error:e.message};}}
     if(!rule.externalReference)return rule;
     const ref=rule.externalReference,doc=externalDocs[ref.bill];
     if(!doc)return {...rule,error:'Upload '+ref.bill+' to resolve this referenced insertion. Only its legislative body is used.'};
@@ -337,8 +377,8 @@ function amendmentPlan(instructionText,prevDoc,currentDoc,externalDocs={}){
   copy(previous.length);
   return {compiled,previous,current,patches,expectedTokens,origins};
 }
-export function verifyAmendments(instructionText,prevDoc,currentDoc,externalDocs={}){
-  const {compiled,previous,current,patches,expectedTokens,origins}=amendmentPlan(instructionText,prevDoc,currentDoc,externalDocs);
+export function verifyAmendments(instructionText,prevDoc,currentDoc,externalDocs={},digestDoc=null){
+  const {compiled,previous,current,patches,expectedTokens,origins}=amendmentPlan(instructionText,prevDoc,currentDoc,externalDocs,digestDoc);
   let map,error='';try{map=alignment(expectedTokens,current);}catch(e){error=e.message;}
   const unresolvedBoundaries=compiled.filter(r=>r.externalReference&&(r.error||r.attachmentWarning)).flatMap(r=>{try{return compile({...r,error:''},prevDoc).map(p=>p.start);}catch{return [];}});
   return compiled.map(rule=>{
@@ -352,16 +392,16 @@ export function verifyAmendments(instructionText,prevDoc,currentDoc,externalDocs
         const missing=evidence.some(e=>(e.expectedParts||[]).some(p=>p.different));
         return {...rule,status:missing?'incorrect':'needs-review',message:(missing?'The referenced bill body has discrepancies in the Current Version. ':'')+rule.attachmentWarning,evidence};
       }
-      return {...rule,status,message,evidence};
+      return {...rule,status,message:evidence.some(e=>e.orderingViolation)?'The inserted text appears after the bill’s end marker; it must precede that marker.':message,evidence};
     }catch(e){return {...rule,status:'needs-review',message:e.message,evidence:[]};}
   });
 }
 
 // Compare the expected amended revision with actual active wording. A raw
 // Previous/Current diff can borrow repeated SEC. tokens from another section.
-export function nonAmendmentEdits(instructionText,prevDoc,currentDoc,results,externalDocs={}){
+export function nonAmendmentEdits(instructionText,prevDoc,currentDoc,results,externalDocs={},digestDoc=null){
   if(results.some(r=>r.externalReference&&(r.status==='needs-review'||r.attachmentWarning)))return {ranges:[[],[]],locations:[{},{}],uncertain:true,reason:'Non-amendment changes cannot be classified until the referenced bill insertion and any additional drafting attachments are resolved.'};
-  const {previous,current,expectedTokens,origins}=amendmentPlan(instructionText,prevDoc,currentDoc,externalDocs);
+  const {previous,current,expectedTokens,origins}=amendmentPlan(instructionText,prevDoc,currentDoc,externalDocs,digestDoc);
   const diff=splitHistoryChanges(sequenceDiff(values(expectedTokens),values(current)));
   if(!diff)throw Error('Non-amendment changes could not be aligned reliably.');
   const ranges=[[],[]],locations=[{},{}];let old=0,now=0,group=-1,inEdit=false;
