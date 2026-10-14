@@ -11,6 +11,24 @@ export function digestBodyRange(doc){
  const heading=/legislative\s+counsel[’']s\s+digest/i.exec(doc.text.slice(range.start,range.end));
  return {start:range.start+heading[0].length,end:range.end};
 }
+// The current PDF's physical strikeouts describe removed copies of words,
+// including words retained elsewhere in the active digest. A text diff alone
+// cannot own those copies: repeated "Existing law" must not lose its color.
+// This is presentation evidence only; the active-token verification is unchanged.
+export function digestSourceDeletionRanges(doc,range=digestBodyRange(doc)){
+ const ranges=[];
+ for(const block of doc.blocks){
+  if(block.ignored||block.runningHead||isAmendmentMetadataLine(block.text)||block.start>=range.end||block.end<=range.start)continue;
+  const from=Math.max(range.start,block.start+block.margin.length),to=Math.min(range.end,block.end);
+  const strikes=(doc.struck||[]).filter(r=>Number.isInteger(r.start)&&Number.isInteger(r.end)&&r.start<to&&r.end>from).map(r=>({start:Math.max(from,r.start),end:Math.min(to,r.end)})).filter(r=>r.end>r.start).sort((a,b)=>a.start-b.start||a.end-b.end);
+  let last=null;
+  for(const r of strikes){
+   if(last&&(r.start<=last.end||!doc.text.slice(last.end,r.start).trim()))last.end=Math.max(last.end,r.end);
+   else {last={...r};ranges.push(last);}
+  }
+ }
+ return ranges;
+}
 export function digestPayload(doc){
  const heading=/legislative\s+counsel[’']s\s+digest/i.exec(doc.text);
  const enactment=/The people of the State of California do enact as follows\s*:/i.exec(doc.text);

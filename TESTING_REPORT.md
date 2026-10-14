@@ -1,3 +1,19 @@
+Document Compare 1.21.13 — reported PDF/style fixes
+
+All 2,100 source tests pass. Reported Digest source-strike gaps, Article XIII B
+spacing, related-unit numeral false positives, Health Care case-only flags and
+OCR-only Current-row coloring are repaired. See FUNCTIONALITY_AUDIT.md for
+fresh original-PDF, exact source-range and 87-document replay evidence.
+
+Native desktop workflow/pixel verification of this complete 1.21.13 package
+remains unrun. The earlier 1.21.11 snapshot passed 21 desktop stages; it excludes
+these fixes. Original PDF/model bytes and the bundled runtime are preserved.
+These are bounded regression checks, not whole-rule or office certification.
+
+Historical evidence follows with its original scope intact.
+
+---
+
 Document Compare 1.21.12 — functionality audit and release checks
 
 All 2,077 source tests pass with no failures. The audit covers PDF intake,

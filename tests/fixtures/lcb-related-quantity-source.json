@@ -1,0 +1,38 @@
+{
+  "scope": "Exact published bill text from immutable actual PDF.js source models. No user filesystem paths or original PDF binaries.",
+  "entries": [
+    {
+      "id": "ab76-86ef2a0ec717",
+      "sourcePDF": {
+        "name": "202520260AB76 v96.pdf",
+        "sha256": "86ef2a0ec717a22b2859613208c01847ff749921954e362e9cb4ee30d95f5d6d"
+      },
+      "physicalPage": 6,
+      "originalDocumentStart": 11760,
+      "originalDocumentEnd": 11905,
+      "text": "line 1 for a housing or a mixed-use development that is more than one\nline 2 1 acre and less than 10 acres in area, consisting of either a single",
+      "textSHA256": "b66abee100de3b90683715326a49d3930380223c73f56333fb66b31fa2e65394",
+      "struck": [
+        {
+          "start": 66,
+          "end": 69
+        }
+      ],
+      "target": "1 acre"
+    },
+    {
+      "id": "ab1502-aa6d9f275594",
+      "sourcePDF": {
+        "name": "202520260AB1502 (5).pdf",
+        "sha256": "aa6d9f275594c32d16b43d41932377de00d36330c0f4a9f9a3d79ea125963de6"
+      },
+      "physicalPage": 24,
+      "originalDocumentStart": 59320,
+      "originalDocumentEnd": 59498,
+      "text": "line 22 (2) A total of 6 hours or fewer of the required 36 hours of\nline 23 continuing education may be earned by doing either of the\nline 24 following, or a combination thereof:",
+      "textSHA256": "c0b6c8218019571c671e6b593cf339efe1928ce23a684be66c8e8e0f31a1bb7a",
+      "struck": [],
+      "target": "6 hours"
+    }
+  ]
+}

@@ -1,5 +1,5 @@
 import test from 'node:test';import assert from 'node:assert/strict';
-import {makeDocument} from '../app/core.mjs';import {verifyAmendments,nonAmendmentEdits} from '../app/amendments.mjs';import {digestDisplay,digestPayload} from '../app/digest-amendment.mjs';import {amendmentDeletionRanges,amendmentAdditionRanges,amendmentReviewRanges,amendmentOutlineGroup} from '../app/amendment-highlights.mjs';
+import {makeDocument} from '../app/core.mjs';import {verifyAmendments,nonAmendmentEdits} from '../app/amendments.mjs';import {digestDisplay,digestPayload,digestBodyRange,digestSourceDeletionRanges} from '../app/digest-amendment.mjs';import {amendmentDeletionRanges,amendmentAdditionRanges,amendmentReviewRanges,amendmentOutlineGroup} from '../app/amendment-highlights.mjs';
 const heading='LEGISLATIVE COUNSEL’S DIGEST',enact='The people of the State of California do enact as follows:';
 const bill=text=>makeDocument([heading+'\n'+text+'\n'+enact+'\nline 1 Existing body.\n- 0 -'],'bill');
 const selected=(doc,ranges)=>ranges.map(r=>doc.text.slice(r.start,r.end));
@@ -34,4 +34,15 @@ test('tracked digest deletions and additions retain physical source offsets with
 test('editorial digest barcode/header/footer are excluded from active payload and display',()=>{
  const upload=makeDocument(['07/08/25 08:31 PM\n29070 RN 25 19534 PAGE 1\nSubstantive\n'+heading+'\nExisting law funds programs.\nRN2519534'],'digest');
  assert.equal(digestPayload(upload).text,'Existing law funds programs .');assert.equal(digestDisplay(upload).payload.text,'Existing law funds programs.');assert.equal(verifyAmendments('',bill('Old.'),bill('Existing law funds programs.'),{},upload)[0].status,'implemented');
+});
+test('whole physically removed Digest copies stay red when their common words are reused in the active replacement',()=>{
+ const removed='Existing law requires a plan.',active='Existing law requires care.',raw=removed+'\n'+active,old=bill(removed+'\nAnother law requires care.'),upload=makeDocument([raw],'digest',[[{start:0,end:removed.length}]]),offset=heading.length+1;
+ const now=makeDocument([heading+'\n'+raw+'\n'+enact+'\nline 1 Existing body.'],'current',[[{start:offset,end:offset+removed.length}]]),before=JSON.stringify([old,now,upload]),result=verifyAmendments('',old,now,{},upload)[0];
+ assert.equal(result.status,'implemented');assert.deepEqual(selected(now,amendmentDeletionRanges(now,result,1)),[removed]);
+ const activeStart=now.text.indexOf(active,offset+removed.length);assert.ok(amendmentDeletionRanges(now,result,1).every(r=>r.end<=activeStart));assert.ok(amendmentAdditionRanges(result).every(r=>r.start>=activeStart));
+ assert.equal(JSON.stringify([old,now,upload]),before);
+});
+test('physical Digest deletion coverage clips glyph fragments to readable Digest lines and never colors body or editorial metadata',()=>{
+ const text=heading+'\nExisting law.\nRN2519534\n'+enact+'\nline 1 Body deletion.',offset=heading.length+1,doc=makeDocument([text],'current',[[{start:0,end:heading.length},{start:offset,end:offset+8},{start:offset+8,end:offset+12},{start:text.indexOf('RN2519534'),end:text.indexOf('RN2519534')+9},{start:text.indexOf('Body deletion.'),end:text.length}]]),before=JSON.stringify(doc);
+ assert.deepEqual(digestSourceDeletionRanges(doc),[{start:offset,end:offset+12}]);assert.ok(digestSourceDeletionRanges(doc).every(r=>r.start>=digestBodyRange(doc).start&&r.end<=digestBodyRange(doc).end));assert.equal(JSON.stringify(doc),before);
 });

@@ -1,5 +1,44 @@
 # Functionality audit — October 14, 2026
 
+Post-publication source corrections, October 14: the reported AB224 Digest now
+colors all physical Current Digest strikeouts red, including words reused in the
+active replacement. Fresh original-PDF imports verify the Digest and all six
+instructions; all 641 nonspace struck Digest characters receive deletion
+coverage. Both body references to Article XIII B retain the physical separator
+and complete deletion coverage. This changes display coverage, not active-text
+verification or the original PDFs.
+
+The reader separator repair was compared against the published reader on all
+87 available editions (4,506 pages). Six geometry-confirmed Article XIII B gaps
+were restored, with no unrelated text, margins, strike glyph coverage or JR Box
+metadata changes. A separate production style comparison across 87 editions
+removed 93 Health Care capitalization-only flags and retained eight genuine
+closed-word corrections with initial capitalization preserved. Explicit name
+and capitalization rules retain their own authority.
+
+LCB21 Bill item 3 now recognizes intact same-unit comparative ranges and the
+stated part-of-total construction in the reported source clauses. The live
+1 acre/10 acres and 6 hours/36 hours remain figures; a struck old number cannot
+become a live relationship member. Independent clauses and damaged evidence
+do not establish these exceptions. OCR-only amendment review still requests
+source confirmation but no longer paints a matching Current row or its margin
+yellow when navigating to the review location.
+
+The numeral-only comparison against the published detector passed across all
+87 immutable source models (4,506 pages). Exactly four false positives were
+removed: 1 acre in both AB76 editions and 6 hours in both AB1502 editions.
+No new findings were added; all other 83 models retained their numeral results.
+Every removed flag has complete same-unit relationship evidence, and original
+PDF/model hashes are unchanged.
+
+All 2,100 source tests pass after these corrections, including exact source
+fixtures and production renderer/navigation controls. The private desktop
+AB1502 verifier now also checks the OCR-only row behavior; that updated native
+check has not been run. These corrections are included in the 1.21.13 package and are excluded
+from the previously published 1.21.12 package.
+
+The following sections describe the earlier audit and immutable release.
+
 The current source was reviewed with the full regression suite, independent
 source-range controls and the bundled language runtime. No additional confirmed
 PDF/UI lifecycle regression was found. This is a bounded regression audit, not

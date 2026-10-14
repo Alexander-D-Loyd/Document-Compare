@@ -1,10 +1,10 @@
 # Document Compare
 
-Offline Windows desktop app for legislative PDF comparison and amendment/style review. This is the **1.21.12 release source**. Digest edits use red deletions and blue additions without selection contours or inline plus markers; the shared trash clears both optional uploads. Style findings are limited to explicit supported LCB/GPO provisions, with LCB priority and legislative exceptions.
+Offline Windows desktop app for legislative PDF comparison and amendment/style review. This is the **1.21.13 release source**. Digest edits use red deletions and blue additions without selection contours or inline plus markers; the shared trash clears both optional uploads. Style findings are limited to explicit supported LCB/GPO provisions, with LCB priority and legislative exceptions.
 
 ## Run the packaged app
 
-Extract the entire **Document-Compare-Windows-1.21.12.zip** and open **Document Compare/Document Compare.exe**. Keep the runtime and resources together. No installation or development tools are required. PDF and language review run locally.
+Extract the entire **Document-Compare-Windows-1.21.13.zip** and open **Document Compare/Document Compare.exe**. Keep the runtime and resources together. No installation or development tools are required. PDF and language review run locally.
 
 ## Features
 

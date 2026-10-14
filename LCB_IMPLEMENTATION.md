@@ -33,3 +33,5 @@ The 1.21.11 stabilization snapshot is desktop verified. The 1.21.12 release
 packages the newer LCB expansion with separate source/runtime regression
 evidence. Its entire native desktop workflow remains unrun; complete LCB
 coverage is not certified.
+
+The 1.21.13 follow-up repairs explicit same-unit quantity handling and Health Care lexical-case false positives. Independent 87-document replays preserve unrelated owners. Its native desktop workflow remains unrun.

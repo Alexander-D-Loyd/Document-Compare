@@ -31,6 +31,19 @@ export function horizontalStrokes(operators,OPS){
   }
   return lines;
 }
+// Some struck legislative references use separate text matrices with a real
+// word gap smaller than PDF.js's ordinary synthetic-space threshold. Preserve
+// only an independently separated Roman article/suffix reference to the
+// California Constitution. An unbroken item, zero/kerning gap, tracked glyph
+// fragments, another font/baseline or a valid continued Roman numeral cannot
+// establish this boundary. This does not rewrite arbitrary Roman strings.
+const canonicalArticleRoman=/^(?=.)M{0,3}(?:CM|CD|D?C{0,3})(?:XC|XL|L?X{0,3})(?:IX|IV|V?I{0,3})$/u;
+function separatedConstitutionArticleSuffix(previous,item,text,gap){
+ if(!previous||!(gap>Math.max(.5,item.height*.04))||gap>Math.max(1.5,item.height*.16)||typeof item.fontName!=='string'||!item.fontName||previous.fontName!==item.fontName||!Number.isFinite(item.height)||!Number.isFinite(previous.height)||item.height<6||item.height>30||Math.abs(previous.height-item.height)>.1||!Number.isFinite(previous.width)||!Number.isFinite(item.width)||!(previous.width>0)||!(item.width>0)||previous.sourceCharSpacing!==undefined||item.sourceCharSpacing!==undefined)return false;
+ const a=previous.transform,b=item.transform;if(!Array.isArray(a)||!Array.isArray(b)||a.length!==6||b.length!==6||![...a,...b].every(Number.isFinite)||a[0]<=0||a[3]<=0||b[0]<=0||b[3]<=0||Math.abs(a[1])+Math.abs(a[2])+Math.abs(b[1])+Math.abs(b[2])>1e-6||Math.abs(a[0]-b[0])>.1||Math.abs(a[3]-b[3])>.1||Math.abs(a[5]-b[5])>.1)return false;
+ const roman=/(?<![\p{L}\p{N}\p{M}_])Article\s+([MDCLXVI]+)$/u.exec(text),suffix=/^([A-Z])\s+of\s+the\s+California\s+Constitution(?![\p{L}\p{N}\p{M}_])/u.exec(item.str);
+ return !!roman&&!!suffix&&canonicalArticleRoman.test(roman[1])&&!canonicalArticleRoman.test(roman[1]+suffix[1]);
+}
 export function extractPageLayout(items,operators,OPS,styles={},pageWidth=612){
   items=sourceTextEvidence(items,operators,OPS);
   const strokes=horizontalStrokes(operators,OPS),rows=[];
@@ -89,10 +102,10 @@ export function extractPageLayout(items,operators,OPS,styles={},pageWidth=612){
   const ordered=rows.sort((a,b)=>b.y-a.y),gaps=ordered.slice(1).map((r,i)=>ordered[i].y-r.y).filter(g=>g>3&&g<35).sort((a,b)=>a-b);
   const regularGap=gaps.map(value=>({value,count:gaps.filter(g=>Math.abs(g-value)<1).length})).sort((a,b)=>b.count-a.count||a.value-b.value)[0]?.value||18;
   for(const [rowIndex,row] of ordered.entries()){
-    let text='',end=null;const spans=[],runs=[];
+    let text='',end=null,previousItem=null;const spans=[],runs=[];
     for(const item of row.items.sort((a,b)=>a.transform[4]-b.transform[4])){
       const x=item.transform[4],y=item.transform[5],gap=end===null?0:x-end;
-      if(text && (item.spaceBefore||gap>Math.max(1.5,item.height*.16)) && !/\s$/.test(text) && !/^\s/.test(item.str))text+=' ';
+      if(text && (item.spaceBefore||gap>Math.max(1.5,item.height*.16)||separatedConstitutionArticleSuffix(previousItem,item,text,gap)) && !/\s$/.test(text) && !/^\s/.test(item.str))text+=' ';
       const start=text.length;text+=item.str;end=x+item.width;
       const rowHeight=Math.max(...row.items.map(glyph=>glyph.height));
       const fractionDigit=/^\d+$/.test(item.str.trim())&&item.height<rowHeight*.85&&row.items.some(glyph=>/^[⁄/]\d*/.test(glyph.str.trim())&&Math.min(Math.abs(x+item.width-glyph.transform[4]),Math.abs(x-(glyph.transform[4]+glyph.width)))<=Math.max(1.5,rowHeight*.15));
@@ -103,6 +116,7 @@ export function extractPageLayout(items,operators,OPS,styles={},pageWidth=612){
         const crossed=!!item.ocrStruck||!!item.str.trim()&&strokes.some(line=>line.y-y>item.height*.15 && line.y-y<item.height*.65 && Math.max(0,Math.min(end,line.x2)-Math.max(x,line.x1))>=item.width*.7);
         if(crossed)spans.push({start,end:text.length});
       }
+      previousItem=item;
     }
     const leading=text.length-text.trimStart().length;text=text.trim();
     if(!text)continue;

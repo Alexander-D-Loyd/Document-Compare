@@ -1285,7 +1285,9 @@ function nextIssue(direction=1){
       if(el.dataset.issueOffset!==undefined?Number(el.dataset.issueOffset)===next.currentStart:Number(el.dataset.start)<next.currentEnd&&Number(el.dataset.end)>next.currentStart)el.classList.add('current-amendment-issue');
     }
   }
-  const target=$('right').querySelector('.current-amendment-issue')||locationTarget(docs[1],$('right'),next.currentStart);if(target){target.classList.add('current-amendment-issue');scrollInPane($('right'),target);}
+  // A review warning can have a location without any discrepant text. Scroll
+  // to that row without painting its unchanged wording or margin as an error.
+  const target=$('right').querySelector('.current-amendment-issue')||locationTarget(docs[1],$('right'),next.currentStart);if(target)scrollInPane($('right'),target);
   scrollInPane($('amendment-results'),$('amendment-results').querySelector('.current-amendment-issue'));
   $('issue-status').textContent=`Issue ${issues.findIndex(x=>x.key===next.key)+1} of ${issues.length} · ${amendmentName(next.r)}`;
 }

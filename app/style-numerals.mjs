@@ -17,6 +17,7 @@ import {exactIntegerParts,exactFigureOrdinal}from './style-exact-integer-digits.
 import {writtenQuantityEvidenceGuard,invalidUnconjoinedCardinalRanges} from './style-written-quantity-evidence.mjs';
 import {writtenOrdinalEvidenceGuard} from './style-written-ordinal-evidence.mjs';
 import {correlativeSpreads}from './style-correlative-spreads.mjs';
+import {comparativeUnitRanges} from './style-comparative-unit-ranges.mjs';
 export {spellNumber,canonicalWrittenValue,spellOrdinal} from './style-cardinal-values.mjs';
 const ordinalNumbers=new Map(Array.from({length:99},(_,i)=>[spellOrdinal(i+1),i+1]));
 // Only explicitly supported larger forms are recognized; arbitrary lengthy
@@ -249,10 +250,11 @@ export function numeralIssues(doc,references){
   const bridge=source.slice(first.end,n.start).replace(/\s+/g,' ').trim();
   if(!/[.;:!?]/.test(bridge)&&bridge.split(/\s+/).filter(Boolean).length<=3&&/\b(?:and|or|to|through)\b/i.test(bridge))relatedStartNumbers.add(n);
  }
- const relatedFigures=new Set();let group=[];
+ const relatedFigures=new Set(),comparativeProofByStart=new Map();let group=[];
  const recognizedCountHead=new RegExp('^(?:'+nounHeadPattern+')$','i');
  const countExpression=n=>n.duration||n.measure||n.unit==='scalar-value'||recognizedCountHead.test(n.unit)||listNounPhrase(n.unit,references.lcb);
  const candidatesByStart=new Map(candidates.map(n=>[n.start,n]));
+ for(const proof of comparativeUnitRanges(doc,ctx))for(const member of proof.members){const candidate=candidatesByStart.get(member.start);if(candidate&&candidate.end===member.end&&!candidate.exception&&!candidate.ordinal){relatedFigures.add(candidate);comparativeProofByStart.set(member.start,proof);}}
  for(const spread of spreads.groups){
   const members=spread.members.map(n=>candidatesByStart.get(n.start)).filter(n=>n&&!n.exception&&!n.ordinal&&countExpression(n));
   if(members.length&&spread.atLeastTen)for(const member of members)relatedFigures.add(member);
@@ -324,7 +326,8 @@ export function numeralIssues(doc,references){
    issues.push({start:n.start,end:n.end,text:n.text,suggestion:preferred,rule:'12.23',guideId:'gpo',guidePage:296,guidePrintedPage:references.gpo.pages[295].printedPage,category:'Numeral form',context:n.context,confidence:'Rule check',checkId:'numerals',references:[cite('gpo','12.23',296,preferred,note),cite('lcb','Reference guide priority',1,preferred,'LCB places GPO next after its own manual.')],conflict:false,matchesPrimary,message:note});
    continue;
   }
-  issues.push({start:n.start,end:n.end,text:n.text,suggestion:preferred,rule,guideId:'lcb',guidePage:page,guidePrintedPage:String(page),category:'Numeral form',context:n.context,confidence:'Rule check',checkId:n.checkId||'numerals',references:refs,conflict,matchesPrimary,message:matchesPrimary?'Current wording follows LCB; no LCB correction is suggested. GPO uses a different form.':message,conflictNote:conflict?'LCB takes priority. LCB and GPO use different numeral forms in this context; the LCB recommendation is shown.':undefined});
+  const comparativeProof=comparativeProofByStart.get(n.start);if(comparativeProof)refs[0].ruleText='When 2 or more numbers appear in a sentence and one of them is 10 or larger, figures are used for each number, unless they are of different numerical expressions.';
+  issues.push({start:n.start,end:n.end,text:n.text,suggestion:preferred,rule,guideId:'lcb',guidePage:page,guidePrintedPage:String(page),category:'Numeral form',context:n.context,confidence:'Rule check',checkId:n.checkId||'numerals',references:refs,conflict,matchesPrimary,message:matchesPrimary?'Current wording follows LCB; no LCB correction is suggested. GPO uses a different form.':message,conflictNote:conflict?'LCB takes priority. LCB and GPO use different numeral forms in this context; the LCB recommendation is shown.':undefined,...(comparativeProof?{evidenceStart:comparativeProof.start,evidenceEnd:comparativeProof.end,relationshipEvidence:comparativeProof}:{})});
  }
  return issues;
 }

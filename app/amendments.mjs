@@ -1,5 +1,5 @@
 import {externalBillReference,resolveExternalPayload} from './external-amendments.mjs';
-import {digestRule,digestBodyRange,digestPayload} from './digest-amendment.mjs';
+import {digestRule,digestBodyRange,digestPayload,digestSourceDeletionRanges} from './digest-amendment.mjs';
 import {repairOcrDirective} from './ocr-text.mjs';
 import {substantiveTokens} from './core.mjs';
 import {diffArrays} from './vendor/diff/diff/array.js';
@@ -352,7 +352,8 @@ function testPatch(patch,expectedTokens,origins,map,previous,current,prevDoc,cur
     };
     // Original PDF strike-outs are absent from the active verification stream,
     // but remain visible and need their own localized deletion highlights.
-    if(deleted.length)collect(candidates.filter(crossed));
+    if(patch.digest)currentDeletionRanges.push(...digestSourceDeletionRanges(currentDoc,digestRange));
+    else if(deleted.length)collect(candidates.filter(crossed));
     if(deleted.length&&(!patch.replacement.length||status==='not-implemented'))collect(candidates.filter(t=>!crossed(t)));
     currentDeletionRanges.sort((a,b)=>a.start-b.start);
   }

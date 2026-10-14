@@ -26,7 +26,7 @@ const choices=[
  {page:18,form:'Attorney General',pattern:/(?<![\p{L}\p{N}\p{M}_])(?<term>attorney\s+general)\s+(?:of\s+(?:the\s+state\s+of\s+)?California|(?:in|of)\s+(?:that|this|each|the)\s+state)(?![\p{L}\p{N}\p{M}_])/giu},
  {page:11,form:'horse race',pattern:/(?<![\p{L}\p{N}\p{M}_])horse[\s-]*races?(?![\p{L}\p{N}\p{M}_])/giu,plural:true},
  {page:19,form:'federal government',pattern:/(?<![\p{L}\p{N}\p{M}_])federal\s+government(?![\p{L}\p{N}\p{M}_])/giu},
- {page:11,form:'health care',pattern:/(?<![\p{L}\p{N}\p{M}_])health[\s-]*care(?![\p{L}\p{N}\p{M}_])/giu},
+ {page:11,form:'health care',lexicalComponentCase:true,pattern:/(?<![\p{L}\p{N}\p{M}_])(?<health>health)[\s-]*(?<care>care)(?![\p{L}\p{N}\p{M}_])/giu},
  {page:9,form:'African American',pattern:/(?<![\p{L}\p{N}\p{M}_])(?<term>African[\s-]+American)\s+program(?![\p{L}\p{N}\p{M}_])/giu},
  {page:9,form:'collective bargaining',pattern:/(?<![\p{L}\p{N}\p{M}_])(?<term>collective[\s-]+bargaining)\s+(?:talks|agreements?|process|rights|units?)(?![\p{L}\p{N}\p{M}_])/giu},
  {page:15,form:'groundwater',pattern:/(?<![\p{L}\p{N}\p{M}_])ground[\s-]*waters?(?![\p{L}\p{N}\p{M}_])/giu,plural:true},
@@ -35,6 +35,8 @@ const choices=[
 ];
 const intersects=(a,b)=>a.start<b.end&&a.end>b.start;
 const clean=s=>s.replace(/\s+/gu,' ').trim();
+const explicitCapitalization=issue=>issue.checkId==='capitalization'||issue.checkId==='california-entities'||titleChecks.has(issue.checkId)||/capitalization|capitalisation|name capitalization/i.test(issue.category||'')||(issue.references||[]).some(r=>/capitalization|capitalisation/i.test(r.rule||''));
+const titleChecks=new Set(['lcb-created-title-reference-review','lcb-created-official-title-review','lcb-created-title-identity-review','lcb-designated-title-reference-review','lcb-designated-title-creation-review','lcb-created-public-entity-creation-review','lcb-created-public-entity-reference-review','lcb-official-head-title-review']);
 export function applyLcbGuidePriority(doc,references,findings,{names=[]}={}){
  const ctx=styleContext(doc),source=ctx.source,blocked=styleEvidenceGuard(doc,ctx),result=findings.flatMap(issue=>{
   if(!issue.conflict)return [issue];
@@ -56,12 +58,16 @@ export function applyLcbGuidePriority(doc,references,findings,{names=[]}={}){
   // An explicit continued title remains a name question, not this lexical choice.
   if(/^\s+(?:Act|Code|Law|Fund|Account|Authority|Department|Agency|Commission|Board)\b/u.test(source.slice(match.index+match[0].length)))continue;
   let preferred=choice.form+(choice.plural&&/s$/iu.test(term)?'s':'');
-  if(/^[a-z]/u.test(preferred)&&/^[A-Z]/u.test(term)){
+  // A spelling/compounding entry supplies word boundaries, not title case.
+  // Health Care within a bill title remains the printed open lexical form;
+  // only a closed/hyphenated join needs correction, preserving both components.
+  if(choice.lexicalComponentCase)preferred=match.groups.health+' '+match.groups.care;
+  else if(/^[a-z]/u.test(preferred)&&/^[A-Z]/u.test(term)){
    const sentence=ctx.sentenceAt(start),before=source.slice(sentence.start,start).replace(/^[\s”"’']*(?:\([a-z\d]+\)\s*)*/iu,'').trim();
    if(!before)preferred=preferred[0].toUpperCase()+preferred.slice(1);
   }
   const overridden=[];
-  for(let n=result.length-1;n>=0;n--)if(intersects(result[n],range)){overridden.push(...(result[n].references||[]).filter(r=>r.guideId==='gpo'));result.splice(n,1);}
+  for(let n=result.length-1;n>=0;n--)if(intersects(result[n],range)&&(!choice.lexicalComponentCase||!explicitCapitalization(result[n]))){overridden.push(...(result[n].references||[]).filter(r=>r.guideId==='gpo'));result.splice(n,1);}
   if(clean(term)===preferred)continue;
   const page=references.lcb.pages.find(p=>p.page===choice.page),rule='Printed LCB form: '+choice.form;
   result.push({start,end,evidenceStart,evidenceEnd,text:doc.text.slice(start,end),suggestion:preferred,
