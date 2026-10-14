@@ -1,3 +1,25 @@
+Document Compare 1.21.12 — functionality audit and release checks
+
+All 2,077 source tests pass with no failures. The audit covers PDF intake,
+comparison, amendment and Digest ranges, JR Boxes, final insertions, source
+layout, uploads/removal, navigation, Refresh/cancellation, Ignore/Undo, dictionary,
+authority importer, offline language engines, LCB source/case/quoted-term rules
+and supplementary GPO priority boundaries. Independent findings and limitations
+are recorded; an audit is not exhaustive office accuracy certification.
+
+The separate 1.21.11 stabilization snapshot passed all 21 native desktop stages
+across preserved full/targeted reports. It verifies the current Digest/UI changes,
+but excludes the new LCB expansion. Native testing of this complete 1.21.12
+package remains unrun. Source/runtime and package integrity checks are distinct.
+LCB integration continues to use explicit source forms and supported conditions.
+Complete LCB automation, opinion/cover-letter classification, licensed full
+dictionary authority, deferred drafting attachments and some PDF layout cases
+remain incomplete. See LCB_IMPLEMENTATION.md for scope and source inventory.
+
+Historical evidence follows without changing its original scope.
+
+---
+
 Document Compare 1.21.10 — current release verification
 
 Digest selection now uses one regular amendment outline per page while preserving

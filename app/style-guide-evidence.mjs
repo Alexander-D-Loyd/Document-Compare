@@ -39,7 +39,7 @@ export function guidePassage(reference,citation){
    });
    if(entries.length===1)return {text:entries[0],kind:'Printed source example',page:page.page};
   }
-  if(page.page===7&&['Public Employees’ Retirement System','State Teachers’ Retirement System'].includes(citation.ruleText)){
+  if(page.page===7&&['Public Employees’ Retirement System','State Teachers’ Retirement System','County Employees Retirement Law of 1937','extremely low, very low, low-, and moderate-income households',', including, but not limited to,'].includes(citation.ruleText)){
    const match=new RegExp(citation.ruleText.split(' ').map(escape).join('\\s+'),'u').exec(page.text);
    if(match)return {text:clean(match[0]),kind:'Printed source example',page:7,start:match.index,end:match.index+match[0].length};
   }

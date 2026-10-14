@@ -22,3 +22,10 @@ test('central guide disagreement and exact-name protections preserve prior polic
  assert.equal(styleFindingPolicy(doc,{context,names:[range],conflictRanges:[range]})({...issue,checkId:'california-entities'}),true,'Exact entity capitalization has its separate source-backed authority');
  assert.equal(policy(doc)({...issue,conflict:true}),false);
 });
+test('removed original quote boundaries cannot expose lexical payloads while quote punctuation retains its detector',()=>{
+ for(const [open,close] of [['“','”'],['"','"'],['‘','’'],["'","'"]])for(const mode of ['struck','excluded']){
+  const doc=makeDocument(['The people do enact as follows:\nline 1 The instruction inserts '+open+'cost effective'+close+'.'],'Current'),issue=finding(doc,'cost effective'),index=doc.text.indexOf(open);
+  doc[mode].push({start:index,end:index+1});assert.equal(policy(doc)(issue),false,mode+open);
+  assert.equal(policy(doc)({...issue,rule:'Punctuation: Quotation Marks'}),true,'Quotation punctuation owns its separate source proof');
+ }
+});

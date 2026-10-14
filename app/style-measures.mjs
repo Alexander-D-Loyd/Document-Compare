@@ -1,4 +1,7 @@
 import {styleContext} from './style-context.mjs';
+import {styleEvidenceGuard,cutsOriginalStyleWord,originalBodyStyleContext} from './style-evidence.mjs';
+import {originalStyleLiteralGuard} from './style-original-literal-guard.mjs';
+import {billQuotedTermProtection} from './style-quoted-terms.mjs';
 export function measurementIssues(doc,references){
  const ctx=styleContext(doc),issues=[],source=ctx.source;
  const identifier=before=>/\b(?:Section|Article|Item|Form|Schedule|No\.?|Model|Type|Class|Version|Figure|Table|Appendix|Exhibit|Paragraph|Subdivision)\s*$/i.test(before);
@@ -21,16 +24,18 @@ export function measurementIssues(doc,references){
   if(Number(m[1])>=1&&Number(m[1])<=12)add(m,m[1]+' '+m[2].toLowerCase().replace(/\s/g,''),'9.55',250,'GPO 9.55 does not use o’clock with an abbreviation of time.');
  }
  if(references.lcb){
-  const quoted=[...source.matchAll(/“[^”]*”|"[^"\n]*"/g)].map(m=>({start:m.index,end:m.index+m[0].length}));
-  for(const m of source.matchAll(/\bdegrees?\s+(celsius|fahrenheit|centigrade)\b/gi)){
+  const blocked=styleEvidenceGuard(doc,ctx),literal=originalStyleLiteralGuard(doc,ctx),quoted=billQuotedTermProtection(doc,ctx),original=originalBodyStyleContext(doc)?.source||source;
+  const extendedTitle=/^\s+(?:Act|Code|Law|Fund|Account|Authority|Department|Agency|Commission|Board|Association|Foundation|Institute|Program)(?![\p{L}\p{N}\p{M}_])/u;
+  for(const m of source.matchAll(/(?<![\p{L}\p{N}\p{M}_])degrees?\s+(celsius|fahrenheit|centigrade)(?![\p{L}\p{N}\p{M}_])/giu)){
    // LCB's capitalization list explicitly retains centigrade, while GPO's
-   // footnote prefers Celsius. The user's policy excludes this choice.
+   // footnote prefers Celsius. LCB takes priority for this printed choice;
+   // the guide-priority check handles centigrade capitalization separately.
    if(/centigrade/i.test(m[1]))continue;
    const start=m.index+m[0].lastIndexOf(m[1]),end=start+m[1].length,preferred=/fahrenheit/i.test(m[1])?'Fahrenheit':'Celsius',page=preferred==='Fahrenheit'?4:3;
-   if(m[1]===preferred||ctx.at(start)==='Heading'||ctx.tableAt(start)||quoted.some(r=>r.start<end&&r.end>start))continue;
-   const message='LCB lists '+preferred+' with an initial capital. This check requires an explicit degrees context; the distinct centigrade/Celsius guide choice is excluded.';
+   if(m[1]===preferred||ctx.at(start)==='Heading'||blocked(m.index,end)||literal(m.index,end)||cutsOriginalStyleWord(doc,m.index)||cutsOriginalStyleWord(doc,end)||extendedTitle.test(original.slice(end))||/[-\u2010-\u2015/:\\#@]/u.test(doc.text[m.index-1]||'')||/^[-\u2010-\u2015/:\\#@]|^\.\d|^[’'][\p{L}\p{N}\p{M}_]/u.test(original.slice(end))||identifier(original.slice(Math.max(0,m.index-40),m.index))||quoted({start,end})||quoted({start:m.index,end:start}))continue;
+   const message='LCB lists '+preferred+' with an initial capital. This check requires an explicit degrees context. LCB also permits centigrade; a different GPO preference does not flag that accepted form.';
    const cites=[{guideId:'lcb',guideName:'LCB Style Manual',guidePage:page,guidePrintedPage:String(page),rule:'Spelling examples: '+preferred,preferred,ruleText:message}];
-   issues.push({start,end,text:doc.text.slice(start,end),suggestion:preferred,guideId:'lcb',guidePage:page,guidePrintedPage:String(page),rule:cites[0].rule,category:'Temperature scale name',context:ctx.at(start),checkId:'temperature-name',conflict:false,message,references:cites});
+   issues.push({start,end,evidenceStart:m.index,evidenceEnd:end,text:doc.text.slice(start,end),suggestion:preferred,guideId:'lcb',guidePage:page,guidePrintedPage:String(page),rule:cites[0].rule,category:'Temperature scale name',context:ctx.at(start),checkId:'temperature-name',conflict:false,message,references:cites});
   }
  }
  return issues;

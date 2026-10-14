@@ -1,3 +1,12 @@
+import {lcbInclusiveRangeIssues,restoreInclusiveRangeEvidence} from './style-lcb-inclusive-ranges.mjs';
+import {lcbListedOpenNounAliasIssues,restoreListedOpenNounAliasEvidence} from './style-lcb-listed-open-noun-aliases.mjs';
+import {lcbListedAliasIssues,restoreListedAliasEvidence} from './style-lcb-listed-aliases.mjs';
+import {lcbDollarMinimumIssues,restoreDollarMinimumEvidence} from './style-lcb-dollar-minimum.mjs';
+import {lcbIncomeSeriesIssues,lcbIncomeSeriesProtectionRanges,restoreIncomeSeriesEvidence} from './style-lcb-income-series.mjs';
+import {lcbListedIncludingBoundaryIssues,restoreListedIncludingBoundaryEvidence} from './style-lcb-listed-including-boundary.mjs';
+import {lcbDataSharingAgreementIssues} from './style-lcb-data-sharing-agreements.mjs';
+import {lcbListedAgencyFormIssues} from './style-lcb-listed-agency-form.mjs';
+import {lcbDigestPercentIssues,restoreDigestPercentEvidence} from './style-lcb-digest-percent.mjs';
 import {lcbListedNumericModifierIssues,lcbListedNumericModifierProtectionRanges,restoreListedNumericModifierEvidence} from './style-lcb-listed-numeric-modifiers.mjs';
 import {lcbListedPunctuationNameIssues} from './style-lcb-listed-punctuation-names.mjs';
 import {applyLcbGuidePriority} from './style-guide-priority.mjs';
@@ -168,7 +177,14 @@ function mapReviewEvidence(issue,map,text=null){
  if(issue.officialHeadEvidence&&text!==null)result.officialHeadEvidence=restoreOfficialHeadEvidence(issue.officialHeadEvidence,map,text);
  if(issue.titleWitness){const w=issue.titleWitness,start=map(w.start),end=map(w.end,true),evidenceStart=map(w.evidenceStart),evidenceEnd=map(w.evidenceEnd,true);result.titleWitness={...w,start,end,evidenceStart,evidenceEnd,...(text!==null?{text:text.slice(start,end),declarationText:text.slice(evidenceStart,evidenceEnd)}:{})};}
  if(issue.numericModifierEvidence&&text!==null)result.numericModifierEvidence=restoreListedNumericModifierEvidence(issue.numericModifierEvidence,map,text);
- if(issue.listedNameEvidence){const e=issue.listedNameEvidence,start=map(e.start),end=map(e.end,true);result.listedNameEvidence={...e,start,end,...(text!==null?{sourceText:text.slice(start,end)}:{})};}
+ if(issue.digestPercentEvidence&&text!==null)result.digestPercentEvidence=restoreDigestPercentEvidence(issue.digestPercentEvidence,map,text);
+ if(issue.referenceRangeEvidence&&text!==null)result.referenceRangeEvidence=restoreInclusiveRangeEvidence(issue.referenceRangeEvidence,map,text);
+ if(issue.dollarMinimumEvidence&&text!==null)result.dollarMinimumEvidence=restoreDollarMinimumEvidence(issue.dollarMinimumEvidence,map,text);
+ if(issue.incomeSeriesEvidence&&text!==null)result.incomeSeriesEvidence=restoreIncomeSeriesEvidence(issue.incomeSeriesEvidence,map,text);
+ if(issue.includingBoundaryEvidence&&text!==null)result.includingBoundaryEvidence=restoreListedIncludingBoundaryEvidence(issue.includingBoundaryEvidence,map,text);
+ if(issue.openNounAliasEvidence&&text!==null)result.openNounAliasEvidence=restoreListedOpenNounAliasEvidence(issue,map,text).openNounAliasEvidence;
+ if(issue.listedAliasEvidence&&text!==null)result.listedAliasEvidence=restoreListedAliasEvidence(issue.listedAliasEvidence,map,text);
+ if(issue.listedNameEvidence){const e=issue.listedNameEvidence,start=map(e.start),end=map(e.end,true);result.listedNameEvidence={...e,start,end,...(text!==null?{sourceText:text.slice(start,end)}:{}),...(Number.isInteger(e.agencyEnd)?{agencyEnd:map(e.agencyEnd,true),headStart:map(e.headStart),headEnd:map(e.headEnd,true)}:{})};}
  if(issue.titleCaseEvidence)result.titleCaseEvidence=issue.titleCaseEvidence.map(c=>({...c,start:map(c.start),end:map(c.end,true)}));
  if(issue.titleIdentityEvidence){const c=issue.titleIdentityEvidence,start=map(c.start),end=map(c.end,true);result.titleIdentityEvidence={...c,start,end,...(text!==null?{sourceText:text.slice(start,end)}:{})};}
   if(issue.definitionEvidence){const e=issue.definitionEvidence,start=map(e.start),end=map(e.end,true),evidenceStart=map(e.evidenceStart),evidenceEnd=map(e.evidenceEnd,true),verbStart=map(e.definitionVerb.start),verbEnd=map(e.definitionVerb.end,true);result.definitionEvidence={...e,start,end,quoteStart:map(e.quoteStart),quoteEnd:map(e.quoteEnd,true),evidenceStart,evidenceEnd,...(text!==null?{text:text.slice(start,end),clauseText:text.slice(evidenceStart,evidenceEnd)}:{}),definitionVerb:{...e.definitionVerb,start:verbStart,end:verbEnd,...(text!==null?{text:text.slice(verbStart,verbEnd)}:{})}};}
@@ -297,6 +313,27 @@ function reviewStylisticIssues(doc,references,engineIssues=[],includeReviewSugge
   // conventions within that name: this check does not change its wording.
   // Every check uses the same newly recognized wrapped literal context.
   // Corrections to quote-boundary punctuation remain independently active.
+  for(const issue of lcbDigestPercentIssues(doc,references)){
+   for(let n=combined.length-1;n>=0;n--){const prior=combined[n];if(prior.start>=issue.start&&prior.end<=issue.end&&(issue.supersedesCheckIds.includes(prior.checkId)||issue.supersedesRules.includes(prior.rule)))combined.splice(n,1);}
+   combined.push(issue);
+  }
+  combined.push(...lcbInclusiveRangeIssues(doc,references));
+  combined.push(...lcbDataSharingAgreementIssues(doc,references));
+  combined.push(...lcbListedOpenNounAliasIssues(doc,references));
+  combined.push(...lcbListedAliasIssues(doc,references));
+  for(const range of lcbIncomeSeriesProtectionRanges(doc))for(let n=combined.length-1;n>=0;n--){const prior=combined[n];if(prior.start>=range.start&&prior.end<=range.end&&range.supersedesCheckIds.includes(prior.checkId))combined.splice(n,1);}
+  for(const issue of [...lcbDollarMinimumIssues(doc,references),...lcbIncomeSeriesIssues(doc,references)]){
+   for(let n=combined.length-1;n>=0;n--){const prior=combined[n];if(prior.start>=issue.start&&prior.end<=issue.end&&issue.supersedesCheckIds.includes(prior.checkId))combined.splice(n,1);}
+   combined.push(issue);
+  }
+  for(const issue of lcbListedIncludingBoundaryIssues(doc,references)){
+   for(let n=combined.length-1;n>=0;n--){const prior=combined[n];if(prior.start>=issue.start&&prior.end<=issue.end&&prior.rule==='Punctuation: Listed parenthetic phrases')combined.splice(n,1);}
+   combined.push(issue);
+  }
+  for(const issue of lcbListedAgencyFormIssues(doc,references)){
+   for(let n=combined.length-1;n>=0;n--){const prior=combined[n];if(prior.start===issue.start&&prior.end===issue.end&&prior.suggestion===issue.suggestion){for(const ref of prior.references||[])if(!issue.references.some(r=>r.guideId===ref.guideId&&r.rule===ref.rule))issue.references.push(ref);combined.splice(n,1);}}
+   combined.push(issue);
+  }
   const permitted=styleFindingPolicy(doc,{context,names:[...names,...createdTitleProtections]});
   const prioritized=applyLcbGuidePriority(doc,references,combined,{names:[...names,...createdTitleProtections,...entities.ranges]});
   return prioritized.filter(permitted).sort((a,b)=>a.start-b.start||a.end-b.end).map((i,id)=>({...i,id,matchText:source.slice(i.start,i.end).replace(/-[ \t]*\n\s*/g,'-').replace(/\s+/g,' ').trim()}));

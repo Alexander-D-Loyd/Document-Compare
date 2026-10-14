@@ -405,7 +405,8 @@ function renderDocument(root, doc, changes, side) {
     const sourceEdits=active?active.evidence.flatMap((e,i)=>(e.previousDeletionRanges??[{start:e.previousOffset,end:e.previousEndOffset??e.previousOffset}]).map((r,n)=>({...r,id:`A${active.number}.${i+1}${active.digest?'.D'+(n+1):''}`}))):[];
     const deletions=deletionHighlights.filter(r=>r.start<end&&r.end>start);
     const insertions=active?.digest?active.evidence.flatMap(e=>(e.previousInsertionPoints||[]).map(p=>p.offset)):active?.action==='insert'?sourceEdits.map(r=>r.start):active?.action==='replace'?sourceEdits.map(r=>r.end):[];
-    const points=[...new Set(insertions)].filter(at=>at>=start&&at<=end);
+    // Digest deltas are inline red/blue text, without insertion badges.
+    const points=active?.digest?[]:[...new Set(insertions)].filter(at=>at>=start&&at<=end);
     const appendInsertion=at=>{
       if(!points.includes(at))return;
       const marker=document.createElement('span');const afterLine=active.afterLine!=null||active.billEnd||active.patches?.some(p=>p.finalInsertion);const between=!afterLine&&(!!active.between||active.beforeLine!=null);marker.className=between?'amendment-insertion amendment-between-arrow':afterLine?'amendment-insertion amendment-after-arrow':'amendment-insertion amendment-selection';marker.textContent=between||afterLine?'➜':'+';if(afterLine)row.style.marginBottom='16px';if(between)row.style.marginTop=`max(16px, ${row.style.marginTop||'0px'})`;marker.dataset.outlineGroup=amendmentOutlineGroup(active,sourceEdits.find(r=>r.start===at||r.end===at)?.id||active.number);marker.dataset.amendmentInsertion=active.number;marker.dataset.sourceOffset=at;marker.title=active.directive;marker.setAttribute('aria-label',`${amendmentName(active)}: insert text here`);marker.tabIndex=0;body.append(marker);
@@ -420,7 +421,7 @@ function renderDocument(root, doc, changes, side) {
     for(const range of [...edits,...spells,...grammars,...styles,...strikes,...amendments,...amendmentCoverage,...deletions,...differences,...reviewRanges.map(e=>({start:e.currentOffset,end:e.currentEndOffset}))]){boundaries.add(Math.max(start,range.start));boundaries.add(Math.min(end,range.end));}
     const appendComparisonMarkers=at=>{
       for(const p of missing.filter(p=>p.offset===at)){
-        const marker=document.createElement('span');marker.className='amendment-missing amendment-selection';marker.dataset.issueOffset=p.offset;if(activeAmendmentIssue?.i===amendmentIndex&&activeAmendmentIssue.currentStart===p.offset)marker.classList.add('current-amendment-issue');marker.textContent='[missing text]';marker.title=currentReview.directive;marker.setAttribute('aria-label',`${p.id}: missing requested text: ${p.text}`);marker.dataset.amendmentMissing=p.id;marker.dataset.outlineGroup=amendmentOutlineGroup(currentReview,p.id);body.append(marker);
+        const marker=document.createElement('span');marker.className='amendment-missing'+(currentReview.digest?'':' amendment-selection');marker.dataset.issueOffset=p.offset;if(activeAmendmentIssue?.i===amendmentIndex&&activeAmendmentIssue.currentStart===p.offset)marker.classList.add('current-amendment-issue');marker.textContent='[missing text]';marker.title=currentReview.directive;marker.setAttribute('aria-label',`${p.id}: missing requested text: ${p.text}`);marker.dataset.amendmentMissing=p.id;marker.dataset.outlineGroup=amendmentOutlineGroup(currentReview,p.id);body.append(marker);
       }
     };
     const cuts=[...boundaries].sort((a,b)=>a-b);
@@ -460,7 +461,7 @@ function renderDocument(root, doc, changes, side) {
       const selectionRange=side===1?reviewRanges.find(r=>r.currentOffset<=a&&r.currentEndOffset>=b):deletions.find(r=>r.start<=a&&r.end>=b);
       const part=f?.headerParts?.find(p=>p.start<=a-block.start&&p.end>=b-block.start);
       const chunkParent=headerParents.get(part)||body;
-      const selected=selectionRange&&!block.ignored&&!block.runningHead&&!(side===0&&struck)&&!(side===1&&deleted)&&!!(side===1?currentReview?.insertText:active?.insertText)?.trim();
+      const selected=!selectedAmendment?.digest&&selectionRange&&!block.ignored&&!block.runningHead&&!(side===0&&struck)&&!(side===1&&deleted)&&!!(side===1?currentReview?.insertText:active?.insertText)?.trim();
       const outlineGroup=amendmentOutlineGroup(side===1?currentReview:active,selectionRange?.id);
       if(selected){
         let wrapper=chunkParent.lastElementChild;
@@ -500,7 +501,7 @@ function drawReviewOutlines(){
     const groupKey=(el,id)=>id+'|'+el.closest('.pdf-page').querySelector('.page-ref').dataset.page;
     if(reviewMode==='changes'){
       for(const el of root.querySelectorAll('.current-change')){const id=groupKey(el,el.dataset.change);const group=groups.get(id)||[];group.push(el);groups.set(id,group);}
-    }else if(reviewMode==='amendments'&&amendmentResults[amendmentIndex]?.insertText.trim()){
+    }else if(reviewMode==='amendments'&&!amendmentResults[amendmentIndex]?.digest&&amendmentResults[amendmentIndex]?.insertText.trim()){
       for(const el of root.querySelectorAll('.amendment-selection[data-outline-group]')){const id=groupKey(el,el.dataset.outlineGroup);const group=groups.get(id)||[];group.push(el);groups.set(id,group);}
     }
     const origin=root.getBoundingClientRect();

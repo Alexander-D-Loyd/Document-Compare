@@ -1,9 +1,9 @@
 {
-  "date": "2026-10-13",
-  "packagedVersion": "1.21.10",
+  "date": "2026-10-14",
+  "packagedVersion": "1.21.12",
   "localFollowOn": false,
   "documentReview": "Offline",
-  "githubPushed": true,
+  "githubPushed": false,
   "wholeRuleCertification": false,
   "inventory": {
     "Reference priority": 5,
@@ -18,12 +18,11 @@
     "conflictExcluded": 12
   },
   "pending": [
-    "Native desktop workflow/appearance verification of 1.21.10 remains unrun.",
-    "Remaining bounded LCB implementation is paused after publication at user request; complete LCB before new GPO coverage.",
-    "Inclusive reference ranges, Digest fractional-percent notation, other quotation provisions and Opinion/Cover-letter contexts remain incomplete.",
+    "Native desktop workflow of the complete1.21.12 package remains unrun.",
+    "Complete conditional LCB implementation; opinions/cover-letter classification and external-authority dependencies remain.",
     "Complete licensed offline Merriam-Webster authority.",
-    "Additional AB 109/SB 879 drafting material, deferred at user request.",
-    "Independent employee/office benchmark when available.",
+    "Additional AB109/SB879 drafting material, deferred.",
+    "Office benchmark when available.",
     "Source-confirmed budget column-gap/font display follow-ups."
   ],
   "note": "Partial coverage means a selected contextual check exists. It does not certify all usages, measured detection accuracy, or complete automatic coverage.",
@@ -1511,9 +1510,9 @@
     "officeAccuracyMeasured": false,
     "nativeWorkflowSkippedByUser": true
   },
-  "nativeWorkflow": "not-run-execution-environment-unavailable",
+  "nativeWorkflow": "stabilization-snapshot-passed; complete expansion package not run",
   "nativeWorkflowSkippedByUser": false,
-  "localSourceVersion": "1.21.10",
+  "localSourceVersion": "1.21.12",
   "localFollowOnScope": "Release: explicit legislative guide stabilization, LCB priority, selected printed forms, simplified Digest outlines and shared optional-upload removal.",
   "quotedTermPolicy": {
     "source": "Active Current Version, including digest and heading",
@@ -1524,8 +1523,8 @@
     "scope": "Style preferences within matching complete quoted-term occurrences are suppressed. Clause-boundary punctuation and surrounding wording remain independently checked."
   },
   "localSourceChecks": {
-    "tests": 1963,
-    "passed": 1963,
+    "tests": 2077,
+    "passed": 2077,
     "failed": 0,
     "parserPrecisionTests": 22,
     "stagedRuntimeSmoke": "passed; four grammar corrections, exact printed style positives, eight quiet controls, UTF-16/cross-page selection, cancellation/recovery and invalid payload",
@@ -1550,7 +1549,7 @@
     "historicalVersion": "1.21.9 stabilization baseline; not current 1.21.10 finding counts"
   },
   "stabilization": {
-    "furtherRuleExpansion": "paused after publication at user request",
+    "furtherRuleExpansion": "Source-backed LCB batch implemented and audited; complete coverage remains in progress.",
     "policy": "explicit guide and established source condition; no optional speculative mode",
     "retainedHyphenFindings": 132,
     "unsupportedHyphenFindingsRetired": 5223,
@@ -1568,23 +1567,22 @@
     "quotedTerms": "Bill local; exact interior spelling/case/punctuation with authorized initial-letter case variation; no cross-bill authority",
     "historicalHyphenCountsVersion": "1.21.9"
   },
-  "sourceVersion": "1.21.10",
+  "sourceVersion": "1.21.12",
   "guidePriority": {
     "primary": "LCB",
     "scope": "Applicable explicit printed forms in supported contexts; compliant LCB stays quiet; unknown roles remain manual."
   },
   "currentReleaseValidation": {
-    "version": "1.21.10",
-    "tests": 1963,
-    "passed": 1963,
+    "version": "1.21.12",
+    "tests": 2077,
+    "passed": 2077,
     "failed": 0,
-    "pdfOriginals": 11,
-    "pdfPages": 2105,
-    "amendmentResults": 9,
-    "digestDeltaUnchanged": true,
     "nativeDesktopVerified": false,
+    "stabilizationSnapshotNativeStagesPassed": 21,
+    "stabilizationSnapshotVersion": "1.21.11",
     "officeAccuracyMeasured": false,
     "lexicalRowsAudited": 663,
+    "distinctSourceRowsAudited": 763,
     "wholeRuleCertification": false
   },
   "inventoryHistoricalVersion": "1.21.7",

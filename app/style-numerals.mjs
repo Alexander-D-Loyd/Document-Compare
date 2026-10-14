@@ -308,11 +308,13 @@ export function numeralIssues(doc,references){
    conflict=(n.duration||n.measure)&&words||n.context==='Digest'&&n.value!==1&&n.value<10&&!n.duration&&!n.measure&&!related||n.context==='Digest'&&n.value===1&&related;
   }
   // GPO 12.25 spells closely related sentence-opening numbers alike;
-  // LCB’s later-number form can differ. Exclude this known choice.
+  // LCB’s later-number form can differ; the applicable LCB form wins.
   if(relatedStartNumbers.has(n)){conflict=true;gpoRule='12.25';gpoPage=297;gpoPreferred=spellNumber(n.value);}
   if(n.figure&&!n.ordinal&&/^\d+(?:\.\d+)?$/.test(preferred)&&Number(n.text.replaceAll(',',''))===Number(preferred))preferred=n.text;
   const normalized=n.text.toLowerCase().replace(/\s+/g,' '),matchesPrimary=normalized===preferred.toLowerCase();
-  if(matchesPrimary&&!conflict)continue;
+  // Already compliant LCB wording is not a finding, including when the
+  // secondary GPO convention differs. Do not create a conflict-only warning.
+  if(matchesPrimary)continue;
   const gpoRecord=references.gpo.pages[(gpoPage||296)-1],gpoText=gpoRecord.text.slice(Math.max(0,gpoRecord.text.indexOf((gpoRule||'12.23')+'.'))).replace(/\s+/g,' ').slice(0,850);
   const refs=[cite('lcb',rule,page,preferred,message),cite('gpo',gpoRule||'12.23',gpoPage||296,gpoPreferred||preferred,gpoText)];
   if(n.duration||n.measure)refs.splice(1,0,cite('lcb',n.duration?'Numerals: Days/Dates and Ages':'Numerals: Measures',n.duration?22:23,preferred,n.duration?'LCB examples distinguish “four years (bill)” from “4 years (digest)” and “two years of age (bill)” from “2 years of age (digest).”':'LCB examples distinguish “two feet (bill)” from “2 feet (digest)” and “five megabytes (bill)” from “5 megabytes (digest).”'));

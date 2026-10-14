@@ -6,7 +6,7 @@ export function referenceCaseIssues(doc,references,existing=[]){
   const start=m.index,end=start+m[1].length,evidenceEnd=start+m[0].length,word=m[1],preferred=word[0].toUpperCase()+word.slice(1).toLowerCase();
   if(word===preferred||word===word.toUpperCase()||ctx.at(start)==='Heading'||ctx.tableAt(start)||blocked(start,evidenceEnd)||cutsOriginalStyleWord(doc,start)||cutsOriginalStyleWord(doc,evidenceEnd)||/^\s*:/.test(source.slice(evidenceEnd)))continue;
   const cite={guideId:'lcb',guideName:'LCB Style Manual',guidePage:19,guidePrintedPage:'19',rule:'Capitalization examples: Numbered references',preferred:preferred.replace(/s$/u,''),ruleText:'LCB lists Section and Schedule with a number as capitalized. Page22 gives Sections123 and124.'};
-  const prior=existing.find(i=>i.checkId==='legal-references'&&i.start===start&&i.end>=evidenceEnd&&typeof i.suggestion==='string');
+  const prior=existing.find(i=>['legal-references','lcb-inclusive-range'].includes(i.checkId)&&i.start===start&&i.end>=evidenceEnd&&typeof i.suggestion==='string');
   if(prior){
    prior.suggestion=prior.suggestion.replace(new RegExp('^'+word+'\\b','iu'),preferred);
    if(!prior.references.some(r=>r.guideId==='lcb'&&r.guidePage===19))prior.references.push(cite);

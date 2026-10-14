@@ -1,6 +1,7 @@
 import {legislativeContext} from './legislative-context.mjs';
 import {styleContext,styleRangeBlocked} from './style-context.mjs';
-import {styleEvidenceGuard,cutsOriginalStyleWord as cutsOriginalSourceWord} from './style-evidence.mjs';
+import {styleEvidenceGuard,cutsOriginalStyleWord as cutsOriginalSourceWord,originalBodyStyleContext} from './style-evidence.mjs';
+import {originalStyleLiteralGuard} from './style-original-literal-guard.mjs';
 import {explicitVerbRange} from './style-verb-evidence.mjs';
 const outcome='(?:compliance|accuracy|availability|confidentiality|consistency|accessibility)';
 const outcomeEnd='(?=\\s*(?:[,.;:!?)]|$)|\\s+(?:and|or|nor|of|with|in|under|for|through|by|at|during|when|where|that|is|are|was|were)\\b)';
@@ -38,6 +39,24 @@ function prefaceDeterminerRange(ctx,before){
  const cue=/(?<![\p{L}\p{N}\p{M}_])(?:a|an|the|its|their|his|her|our|your)\s*$/iu.exec(ctx.source.slice(start,before));
  return cue?{start:start+cue.index,end:before}:null;
 }
+export const LCB_CANNOT_MODAL_SCOPE='LCB3 and LCB9 print cannot. Existing finite base-predicate can not constructions compare that listed spelling without inferring inability, prohibition or legal intent. A new act construction requires an intact selected the-agency/board/court/department/commission/committee/applicant/person/employee/employer/licensee/officer subject at a clause boundary and a terminal act predicate. Original entire clause alternative/correlative/choice markers, original double/single quotation literals, bill-local quoted terms, Unicode/technical fragments, strikes and uncertain source remain protected. No unfamiliar predicate, subject, broader negation interpretation or automated legal meaning is claimed.';
+function cannotModalEvidence(doc,ctx,m){
+ const originalContext=originalBodyStyleContext(doc),original=originalContext?.source||ctx.source,start=m.index,end=start+m[0].length,blocked=styleEvidenceGuard(doc,ctx),literal=originalStyleLiteralGuard(doc,ctx);
+ if(ctx.literalAt(start,end)||literal(start,end)||/^(?:[-\u2010-\u2015/:\\#@]|\.\d)/u.test(original.slice(end)))return null;
+ const sentence=(originalContext||ctx).sentenceAt(start),tail=original.slice(start+m.groups.term.length,sentence.end);
+ // Read original body wording for negative protection. Masking a choice,
+ // alternative or correlative cue cannot manufacture a simpler clause.
+ if(/\b(?:but|or|only|either|just|merely|simply|choose|chooses|wish|wishes|prefer|prefers|optional|optionally|and\s+still)\b/iu.test(tail))return null;
+ if(m.groups.predicate.toLowerCase()!=='act')return {start,end};
+ if(m.groups.predicate!=='act')return null;
+ const subject=/(?<![\p{L}\p{N}\p{M}_])(?:[Tt]he\s+)(?:agency|board|court|department|commission|committee|applicant|person|employee|employer|licensee|officer)\s+$/u.exec(ctx.source.slice(0,start));
+ if(!subject)return null;
+ const evidenceStart=subject.index,before=ctx.source.slice(0,evidenceStart),terminal=/^\s*(?:[.;!?)]|$)/u.exec(ctx.source.slice(end));
+ if(!terminal||!(/^[\s]*$/u.test(before)||/[.!?;:\n]\s*$/u.test(before)))return null;
+ const evidenceEnd=end+terminal[0].length;
+ if(cutsOriginalSourceWord(doc,evidenceStart)||cutsOriginalSourceWord(doc,evidenceEnd)||blocked(evidenceStart,evidenceEnd)||ctx.literalAt(evidenceStart,evidenceEnd)||literal(evidenceStart,evidenceEnd))return null;
+ return {start:evidenceStart,end:evidenceEnd};
+}
 // LCB's meaning-dependent pairs are checked only with explicit grammatical
 // or domain cues. Ambiguous occurrences are left for manual review.
 export const WORD_CHOICE_RULES=[
@@ -66,7 +85,7 @@ export const WORD_CHOICE_RULES=[
  {id:'proceeding-judicial-noun',pattern:/\b(?:judicial|court|administrative)\s+(?<term>preceding)\s+(?:is|was|shall|must|may|will)\b/gi,preferred:'proceeding',page:5,explanation:'LCB lists proceeding. A judicial/court/administrative noun position followed by a predicate identifies a proceeding. Preceding modifying a hearing, day or other noun remains protected.'},
  {id:'vice-versa-expression',pattern:/\band\s+(?<term>vice-versa|viceversa)(?=\s*(?:[.;,!?)]|$))/gi,preferred:'vice versa',page:14,explanation:'LCB lists vice versa as separate words; the GPO compounding examples list vice #versa. This explicit and-vice-versa clause ending identifies the expression and preserves unfamiliar senses and literal names.'},
  {id:'for-profit-postposition',pattern:/\b(?:operates?|operated|operating|organized|organised|conducted|formed)\s+(?<term>for-profit)(?=\s*(?:[.;,!?)]|$)|\s+(?:by|under|in|with|without)\b)/gi,preferred:'for profit',page:10,explanation:'LCB distinguishes for profit from the for-profit unit modifier. This explicit post-verb phrase is open; a for-profit organization before its noun remains hyphenated.'},
- {id:'cannot-negative-modal',pattern:/\b(?<term>can\s+not)\s+(?:apply|attend|authorize|collect|comply|continue|determine|exceed|grant|issue|obtain|participate|pay|perform|provide|receive|renew|require|submit|use)\b/gi,preferred:'cannot',page:3,explanation:'LCB lists cannot as one word. This finite negative-modal construction expresses inability or prohibition. Separate not-only, not-but and optional-action constructions remain protected.'},
+ {id:'cannot-negative-modal',pattern:/\b(?<term>can\s+not)\s+(?<predicate>apply|attend|authorize|collect|comply|continue|determine|exceed|grant|issue|obtain|participate|pay|perform|provide|receive|renew|require|submit|use|act)\b/gi,preferred:'cannot',page:3,explanation:'LCB3 and LCB9 list cannot as one word. This selected complete source construction compares that printed spelling only; it does not establish inability, prohibition or legal intent. Separate not-only, alternative and optional-action constructions remain protected.'},
  {id:'resume-employment-document',pattern:/\b(?:submits?|submitted|submitting|provides?|provided|providing|attach(?:es|ed|ing)?|reviews?|reviewed|reviewing|includes?|included|including)\s+(?:an?|the|their|his|her|its)\s+(?<term>resumes?)\b/gi,preferred:'résumé',plural:true,page:5,explanation:'LCB and GPO list résumé. A recognized document-submission verb, including selected finite, past and participle forms, and determiner identify an employment-history noun. The verb resume and unrelated technical names remain protected.'},
  {id:'resume-curriculum-vitae',pattern:/\bcurricul(?:um|a)\s+vitae\s+or\s+(?<term>resumes?)\b/gi,preferred:'résumé',plural:true,page:5,explanation:'The explicit curriculum vitae or résumé alternative identifies the employment-history noun. LCB and GPO list résumé; the verb resume remains protected.'},
  {id:'queue-waiting',pattern:/\b(?:waiting|print|printing|processing)\s+(?<term>cue)\s+(?:is|was|shall|must|contains?|holds?|includes?)\b/gi,preferred:'queue',page:5,explanation:'The explicit waiting/print/processing queue with a noun predicate identifies a line of pending people or jobs. LCB and GPO list queue. A cue to act or a spoken cue remains protected.'},
@@ -146,7 +165,9 @@ export function wordChoiceIssues(doc,references){
   if(rule.guard==='explicit-birth'&&!birthRange)continue;
   const prefaceRange=rule.id==='foreword-preface'?prefaceDeterminerRange(ctx,m.index):null;
   if(rule.id==='foreword-preface'&&!prefaceRange)continue;
-  const evidenceStart=Math.min(m.index,verbRange?.start??m.index,cueRange?.start??m.index,birthRange?.start??m.index,prefaceRange?.start??m.index);let evidenceEnd=m.index+m[0].length;
+  const cannotRange=rule.id==='cannot-negative-modal'?cannotModalEvidence(doc,ctx,m):null;
+  if(rule.id==='cannot-negative-modal'&&!cannotRange)continue;
+  const evidenceStart=Math.min(m.index,verbRange?.start??m.index,cueRange?.start??m.index,birthRange?.start??m.index,prefaceRange?.start??m.index,cannotRange?.start??m.index);let evidenceEnd=Math.max(m.index+m[0].length,cannotRange?.end??0);
   if(rule.id==='advice-verb'&&pattern!==rule.passivePattern&&['base','third'].includes(verb.form)){
    // A plural subject beside advice can also be a noun modifier (staff
    // advice services). Without a modal, retain only a closed finite clause
@@ -165,17 +186,13 @@ export function wordChoiceIssues(doc,references){
   }
   if(['all-mail-ballot-election-noun','limited-english-proficiency-noun','very-low-income-noun','offset-financial-verb','full-time-equivalent','non-life-threatening-predicate','non-civil-service-predicate'].includes(rule.id)&&/-[ \t]*\n/.test(term))continue;
   if((rule.id.endsWith('-noun-boundary')||['all-mail-ballot-election-noun','limited-english-proficiency-noun','very-low-income-noun'].includes(rule.id))&&/[A-Z][a-z]+[\s-]+[A-Z][a-z]+/.test(term))continue;
-  if(rule.id==='cannot-negative-modal'){
-   const sentence=ctx.sentenceAt(start),tail=source.slice(end,sentence.end);
-   if(/\b(?:but|or|only|if\s+(?:they|he|she|the\s+person)\s+(?:choose|chooses|wish|wishes)|and\s+still)\b/i.test(tail))continue;
-  }
   if(rule.guard==='commercial-code'){commerceRanges??=legislativeContext(doc).sections.filter(s=>s.kind==='Codified'&&/\bCommercial Code\b/i.test(s.intro));if(!commerceRanges.some(s=>s.start<=start&&s.end>start))continue;}
   if(ctx.at(start)==='Heading'||ctx.tableAt(start)||term===term.toUpperCase()&&!rule.allowCapital||[...(doc.struck||[]),...quoted].some(r=>r.start<end&&r.end>start))continue;
   const after=source.slice(end);if(/^[A-Z]/.test(term)&&/^\s+[A-Z][a-z]/.test(after))continue;
   const preferred=(verb?.preferred||rule.preferredForms?.[term.toLowerCase()]||rule.preferred)+(rule.plural&&/s$/i.test(term)?'s':'');
   const suggestion=/^[A-Z]/.test(term)?preferred[0].toUpperCase()+preferred.slice(1):preferred;
   if(term.replace(/\s+/g,' ')===suggestion)continue;
-  issues.push({start,end,evidenceStart,evidenceEnd,text:doc.text.slice(start,end),suggestion,guideId:'lcb',guidePage:rule.page,guidePrintedPage:String(rule.page),rule:'Spelling and usage: '+rule.id,category:'Contextual word choice',context:ctx.at(start),checkId:'word-choice',conflict:false,message:rule.explanation+' Confirm the intended meaning before accepting the suggestion.',references:[{guideId:'lcb',guideName:'LCB Style Manual',guidePage:rule.page,guidePrintedPage:references.lcb.pages[rule.page-1].printedPage,rule:'Spelling and usage examples',preferred:suggestion,ruleText:rule.explanation}]});
+  issues.push({start,end,evidenceStart,evidenceEnd,text:doc.text.slice(start,end),suggestion,guideId:'lcb',guidePage:rule.page,guidePrintedPage:String(rule.page),rule:'Spelling and usage: '+rule.id,category:'Contextual word choice',context:ctx.at(start),checkId:'word-choice',conflict:false,message:rule.explanation+' Confirm the intended meaning before accepting the suggestion.',references:[{guideId:'lcb',guideName:'LCB Style Manual',guidePage:rule.page,guidePrintedPage:references.lcb.pages[rule.page-1].printedPage,rule:'Spelling and usage examples',preferred:suggestion,ruleText:rule.explanation},...(rule.id==='cannot-negative-modal'?[{guideId:'lcb',guideName:'LCB Style Manual',guidePage:9,guidePrintedPage:references.lcb.pages[8].printedPage,rule:'Printed LCB spelling',preferred:'cannot',ruleText:'cannot'}]:[])]});
  }
  return issues.sort((a,b)=>a.start-b.start);
 }

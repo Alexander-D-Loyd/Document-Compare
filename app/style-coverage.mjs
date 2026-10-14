@@ -1,5 +1,6 @@
 import {MULTIWORD_QUANTITY_OPENING_SCOPE}from './style-opening-quantity-evidence.mjs';
 import {applyCoveragePolicy} from './style-coverage-policy.mjs';
+import {LCB_EXPLICIT_CHECK_COVERAGE} from './style-lcb-expansion-coverage.mjs';
 import {CONTRACTION_EVIDENCE_SCOPE}from './style-contractions.mjs';
 import {KNOWN_INITIALISM_EVIDENCE_SCOPE,FOREIGN_PHRASE_EVIDENCE_SCOPE}from './lcb-contextual.mjs';
 import {FINITE_VERB_CUE_SCOPE}from './style-verb-evidence.mjs';
@@ -58,6 +59,7 @@ import {LCB_FRESH_QUOTE_REVIEW_SCOPE}from './style-lcb-review-quote-ownership.mj
 import {LCB_PERCENTAGE_VALUE_SCOPE}from './style-percentage-values.mjs';
 import {CALENDAR_SOURCE_EVIDENCE_SCOPE}from './style-calendar.mjs';
 export const CHECK_COVERAGE=[
+ ...LCB_EXPLICIT_CHECK_COVERAGE,
  {title:'Complete percentage values and source evidence',status:'Selected LCB percentage formatting',guide:'lcb',page:23,text:LCB_PERCENTAGE_VALUE_SCOPE},
  {title:'Complete calendar capitalization evidence',status:'Finite source-backed calendar checks',guide:'lcb',page:22,text:CALENDAR_SOURCE_EVIDENCE_SCOPE},
  {title:'Listed possessive noun-head inflections',status:'Seven selected regular noun heads',guide:'lcb',page:7,text:LCB_POSSESSIVE_HEAD_SCOPE},

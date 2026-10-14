@@ -16,7 +16,7 @@ test('generic modifier variants and unsupported data-sharing engine rules cannot
   const original=JSON.stringify(candidate),found=jointStylisticIssues(doc,refs,{...legacy,engineIssues:[candidate]});assertNoUnsupported(found);assert.equal(JSON.stringify(candidate),original);assert.equal(JSON.stringify(doc),before);
  }
  const sharing=makeDocument(['A data sharing agreement applies.'],'Current'),at=sharing.text.indexOf('data'),issue={start:at,end:at+12,text:'data sharing',matchText:'data sharing',head:'agreement',engineRule:'LCB_DATA_SHARING_MODIFIER',engine:'spaCy',suggestion:'data-sharing'};
- assert.equal(jointStylisticIssues(sharing,refs,{...legacy,engineIssues:[issue]}).length,0);
+ const sharingFound=jointStylisticIssues(sharing,refs,{...legacy,engineIssues:[issue]});assert.deepEqual(sharingFound.map(i=>[i.suggestion,i.checkId]),[['data-sharing','lcb-data-sharing-agreement']]);assertNoUnsupported(sharingFound);
 });
 
 test('unsupported guesses cannot displace an exact printed modifier finding',()=>{

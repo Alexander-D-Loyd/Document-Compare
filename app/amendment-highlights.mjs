@@ -1,7 +1,7 @@
-// A selected Digest is one amendment, even when its delta has many disjoint
-// words. Reuse the regular per-page contour instead of boxing each fragment.
+// Digest deltas use only inline removal/addition colors. Regular instructional
+// amendments keep their selected evidence contours.
 export function amendmentOutlineGroup(result,rangeId){
- return result?.digest?`A${result.number}.Digest`:rangeId;
+ return result?.digest?null:rangeId;
 }
 export function amendmentDeletionRanges(doc,result,side){
   if(!result)return [];

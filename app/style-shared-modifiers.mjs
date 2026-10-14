@@ -1,6 +1,6 @@
 import {styleContext,styleRangeBlocked} from './style-context.mjs';
 import {openIncomeQualifierBefore} from './style-income-qualifiers.mjs';
-import {styleEvidenceGuard} from './style-evidence.mjs';
+import {styleEvidenceGuard,originalBodyStyleContext} from './style-evidence.mjs';
 
 // These shared elements have explicit LCB forms. Do not infer suspension
 // from every adjective/conjunction: 'young and part-time workers' is valid.
@@ -12,7 +12,7 @@ const families=[
 ];
 
 export function sharedModifierIssues(doc,references){
- const ctx=styleContext(doc),source=ctx.source,issues=[];
+ const ctx=styleContext(doc),source=ctx.source,original=originalBodyStyleContext(doc)?.source||source,issues=[];
  const blocked=styleEvidenceGuard(doc,ctx),cutsWord=index=>/[\p{L}\p{N}\p{M}_]$/u.test(doc.text.slice(Math.max(0,index-2),index))&&/^[\p{L}\p{N}\p{M}_]/u.test(doc.text.slice(index,index+2));
  for(const family of families){
   const re=new RegExp('\\b((?:'+family.first+')-?(?:,\\s+(?:'+family.first+')-?)*)(\\s*(?:,\\s*)?(?:and|or)\\s+)('+family.last+')([\\s-]+)('+family.base+')(?=(\\s+(?:'+family.heads+')(?![\\p{L}\\p{N}\\p{M}_])))','giu');
@@ -26,6 +26,9 @@ export function sharedModifierIssues(doc,references){
     m.index+=first[0].length;m[0]=m[0].slice(first[0].length);m[1]=m[1].slice(first[0].length);
    }
    const start=m.index,end=start+m[0].length,headEnd=matched.index+matched[0].length+matched[6].length;
+   // A printed modifier inside an extended named Act/Code is not evidence
+   // for changing that title. Original text supplies negative evidence only.
+   if(/^\s+(?:Act|Code|Law|Fund|Account|Authority|Department|Agency|Commission|Board)\b/u.test(original.slice(headEnd)))continue;
    const firstCorrect=m[1].split(/,\s*/).every(t=>t.endsWith('-')),lastCorrect=(m[3]+m[4]+m[5]).replace(/-[ \t]*\n\s*/g,'-').replace(/\s+/g,' ').toLowerCase()===(m[3]+'-'+family.base).toLowerCase();
    if(firstCorrect&&lastCorrect||m[1].toLowerCase()===m[3].toLowerCase()||ctx.at(start)==='Heading'||styleRangeBlocked(doc,matched.index,headEnd)||blocked(matched.index,headEnd)||cutsWord(matched.index)||cutsWord(headEnd))continue;
    if(/[\p{L}\p{N}-]/u.test(source[start-1]||'')||m[0]===m[0].toUpperCase())continue;

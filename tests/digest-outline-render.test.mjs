@@ -10,13 +10,30 @@ class Element{
 }
 const walk=e=>[e,...e.children.flatMap(walk)];
 function rendered(doc,result,side){const root=new Element('main'),context=vm.createContext({document:{createElement:tag=>new Element(tag)},sideRanges:()=>[],reviewMode:'amendments',hasAmendments:()=>true,amendmentsChecked:true,amendmentResults:[result],amendmentIndex:0,activeAmendmentIssue:null,grammarIssues:[],styleIssues:[],styleIndex:-1,amendmentDeletionRanges,amendmentAdditionRanges,amendmentReviewRanges,amendmentOutlineGroup,amendmentName});vm.runInContext(renderSource+';globalThis.render=renderDocument;',context);context.render(root,doc,[],side);return walk(root);}
-test('actual AB224 Digest uses one normal selection contour per page while keeping exact delta colors',()=>{
+test('actual AB224 Digest keeps exact delta colors without selection contours or insertion badges',()=>{
  const old=source('ab224-previous'),now=source('ab224-current'),upload=source('ab224-digest'),before=JSON.stringify([old,now,upload]),result=verifyAmendments('',old,now,{},upload)[0];assert.equal(amendmentName(result),'Digest');assert.equal(result.status,'implemented');
- for(const [doc,side]of [[old,0],[now,1]]){const tree=rendered(doc,result,side),selected=tree.filter(e=>e.classList.contains('amendment-selection')),groups=new Map();for(const el of selected){let page=el.parent;while(page&&!page.classList.contains('pdf-page'))page=page.parent;assert.ok(page);const label=page.children.find(e=>e.classList.contains('page-ref')),ids=groups.get(label.dataset.page)||new Set();ids.add(el.dataset.outlineGroup);groups.set(label.dataset.page,ids);}assert.ok(groups.size>0);for(const ids of groups.values())assert.equal(ids.size,1,'Each Digest page must reuse one contour, not one contour per changed fragment');
+ for(const [doc,side]of [[old,0],[now,1]]){const tree=rendered(doc,result,side);assert.equal(tree.filter(e=>e.classList.contains('amendment-selection')).length,0);assert.equal(tree.filter(e=>e.classList.contains('amendment-insertion')).length,0);
   const colored=tree.filter(e=>e.classList.contains(side?'amendment-added':'amendment-deletion'));assert.ok(colored.length);const ranges=side?amendmentAdditionRanges(result):amendmentDeletionRanges(doc,result,side);for(const e of colored)assert.ok(ranges.some(r=>r.start<=Number(e.dataset.start)&&r.end>=Number(e.dataset.end)));for(const e of tree.filter(e=>e.classList.contains('previous-source-struck')))assert.equal(e.classList.contains('amendment-deletion'),false,'Source strikeouts must not acquire a second deletion decoration');
  }
  assert.equal(JSON.stringify([old,now,upload]),before,'Rendering must preserve native PDF data and delta verification');
 });
 test('regular instructions retain their existing evidence groups and exact changed text',()=>{
  const old=makeDocument(['line 1 The office funds ten programs.'],'old'),now=makeDocument(['line 1 The office funds twelve programs.'],'current'),result=verifyAmendments('Amendment 1\nOn page 1, in line 1, strike out “ten” and insert:\ntwelve',old,now)[0];assert.equal(result.status,'implemented');for(const side of [0,1]){const doc=side?now:old,tree=rendered(doc,result,side),selected=tree.filter(e=>e.dataset.selectionText==='true');assert.equal(selected.map(e=>e.textContent).join(''),side?'twelve':'ten');assert.ok(selected.every(e=>e.dataset.outlineGroup==='A1.1'));}assert.equal(amendmentOutlineGroup(result,'A1.2'),'A1.2');
+});
+
+test('Digest discrepancies and missing wording remain visible without outlines or plus badges',()=>{
+ const heading='LEGISLATIVE COUNSEL’S DIGEST',enact='The people of the State of California do enact as follows:',bill=text=>makeDocument([heading+'\n'+text+'\n'+enact+'\nline 1 Existing body.'],'bill');
+ const old=bill('Existing law funds ten programs.'),upload=makeDocument(['Existing law funds twelve programs.'],'Digest');
+ for(const now of [old,bill('Existing law funds thirteen programs.')]){
+  const result=verifyAmendments('',old,now,{},upload)[0];assert.notEqual(result.status,'implemented');
+  for(const [doc,side] of [[old,0],[now,1]]){const tree=rendered(doc,result,side);assert.equal(tree.filter(e=>e.classList.contains('amendment-selection')).length,0);assert.equal(tree.filter(e=>e.classList.contains('amendment-insertion')).length,0);}
+  const current=rendered(now,result,1);assert.ok(current.some(e=>e.classList.contains('amendment-missing')||e.classList.contains('amendment-unexpected')),'The discrepancy itself stays visible');
+ }
+});
+
+test('Digest redraw removes old contours while ordinary amendment outline routing stays available',()=>{
+ const start=app.indexOf('function drawReviewOutlines(){'),end=app.indexOf("\nwindow.addEventListener('resize',drawReviewOutlines);",start),draw=app.slice(start,end);let removed=0,selectionQueries=0;
+ const root={dataset:{},scrollLeft:0,scrollTop:0,querySelector:()=>null,querySelectorAll:selector=>{if(selector==='.review-outline')return [{remove(){removed++;}}];selectionQueries++;return [];},getBoundingClientRect:()=>({left:0,top:0})};
+ for(const digest of [true,false]){const before=selectionQueries,context=vm.createContext({$:()=>root,reviewMode:'amendments',amendmentResults:[{digest,insertText:'replacement'}],amendmentIndex:0});vm.runInContext(draw+';drawReviewOutlines();',context);assert.equal(selectionQueries-before,digest?0:2);}
+ assert.equal(removed,4);
 });

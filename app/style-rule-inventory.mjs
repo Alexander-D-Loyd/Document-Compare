@@ -1,5 +1,6 @@
 import {MULTIWORD_QUANTITY_OPENING_SCOPE}from './style-opening-quantity-evidence.mjs';
 import {applyCoveragePolicy} from './style-coverage-policy.mjs';
+import {lcbExpansionSourceInventory} from './style-lcb-expansion-coverage.mjs';
 import {CONTRACTION_EVIDENCE_SCOPE}from './style-contractions.mjs';
 import {KNOWN_INITIALISM_EVIDENCE_SCOPE,FOREIGN_PHRASE_EVIDENCE_SCOPE}from './lcb-contextual.mjs';
 import {FINITE_VERB_CUE_SCOPE}from './style-verb-evidence.mjs';
@@ -128,7 +129,7 @@ function reportFormatInventory(reference){
 }
 export function styleRuleInventory(references){
  if(cache.has(references))return cache.get(references);
- const records=[];
+ const records=[...lcbExpansionSourceInventory(references)];
  for(const id of ['lcb','gpo']){
   const ref=references[id];if(!ref)continue;
   if(id==='gpo'){

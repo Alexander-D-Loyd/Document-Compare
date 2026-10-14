@@ -1,4 +1,45 @@
-Document Compare 1.21.10 — current release verification
+Document Compare 1.21.12 — functionality audit and release checks
+
+All 2,077 source tests pass with no failures. The audit covers PDF intake,
+comparison, amendment and Digest ranges, JR Boxes, final insertions, source
+layout, uploads/removal, navigation, Refresh/cancellation, Ignore/Undo, dictionary,
+authority importer, offline language engines, LCB source/case/quoted-term rules
+and supplementary GPO priority boundaries. Independent findings and limitations
+are recorded; an audit is not exhaustive office accuracy certification.
+
+The separate 1.21.11 stabilization snapshot passed all 21 native desktop stages
+across preserved full/targeted reports. It verifies the current Digest/UI changes,
+but excludes the new LCB expansion. Native testing of this complete 1.21.12
+package remains unrun. Source/runtime and package integrity checks are distinct.
+LCB integration continues to use explicit source forms and supported conditions.
+Complete LCB automation, opinion/cover-letter classification, licensed full
+dictionary authority, deferred drafting attachments and some PDF layout cases
+remain incomplete. See LCB_IMPLEMENTATION.md for scope and source inventory.
+
+Historical evidence follows without changing its original scope.
+
+---
+
+Current development verification — October 14, 2026
+
+The frozen 1.21.11 stabilization snapshot passed all 21 packaged desktop stages:
+20 passed in the full run, and the remaining Ignore/Undo stage passed with a
+corrected controlled PDF in a targeted rerun. Both reports and the unchanged
+package hashes are retained. The earlier failed report is not rewritten.
+Digest appearance, real-bill highlights, OCR, dictionary restart and offline
+engines are included. New LCB expansion code is excluded from that snapshot.
+
+The current source restores the complete data sharing agreement/agreements
+modifier check under LCB8 item1, with quoted bill-local exceptions. A scan of
+87 PDF models / 4,506 pages found 14 applicable source-grounded findings.
+Eight frozen public excerpts retain all 27 established exact corrections.
+New printed percentage, monetary, range, income-series, including and named-form
+checks have independent source/quotation guards and explicit scope records.
+Full LCB implementation remains in progress; see LCB_IMPLEMENTATION.md.
+
+Historical published 1.21.10 verification follows.
+
+Document Compare 1.21.10 — release verification
 
 Digest selection now uses one regular amendment outline per page while preserving
 exact red removed/blue added ranges. The shared trash clears both optional uploads

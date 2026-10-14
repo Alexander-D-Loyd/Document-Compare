@@ -8,11 +8,11 @@ test('digest replacement colors only removed and added words, keeping common con
  assert.equal(result.status,'implemented');assert.deepEqual(selected(old,amendmentDeletionRanges(old,result,0)),['ten']);assert.deepEqual(selected(now,amendmentAdditionRanges(result)),['twelve']);
  const display=digestDisplay(upload,old).payload;assert.deepEqual(display.additions.map(r=>display.text.slice(r.start,r.end)),['twelve']);assert.deepEqual(nonAmendmentEdits('',old,now,[result],{},upload).ranges,[[],[]]);
 });
-test('separate digest edits keep exact source identities and anchors but share the selected amendment contour',()=>{
+test('separate digest edits keep exact source identities and anchors without a selection contour',()=>{
  const old=bill('Existing law funds ten programs. Another law funds five programs.'),now=bill('Existing law funds twelve programs. Another law funds six programs.'),upload=makeDocument(['Existing law funds twelve programs. Another law funds six programs.'],'digest'),result=verifyAmendments('',old,now,{},upload)[0];
  const removed=amendmentDeletionRanges(old,result,0),added=amendmentAdditionRanges(result),review=amendmentReviewRanges(result);
  assert.equal(new Set(removed.map(r=>r.id)).size,2);assert.equal(new Set(added.map(r=>r.id)).size,2);assert.equal(new Set(review.map(r=>r.id)).size,2);
- assert.equal(new Set([...removed,...added,...review].map(r=>amendmentOutlineGroup(result,r.id))).size,1);
+ assert.ok([...removed,...added,...review].every(r=>amendmentOutlineGroup(result,r.id)===null));
  assert.deepEqual(result.evidence[0].previousInsertionPoints.map(p=>p.offset),[old.text.indexOf('ten')+3,old.text.indexOf('five')+4]);
  const deletionOnly=verifyAmendments('',old,bill('Existing law funds programs. Another law funds programs.'),{},makeDocument(['Existing law funds programs. Another law funds programs.'],'digest'))[0];assert.deepEqual(deletionOnly.evidence[0].previousInsertionPoints,[]);
 });

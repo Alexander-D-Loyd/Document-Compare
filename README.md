@@ -1,10 +1,10 @@
 # Document Compare
 
-Offline Windows desktop app for legislative PDF comparison and amendment/style review. This is the **1.21.10 release source**. Digest selection uses regular amendment outlines; the shared trash clears both optional uploads. Style findings are limited to explicit supported LCB/GPO provisions, with LCB priority and legislative exceptions. Native desktop verification of this release remains unrun.
+Offline Windows desktop app for legislative PDF comparison and amendment/style review. This is the **1.21.12 release source**. Digest edits use red deletions and blue additions without selection contours or inline plus markers; the shared trash clears both optional uploads. Style findings are limited to explicit supported LCB/GPO provisions, with LCB priority and legislative exceptions.
 
 ## Run the packaged app
 
-Extract the entire **Document-Compare-Windows-1.21.10.zip** and open **Document Compare/Document Compare.exe**. Keep the runtime and resources together. No installation or development tools are required. PDF and language review run locally.
+Extract the entire **Document-Compare-Windows-1.21.12.zip** and open **Document Compare/Document Compare.exe**. Keep the runtime and resources together. No installation or development tools are required. PDF and language review run locally.
 
 ## Features
 
@@ -24,7 +24,7 @@ Blue indicates additions, red deletions, yellow non-amendment changes, and purpl
 
 ## Validation and limitations
 
-All 1,963 source tests pass. Fresh replay of 11 actual PDFs (2,105 pages) preserves nine amendment results and exact AB 224 Digest change ranges. Source guards, staged offline-engine checks and package integrity are verified separately. These are regression checks, not an office accuracy measurement. Native desktop workflow and appearance verification of 1.21.10 remains unrun. See TESTING_REPORT.md and DEVELOPMENT_REVIEW.md for current scope and historical checks.
+The separate 1.21.11 stabilization snapshot passed all 21 desktop stages across a full run and targeted Undo rerun against the unchanged package. The current LCB expansion source is verified separately and is not included in that desktop result. Source guards, offline-engine checks, real PDF replays and package integrity remain separate evidence. See TESTING_REPORT.md and LCB_IMPLEMENTATION.md for current scope; these checks do not measure office precision or recall.
 
 Full contextual LCB/GPO automation and the complete ordered Merriam-Webster authority remain incomplete. Genuine SB 879 differences and missing drafting attachments remain flagged. Office-wide precision/recall has not been measured; controlled tests are not an exhaustive human benchmark.
 
