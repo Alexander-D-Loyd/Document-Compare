@@ -32,3 +32,22 @@ test('unresolved example citations honestly expose the source page rather than f
  const issue={start:0,end:5,text:'words',suggestion:null,references:[citation]},copy=JSON.stringify(issue),result=attachGuideEvidence(issue,refs);
  assert.match(result.reviewTask,/no replacement/u);assert.notEqual(result.references[0].sourcePassage.text,citation.ruleText);assert.equal(JSON.stringify(issue),copy);
 });
+
+test('validated detector witnesses preserve exact source examples without trusting a finding label',()=>{
+ for(const [page,text]of [[7,'April 1, 2001,'],[3,'any time (n.)'],[3,'anytime (adv.)']]){
+  const source=refs.lcb.pages[page-1].text,start=source.indexOf(text);assert.ok(start>=0);const citation={guideId:'lcb',guidePage:page,rule:'Bounded printed example',preferred:'anytime',sourcePassage:{start,end:start+text.length,text,kind:'Unverified supplied label'}};
+  const saved=JSON.stringify(citation),found=guidePassage(refs.lcb,citation);assert.equal(found.text,text);assert.equal(found.kind,'Printed source passage');assert.equal(found.page,page);assert.equal(source.slice(found.start,found.end),text);assert.equal(JSON.stringify(citation),saved);
+  const attached=attachGuideEvidence({text:'any-time',suggestion:'anytime',references:[citation]},refs);assert.deepEqual(attached.references[0].sourcePassage,found);
+ }
+});
+
+test('invalid source bounds text or page cannot replace the established source fallback',()=>{
+ const citation={guideId:'lcb',guidePage:7,rule:'Bounded printed example',preferred:'unlisted-form'},text='April 1, 2001,',start=refs.lcb.pages[6].text.indexOf(text),good={start,end:start+text.length,text};
+ const expected=guidePassage(refs.lcb,citation);
+ for(const sourcePassage of [{...good,start:String(start)},{...good,end:Infinity},{...good,start:-1},{...good,end:good.start},{...good,end:refs.lcb.pages[6].text.length+1},{...good,text:'Invented requirement'},{...good,page:3},{...good,text:''},{...good,text:' '}])assert.deepEqual(guidePassage(refs.lcb,{...citation,sourcePassage}),expected);
+});
+
+test('an identified numbered provision retains its conditions ahead of a supplied example fragment',()=>{
+ const source=refs.lcb.pages[20].text,text='Bill',start=source.indexOf(text),citation={guideId:'lcb',guidePage:21,rule:'Numerals: Bill, item 3',sourcePassage:{start,end:start+text.length,text}};
+ const found=guidePassage(refs.lcb,citation);assert.equal(found.kind,'Source provision');assert.match(found.text,/different numerical expressions/u);
+});

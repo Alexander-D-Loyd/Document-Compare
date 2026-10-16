@@ -1,3 +1,4 @@
+import {possessiveTechnicalBoundaryBlocked} from './style-possessive-technical-boundaries.mjs';
 import {styleContext,styleRangeBlocked} from './style-context.mjs';
 import {canonicalWrittenValue} from './style-numerals.mjs';
 import {dividedCalendarDates,validCompleteCalendarDate} from './style-calendar-dates.mjs';
@@ -18,7 +19,8 @@ export function contextualPunctuationIssues(doc,references){
  const ctx=styleContext(doc),issues=[];
  const blockedListEvidence=styleEvidenceGuard(doc,ctx);
  const timeQuantity=createNounQuantityReader(doc,ctx);
- let timeLiteralRanges=null,timeOriginalContext=null;
+ let timeLiteralRanges=null,timeOriginalContext=null,possessiveOriginalSource=null;
+ const technicalPossessive=(start,end)=>{possessiveOriginalSource??=originalBodyStyleContext(doc)?.source||ctx.source;return possessiveTechnicalBoundaryBlocked(possessiveOriginalSource,start,end);};
  const timeCurrencyPrefix=(source,start)=>{while(start>0&&/\s/u.test(source[start-1]))start--;return /[$€£¥₹¢]/u.test(source[start-1]||'');};
  const literal=[...ctx.source.matchAll(/“[^”]*”|"[^"\n]*"/g)].map(m=>({start:m.index,end:m.index+m[0].length}));
  const quoted=m=>literal.some(r=>r.start<m.index+m[0].length&&r.end>m.index);
@@ -64,7 +66,7 @@ export function contextualPunctuationIssues(doc,references){
   // not establish the noun/verb role of an unfamiliar work/pay expression.
   if(/^(?:(?:business|calendar|court|school|academic|consecutive|working)\s+|schooldays?\s+)/i.test(m[2])&&m[3].toLowerCase()!=='notice')continue;
   const unitStart=m.index+m[0].lastIndexOf(m[2]),quantity=timeQuantity(unitStart),evidenceEnd=m.index+m[0].length;
-  if(!quantity||quantity.start!==m.index||cutsOriginalStyleWord(doc,evidenceEnd)||/^[-\u00ad\u2010\u2011’']/u.test(doc.text.slice(evidenceEnd))||blockedListEvidence(quantity.start,evidenceEnd))continue;
+  if(!quantity||quantity.start!==m.index||technicalPossessive(quantity.start,evidenceEnd)||cutsOriginalStyleWord(doc,evidenceEnd)||/^[-\u00ad\u2010\u2011’']/u.test(doc.text.slice(evidenceEnd))||blockedListEvidence(quantity.start,evidenceEnd))continue;
   if(timeLiteralRanges===null){timeOriginalContext=originalBodyStyleContext(doc);timeLiteralRanges=[...styleSingleQuoteRanges(ctx.source),...(timeOriginalContext?[...timeOriginalContext.literalRanges,...styleSingleQuoteRanges(timeOriginalContext.source)]:[])];}if(timeLiteralRanges.some(r=>r.start<evidenceEnd&&r.end>quantity.start)||timeCurrencyPrefix(ctx.source,quantity.start)||timeOriginalContext&&timeCurrencyPrefix(timeOriginalContext.source,quantity.start))continue;
   const written=!/^\d/.test(m[1]),value=written?canonicalWrittenValue(m[1]):Number(m[1].replaceAll(',',''));
   if(value===null||!Number.isFinite(value)||ctx.tableAt(m.index)||/[\p{L}\p{N}\/⁄.,+−-]$/u.test(ctx.source.slice(Math.max(0,m.index-1),m.index))||/[+−-]\s*$/.test(ctx.source.slice(Math.max(0,m.index-12),m.index)))continue;
@@ -112,7 +114,7 @@ export function contextualPunctuationIssues(doc,references){
  }
  for(const [form,preferred,sourcePreferred] of [...listedPossessives,...possessiveHeadInflections]){
   for(const m of ctx.source.matchAll(new RegExp('\\b'+form.replaceAll(' ','\\s+')+'\\b','gi'))){
-   if(quoted(m))continue;
+   if(quoted(m)||technicalPossessive(m.index,m.index+m[0].length))continue;
    const after=ctx.source.slice(m.index+m[0].length),before=ctx.source.slice(Math.max(0,m.index-70),m.index);
    // An official fund name or budget program label may have an established
    // spelling; do not silently rename it using the ordinary phrase example.

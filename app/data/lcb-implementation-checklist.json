@@ -1,0 +1,305 @@
+{
+  "date": "2026-10-16",
+  "scope": "Explicit LCB Bill/Digest conditions and selected explicit Opinion/Cover letter provisions; supported contexts and human judgment limits, not universal English or full semantic certification.",
+  "counts": {
+    "manualPages": 23,
+    "canonicalLexicalRows": 663,
+    "manualPrefixPrescriptions": 4,
+    "quotedCorporationLetterExceptions": 2,
+    "provisionAndExampleRows": 246,
+    "overlappingCapitalizationRows": 146,
+    "distinctSourceRows": 763,
+    "auditProductionProbes": 2975,
+    "historicalLexicalProbeSetsWithAnyLcbFinding": 657
+  },
+  "countInterpretation": "The historical 657 probe sets contained an LCB finding somewhere in a sample context. That metric does not establish a trigger for the target entry and is not entry-specific completion evidence. Each of the 663 canonical source rows requires separate exact-target acceptance, actionable condition or protection evidence; no completion percentage or office accuracy is established.",
+  "remaining": [
+    {
+      "kind": "External authority",
+      "item": "Complete ordered Merriam-Webster spelling and word-sense data",
+      "status": "Unavailable; licensed offline importer already implemented"
+    },
+    {
+      "kind": "External authority",
+      "item": "Current official California entity identities and legal titles",
+      "status": "Selected exact-name case and registry-backed official-head checks use the bundled historical snapshot or one authorized local JSON export; import/search/restore is implemented. Source currency and legal identity still require authoritative data, and absence from the selected list is not an error."
+    },
+    {
+      "kind": "Meaning-dependent",
+      "item": "Unfamiliar bi/in/multi/non formations, word senses and legal referents",
+      "status": "Manual unless a complete listed word or supported source condition supplies authority"
+    },
+    {
+      "kind": "Human judgment",
+      "item": "Quotation punctuation ownership, ambiguous grouped-series levels and unencoded grammatical roles",
+      "status": "Conditional review where explicit source evidence exists; no invented replacement"
+    },
+    {
+      "kind": "Verification",
+      "item": "Native desktop verification and office precision/recall",
+      "status": "Separate from source coverage; not certified by source tests"
+    },
+    {
+      "kind": "Supplementary citation authority",
+      "item": "Complete California Style Manual citation treatment for Opinions/Cover letters",
+      "status": "Selected explicit LCB document-type rules implemented; separate full citation authority remains unavailable"
+    }
+  ],
+  "pages": [
+    {
+      "page": 1,
+      "chapter": "Reference Guide Priority",
+      "sourceSha256": "57a86061ccd6e57309e439ce4533e598d10caa18a123399f5ff563b813b20c47",
+      "canonicalLexicalRows": 0,
+      "provisionRows": 1,
+      "implemented": "Implemented priority: applicable LCB before GPO.",
+      "remainingLimits": "Complete ordered Merriam-Webster authority still needs licensed offline data. Full California Style Manual citation authority remains separate; selected explicit Opinion/Cover letter workflow is implemented.",
+      "status": "Selected source conditions checked; see remaining limits",
+      "historicalLexicalProbeSetsWithAnyLcbFinding": 0
+    },
+    {
+      "page": 2,
+      "chapter": "Spelling",
+      "sourceSha256": "c335f2129e8b12c311390cd5a1507bc73a63caded9e8792d502cfcc2cee20e6a",
+      "canonicalLexicalRows": 0,
+      "provisionRows": 12,
+      "implemented": "Office preferences, contractions, and/or and supported initialism articles have source-bound checks; spelling engines remain separate.",
+      "remainingLimits": "Alternative spellings/word senses are not blanket synonym replacements. Full dictionary first-spelling ordering is an external-data dependency.",
+      "status": "Selected source conditions checked; see remaining limits",
+      "historicalLexicalProbeSetsWithAnyLcbFinding": 0
+    },
+    {
+      "page": 3,
+      "chapter": "Spelling",
+      "sourceSha256": "b7ef0b76ce4cbe5e11c045e272d93b39a38109bf4ea670ff60bb76e64093a7bb",
+      "canonicalLexicalRows": 65,
+      "provisionRows": 0,
+      "implemented": "Exact listed spelling acceptance and variant/contextual checks are replayed; meaning-labelled pairs use finite supported roles. The exact any-time alias now retains the existing supported noun/adverb roles.",
+      "remainingLimits": "Biannual/biennial, born/borne, aural and other sense pairs cannot be classified universally without document meaning.",
+      "status": "Selected source conditions checked; see remaining limits",
+      "historicalLexicalProbeSetsWithAnyLcbFinding": 65
+    },
+    {
+      "page": 4,
+      "chapter": "Spelling",
+      "sourceSha256": "34dab288225b7ad6c9ff5ed8641dbe6154cf2e7e33cd37c81a2f99e4098b831d",
+      "canonicalLexicalRows": 63,
+      "provisionRows": 0,
+      "implemented": "Exact listed spellings and role checks replayed, including Fahrenheit, insurance, Commercial Code and horse-racing contexts.",
+      "remainingLimits": "Authentic names, dictionary order, novel senses and undefined legal roles remain manual.",
+      "status": "Selected source conditions checked; see remaining limits",
+      "historicalLexicalProbeSetsWithAnyLcbFinding": 63
+    },
+    {
+      "page": 5,
+      "chapter": "Spelling",
+      "sourceSha256": "d4dff299d021e42e0d17029909deb3a261697cc13ea0f5994f55bf64c11803d5",
+      "canonicalLexicalRows": 39,
+      "provisionRows": 0,
+      "implemented": "Listed forms, office preference aliases and explicit word-choice cues replayed.",
+      "remainingLimits": "Therefor/therefore and other semantic alternatives retain bounded conditions.",
+      "status": "Selected source conditions checked; see remaining limits",
+      "historicalLexicalProbeSetsWithAnyLcbFinding": 39
+    },
+    {
+      "page": 6,
+      "chapter": "Punctuation",
+      "sourceSha256": "62efd6c51cf7cfc574200d36a90d413967735f5eb65196b081a4ee34f9213029",
+      "canonicalLexicalRows": 0,
+      "provisionRows": 6,
+      "implemented": "Quote comma/period correction, serial punctuation, precise grouped semicolon and fresh-definition ownership review all demonstrated. Supported single-quote comma/period boundaries now preserve complete source enclosure evidence.",
+      "remainingLimits": "General quotation ownership, clause parallelism and unresolved group levels remain conditional human review, not forced punctuation changes.",
+      "status": "Selected source conditions checked; see remaining limits",
+      "historicalLexicalProbeSetsWithAnyLcbFinding": 0
+    },
+    {
+      "page": 7,
+      "chapter": "Punctuation",
+      "sourceSha256": "86910a71fde8bd66c845e5c055613852013755a740448e1521f9d86c1655adb0",
+      "canonicalLexicalRows": 0,
+      "provisionRows": 28,
+      "implemented": "Printed punctuation/name forms, dates, time possessives and the exact city/county, different-duration series, credential-license and United States control constructions have source-bound checks. Complete valid full dates after existing temporal cues also check the printed comma/spacing pattern without changing the date value or month case.",
+      "remainingLimits": "Credential apostrophe removal requires holds/obtains/issuance context; general possessor meaning is not inferred.",
+      "status": "Selected source conditions checked; see remaining limits",
+      "historicalLexicalProbeSetsWithAnyLcbFinding": 0
+    },
+    {
+      "page": 8,
+      "chapter": "Hyphenation",
+      "sourceSha256": "6c0d48bd6aaba23b2af7bd99c69e211ab4ac6780ff5f60a4d81040d6b6d2d899",
+      "canonicalLexicalRows": 0,
+      "provisionRows": 5,
+      "implemented": "Actual printed cost-effective/cost effective, federally funded, publicly owned and ex officio examples pass. Explicit ex/self/quasi and prescribed modifier families are retained.",
+      "remainingLimits": "Broad noun-phrase guesses and generic suffix/root generators are deliberately disabled; only printed forms or explicit supported conditions qualify.",
+      "status": "Selected source conditions checked; see remaining limits",
+      "historicalLexicalProbeSetsWithAnyLcbFinding": 0
+    },
+    {
+      "page": 9,
+      "chapter": "Hyphenation",
+      "sourceSha256": "c402354b13e5cd38381db71f67a01558095dd493d0a2476562fe65d3b81709f1",
+      "canonicalLexicalRows": 64,
+      "provisionRows": 0,
+      "implemented": "Listed lexical forms and explicit anti-inflammatory/anti-infective/anti-Semitism exceptions are covered.",
+      "remainingLimits": "Generic bi-prefix joining remains manual: morphology alone is not complete lexical or meaning authority.",
+      "status": "Selected source conditions checked; see remaining limits",
+      "historicalLexicalProbeSetsWithAnyLcbFinding": 63
+    },
+    {
+      "page": 10,
+      "chapter": "Hyphenation",
+      "sourceSha256": "6f55859ceb066c246672af33e837d760ac6830794638e59f95f86a72d505cc92",
+      "canonicalLexicalRows": 66,
+      "provisionRows": 0,
+      "implemented": "Listed variants, nominal/phrasal roles, numeric compounds and shared-element forms replayed. Eleven explicitly printed verb forms now also support finite required-to cues and exact hyphen aliases after direct modals. Selected ex-/quasi-/self- role gaps have source-backed prefix-boundary checks.",
+      "remainingLimits": "Unfamiliar grammatical roles and unlisted derivative/compound spellings remain manual.",
+      "status": "Selected source conditions checked; see remaining limits",
+      "historicalLexicalProbeSetsWithAnyLcbFinding": 66
+    },
+    {
+      "page": 11,
+      "chapter": "Hyphenation",
+      "sourceSha256": "17e6b39d82bfd6868874684b04730d9efde988483421b9d870e7a589b21c592b",
+      "canonicalLexicalRows": 64,
+      "provisionRows": 0,
+      "implemented": "Listed forms and supported role checks replayed; Medi-Cal alias and exact named forms are present.",
+      "remainingLimits": "Generic in-prefix joining remains manual to avoid interpreting the preposition in as morphology.",
+      "status": "Selected source conditions checked; see remaining limits",
+      "historicalLexicalProbeSetsWithAnyLcbFinding": 63
+    },
+    {
+      "page": 12,
+      "chapter": "Hyphenation",
+      "sourceSha256": "649fd3783ee3d8a3e4561ee491807d340e12c6b06172714d6625475f3ff9a77c",
+      "canonicalLexicalRows": 65,
+      "provisionRows": 0,
+      "implemented": "Listed forms, noun/phrasal roles and finite aliases replayed. Eleven explicitly printed verb forms now also support finite required-to cues and exact hyphen aliases after direct modals. Non-civil service noun uses now retain the printed noun/modifier distinction.",
+      "remainingLimits": "Generic multi/non root generation remains disabled; unseen compounds and meaning-dependent exceptions need authority.",
+      "status": "Selected source conditions checked; see remaining limits",
+      "historicalLexicalProbeSetsWithAnyLcbFinding": 63
+    },
+    {
+      "page": 13,
+      "chapter": "Hyphenation",
+      "sourceSha256": "021b0219883e9f35dd458818af506f6392975315afbafa42178b4d9ea6bbf97a",
+      "canonicalLexicalRows": 65,
+      "provisionRows": 0,
+      "implemented": "Listed forms and explicit self-prefix exceptions are mapped; regular plurals and finite role witnesses are bounded.",
+      "remainingLimits": "The printed all-words self instruction does not establish every possible word, name or legal meaning.",
+      "status": "Selected source conditions checked; see remaining limits",
+      "historicalLexicalProbeSetsWithAnyLcbFinding": 65
+    },
+    {
+      "page": 14,
+      "chapter": "Hyphenation",
+      "sourceSha256": "860d32e6e4c17eff25d35650c3e83243870b34a680149ba4540cb1673c2eadc9",
+      "canonicalLexicalRows": 26,
+      "provisionRows": 0,
+      "implemented": "Listed complete forms and supported modifier/noun roles replayed.",
+      "remainingLimits": "Unfamiliar roles and names retain protections; no claim of all English hyphenation.",
+      "status": "Selected source conditions checked; see remaining limits",
+      "historicalLexicalProbeSetsWithAnyLcbFinding": 26
+    },
+    {
+      "page": 15,
+      "chapter": "Hyphenation",
+      "sourceSha256": "ad5f1f77e485f86b955c7d9c8f26feed838f3072d47a820146368219909123d5",
+      "canonicalLexicalRows": 0,
+      "provisionRows": 8,
+      "implemented": "End-word table forms and explicit certificate holder, state park land, low/high water mark exceptions are covered; fresh exception probes pass.",
+      "remainingLimits": "Unknown suffix roots and new formations remain manual; whole-name/source-word-division protections remain separate.",
+      "status": "Selected source conditions checked; see remaining limits",
+      "historicalLexicalProbeSetsWithAnyLcbFinding": 0
+    },
+    {
+      "page": 16,
+      "chapter": "Hyphenation",
+      "sourceSha256": "ff46ccc471cd9906b8b51dbcc447ca995c50ede4df7f00f6ddd717a6e96810c8",
+      "canonicalLexicalRows": 0,
+      "provisionRows": 4,
+      "implemented": "All seven printed examples state-adopted/board-approved/state-approved/community-based/school-based/child-related/work-related have supported program-head behavior. Printed unit modifiers now also support textbook(s) and instructional materials with independent noun-role evidence.",
+      "remainingLimits": "Unfamiliar modifier roots, noun roles and meanings remain protected; printed finite textbook and instructional-material roles are supported.",
+      "status": "Selected source conditions checked; see remaining limits",
+      "historicalLexicalProbeSetsWithAnyLcbFinding": 0
+    },
+    {
+      "page": 17,
+      "chapter": "Capitalization",
+      "sourceSha256": "482294ecb0b3403db7fd4596a0046015f3c6802a18e12ecfdfc20a41e1197977",
+      "canonicalLexicalRows": 0,
+      "provisionRows": 7,
+      "implemented": "Complete source names and eligible exact names from either the bundled entity snapshot or one selected authorized offline export support case comparison and guarded registry-backed official-head review. The Entity Authority tab imports, searches and restores profile-persisted data without merging sources. Standalone office titles, bounded defined-referent contexts, ordinary plurals and selected personal-office possessives retain their separate role checks.",
+      "remainingLimits": "Authentic new entity identity, source currency, unavailable/current Intranet updates and wider legal hierarchy remain data/meaning dependencies. Imported source dates, hashes and permission attestations do not authenticate those claims; absence from a selected list is not an error. User bill-local quoted terms override conflicting guide form. Native desktop verification of the new importer remains separate.",
+      "status": "Selected source conditions checked; see remaining limits",
+      "historicalLexicalProbeSetsWithAnyLcbFinding": 0
+    },
+    {
+      "page": 18,
+      "chapter": "Capitalization",
+      "sourceSha256": "de07a150b3c310a315b84a4894b65da7146b5d56882088094d3e3649bd134988",
+      "canonicalLexicalRows": 58,
+      "provisionRows": 58,
+      "implemented": "Capitalization table roles replayed with explicit named/domain qualifiers; C corporation follows user quotation authority. The singular Constitution entry also supports the complete State of California qualifier and selected finite predicate.",
+      "remainingLimits": "Unknown entity authenticity, historical/geographic referent and unencoded names remain manual.",
+      "status": "Selected source conditions checked; see remaining limits",
+      "historicalLexicalProbeSetsWithAnyLcbFinding": 57
+    },
+    {
+      "page": 19,
+      "chapter": "Capitalization",
+      "sourceSha256": "c0e1c3466214af2557b3c81558d3c5e05e3079895550d35f3a8bf687d9672dfb",
+      "canonicalLexicalRows": 56,
+      "provisionRows": 56,
+      "implemented": "Capitalization and unit-definition contexts replayed; S corporation follows user quotation authority. The complete California Legislature Member qualifier now has a selected role check.",
+      "remainingLimits": "Authentic short-title referents and unencoded legal roles remain meaning-dependent; explicit Opinion/Cover letter selection is available.",
+      "status": "Selected source conditions checked; see remaining limits",
+      "historicalLexicalProbeSetsWithAnyLcbFinding": 55
+    },
+    {
+      "page": 20,
+      "chapter": "Capitalization",
+      "sourceSha256": "38a71c7031b361a90f78b9a04fb87fb1e4c4aea05f28a06f951c4524e874077d",
+      "canonicalLexicalRows": 32,
+      "provisionRows": 32,
+      "implemented": "Listed complete names/descriptions and bill Constitution alternative are implemented; generic lower/upper case choices require stated role. Explicit state-court and human race qualifiers, and the selected Opinion Constitution form, have source-backed checks. The complete Supreme Court of the State of California qualifier supports the same selected finite court predicates.",
+      "remainingLimits": "Unknown entities and legal referents remain manual. California Style Manual citation coverage still requires separate source authority; the selected Opinion Constitution form is supported.",
+      "status": "Selected source conditions checked; see remaining limits",
+      "historicalLexicalProbeSetsWithAnyLcbFinding": 32
+    },
+    {
+      "page": 21,
+      "chapter": "Numerals",
+      "sourceSha256": "c43b955061ad72ddc1e794ba19b6d3647017ab8ae110f8a5302573932f36a3b0",
+      "canonicalLexicalRows": 0,
+      "provisionRows": 12,
+      "implemented": "Bill/Digest numerical contexts, opening rules, ordinals and supported resolution/uncodified money contexts are implemented. Explicit Opinion/Cover letter mode inherits the Bill numeral base and preserves sentence-opening exceptions.",
+      "remainingLimits": "Numerical relations and meanings remain conditional; explicit document types cover the selected LCB provisions, without complete California Style Manual citations.",
+      "status": "Selected source conditions checked; see remaining limits",
+      "historicalLexicalProbeSetsWithAnyLcbFinding": 0
+    },
+    {
+      "page": 22,
+      "chapter": "Numerals",
+      "sourceSha256": "9959759fefc35e02c1edb572b5e60420ce77af2e096b16af8ae3ee41a8f785bd",
+      "canonicalLexicalRows": 0,
+      "provisionRows": 8,
+      "implemented": "Supported ages, dates, grades, references and inclusive ranges; complete mixed-half ages of ten or more and exact Article XIIIB/XIII-B variants with explicit California Constitution continuation receive source-bound review. Opinion/Cover letter complete Section references now check et seq. against and following. Whole mixed halves extend beyond two-digit whole values.",
+      "remainingLimits": "Unknown reference identities and unfamiliar citation syntax remain protected; the exact Opinion/Cover letter and following form is supported.",
+      "status": "Selected source conditions checked; see remaining limits",
+      "historicalLexicalProbeSetsWithAnyLcbFinding": 0
+    },
+    {
+      "page": 23,
+      "chapter": "Numerals",
+      "sourceSha256": "f746db24b3419727d6c3ab8ad3de2a168a3c26c840fcd91e418c4f71717ab0a7",
+      "canonicalLexicalRows": 0,
+      "provisionRows": 9,
+      "implemented": "Supported measures, money, percentages, ratios/proportions and clocks are implemented; fresh Digest monetary modifier control passes. Complete mixed-half durations of ten or more use one whole-value source selection. Opinion/Cover letter figures-only money and integer mills are checked, with complete monetary disagreement/opening review. Larger complete mixed-half durations are supported.",
+      "remainingLimits": "Unknown monetary syntax, ratios and meaning remain conditional. Printed noon/midnight do not authorize arbitrary paraphrase replacement.",
+      "status": "Selected source conditions checked; see remaining limits",
+      "historicalLexicalProbeSetsWithAnyLcbFinding": 0
+    }
+  ],
+  "wholeRuleCertification": false,
+  "officeAccuracyMeasured": false
+}

@@ -24,6 +24,6 @@ test('supported printed LCB choices take priority without hiding independent err
  // The supplied entity snapshot is available; the distinct opinions and
  // cover-letter workflow remains explicitly unsupported by bill checks.
  assert.equal(rows.filter(r=>r.id.startsWith('lcb-entry-')&&r.status==='Manual review required').length,4);
- assert.deepEqual(rows.filter(r=>r.guide==='lcb'&&r.status==='Manual review required').map(r=>r.id),['lcb-21-opinions-and-cover-letters-source','lcb-entry-9-bi-all-one-word','lcb-entry-11-in-as-a-prefix-generally-one-word','lcb-entry-12-multi-all-uses-one-word','lcb-entry-12-non-as-a-prefix-generally-one-word']);
+ assert.deepEqual(rows.filter(r=>r.guide==='lcb'&&r.status==='Manual review required').map(r=>r.id),['lcb-entry-9-bi-all-one-word','lcb-entry-11-in-as-a-prefix-generally-one-word','lcb-entry-12-multi-all-uses-one-word','lcb-entry-12-non-as-a-prefix-generally-one-word']);
  assert.ok(!rows.some(r=>r.guide==='lcb'&&r.status==='Fully automated'));
 });

@@ -52,7 +52,10 @@ export function styleWordDivisionView(doc,{knownWords=null,knownWordsOnly=false,
  // An outer review can join body words while an independently guarded child
  // review later joins its own literal/table words. Keep only unresolved,
  // nonoverlapping source words and translate every part into this view.
- const remaining=preserveRemainingWords?(doc.wrappedWords||[]).filter(w=>!accepted.some(a=>a.start<w.end&&a.end>w.start)).map(w=>({...range(w),spans:(w.spans||[]).map(range)})):[];
+ // Index accepted spans once; repeated child reviews can contain thousands
+ // of wrapped words. Keep the original predicate for malformed endpoints.
+ const acceptedAt=preserveRemainingWords?rangeQuery(accepted):null;
+ const remaining=preserveRemainingWords?(doc.wrappedWords||[]).filter(w=>!(Number.isFinite(w.start)&&Number.isFinite(w.end)?acceptedAt(w.start,w.end):accepted.some(a=>a.start<w.end&&a.end>w.start))).map(w=>({...range(w),spans:(w.spans||[]).map(range)})):[];
  const view={...doc,text,blocks,excluded:ranges(doc.excluded),comparisonExcluded:ranges(doc.comparisonExcluded),struck:ranges(doc.struck),tokens:ranges(doc.tokens),effectiveTokens:ranges(doc.effectiveTokens),wrappedWords:remaining};
  const restore=issues=>issues.map(i=>{const start=toSource(i.start),end=toSource(i.end,true),joined=accepted.filter(w=>w.start<end&&w.end>start);return {...i,start,end,text:joined.length?doc.text.slice(start,end):i.text,matchText:i.matchText||i.text,...(joined.length?{sourceWordDivisions:joined.map(w=>({word:w.word,start:w.start,end:w.end,spans:w.spans.map(s=>({...s}))}))}:{})};});
  return {doc:view,restore,words:accepted.map(w=>({word:w.word,start:w.start,end:w.end})),toSource,toView};

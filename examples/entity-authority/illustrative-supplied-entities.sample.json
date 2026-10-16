@@ -1,0 +1,64 @@
+{
+  "format": "document-compare.california-entities",
+  "version": 1,
+  "source": {
+    "title": "Illustrative partial sample — not a current official entity authority",
+    "authority": "User-supplied California Entities export for LCB page 17 item 7",
+    "citation": "Illustrative subset of the supplied California Entities.docx snapshot; LCB Style Manual, page 17, item 7. Supplied row citations are retained verbatim.",
+    "asOfDate": null,
+    "permissions": "Prepared only as an authorized local illustration from the existing user-supplied snapshot. This statement does not establish current official status, certify source rights beyond this task, or authorize a future replacement export.",
+    "rightsAttested": true,
+    "originalFile": "California Entities.docx",
+    "declaredSourceSHA256": "273ba8d47f33ba9bdc15823ce381a547a03074a52886fc03a3a7a3d14dabd4e3"
+  },
+  "entries": [
+    {
+      "name": "Department of Consumer Affairs",
+      "category": "Departments",
+      "citation": "Sec. 100, B.& P.C.",
+      "annotation": "",
+      "paragraph": 206,
+      "checkEligible": true
+    },
+    {
+      "name": "California Environmental Protection Agency",
+      "category": "Agencies",
+      "citation": "",
+      "annotation": "",
+      "paragraph": 13,
+      "checkEligible": true
+    },
+    {
+      "name": "Commissioner of the California Highway Patrol",
+      "category": "Commissioners",
+      "citation": "Sec. 2107, Veh. C.",
+      "annotation": "",
+      "paragraph": 136,
+      "checkEligible": true
+    },
+    {
+      "name": "Public Employees' Retirement System",
+      "category": "Others",
+      "citation": "Sec. 20002, Gov. C.",
+      "annotation": "",
+      "paragraph": 368,
+      "checkEligible": true
+    },
+    {
+      "name": "California Regional Water Quality Control Board, [name of region]",
+      "category": "Boards",
+      "citation": "Sec. 13203, Wat. C.",
+      "annotation": "",
+      "paragraph": 31,
+      "checkEligible": false
+    },
+    {
+      "name": "Controller",
+      "category": "Others",
+      "citation": "Sec. 11, Art V, Cal. Const.",
+      "annotation": "",
+      "paragraph": 368,
+      "checkEligible": false
+    }
+  ]
+}

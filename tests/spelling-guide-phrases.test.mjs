@@ -8,12 +8,12 @@ const check=async text=>workerSpell(spellingCandidates(makeDocument([text],'Curr
 test('each complete phrase is printed in its exact bundled guide page, with source PDF provenance',()=>{
  const hashes={lcb:'ae0ef412dafe30a3257d891b221cdbb3f371b7a9f51cbe363051739735cb9688',gpo:'d4cfd249757b27bef01bd3fa76ce7da71fe6e4cb2cdcf510d371c7374d9ae630'};
  for(const [id,file]of [['lcb','lcb-stylemanual-2019.pdf'],['gpo','gpo-stylemanual-2016.pdf']])assert.equal(crypto.createHash('sha256').update(fs.readFileSync(new URL(file,data))).digest('hex'),hashes[id]);
- for(const r of phrases)assert.ok(refs[r.guide].pages[r.page-1].text.replace(/\s+/g,' ').includes(r.phrase),r.phrase);
+ for(const r of phrases){const source=refs[r.guide].pages[r.page-1].text.replace(/\s+/g,' ');if(r.sourceEntry){assert.equal(r.guide,'lcb');assert.equal(r.page,3);assert.equal(r.sourceEntry,'Cosumnes (River or College)');assert.ok(['Cosumnes River','Cosumnes College'].includes(r.phrase));assert.ok(source.includes(r.sourceEntry));}else assert.ok(source.includes(r.phrase),r.phrase);}
 });
 
 test('guide-approved complete phrases suppress fragment false alarms without adding their words to a dictionary',async()=>{
  const doc=makeDocument([phrases.map(r=>r.phrase).join('; ')],'Current'),before=doc.text,tokens=JSON.stringify(doc.tokens);
- assert.equal(guidePhraseSpellingRanges(doc).length,12);assert.deepEqual(await workerSpell(spellingCandidates(doc)),[]);
+ assert.equal(guidePhraseSpellingRanges(doc).length,phrases.length);assert.deepEqual(await workerSpell(spellingCandidates(doc)),[]);
  assert.equal(doc.text,before);assert.equal(JSON.stringify(doc.tokens),tokens);
  const isolated=await check('bona; fide; valorem; officio; vivos; rata; capita; diem; prima; facie; mortem; et; minimis.');
  assert.deepEqual(isolated.map(i=>i.word),['bona','fide','valorem','officio','vivos','rata','capita','diem','prima','facie','mortem','et','minimis']);

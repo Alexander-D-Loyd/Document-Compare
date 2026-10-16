@@ -18,6 +18,7 @@ import {writtenQuantityEvidenceGuard,invalidUnconjoinedCardinalRanges} from './s
 import {writtenOrdinalEvidenceGuard} from './style-written-ordinal-evidence.mjs';
 import {correlativeSpreads}from './style-correlative-spreads.mjs';
 import {comparativeUnitRanges} from './style-comparative-unit-ranges.mjs';
+import {sentenceUnitGroups} from './style-sentence-unit-groups.mjs';
 export {spellNumber,canonicalWrittenValue,spellOrdinal} from './style-cardinal-values.mjs';
 const ordinalNumbers=new Map(Array.from({length:99},(_,i)=>[spellOrdinal(i+1),i+1]));
 // Only explicitly supported larger forms are recognized; arbitrary lengthy
@@ -255,6 +256,15 @@ export function numeralIssues(doc,references){
  const countExpression=n=>n.duration||n.measure||n.unit==='scalar-value'||recognizedCountHead.test(n.unit)||listNounPhrase(n.unit,references.lcb);
  const candidatesByStart=new Map(candidates.map(n=>[n.start,n]));
  for(const proof of comparativeUnitRanges(doc,ctx))for(const member of proof.members){const candidate=candidatesByStart.get(member.start);if(candidate&&candidate.end===member.end&&!candidate.exception&&!candidate.ordinal){relatedFigures.add(candidate);comparativeProofByStart.set(member.start,proof);}}
+ // A repeated unit prevents an unjustified figure-to-word correction without
+ // inferring that every same-unit quantity has the same legislative purpose.
+ // New word-to-figure findings still require the established explicit range,
+ // series or part-of-total evidence, rather than this conservative exception.
+ // Complete decimals have their own figure rule and are not correction
+ // candidates, but can still establish a same-unit magnitude of ten or more.
+ const decimalWitnesses=atoms.filter(n=>n.figure&&!n.ordinal&&n.text.includes('.')&&!blocked(n.start,n.end)&&!incompleteNumeric(n.start,n.end)).map(n=>({...n,context:ctx.at(n.start),sentence:ctx.sentenceAt(n.start)}));
+ const sentenceCandidates=[...candidates,...decimalWitnesses].sort((a,b)=>a.start-b.start);
+ for(const proof of sentenceUnitGroups(doc,ctx,sentenceCandidates))for(const member of proof.members){const candidate=candidatesByStart.get(member.start);if(candidate?.figure){relatedFigures.add(candidate);if(!comparativeProofByStart.has(member.start))comparativeProofByStart.set(member.start,proof);}}
  for(const spread of spreads.groups){
   const members=spread.members.map(n=>candidatesByStart.get(n.start)).filter(n=>n&&!n.exception&&!n.ordinal&&countExpression(n));
   if(members.length&&spread.atLeastTen)for(const member of members)relatedFigures.add(member);

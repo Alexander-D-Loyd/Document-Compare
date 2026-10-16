@@ -1,5 +1,7 @@
 import {styleContext,withStyleContext} from './style-context.mjs';
-import {styleEvidenceGuard,cutsOriginalStyleWord} from './style-evidence.mjs';
+import {styleEvidenceGuard,cutsOriginalStyleWord,originalBodyStyleContext} from './style-evidence.mjs';
+import {originalStyleLiteralGuard} from './style-original-literal-guard.mjs';
+import {compoundSourceBoundaryBlocked} from './style-compound-source-boundaries.mjs';
 import {styleWordDivisionView} from './style-word-divisions.mjs';
 import {numericExpressionGuard} from './style-numeric-expression-evidence.mjs';
 import {writtenCardinalRuns,writtenQuantityEvidenceGuard} from './style-written-quantity-evidence.mjs';
@@ -25,10 +27,16 @@ export function lcbNumberRelationReviewIssues(doc,references,{existingIssues=[]}
  const view=styleWordDivisionView(doc),reviewDoc=view?.doc||doc;
  const prior=view?existingIssues.map(i=>({...i,start:view.toView(i.start),end:view.toView(i.end)})):existingIssues;
  const issues=withStyleContext(reviewDoc,()=>reviewRelations(reviewDoc,references,prior));
- return view?view.restore(issues).map(issue=>({...issue,relationshipEvidence:{...issue.relationshipEvidence,start:view.toSource(issue.relationshipEvidence.start),end:view.toSource(issue.relationshipEvidence.end,true),members:issue.relationshipEvidence.members.map(member=>({...member,start:view.toSource(member.start),end:view.toSource(member.end,true)}))}})):issues;
+ return view?view.restore(issues).map(issue=>({...issue,evidenceStart:view.toSource(issue.evidenceStart),evidenceEnd:view.toSource(issue.evidenceEnd,true),relationshipEvidence:{...issue.relationshipEvidence,start:view.toSource(issue.relationshipEvidence.start),end:view.toSource(issue.relationshipEvidence.end,true),members:issue.relationshipEvidence.members.map(member=>({...member,start:view.toSource(member.start),end:view.toSource(member.end,true)}))}})):issues;
+}
+function restoreLiveNegativeSource(original,source,struck){
+ if(original===source||!struck.length)return original;
+ const chars=original.split('');
+ for(const r of struck)for(let n=Math.max(0,r.start);n<Math.min(chars.length,r.end);n++)if(chars[n]!=='\n')chars[n]=' ';
+ return chars.join('');
 }
 function reviewRelations(doc,references,existingIssues){
- const ctx=styleContext(doc),source=ctx.source,blocked=styleEvidenceGuard(doc,ctx),numeric=numericExpressionGuard(doc,ctx),writtenGuard=writtenQuantityEvidenceGuard(doc,ctx),identifiers=numeralIdentifierRanges(source),atoms=[],issues=[];
+ const ctx=styleContext(doc),source=ctx.source,original=originalBodyStyleContext(doc)?.source||source,originalLive=restoreLiveNegativeSource(original,source,doc.struck||[]),literal=originalStyleLiteralGuard(doc,ctx),blocked=styleEvidenceGuard(doc,ctx),numeric=numericExpressionGuard(doc,ctx),writtenGuard=writtenQuantityEvidenceGuard(doc,ctx),identifiers=numeralIdentifierRanges(source),atoms=[],issues=[];
  for(const m of source.matchAll(/(?<![\p{L}\p{N}\p{M}_])\d+(?:,\d{3})*(?![\p{L}\p{N}\p{M}_])/gu)){
   const start=m.index,end=start+m[0].length,p=m[0]==='0'?{digits:'0'}:exactIntegerParts(m[0]);
   if(p&&!numeric(start,end)){const unsafe=exceedsSafeInteger(p.digits);atoms.push({start,end,value:unsafe?null:Number(p.digits),figure:true,text:m[0],...(unsafe?{atLeastTen:true,exactSourceInteger:p.digits}:{})});}
@@ -59,13 +67,18 @@ function reviewRelations(doc,references,existingIssues){
   if(head.includes(' ')&&originalNextWord&&blocked(end,end+originalNextWord[0].length))return;
   const nextWord=/^\s+([\p{L}\p{M}]+)/u.exec(source.slice(end));
   if(head.includes(' ')&&nextWord&&(!qualifiedContinuations.has(nextWord[1])||blocked(end,end+nextWord[0].length)||cutsOriginalStyleWord(doc,end+nextWord[0].length)))return;
+  const evidenceEnd=head.includes(' ')&&nextWord?end+nextWord[0].length:end;
+  if(literal(first.start,evidenceEnd)||blocked(first.start,evidenceEnd)||compoundSourceBoundaryBlocked(doc.text,source,original,first.start,end)||compoundSourceBoundaryBlocked(doc.text,source,original,first.start,evidenceEnd))return;
   if(heads.some(other=>other&&other!==head)||cutsOriginalStyleWord(doc,first.start)||cutsOriginalStyleWord(doc,end)||blocked(first.start,end)||intersects(identifiers,first.start,end)||ctx.at(first.start)!=='Bill'||ctx.at(last.start)!=='Bill'||ctx.sentenceAt(first.start).start!==ctx.sentenceAt(last.start).start)return;
   const sentence=ctx.sentenceAt(first.start),prefix=source.slice(sentence.start,first.start).replace(/^[\s”"’']*(?:\([a-z\d]+\)\s*)*/i,'').trim();
-  if(!prefix||/\b(?:sections?|articles?|chapters?|parts?|divisions?|paragraphs?|subdivisions?|items?|schedules?|grades?|figures?|tables?|forms?|pages?|lines?)\s*$/i.test(prefix))return;
+  const identifierPrefix=/\b(?:sections?|articles?|chapters?|parts?|divisions?|paragraphs?|subdivisions?|items?|schedules?|grades?|figures?|tables?|forms?|pages?|lines?)\s*$/i;
+  // Restore only uncertain exclusion content for negative role evidence.
+  // Deliberately struck words remain absent from the live Current wording.
+  if(!prefix||identifierPrefix.test(prefix)||identifierPrefix.test(originalLive.slice(sentence.start,first.start)))return;
   for(const atom of group){
    if(atom.figure||atom.value<1||atom.value>=10||intersects(existingIssues,atom.start,atom.end))continue;
    const suggested=String(atom.value),message='Review Suggested: These counts share “'+head+'” and include a number of 10 or more. LCB uses figures for related numbers in the same numerical expression, but keeps different expressions separate. Confirm their relationship; if they are related, use “'+suggested+'” here.';
-   issues.push({start:atom.start,end:atom.end,text:doc.text.slice(atom.start,atom.end),matchText:atom.text.replace(/\s+/g,' '),suggestion:null,conditionalSuggestion:suggested,rule:'Numerals: Bill, item 3',guideId:'lcb',guidePage:21,guidePrintedPage:'21',category:'Numerical Relationship Review',context:'Bill',confidence:'Review Suggested',reviewSuggested:true,reviewKind:'numerical-relationship',checkId:'lcb-number-relation-review',conflict:false,matchesPrimary:false,message,relationshipEvidence:{start:first.start,end,head,members:group.map(n=>({start:n.start,end:n.end,value:n.value,...(n.exactSourceInteger?{atLeastTen:n.atLeastTen,exactSourceInteger:n.exactSourceInteger}:{})}))},references:[{guideId:'lcb',guideName:'LCB Style Manual',rule:'Numerals: Bill, item 3',guidePage:21,guidePrintedPage:String(references.lcb.pages[20].printedPage),preferred:null,ruleText:'When 2 or more numbers appear in a sentence and one of them is 10 or larger, figures are used for each number, unless they are of different numerical expressions.'},{guideId:'gpo',guideName:'GPO Style Manual',rule:'12.5',guidePage:287,guidePrintedPage:String(references.gpo.pages[286].printedPage),preferred:null,ruleText:'Related numbers appearing in the same sentence follow the figure treatment when one of them is 10 or larger; different numerical expressions are treated separately.'}]});
+   issues.push({start:atom.start,end:atom.end,evidenceStart:first.start,evidenceEnd,text:doc.text.slice(atom.start,atom.end),matchText:atom.text.replace(/\s+/g,' '),suggestion:null,conditionalSuggestion:suggested,rule:'Numerals: Bill, item 3',guideId:'lcb',guidePage:21,guidePrintedPage:'21',category:'Numerical Relationship Review',context:'Bill',confidence:'Review Suggested',reviewSuggested:true,reviewKind:'numerical-relationship',checkId:'lcb-number-relation-review',conflict:false,matchesPrimary:false,message,relationshipEvidence:{start:first.start,end,head,members:group.map(n=>({start:n.start,end:n.end,value:n.value,...(n.exactSourceInteger?{atLeastTen:n.atLeastTen,exactSourceInteger:n.exactSourceInteger}:{})}))},references:[{guideId:'lcb',guideName:'LCB Style Manual',rule:'Numerals: Bill, item 3',guidePage:21,guidePrintedPage:String(references.lcb.pages[20].printedPage),preferred:null,ruleText:'When 2 or more numbers appear in a sentence and one of them is 10 or larger, figures are used for each number, unless they are of different numerical expressions.'},{guideId:'gpo',guideName:'GPO Style Manual',rule:'12.5',guidePage:287,guidePrintedPage:String(references.gpo.pages[286].printedPage),preferred:null,ruleText:'Related numbers appearing in the same sentence follow the figure treatment when one of them is 10 or larger; different numerical expressions are treated separately.'}]});
   }
  };
  for(const atom of atoms){

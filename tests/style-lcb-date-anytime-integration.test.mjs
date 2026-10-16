@@ -1,0 +1,23 @@
+import test from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs';
+import{makeDocument}from '../app/core.mjs';import{jointStylisticIssues}from '../app/joint-style.mjs';import{LCB_EXPLICIT_CHECK_COVERAGE,lcbExpansionSourceInventory}from '../app/style-lcb-expansion-coverage.mjs';
+const refs=Object.fromEntries(['lcb','gpo'].map(id=>[id,JSON.parse(fs.readFileSync(new URL('../app/data/'+id+'-reference.json',import.meta.url)))])),words=new Set(['anytime','requirement']),doc=body=>makeDocument(['The people do enact as follows:\nline 1 '+body],'Current',[],[],words),find=(d,id)=>jointStylisticIssues(d,refs,{includeReviewSuggestions:true}).filter(i=>i.checkId===id);
+test('joint month case and date punctuation retain two independent owners with exact original selections',()=>{
+ const d=doc('The law applies after april 1 2001.'),saved=JSON.stringify(d),all=jointStylisticIssues(d,refs),dates=all.filter(i=>i.checkId==='lcb-full-date-layout');assert.equal(dates.length,1);assert.equal(dates[0].suggestion,'april 1, 2001');assert.equal(all.filter(i=>i.text==='april'&&i.suggestion==='April').length,1);for(const i of all)assert.equal(d.text.slice(i.start,i.end),i.text);assert.equal(JSON.stringify(d),saved);
+});
+test('joint genuine inline any-time receives one precise owner',()=>{
+ for(const [body,suggestion]of [['The person may apply any-time.','anytime'],['The person applies at any-time.','any time']]){const d=doc(body),saved=JSON.stringify(d),found=find(d,'lcb-anytime-alias');assert.equal(found.length,1,body);assert.equal(found[0].suggestion,suggestion);const e=found[0].anytimeAliasEvidence;for(const part of [e.term,e.cue,e.ending])assert.equal(d.text.slice(part.start,part.end),part.text);assert.equal(e.sourceText,d.text.slice(e.start,e.end));assert.equal(JSON.stringify(d),saved);}
+});
+test('joint recognizes real any-time word divisions as adverb anytime and retains at-noun correction',()=>{
+ const adverb=doc('The person may apply any-\nline 2 time.'),saved=JSON.stringify(adverb);assert.ok(adverb.wrappedWords.some(w=>w.word==='anytime'&&w.recognized));assert.deepEqual(jointStylisticIssues(adverb,refs),[]);assert.equal(JSON.stringify(adverb),saved);
+ const noun=doc('The person applies at any-\nline 2 time.'),all=jointStylisticIssues(noun,refs),owners=all.filter(i=>i.suggestion==='any time');assert.equal(owners.length,1);assert.equal(owners[0].checkId,'word-choice');assert.equal(owners[0].text,noun.text.slice(owners[0].start,owners[0].end));assert.match(owners[0].text,/any-\nline 2 time/u);assert.equal(all.filter(i=>i.checkId==='lcb-anytime-alias').length,0);
+});
+test('joint page heads and margins preserve whole date and alias nested physical evidence',()=>{
+ const d=makeDocument(['ASSEMBLY BILL No. 2\nThe people do enact as follows:\nline 1 The law applies after April 1\n97','AB 2 — 2 —\nline 1 2001.\nline 2 The person may\nline 3 apply any-time.'],'Current',[],[],words),saved=JSON.stringify(d),dates=find(d,'lcb-full-date-layout'),aliases=find(d,'lcb-anytime-alias');assert.equal(dates.length,1);assert.equal(aliases.length,1);const i=dates[0],e=i.fullDateLayoutEvidence;assert.match(i.text,/AB 2/u);assert.equal(e.date.text,d.text.slice(e.date.start,e.date.end));assert.equal(e.sourceText,d.text.slice(e.start,e.end));assert.equal(aliases[0].anytimeAliasEvidence.sourceText,d.text.slice(aliases[0].evidenceStart,aliases[0].evidenceEnd));assert.equal(JSON.stringify(d),saved);
+});
+test('joint bill-local quote authority resets for a different bill and source stays unchanged',()=>{
+ const quoted=doc('The phrase “any-time” is used. The person may apply any-time.'),plain=doc('The person may apply any-time.'),before=JSON.stringify(quoted);assert.equal(find(quoted,'lcb-anytime-alias').length,0);assert.equal(find(plain,'lcb-anytime-alias').length,1);assert.equal(find(quoted,'lcb-anytime-alias').length,0);assert.equal(JSON.stringify(quoted),before);
+ const dateQuoted=doc('The phrase “April 1 2001” is used. The law applies after April 1 2001.');assert.equal(find(dateQuoted,'lcb-full-date-layout').length,0);assert.equal(find(doc('The law applies after April 1 2001.'),'lcb-full-date-layout').length,1);
+});
+test('date and anytime scopes remain distinct in the limited explicit inventory',()=>{
+ assert.equal(LCB_EXPLICIT_CHECK_COVERAGE.length,43);const rows=lcbExpansionSourceInventory(refs);assert.equal(rows.length,43);for(const key of ['full-date-layout','anytime-alias']){const r=rows.find(r=>r.id==='lcb-explicit-'+key);assert.ok(r);assert.equal(r.status,'Partially automated');assert.equal(refs.lcb.pages[r.page-1].text.slice(r.sourceStart,r.sourceEnd),r.text);assert.match(r.scope,/Only|only/u);}
+});

@@ -1,3 +1,77 @@
+Document Compare 1.21.15 — October 16, 2026
+
+- Accepts nine additional exact printed LCB spelling rows using complete phrases or a qualified numbered citation. Component words and nearby misspellings retain their normal checks. Caltrans keeps its printed proper spelling.
+- Adds a bounded comparison for the exact printed word bifurcation, with source and role evidence.
+- Requires the operative Commercial Code target for the indorsement exception. A body cross-reference to that code does not change another section's spelling domain.
+- Preserves complete frequency negation, distinguishing deliberate deletions from unreadable source exclusions.
+- Stabilizes quoted terminal abbreviations and original quote-authority boundaries, number-relation evidence and technical possessive endpoints.
+- Includes the earlier source-evidence, lexical-case, same-unit numeral, final-period insertion and explicit document-type/entity-import work. Generic English compound guessing remains disabled; applicable LCB guidance has priority.
+
+All 2,504 source tests pass with the runtime, data and test inputs fingerprinted before and after execution. The final paired style comparison covers 87 unchanged PDF models / 4,506 pages: 2,648 to 2,648 findings, 0 removals, 0 additions and 0 changed retained findings; every difference is reviewed. Physical source models and PDFs remain unchanged. The earlier pre-afternoon comparison separately removed nine false positives; its evidence remains historical.
+
+The independent exact-entry audit checks all 663 canonical LCB source intervals, 2,736 canonical style inputs, 29 complete phrase projections and 3,893 accepted/protected/reset joint calls. Ten repaired printed spelling contexts are accepted and ten nearby misspellings remain flagged. These are bounded source/context checks, with no completion percentage or office accuracy claim. A separate 87-model spelling candidate comparison removes 38 candidate items belonging to 19 complete CalWORKs program occurrences and adds none.
+
+The native desktop workflow for 1.21.15 remains unrun. The four-page real-PDF regression fixture and version-gated stage have source, assertion and adapter controls; those controls do not establish a native pass. The Electron/offline-engine runtime is copied from local 1.21.14 and is verified separately by file hashes. This review build is prepared for GitHub publication; publication verification is recorded separately.
+
+Remaining LCB scope: unfamiliar bi/in/multi/non formations and ambiguous meaning, quotation, grouping, possession or legal referents require human judgment under the stated source conditions. Complete ordered Merriam-Webster data, current official entity/name data and full supplementary California Style Manual citation authority require external sources. The importers and selected explicit LCB checks are implemented. Fresh native and eventual office verification remain separate.
+
+Earlier sections below are historical checkpoints; the current validation and remaining scope are stated above.
+
+---
+
+Document Compare 1.21.14 — continuous LCB checkpoint, October 16, 2026
+
+All 2,328 source tests pass. The new local entity-authority workflow is integrated
+through the app, worker and both exact/head matchers. Tests cover committed
+replacement, failed-save retention, corrupt-state recovery, selected provenance,
+stale-result cancellation, bill-local quotes and exact physical highlights.
+Ordinary possessives, narrative punctuation and budget labels retain valid name
+protection; attached technical strings and damaged Unicode boundaries do not.
+
+The scoped 87-model / 4,506-page entity replay preserves exact-name/head findings
+and source hashes. Ten physical-view and twelve production-view attached-name
+protection ranges differ in four models; a separate full joint comparison on
+these four adds or removes no findings. The earlier new-helper replay
+also preserves source/model hashes. These
+are scoped source checks, not a fresh complete joint replay, native UI result or
+office accuracy certification. Explicit Opinion/Cover letter controls and source
+evidence are tested independently. The local review package retains the verified
+Electron/offline-engine runtime. Complete native workflow remains unrun.
+
+Historical checkpoint and release evidence follows with its original scope.
+
+---
+
+Source fixes after published 1.21.13 — October 16, 2026
+
+Constructed document examples reproduce missed repeated-unit sentences and
+after-period insertions. A sentence-level exception now retains existing figures
+when complete live quantities use the same recognized unit and one is ten or
+larger. It does not add new word-to-figure findings without an independently
+proven numerical expression. Existing explicit ranges/series remain checked;
+different units, age versus elapsed terms, conviction lookbacks versus jail terms,
+sentence openings, literals and uncertain source retain their own safeguards.
+
+The insertion parser resolves named periods, ordinal periods, the final sentence
+and quoted terminal punctuation. It keeps precise source offsets and the normal
+insertion arrow/Current selection, and rejects inserted content after the zero
+marker. Ambiguous periods and conflicting locations remain review items.
+
+All 2,120 source tests pass. The numeral comparison covers 87 immutable source
+models / 4,506 pages, removing 6 additional flags with zero added
+findings. Constructed tails from 71 actual bill editions verify final-period
+insertions and reject after-marker placement. These tail cases are text models,
+not edited PDFs or native desktop workflow evidence. The production renderer is
+executed in DOM tests for exact selections and the after-line arrow.
+
+Original source models and frozen implementation hashes are unchanged during
+the final corpus run. The published 1.21.13 package is unchanged; these follow-up
+source fixes are not packaged or native-desktop verified.
+
+Historical verification follows with its original scope.
+
+---
+
 Document Compare 1.21.13 — reported PDF/style fixes
 
 All 2,100 source tests pass. Reported Digest source-strike gaps, Article XIII B

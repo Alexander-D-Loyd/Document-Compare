@@ -1,0 +1,35 @@
+import test from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs';
+import {makeDocument} from '../app/core.mjs';import {phrasalVerbIssues,PHRASAL_REQUIRED_TO_SCOPE} from '../app/style-phrasal-verbs.mjs';import {NOMINAL_COMPOUNDS} from '../app/style-compounds.mjs';import {jointStylisticIssues} from '../app/joint-style.mjs';
+const refs=Object.fromEntries(['lcb','gpo'].map(id=>[id,JSON.parse(fs.readFileSync(new URL('../app/data/'+id+'-reference.json',import.meta.url)))]));
+const pairs=NOMINAL_COMPOUNDS.filter(([open,,page])=>refs.lcb.pages[page-1].lexicalEntries.some(e=>e.replace(/\s+/gu,' ').trim()===open+' (v.)'));
+const make=body=>makeDocument(['The people do enact as follows:\n'+body],'Current'),direct=doc=>phrasalVerbIssues(doc,refs),joint=doc=>jointStylisticIssues(doc,refs).filter(i=>i.checkId==='phrasal-verbs');
+test('only actual printed LCB verb entries receive required-to aliases with exact selections',()=>{
+ assert.equal(pairs.length,11);assert.match(PHRASAL_REQUIRED_TO_SCOPE,/eleven/);
+ for(const [open,solid,page] of pairs)for(const alias of new Set([solid,open.replaceAll(' ','-'),open.replaceAll(' ','')])){const doc=make('The agency is required to '+alias+'.'),before=JSON.stringify(doc);for(const check of [direct,joint]){const issues=check(doc);assert.equal(issues.length,1,alias);const i=issues[0];assert.equal(i.text,alias);assert.equal(i.suggestion,open);assert.equal(i.guidePage,page);assert.equal(i.phrasalVerbCue,'required-to');assert.equal(doc.text.slice(i.start,i.end),alias);assert.equal(doc.text.slice(i.evidenceStart,i.evidenceEnd),'is required to '+alias);assert.ok(refs.lcb.pages[page-1].lexicalEntries.includes(open+' (v.)'));}assert.equal(JSON.stringify(doc),before);}
+});
+test('the finite required-to grammar remains bounded and correct open forms stay quiet',()=>{
+ for(const cue of ['is','are','was','were','shall be','must be','should be','will be','would be','could be','can be','may be']){const doc=make('The agency '+cue+' required to followup.');assert.equal(direct(doc).length,1,cue);assert.equal(joint(doc).length,1,cue);assert.equal(direct(make('The agency '+cue+' required to follow up.')).length,0);}
+ for(const body of ['The access to followup equipment is required.','The agency requests to followup.','The agency required to followup.','The agency is directed to followup.','The agency is required for followup.','The agency is required to followups.','The agency is required to followingup.','The agency is required to backup equipment.','The agency is required to mockup.'])assert.equal(direct(make(body)).length,0,body);
+});
+test('exact hyphen aliases after existing direct modals correct spacing without duplicate owners',()=>{
+ for(const [open,solid] of pairs){const alias=open.replaceAll(' ','-');for(const cue of ['shall','must','should','will','would','could','can','may']){const doc=make('The agency '+cue+' '+alias+'.');for(const check of [direct,joint]){const issues=check(doc);assert.equal(issues.length,1,cue+' '+alias);assert.equal(issues[0].suggestion,open);}assert.equal(direct(make('The agency '+cue+' '+open+'.')).length,0);}if(alias!==solid)assert.equal(direct(make('The agency shall '+solid+'.'))[0].phrasalVerbCue,undefined);}
+});
+test('accepted printed nouns and modifiers do not receive the new verb findings',()=>{
+ for(const [open,solid] of pairs)for(const body of ['The '+solid+' is required.','The '+solid+' program is required.','The access to '+solid+' equipment is required.']){const doc=make(body);assert.equal(direct(doc).length,0,body);assert.equal(joint(doc).length,0,body);}
+});
+test('every original required-to modal cue alias and connecting character must remain intact',()=>{
+ for(const phrase of ['is required to followup','shall be required to phase-out','shall follow-up']){const doc=make('The agency '+phrase+'.'),start=doc.text.indexOf(phrase),end=start+phrase.length;assert.equal(direct(doc).length,1);for(const field of ['struck','excluded'])for(let at=start;at<end;at++){const damaged=structuredClone(doc);damaged[field].push({start:at,end:at+1});assert.equal(direct(damaged).length,0,field+' '+phrase+' '+at);assert.equal(joint(damaged).length,0,field+' '+phrase+' '+at);}}
+});
+test('original literal enclosures and bill-local quoted variants survive removed quote endpoints',()=>{
+ for(const phrase of ['is required to followup','shall follow-up'])for(const [left,right] of [['“','”'],['"','"'],["'","'"]]){const doc=make('The instruction states '+left+'The agency '+phrase+'.'+right);for(const check of [direct,joint])assert.equal(check(doc).length,0,left+' '+phrase);for(const field of ['struck','excluded'])for(const at of [doc.text.indexOf(left),doc.text.lastIndexOf(right)]){const damaged=structuredClone(doc);damaged[field].push({start:at,end:at+1});for(const check of [direct,joint])assert.equal(check(damaged).length,0,field+' '+left+' '+phrase);}}
+ for(const check of [direct,joint]){assert.equal(check(make('“follow-up” means a check. The agency shall follow-up.')).length,0);assert.equal(check(make('“followup” means a check. The agency is required to followup.')).length,0);assert.equal(check(make('The agency is required to followup.')).length,1);}
+});
+test('headings tables titles identifiers Unicode fragments and true body dashes stay protected',()=>{
+ for(const body of ['The agency is required to Followup.','The agency is required to followup Act.','The agency is required to followup’s position.','The agency is required to followup/key.','The agency is required to followup.2.','The agency is required to followupα.','The agency is required to followup\u0301.','The agency αis required to followup.','The agency is\u0301 required to followup.','The agency shall follow—up.','The agency shall follow–up.','Use Section is required to followup.'])for(const check of [direct,joint])assert.equal(check(make(body)).length,0,body);
+ for(const field of ['struck','excluded']){const doc=make('The agency is required to followup Act.'),at=doc.text.indexOf('Act');doc[field].push({start:at,end:at+3});for(const check of [direct,joint])assert.equal(check(doc).length,0,'removed title '+field);}
+ const table=make('The agency is required to followup.');table.blocks.at(-1).formatting={headerGaps:[{},{}]};assert.equal(direct(table).length,0);
+ const heading=makeDocument(['The agency is required to followup.\nThe people do enact as follows:\nThe program applies.'],'Current');assert.equal(direct(heading).length,0);
+});
+test('known physical margins pages and source partitions retain exact evidence and do not mutate display text',()=>{
+ const doc=makeDocument(['line 1 The people do enact as follows:\nline 2 The agency is required','line 1 to follow-up.'],'Current'),before=JSON.stringify(doc),issues=joint(doc);assert.equal(issues.length,1);const i=issues[0];assert.equal(i.text,'follow-up');assert.equal(i.suggestion,'follow up');assert.match(doc.text.slice(i.evidenceStart,i.evidenceEnd),/is required\nline 1 to follow-up/u);assert.equal(JSON.stringify(doc),before);
+});

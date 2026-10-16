@@ -1,4 +1,23 @@
+import {lcbListedBifurcationIssues,restoreListedBifurcationEvidence} from './style-lcb-listed-bifurcation.mjs';
+import {compoundSourceBoundaryBlocked} from './style-compound-source-boundaries.mjs';
+import {originalBodyStyleContext} from './style-evidence.mjs';
+import {lcbCaliforniaQualifierIssues,restoreCaliforniaQualifierEvidence} from './style-lcb-california-qualifiers.mjs';
+import {lcbFullDateLayoutIssues,restoreFullDateLayoutEvidence} from './style-lcb-full-date-layout.mjs';
+import {lcbAnytimeAliasIssues,restoreAnytimeAliasEvidence} from './style-lcb-anytime-alias.mjs';
 import {lcbInclusiveRangeIssues,restoreInclusiveRangeEvidence} from './style-lcb-inclusive-ranges.mjs';
+import {lcbListedPunctuationFormIssues} from './style-lcb-listed-punctuation-forms.mjs';
+import {lcbMixedHalfIssues} from './style-lcb-mixed-halves.mjs';
+import {lcbListedReferenceFormIssues,restoreListedReferenceEvidence} from './style-lcb-listed-reference-forms.mjs';
+import {lcbOpinionFormIssues,restoreDocumentTypeEvidence} from './style-lcb-opinion-forms.mjs';
+import {isOpinionStyleDocument,styleDocumentTypeLabel} from './style-document-type.mjs';
+import {lcbPage16ListedModifierIssues,restorePage16ModifierEvidence} from './style-lcb-page16-listed-modifiers.mjs';
+import {lcbListedServiceNounIssues,restoreListedServiceEvidence} from './style-lcb-listed-service-noun.mjs';
+import {lcbSelectedPrefixRoleIssues,restoreSelectedPrefixEvidence} from './style-lcb-selected-prefix-roles.mjs';
+import {lcbStandalonePluralIssues,restoreStandalonePluralEvidence} from './style-lcb-standalone-plurals.mjs';
+import {lcbExplicitCapitalizationQualifierIssues,restoreExplicitCapitalizationEvidence} from './style-lcb-explicit-capitalization-qualifiers.mjs';
+import {lcbSpecificCapitalizationIssues,restoreSpecificCapitalizationEvidence} from './style-lcb-specific-capitalization.mjs';
+import {lcbExplicitMeaningContextReviewIssues,lcbExplicitMeaningContextProtectionRanges,restoreExplicitMeaningContextEvidence} from './style-lcb-explicit-meaning-contexts.mjs';
+import {lcbSingleQuotePunctuationIssues,restoreSingleQuotePunctuationEvidence} from './style-lcb-single-quote-punctuation.mjs';
 import {lcbListedOpenNounAliasIssues,restoreListedOpenNounAliasEvidence} from './style-lcb-listed-open-noun-aliases.mjs';
 import {lcbListedAliasIssues,restoreListedAliasEvidence} from './style-lcb-listed-aliases.mjs';
 import {lcbDollarMinimumIssues,restoreDollarMinimumEvidence} from './style-lcb-dollar-minimum.mjs';
@@ -143,14 +162,31 @@ const ruleText=(reference,rule,page)=>{
   return record.text.replace(/\s+/g,' ').trim().slice(0,850);
 };
 const citation=(id,rule,page,preferred,text,reference)=>({guideId:id,guideName:guideById(id).name,rule,guidePage:page,guidePrintedPage:reference.pages[page-1].printedPage,preferred,ruleText:text||ruleText(reference,rule,page)});
-export function jointStylisticIssues(doc,references,{engineIssues=[],includeReviewSuggestions=false,includeDefinitionReview=true,includeLexicalSuffixReview=true,includeLocalInitialismReview=true,includeCreatedPublicEntities=true,includeOfficialHeadReview=true,includeNounSequenceReview=true,includeQualifiedNounPrefixReview=true,includeParsedPredicateReview=true,includeProductiveLikeReview=true,includeCreatedEntityNameReview=true,includeCreatedTitleNameReview=true,includeDecimalOpeningReview=true,includeFractionOpeningReview=true,includeLargeIntegerOpeningReview=true,includeIntegerOpeningReview=true,authority=null}={}){
+export function jointStylisticIssues(doc,references,{engineIssues=[],includeReviewSuggestions=false,includeDefinitionReview=true,includeLexicalSuffixReview=true,includeLocalInitialismReview=true,includeCreatedPublicEntities=true,includeOfficialHeadReview=true,includeNounSequenceReview=true,includeQualifiedNounPrefixReview=true,includeParsedPredicateReview=true,includeProductiveLikeReview=true,includeCreatedEntityNameReview=true,includeCreatedTitleNameReview=true,includeDecimalOpeningReview=true,includeFractionOpeningReview=true,includeLargeIntegerOpeningReview=true,includeIntegerOpeningReview=true,authority=null,entityAuthority=null}={}){
   const view=styleWordDivisionView(doc,{preserveRemainingWords:true}),reviewDoc=view?.doc||doc;
   const candidates=view?engineIssues.map(i=>({...mapReviewEvidence(i,view.toView,reviewDoc.text),start:view.toView(i.start),end:view.toView(i.end)})):engineIssues;
-  const issues=withStyleContext(reviewDoc,()=>reviewStylisticIssues(reviewDoc,references,candidates,includeReviewSuggestions,includeDefinitionReview,includeLexicalSuffixReview,includeLocalInitialismReview,includeCreatedPublicEntities,includeOfficialHeadReview,includeNounSequenceReview,includeQualifiedNounPrefixReview,includeParsedPredicateReview,includeProductiveLikeReview,includeCreatedEntityNameReview,includeCreatedTitleNameReview,includeDecimalOpeningReview,includeFractionOpeningReview,includeLargeIntegerOpeningReview,includeIntegerOpeningReview,authority));
-  return consolidateStyleFindings(view?view.restore(issues.map(i=>mapReviewEvidence(i,view.toSource,doc.text))):issues).map(i=>attachGuideEvidence(i,references));
+  const issues=withStyleContext(reviewDoc,()=>reviewStylisticIssues(reviewDoc,references,candidates,includeReviewSuggestions,includeDefinitionReview,includeLexicalSuffixReview,includeLocalInitialismReview,includeCreatedPublicEntities,includeOfficialHeadReview,includeNounSequenceReview,includeQualifiedNounPrefixReview,includeParsedPredicateReview,includeProductiveLikeReview,includeCreatedEntityNameReview,includeCreatedTitleNameReview,includeDecimalOpeningReview,includeFractionOpeningReview,includeLargeIntegerOpeningReview,includeIntegerOpeningReview,authority,entityAuthority));
+  return consolidateStyleFindings(view?view.restore(issues.map(i=>mapReviewEvidence(i,view.toSource,doc.text))):issues).map(i=>attachGuideEvidence(isOpinionStyleDocument(doc)?{...i,context:styleDocumentTypeLabel(doc)}:i,references));
 }
 function mapReviewEvidence(issue,map,text=null){
  const result={...issue};
+ if(issue.listedBifurcationEvidence&&text!==null)result.listedBifurcationEvidence=restoreListedBifurcationEvidence(issue.listedBifurcationEvidence,map,text);
+ if(issue.fullDateLayoutEvidence&&text!==null)result.fullDateLayoutEvidence=restoreFullDateLayoutEvidence(issue.fullDateLayoutEvidence,map,text);
+ if(issue.anytimeAliasEvidence&&text!==null)result.anytimeAliasEvidence=restoreAnytimeAliasEvidence(issue.anytimeAliasEvidence,map,text);
+ if(issue.documentTypeEvidence&&text!==null)result.documentTypeEvidence=restoreDocumentTypeEvidence(issue.documentTypeEvidence,map,text);
+ if(issue.page16ModifierEvidence&&text!==null)result.page16ModifierEvidence=restorePage16ModifierEvidence(issue.page16ModifierEvidence,map,text);
+ if(issue.listedServiceEvidence&&text!==null)result.listedServiceEvidence=restoreListedServiceEvidence(issue.listedServiceEvidence,map,text);
+ if(issue.selectedPrefixEvidence&&text!==null)result.selectedPrefixEvidence=restoreSelectedPrefixEvidence(issue.selectedPrefixEvidence,map,text);
+ if(issue.standalonePluralEvidence&&text!==null)result.standalonePluralEvidence=restoreStandalonePluralEvidence(issue.standalonePluralEvidence,map,text);
+ if(issue.explicitCapitalizationEvidence&&text!==null)result.explicitCapitalizationEvidence=restoreExplicitCapitalizationEvidence(issue.explicitCapitalizationEvidence,map,text);
+ if(issue.specificCapitalizationEvidence&&text!==null)result.specificCapitalizationEvidence=restoreSpecificCapitalizationEvidence(issue.specificCapitalizationEvidence,map,text);
+ if(issue.californiaQualifierEvidence&&text!==null)result.californiaQualifierEvidence=restoreCaliforniaQualifierEvidence(issue.californiaQualifierEvidence,map,text);
+ if(issue.meaningContextEvidence&&text!==null)result.meaningContextEvidence=restoreExplicitMeaningContextEvidence(issue.meaningContextEvidence,map,text);
+ if(issue.singleQuotePunctuationEvidence&&text!==null)result.singleQuotePunctuationEvidence=restoreSingleQuotePunctuationEvidence(issue.singleQuotePunctuationEvidence,map,text);
+ if(issue.listedReferenceEvidence&&text!==null)result.listedReferenceEvidence=restoreListedReferenceEvidence(issue.listedReferenceEvidence,map,text);
+ for(const key of ['listedPunctuationEvidence','mixedHalfEvidence'])if(issue[key]){
+  const e=issue[key],start=map(e.start),end=map(e.end,true);result[key]={...e,start,end,...(text!==null?{sourceText:text.slice(start,end)}:{}),...(Number.isInteger(e.unitStart)?{unitStart:map(e.unitStart),unitEnd:map(e.unitEnd,true),...(text!==null?{unit:text.slice(map(e.unitStart),map(e.unitEnd,true))}:{})}:{})};
+ }
  if(issue.modifierRoleEvidence){
   const role=r=>{const start=map(r.start),end=map(r.end,true);return {...r,start,end,headStart:map(r.headStart),headEnd:map(r.headEnd,true),...(text!==null?{sourceText:text.slice(start,end)}:{})};};
   const e=issue.modifierRoleEvidence;result.modifierRoleEvidence={...e,components:e.components.map(role),head:role(e.head),predicate:{...role(e.predicate),finiteAuxiliaries:e.predicate.finiteAuxiliaries.map(role)}};
@@ -165,6 +201,7 @@ function mapReviewEvidence(issue,map,text=null){
  if(issue.relationshipEvidence)result.relationshipEvidence={...issue.relationshipEvidence,start:map(issue.relationshipEvidence.start),end:map(issue.relationshipEvidence.end,true),members:issue.relationshipEvidence.members.map(m=>{const start=map(m.start),end=map(m.end,true);return {...m,start,end,...(Number.isInteger(m.headStart)?{headStart:map(m.headStart),headEnd:map(m.headEnd,true)}:{}),...(m.sourceText!==undefined&&text!==null?{sourceText:text.slice(start,end)}:{})};})};
  if(issue.coordinationEvidence&&text!==null)result.coordinationEvidence=restoreCountCoordinationEvidence(issue.coordinationEvidence,map,text);
  if(issue.mixedCountListEvidence&&text!==null)result.mixedCountListEvidence=restoreMixedCountListEvidence(issue.mixedCountListEvidence,map,text);
+ if(issue.predicateContextEvidence){const e=issue.predicateContextEvidence,start=map(e.start),end=map(e.end,true);result.predicateContextEvidence={...e,start,end,...(text!==null?{sourceText:text.slice(start,end)}:{})};}
  if(issue.quoteEvidence){const q=issue.quoteEvidence,verbStart=map(q.definitionVerb.start),verbEnd=map(q.definitionVerb.end,true);result.quoteEvidence={...q,punctuationStart:map(q.punctuationStart),punctuationEnd:map(q.punctuationEnd,true),evidenceStart:map(q.evidenceStart),evidenceEnd:map(q.evidenceEnd,true),definitionVerb:{...q.definitionVerb,start:verbStart,end:verbEnd,...(text!==null?{text:text.slice(verbStart,verbEnd)}:{})}};}
  if(issue.timePossessiveEvidence&&text!==null)result.timePossessiveEvidence=restoreTimePossessiveEvidence(issue.timePossessiveEvidence,map,text);
  if(issue.groupedSeriesEvidence&&text!==null)result.groupedSeriesEvidence=restoreGroupedSeriesEvidence(issue.groupedSeriesEvidence,map,text);
@@ -192,11 +229,15 @@ function mapReviewEvidence(issue,map,text=null){
  if(issue.sourceWordDivisions)result.sourceWordDivisions=issue.sourceWordDivisions.map(w=>({...w,start:map(w.start),end:map(w.end,true),spans:w.spans.map(s=>({...s,start:map(s.start),end:map(s.end,true)}))}));
  return result;
 }
-function reviewStylisticIssues(doc,references,engineIssues=[],includeReviewSuggestions=false,includeDefinitionReview=true,includeLexicalSuffixReview=true,includeLocalInitialismReview=true,includeCreatedPublicEntities=true,includeOfficialHeadReview=true,includeNounSequenceReview=true,includeQualifiedNounPrefixReview=true,includeParsedPredicateReview=true,includeProductiveLikeReview=true,includeCreatedEntityNameReview=true,includeCreatedTitleNameReview=true,includeDecimalOpeningReview=true,includeFractionOpeningReview=true,includeLargeIntegerOpeningReview=true,includeIntegerOpeningReview=true,authority=null){
-  const combined=[];
+function reviewStylisticIssues(doc,references,engineIssues=[],includeReviewSuggestions=false,includeDefinitionReview=true,includeLexicalSuffixReview=true,includeLocalInitialismReview=true,includeCreatedPublicEntities=true,includeOfficialHeadReview=true,includeNounSequenceReview=true,includeQualifiedNounPrefixReview=true,includeParsedPredicateReview=true,includeProductiveLikeReview=true,includeCreatedEntityNameReview=true,includeCreatedTitleNameReview=true,includeDecimalOpeningReview=true,includeFractionOpeningReview=true,includeLargeIntegerOpeningReview=true,includeIntegerOpeningReview=true,authority=null,entityAuthority=null){
+  const combined=[],lexicalContext=styleContext(doc),lexicalOriginal=originalBodyStyleContext(doc)?.source||lexicalContext.source;
   for(const id of ['lcb','gpo']){
     const reference=references[id],issues=id==='gpo'?stylisticIssues(doc,reference):stylisticIssues(doc,reference,lcbRules(reference),{dynamic:false});
     for(const issue of issues){
+      // Exact LCB lexical matches inside attached identifiers cannot establish
+      // prose spelling/compounding evidence. Other rule families keep their
+      // existing context and exceptions, including the explicit and/or rule.
+      if(id==='lcb'&&(issue.rule==='Spelling examples'||issue.rule==='Hyphenation examples')&&compoundSourceBoundaryBlocked(doc.text,lexicalContext.source,lexicalOriginal,issue.start,issue.end))continue;
       const cite=citation(id,issue.rule,issue.guidePage,issue.suggestion,null,reference);
       const existing=combined.find(i=>i.start===issue.start&&i.end===issue.end);
       if(existing){existing.references.push(cite);continue;}
@@ -209,6 +250,10 @@ function reviewStylisticIssues(doc,references,engineIssues=[],includeReviewSugge
     if(shared){issue.references.unshift(citation('lcb',shared[0],shared[1],issue.suggestion,shared[2],references.lcb));issue.guideId='lcb';issue.rule=shared[0];issue.guidePage=shared[1];issue.guidePrintedPage=String(shared[1]);issue.message='LCB and GPO agree on this form; LCB is the primary reference.';}
   }
   for(const issue of [...lcbContextualIssues(doc,references),...compoundIssues(doc,references),...capitalizationIssues(doc,references),...lcbListedPunctuationNameIssues(doc,references),...numeralIssues(doc,references),...largeOrdinalIssues(doc,references),...compoundCardinalIssues(doc,references),...localOfficeIssues(doc,references),...finalLcbContextIssues(doc,references),...merriamSpellingIssues(doc,references),...contextualPunctuationIssues(doc,references),...monetaryPairIssues(doc,references),...fractionIssues(doc,references),...measurementIssues(doc,references),...moneyFormIssues(doc,references),...referenceIssues(doc,references),...ratioIssues(doc,references),...wordChoiceIssues(doc,references),...officeTitleIssues(doc,references),...inProportionIssues(doc,references),...openingMeasureIssues(doc,references),...lcbExpressionIssues(doc,references),...contextualNameIssues(doc,references),...constitutionalStateIssues(doc,references),...constitutionalBudgetIssues(doc,references),...corporationLetterIssues(doc,references)]){for(let i=combined.length-1;i>=0;i--)if(combined[i].start<issue.end&&combined[i].end>issue.start){const prior=combined[i];if(prior.suggestion===issue.suggestion){for(const ref of prior.references)if(!issue.references.some(r=>r.guideId===ref.guideId&&r.rule===ref.rule))issue.references.push(ref);if(prior.conflict){issue.conflict=true;issue.matchesPrimary=prior.matchesPrimary;issue.conflictNote=prior.conflictNote;issue.message=prior.message;}}combined.splice(i,1);}combined.push(issue);}
+  for(const issue of [...lcbListedPunctuationFormIssues(doc,references),...lcbMixedHalfIssues(doc,references),...lcbListedReferenceFormIssues(doc,references)]){
+   for(let n=combined.length-1;n>=0;n--)if(combined[n].start>=issue.start&&combined[n].end<=issue.end)combined.splice(n,1);
+   combined.push(issue);
+  }
   // The complete known shared expression owns its component corrections,
   // including a missing final unit hyphen. Do not require repeated review
   // passes to first fix the final modifier and then its suspended prefix.
@@ -242,7 +287,7 @@ function reviewStylisticIssues(doc,references,engineIssues=[],includeReviewSugge
   // LCB is the primary guide; supported numbered-reference case is checked.
   // Independent reference-spacing checks retain ownership of complete phrases.
   const names=sourceNameRanges(source),context=styleContext(doc);
-  const entities=californiaEntityReview(doc,references);
+  const entities=californiaEntityReview(doc,references,{entityAuthority});
   // Preserve listed proper-name wording from generic spelling/compound
   // corrections. Authoritative complete-name case checks replace fragments.
   for(let n=combined.length-1;n>=0;n--)if(entities.ranges.some(r=>r.start<combined[n].end&&r.end>combined[n].start))combined.splice(n,1);
@@ -257,16 +302,18 @@ function reviewStylisticIssues(doc,references,engineIssues=[],includeReviewSugge
    combined.push(...designatedTitleCreationIssues(doc,references,{existingIssues:combined}));
    combined.push(...designatedTitleReferenceIssues(doc,references,{existingIssues:combined}));
    if(includeCreatedPublicEntities){combined.push(...createdPublicEntityCreationIssues(doc,references,{existingIssues:combined}));combined.push(...createdPublicEntityReferenceIssues(doc,references,{existingIssues:combined}));}
-   if(includeOfficialHeadReview)combined.push(...officialHeadTitleReviewIssues(doc,references,{existingIssues:combined}));
+   if(includeOfficialHeadReview)combined.push(...officialHeadTitleReviewIssues(doc,references,{existingIssues:combined,entityAuthority}));
 
    combined.push(...lcbInitialismArticleReviewIssues(doc,references,{existingIssues:combined,includeLocalExpansions:includeLocalInitialismReview}));
    combined.push(...lcbFreshDefinitionQuoteReviewIssues(doc,references,{existingIssues:combined}));
    combined.push(...timePossessiveReviewIssues(doc,references,{existingIssues:combined}));
-   if(includeDefinitionReview)combined.push(...freshDefinitionTermIssues(doc,references,{existingIssues:combined,candidateProvider:d=>jointStylisticIssues(d,references,{includeReviewSuggestions:true,includeDefinitionReview:false,includeLexicalSuffixReview,includeLocalInitialismReview,includeCreatedPublicEntities,includeOfficialHeadReview,includeNounSequenceReview,includeQualifiedNounPrefixReview,includeParsedPredicateReview,includeProductiveLikeReview,includeCreatedEntityNameReview,includeCreatedTitleNameReview,includeDecimalOpeningReview,includeFractionOpeningReview,includeLargeIntegerOpeningReview,includeIntegerOpeningReview})}));
+   if(includeDefinitionReview)combined.push(...freshDefinitionTermIssues(doc,references,{existingIssues:combined,candidateProvider:d=>jointStylisticIssues(d,references,{includeReviewSuggestions:true,includeDefinitionReview:false,includeLexicalSuffixReview,includeLocalInitialismReview,includeCreatedPublicEntities,includeOfficialHeadReview,includeNounSequenceReview,includeQualifiedNounPrefixReview,includeParsedPredicateReview,includeProductiveLikeReview,includeCreatedEntityNameReview,includeCreatedTitleNameReview,includeDecimalOpeningReview,includeFractionOpeningReview,includeLargeIntegerOpeningReview,includeIntegerOpeningReview,authority,entityAuthority})}));
    combined.push(...lcbConstitutionalReferenceReviewIssues(doc,references));
    combined.push(...lcbStructuralReferenceReviewIssues(doc,references));
    combined.push(...lcbCoordinatedReferenceReviewIssues(doc,references));
-   combined.push(...lcbSemanticReviewIssues(doc,references,{existingIssues:combined}));
+   const meaningProtections=lcbExplicitMeaningContextProtectionRanges(doc,references,{existingIssues:combined});
+   combined.push(...lcbExplicitMeaningContextReviewIssues(doc,references,{existingIssues:combined}));
+   combined.push(...lcbSemanticReviewIssues(doc,references,{existingIssues:combined}).filter(issue=>!meaningProtections.some(r=>r.start===issue.start&&r.end===issue.end&&r.supersedesCheckIds.includes(issue.checkId))));
    combined.push(...lcbUnknownMoneyReviewIssues(doc,references,{existingIssues:combined}));
    combined.push(...lcbNumberRelationReviewIssues(doc,references,{existingIssues:combined}));
 
@@ -334,6 +381,24 @@ function reviewStylisticIssues(doc,references,engineIssues=[],includeReviewSugge
    for(let n=combined.length-1;n>=0;n--){const prior=combined[n];if(prior.start===issue.start&&prior.end===issue.end&&prior.suggestion===issue.suggestion){for(const ref of prior.references||[])if(!issue.references.some(r=>r.guideId===ref.guideId&&r.rule===ref.rule))issue.references.push(ref);combined.splice(n,1);}}
    combined.push(issue);
   }
+  combined.push(...lcbPage16ListedModifierIssues(doc,references,{existingIssues:combined}));
+  combined.push(...lcbListedBifurcationIssues(doc,references,{existingIssues:combined}));
+  combined.push(...lcbListedServiceNounIssues(doc,references,{existingIssues:combined}));
+  combined.push(...lcbSelectedPrefixRoleIssues(doc,references,{existingIssues:combined}));
+  combined.push(...lcbStandalonePluralIssues(doc,references,{existingIssues:combined}));
+  combined.push(...lcbExplicitCapitalizationQualifierIssues(doc,references,{existingIssues:combined}));
+  combined.push(...lcbSpecificCapitalizationIssues(doc,references,{existingIssues:combined}));
+  combined.push(...lcbCaliforniaQualifierIssues(doc,references,{existingIssues:combined}));
+  combined.push(...lcbSingleQuotePunctuationIssues(doc,references,{existingIssues:combined}));
+  if(isOpinionStyleDocument(doc)){
+   for(let n=combined.length-1;n>=0;n--)if(/money|monetary/iu.test(combined[n].rule)||combined[n].checkId==='lcb-bill-et-seq')combined.splice(n,1);
+   for(const issue of lcbOpinionFormIssues(doc,references)){
+    for(let n=combined.length-1;n>=0;n--)if(combined[n].start>=issue.start&&combined[n].end<=issue.end)combined.splice(n,1);
+    combined.push(issue);
+   }
+  }
+  combined.push(...lcbFullDateLayoutIssues(doc,references,{existingIssues:combined}));
+  combined.push(...lcbAnytimeAliasIssues(doc,references,{existingIssues:combined}));
   const permitted=styleFindingPolicy(doc,{context,names:[...names,...createdTitleProtections]});
   const prioritized=applyLcbGuidePriority(doc,references,combined,{names:[...names,...createdTitleProtections,...entities.ranges]});
   return prioritized.filter(permitted).sort((a,b)=>a.start-b.start||a.end-b.end).map((i,id)=>({...i,id,matchText:source.slice(i.start,i.end).replace(/-[ \t]*\n\s*/g,'-').replace(/\s+/g,' ').trim()}));

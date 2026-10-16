@@ -1,0 +1,511 @@
+{
+  "scope": "Full serialized precise and reader-review output snapshot from current pre-performance production source, including the separately integrated date/any-time and bounded entity changes. Only valid for proving unchanged outputs of request-local reuse.",
+  "productionSourceAggregateSHA256": "765f2f98585349d37003f5bb6b721621bd6f0a730bab183a02da31448c32b620",
+  "rows": [
+    {
+      "body": "The phrase “student only center” is used. The student only center applies.",
+      "expected": []
+    },
+    {
+      "body": "The department of finance shall hire 3 employees.",
+      "expected": [
+        {
+          "start": 43,
+          "end": 64,
+          "text": "department of finance",
+          "suggestion": "Department of Finance",
+          "guideId": "lcb",
+          "guidePage": 17,
+          "guidePrintedPage": "17",
+          "rule": "Capitalization, item 7: California Entities",
+          "category": "Official entity name",
+          "context": "Bill",
+          "checkId": "california-entities",
+          "conflict": false,
+          "message": "LCB page 17 item 7 requires checking the California Entities list. This complete token sequence matches the user-supplied export, whose listed capitalization is Department of Finance. Source citation: Sec. 13000, Gov. C.. Only capitalization of identified complete names is checked. Unlisted names, substantive wording differences, short office titles, templates, longer names and changes in legal status require review; absence from this snapshot is not an error.",
+          "entitySource": {
+            "file": "California Entities.docx",
+            "sha256": "273ba8d47f33ba9bdc15823ce381a547a03074a52886fc03a3a7a3d14dabd4e3",
+            "category": "Departments",
+            "citation": "Sec. 13000, Gov. C."
+          },
+          "references": [
+            {
+              "guideId": "lcb",
+              "guideName": "LCB Style Manual",
+              "guidePage": 17,
+              "guidePrintedPage": "17",
+              "rule": "Capitalization, item 7",
+              "preferred": "Department of Finance",
+              "ruleText": "LCB page 17 item 7 requires checking the California Entities list. This complete token sequence matches the user-supplied export, whose listed capitalization is Department of Finance. Source citation: Sec. 13000, Gov. C.. Only capitalization of identified complete names is checked. Unlisted names, substantive wording differences, short office titles, templates, longer names and changes in legal status require review; absence from this snapshot is not an error.",
+              "sourcePassage": {
+                "text": "7. Verify entities with the California Entities list on the OLC Intranet.",
+                "kind": "Source provision",
+                "page": 17,
+                "start": 1146,
+                "end": 1224
+              }
+            }
+          ],
+          "id": 0,
+          "matchText": "department of finance",
+          "reviewTask": "Compare “department of finance” with the guide form “Department of Finance”. Confirm that the stated context and exceptions apply before editing."
+        },
+        {
+          "start": 76,
+          "end": 77,
+          "text": "3",
+          "suggestion": "three",
+          "rule": "Numerals: Bill, item 1",
+          "guideId": "lcb",
+          "guidePage": 21,
+          "guidePrintedPage": "21",
+          "category": "Numeral form",
+          "context": "Bill",
+          "confidence": "Rule check",
+          "checkId": "numerals",
+          "references": [
+            {
+              "guideId": "lcb",
+              "guideName": "LCB Style Manual",
+              "rule": "Numerals: Bill, item 1",
+              "guidePage": 21,
+              "guidePrintedPage": "21",
+              "preferred": "three",
+              "ruleText": "Bill text spells out one through nine and uses figures for 10 and above; different numerical expressions are treated separately.",
+              "sourcePassage": {
+                "text": "1. Spell out fractions and numbers one to nine, inclusive.",
+                "kind": "Source provision",
+                "page": 21,
+                "start": 181,
+                "end": 241
+              }
+            },
+            {
+              "guideId": "gpo",
+              "guideName": "GPO Style Manual",
+              "rule": "12.23",
+              "guidePage": 296,
+              "guidePrintedPage": "282",
+              "preferred": "three",
+              "ruleText": "12.23. Except as indicated in rules 12.5 and 12.9, a number less than 10 is spelled out within a sentence. six horses five wells eight times as large but 31⁄2 cans 21⁄2 times or 2.5 times 12.24. For typographic appearance and easy grasp of large numbers be- ginning with million, the word million, billion, or trillion is used. The following are guides to treatment of figures as submitted in copy. If copy reads— $12,000,000, change to $12 million 2,750,000,000 dollars, change to $2,750 million 2.7 million dollars, change to $2.7 million 23⁄8 million dollars, change to $23⁄8 million two and one-half million dollars, change to $21⁄2 million a hundred cows, change to 100 cows a thousand dollars, change to $1,000 a million and a half, change to 11⁄2 million two thousand million dollars, change to $2,000 million less than a million dollars, chan",
+              "sourcePassage": {
+                "text": "12.23. Except as indicated in rules 12.5 and 12.9, a number less than 10 is spelled out within a sentence. six horses but five wells 3½ cans eight times as large 2½ times or 2.5 times",
+                "kind": "Source provision",
+                "page": 296
+              }
+            }
+          ],
+          "conflict": false,
+          "matchesPrimary": false,
+          "message": "Bill text spells out one through nine and uses figures for 10 and above; different numerical expressions are treated separately.",
+          "id": 1,
+          "matchText": "3",
+          "reviewTask": "Compare “3” with the guide form “three”. Confirm that the stated context and exceptions apply before editing."
+        }
+      ]
+    },
+    {
+      "body": "The agency shall phase-out the program.",
+      "expected": [
+        {
+          "start": 56,
+          "end": 65,
+          "evidenceStart": 50,
+          "evidenceEnd": 65,
+          "text": "phase-out",
+          "suggestion": "phase out",
+          "guideId": "lcb",
+          "guidePage": 12,
+          "guidePrintedPage": "12",
+          "rule": "Hyphenation: Noun and verb forms",
+          "category": "Compound form",
+          "context": "Bill",
+          "checkId": "phrasal-verbs",
+          "phrasalVerbCue": "modal-hyphen",
+          "conflict": false,
+          "message": "LCB explicitly prints “phase out (v.)”. This exact base form follows a direct modal; compare its separate-word spelling. This does not infer another inflection, a noun role or an unfamiliar grammatical construction.",
+          "references": [
+            {
+              "guideId": "lcb",
+              "guideName": "LCB Style Manual",
+              "guidePage": 12,
+              "guidePrintedPage": "12",
+              "rule": "Hyphenation examples",
+              "preferred": "phase out",
+              "ruleText": "phase out (v.)",
+              "sourcePassage": {
+                "text": "phase out (v.)",
+                "kind": "Printed source example",
+                "page": 12
+              }
+            }
+          ],
+          "id": 0,
+          "matchText": "phase-out",
+          "reviewTask": "Compare “phase-out” with the guide form “phase out”. Confirm that the stated context and exceptions apply before editing."
+        }
+      ]
+    },
+    {
+      "body": "“healthcare” means medical services. The agency provides healthcare benefits.",
+      "expected": []
+    },
+    {
+      "body": "The agency provides workers compensation benefits on April 1, 2001 and later.",
+      "expected": [
+        {
+          "start": 59,
+          "end": 79,
+          "text": "workers compensation",
+          "suggestion": "workers’ compensation",
+          "guideId": "lcb",
+          "guidePage": 7,
+          "guidePrintedPage": "7",
+          "rule": "Punctuation: Listed possessive forms",
+          "category": "Punctuation",
+          "context": "Bill",
+          "checkId": "punctuation",
+          "conflict": false,
+          "message": "LCB lists “workers’ compensation” with this possessive form.",
+          "references": [
+            {
+              "guideId": "lcb",
+              "guideName": "LCB Style Manual",
+              "guidePage": 7,
+              "guidePrintedPage": "7",
+              "rule": "Punctuation: Listed possessive forms",
+              "preferred": "workers’ compensation",
+              "ruleText": "LCB lists “workers’ compensation” with this possessive form.",
+              "sourcePassage": {
+                "text": "PUNCTUATION 7 16 months, or two or three years 1960s 90 days’ notice April 2001 April 1, 2001, attorney’s fees cashier’s checks city, county, or city and county contractor’s license County Employees Retirement Law of 1937 driver’s license driver’s licenses extremely low, very low, low-, and moderate-income households farmers’ market homeowners’ insurance , including, but not limited to, includes, but is not limited to, master’s degree mechanic’s liens October 17, 1989, Loma Prieta earthquake Public Employees’ Retirement System real estate broker license real estate salesperson license State Teachers’ Retirement System traveler’s checks Under existing law, United States control workers’ compensation",
+                "kind": "Source page — confirm the applicable passage",
+                "page": 7
+              }
+            }
+          ],
+          "id": 0,
+          "matchText": "workers compensation",
+          "reviewTask": "Compare “workers compensation” with the guide form “workers’ compensation”. Confirm that the stated context and exceptions apply before editing."
+        },
+        {
+          "start": 92,
+          "end": 105,
+          "text": "April 1, 2001",
+          "suggestion": "April 1, 2001,",
+          "guideId": "lcb",
+          "guidePage": 7,
+          "guidePrintedPage": "7",
+          "rule": "Punctuation: Full dates",
+          "category": "Punctuation",
+          "context": "Bill",
+          "checkId": "punctuation",
+          "conflict": false,
+          "message": "LCB shows a comma following the year in a complete month-day-year date when the sentence continues. A valid four-digit Gregorian date and intact following prose word establish this selected punctuation context; date meaning remains manual.",
+          "references": [
+            {
+              "guideId": "lcb",
+              "guideName": "LCB Style Manual",
+              "guidePage": 7,
+              "guidePrintedPage": "7",
+              "rule": "Punctuation: Full dates",
+              "preferred": "April 1, 2001,",
+              "ruleText": "LCB shows a comma following the year in a complete month-day-year date when the sentence continues. A valid four-digit Gregorian date and intact following prose word establish this selected punctuation context; date meaning remains manual.",
+              "sourcePassage": {
+                "text": "PUNCTUATION 7 16 months, or two or three years 1960s 90 days’ notice April 2001 April 1, 2001, attorney’s fees cashier’s checks city, county, or city and county contractor’s license County Employees Retirement Law of 1937 driver’s license driver’s licenses extremely low, very low, low-, and moderate-income households farmers’ market homeowners’ insurance , including, but not limited to, includes, but is not limited to, master’s degree mechanic’s liens October 17, 1989, Loma Prieta earthquake Public Employees’ Retirement System real estate broker license real estate salesperson license State Teachers’ Retirement System traveler’s checks Under existing law, United States control workers’ compensation",
+                "kind": "Source page — confirm the applicable passage",
+                "page": 7
+              }
+            }
+          ],
+          "id": 1,
+          "matchText": "April 1, 2001",
+          "reviewTask": "Compare “April 1, 2001” with the guide form “April 1, 2001,”. Confirm that the stated context and exceptions apply before editing."
+        }
+      ]
+    },
+    {
+      "body": "The director John Smith of the Department of Finance shall act.",
+      "expected": [
+        {
+          "start": 43,
+          "end": 91,
+          "text": "director John Smith of the Department of Finance",
+          "suggestion": null,
+          "guideId": "lcb",
+          "guidePage": 17,
+          "guidePrintedPage": "17",
+          "rule": "Capitalization, item 1: entity heads",
+          "category": "Official Head Title Review",
+          "context": "Bill",
+          "confidence": "Review Suggested",
+          "reviewSuggested": true,
+          "reviewKind": "official-head-title",
+          "checkId": "lcb-official-head-title-review",
+          "conflict": false,
+          "matchesPrimary": false,
+          "officialHeadEvidence": {
+            "head": "director",
+            "headStart": 43,
+            "headEnd": 51,
+            "sourceHead": "director",
+            "entityStart": 70,
+            "entityEnd": 91,
+            "entityName": "Department of Finance",
+            "sourceEntity": "Department of Finance",
+            "personStart": 52,
+            "personEnd": 62,
+            "person": "John Smith",
+            "sourcePerson": "John Smith",
+            "namePosition": "Head immediately precedes person",
+            "witnessKind": "Supplied California Entities snapshot",
+            "roleEvidence": [
+              {
+                "start": 43,
+                "end": 51,
+                "text": "director"
+              }
+            ],
+            "registry": {
+              "name": "Department of Finance",
+              "category": "Departments",
+              "citation": "Sec. 13000, Gov. C.",
+              "paragraph": 206,
+              "sourceFile": "California Entities.docx",
+              "sourceSHA256": "273ba8d47f33ba9bdc15823ce381a547a03074a52886fc03a3a7a3d14dabd4e3",
+              "limitations": "Snapshot names and citations are retained as supplied, including historical entries. Absence from this list is not evidence of an incorrect or obsolete name."
+            }
+          },
+          "message": "Review Suggested: Confirm whether this head title immediately precedes the named person “John Smith”. LCB capitalizes heads when used as part of an official title, and GPO3.36 capitalizes a civil or professional title immediately preceding a person’s name. Generic role descriptions remain lowercase. The entity name is supported by the supplied export, but that does not establish this officer’s appointment, title or legal authority. No replacement is asserted.",
+          "references": [
+            {
+              "guideId": "lcb",
+              "guideName": "LCB Style Manual",
+              "guidePage": 17,
+              "guidePrintedPage": "17",
+              "rule": "Capitalization, item 1",
+              "preferred": null,
+              "ruleText": "Capitalize the complete names of departments, bureaus, agencies, etc. Capitalize their heads when used as a part of the official title.",
+              "sourcePassage": {
+                "text": "1. Capitalize the complete names of departments, bureaus, agencies, etc. (Department of the California Highway Patrol). Capitalize their heads when used as a part of the official title (the Commissioner of the California Highway Patrol).",
+                "kind": "Source provision",
+                "page": 17,
+                "start": 36,
+                "end": 278
+              }
+            },
+            {
+              "guideId": "gpo",
+              "guideName": "GPO Style Manual",
+              "guidePage": 51,
+              "guidePrintedPage": "37",
+              "rule": "3.36",
+              "preferred": null,
+              "ruleText": "Civil, religious, military, and professional titles immediately preceding a name are capitalized.",
+              "sourcePassage": {
+                "text": "3.36. Civil, religious, military, and professional titles, as well as those of nobility, immediately preceding a name are capitalized. President Obama Dr. Bellinger Queen Elizabeth II Nurse Joyce Norton Ambassador Acton Professor Leverett Lieutenant Fowler Examiner Jones (law) Chairman Williams Vice-Presidential candidate Smith but baseball player Harper; maintenance person Flow; foreperson Taylor",
+                "kind": "Source provision",
+                "page": 51
+              }
+            }
+          ],
+          "id": 0,
+          "matchText": "director John Smith of the Department of Finance",
+          "reviewTask": "Review “director John Smith of the Department of Finance” under the cited provision. Confirm its meaning or role; no replacement is prescribed by this finding."
+        }
+      ]
+    },
+    {
+      "body": "The law applies after april 1 2001.",
+      "expected": [
+        {
+          "start": 61,
+          "end": 66,
+          "text": "april",
+          "suggestion": "April",
+          "guideId": "gpo",
+          "guidePage": 48,
+          "guidePrintedPage": "34",
+          "rule": "3.24",
+          "category": "Calendar capitalization",
+          "context": "Bill",
+          "checkId": "calendar",
+          "conflict": false,
+          "message": "GPO capitalizes month and weekday names. This occurrence has an explicit calendar cue.",
+          "references": [
+            {
+              "guideId": "gpo",
+              "guideName": "GPO Style Manual",
+              "guidePage": 48,
+              "guidePrintedPage": "34",
+              "rule": "3.24",
+              "preferred": "April",
+              "ruleText": "GPO capitalizes month and weekday names. This occurrence has an explicit calendar cue.",
+              "sourcePassage": {
+                "text": "3.24. The names of calendar divisions are capitalized. January; February; March; etc. Monday; Tuesday; Wednesday; etc. but spring; summer; autumn (fall); winter Names of holidays, etc.",
+                "kind": "Source provision",
+                "page": 48
+              }
+            }
+          ],
+          "id": 0,
+          "matchText": "april",
+          "reviewTask": "Compare “april” with the guide form “April”. Confirm that the stated context and exceptions apply before editing."
+        },
+        {
+          "start": 61,
+          "end": 73,
+          "text": "april 1 2001",
+          "suggestion": "april 1, 2001",
+          "evidenceStart": 55,
+          "evidenceEnd": 74,
+          "guideId": "lcb",
+          "guidePage": 7,
+          "guidePrintedPage": "7",
+          "rule": "Punctuation examples: full calendar date",
+          "category": "Listed date punctuation",
+          "context": "Bill",
+          "checkId": "lcb-full-date-layout",
+          "conflict": false,
+          "message": "LCB7 prints “April 1, 2001,”. This complete valid date has an intact temporal cue; compare only its comma and spacing. A continuing prose word requires the trailing year comma. Verify the original PDF before editing; the source and date value are unchanged.",
+          "fullDateLayoutEvidence": {
+            "start": 55,
+            "end": 74,
+            "sourceText": "after april 1 2001.",
+            "date": {
+              "start": 61,
+              "end": 73,
+              "text": "april 1 2001"
+            },
+            "temporalCue": {
+              "start": 55,
+              "end": 61,
+              "text": "after "
+            },
+            "sourceWitness": {
+              "page": 7,
+              "start": 87,
+              "end": 101,
+              "text": "April 1, 2001,"
+            }
+          },
+          "references": [
+            {
+              "guideId": "lcb",
+              "guideName": "LCB Style Manual",
+              "guidePage": 7,
+              "guidePrintedPage": "7",
+              "rule": "Punctuation examples",
+              "preferred": "april 1, 2001",
+              "ruleText": "April 1, 2001,",
+              "sourcePassage": {
+                "text": "April 1, 2001,",
+                "kind": "Printed source passage",
+                "page": 7,
+                "start": 87,
+                "end": 101
+              }
+            }
+          ],
+          "id": 1,
+          "matchText": "april 1 2001",
+          "reviewTask": "Compare “april 1 2001” with the guide form “april 1, 2001”. Confirm that the stated context and exceptions apply before editing."
+        }
+      ]
+    },
+    {
+      "body": "The person may apply any-time.",
+      "expected": [
+        {
+          "start": 60,
+          "end": 68,
+          "text": "any-time",
+          "suggestion": "anytime",
+          "evidenceStart": 50,
+          "evidenceEnd": 69,
+          "guideId": "lcb",
+          "guidePage": 3,
+          "guidePrintedPage": "3",
+          "rule": "Spelling and usage: any-time alias",
+          "category": "Printed lexical alias",
+          "context": "Bill",
+          "checkId": "lcb-anytime-alias",
+          "conflict": false,
+          "message": "LCB3 prints “any time (n.)” and “anytime (adv.)”. This exact hyphenated alias has the existing supported finite timing-adverb role; compare the printed form without inferring another meaning or grammatical use.",
+          "anytimeAliasEvidence": {
+            "start": 50,
+            "end": 69,
+            "sourceText": "may apply any-time.",
+            "kind": "existing-finite-adverb",
+            "term": {
+              "start": 60,
+              "end": 68,
+              "text": "any-time"
+            },
+            "cue": {
+              "start": 50,
+              "end": 60,
+              "text": "may apply "
+            },
+            "ending": {
+              "start": 68,
+              "end": 69,
+              "text": "."
+            },
+            "sourceWitnesses": [
+              {
+                "page": 3,
+                "start": 178,
+                "end": 191,
+                "text": "any time (n.)"
+              },
+              {
+                "page": 3,
+                "start": 193,
+                "end": 207,
+                "text": "anytime (adv.)"
+              }
+            ]
+          },
+          "references": [
+            {
+              "guideId": "lcb",
+              "guideName": "LCB Style Manual",
+              "guidePage": 3,
+              "guidePrintedPage": "3",
+              "rule": "any time (n.)",
+              "preferred": "anytime",
+              "ruleText": "any time (n.)",
+              "sourcePassage": {
+                "text": "any time (n.)",
+                "kind": "Printed source passage",
+                "page": 3,
+                "start": 178,
+                "end": 191
+              }
+            },
+            {
+              "guideId": "lcb",
+              "guideName": "LCB Style Manual",
+              "guidePage": 3,
+              "guidePrintedPage": "3",
+              "rule": "anytime (adv.)",
+              "preferred": "anytime",
+              "ruleText": "anytime (adv.)",
+              "sourcePassage": {
+                "text": "anytime (adv.)",
+                "kind": "Printed source passage",
+                "page": 3,
+                "start": 193,
+                "end": 207
+              }
+            }
+          ],
+          "id": 0,
+          "matchText": "any-time",
+          "reviewTask": "Compare “any-time” with the guide form “anytime”. Confirm that the stated context and exceptions apply before editing."
+        }
+      ]
+    }
+  ]
+}

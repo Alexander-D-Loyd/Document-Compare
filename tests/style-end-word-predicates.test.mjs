@@ -34,7 +34,7 @@ test('predicate corrections preserve complete source-listed noun spellings and c
   assert.equal(review(text.replace(form,preferred)).length,0);
  }
  for(const form of ['unknown-of-way-related','unknown-in-fact-approved','unfamiliarword-child-care-related'])assert.equal(review('The program is '+form+'.').length,0,form);
- assert.equal(review('The program is health-care-based.').length,0,'Conflicting base choices remain excluded');
+ assert.equal(review('The program is health-care-based.').length,0,'The printed LCB base retains ownership over a contradictory whole-parent suggestion');
 });
 
 test('coordinated predicate adjectives share an explicit copula and preserve separate exact ranges',()=>{
@@ -61,7 +61,7 @@ test('hyphenated predicate fragments across margins and pages keep whole source 
  assert.equal(review('The program is communi-\nline 2 ty-based.').length,0,'A divided base word is not two independent lexical roots');
 });
 
-test('guide disagreements inside compound bases stay excluded under the user policy',()=>{
+test('printed LCB lexical bases retain priority over contradictory whole-predicate suggestions',()=>{
  for(const text of ['The program is health-care-based.','The program is ground-water-related.','The program is wild-land-related.'])assert.equal(review(text).length,0,text);
  assert.equal(review('The program is public-health-based.').length,1,'Unrelated compound bases remain checkable');
 });

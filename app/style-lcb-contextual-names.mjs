@@ -11,7 +11,7 @@ export const LCB_DEMOGRAPHIC_NAMES=[
  {page:20,preferred:'White',gpoPage:94},
 ];
 export const LCB_QUALIFIED_NAMES=[
- {page:18,preferred:'Constitution',scope:'Only a complete United States Constitution / Constitution of the United States name or explicit U.S. Constitution qualifier is checked. State/national ambiguity, standalone short forms and conflicting state-constitution preferences remain manual.'},
+ {page:18,preferred:'Constitution',scope:'Complete United States Constitution / Constitution of the United States names and explicit U.S. qualifiers retain their checks. The singular LCB18 entry also checks Constitution with the complete of the State of California qualifier and a selected finite constitutional predicate. Standalone short forms, other state/national identities and legal effect remain manual.'},
  {page:19,preferred:'Senator',scope:'Capitalization requires an explicit United States/U.S. senator qualifier or a recognizable personal name followed by a predicate. Standalone state-senator choices differ under GPO and are left protected.'},
  {page:19,preferred:'Representative',scope:'The title requires an adjoining explicit United States Congress or United States House of Representatives qualifier. Generic agents, country representatives, state offices and unresolved standalone titles remain manual.'},
  {page:19,preferred:'Executive Order No. 34',scope:'Selected named Executive Order No. plus an explicit number is checked as a title, including the listed No. 34 witness. Generic executive orders and unresolved titles remain protected.'},

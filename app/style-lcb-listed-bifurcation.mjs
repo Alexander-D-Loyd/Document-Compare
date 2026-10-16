@@ -1,0 +1,24 @@
+import {styleContext} from './style-context.mjs';
+import {styleEvidenceGuard,cutsOriginalStyleWord,originalBodyStyleContext} from './style-evidence.mjs';
+import {originalStyleLiteralGuard} from './style-original-literal-guard.mjs';
+import {billQuotedTermProtection} from './style-quoted-terms.mjs';
+import {originalRoleBoundaryBlocked} from './style-original-role-boundaries.mjs';
+const word='[\\p{L}\\p{N}\\p{M}_]',pattern=new RegExp('(?<!'+word+')bi(?:\\s+|[-\\u2010\\u2011])furcation(?!'+word+')','giu');
+const determiner=/(?<![\p{L}\p{N}\p{M}_])(?:the|this|that|each|any)\s+$/iu;
+const predicate=/^\s+(?:(?:is|was)\s+(?:required|permitted|authorized|allowed|available)|shall\s+apply|applies|remains\s+required)(?![\p{L}\p{N}\p{M}_])\s*[.;!?]/iu;
+export const LCB_LISTED_BIFURCATION_SCOPE='Only the complete LCB3 printed noun bifurcation receives a selected comparison of bi furcation/bi-furcation in an intact immediate determiner plus finite singular predicate and terminal punctuation. This is exact listed-word joining, supported by the LCB9 bi one-word prescription, not unfamiliar root lookup or a decision about the legal need for bifurcation. Unknown roles, inflections, generic bi/in/multi/non combinations, source line-division hyphens, names, quotations and bill-local forms, technical/Unicode fragments, tables, strikes and unknown exclusions remain protected.';
+export function lcbListedBifurcationIssues(doc,references,{existingIssues=[]}={}){
+ const ctx=styleContext(doc),blocked=styleEvidenceGuard(doc,ctx),literal=originalStyleLiteralGuard(doc,ctx),quoted=billQuotedTermProtection(doc,ctx),original=originalBodyStyleContext(doc)?.source||ctx.source,page=references.lcb?.pages[2],prefixPage=references.lcb?.pages[8],issues=[];
+ if(!page||!prefixPage)return issues;const source=/^bifurcation\s*$/mu.exec(page.text),prefix=/bi\s+\(all one word\)/u.exec(prefixPage.text);if(!source||!prefix)return issues;
+ const valid=(start,end)=>!blocked(start,end)&&!literal(start,end)&&!cutsOriginalStyleWord(doc,start)&&!cutsOriginalStyleWord(doc,end)&&!originalRoleBoundaryBlocked(original,start,end);
+ for(const m of ctx.source.matchAll(pattern)){
+  const start=m.index,end=start+m[0].length,physical=doc.text.slice(start,end),clean=m[0].replace(/\s+/gu,' ');if(ctx.at(start)==='Heading'||!valid(start,end)||quoted({start,end})||existingIssues.some(i=>i.start<end&&i.end>start))continue;
+  if(clean!==clean.toLowerCase()&&clean!==clean[0].toUpperCase()+clean.slice(1).toLowerCase()||[...physical.matchAll(/[\u2012-\u2015]/gu)].some(d=>ctx.source[start+d.index]==='-')||/[-\u2010\u2011][ \t]*\n/u.test(physical))continue;
+  const beforeStart=ctx.sentenceAt(start).start,before=ctx.source.slice(beforeStart,start),d=determiner.exec(before),p=predicate.exec(ctx.source.slice(end));if(!d||!p)continue;
+  const evidenceStart=beforeStart+d.index,evidenceEnd=end+p[0].length;if(!valid(evidenceStart,evidenceEnd))continue;
+  const suggestion=/^[A-Z]/u.test(m[0])?'Bifurcation':'bifurcation',sourceText=source[0].trimEnd(),sourceAt=source.index,rule='Spelling examples: bifurcation';
+  issues.push({start,end,evidenceStart,evidenceEnd,text:physical,suggestion,guideId:'lcb',guidePage:3,guidePrintedPage:String(page.printedPage),rule,category:'Exact listed word',context:ctx.at(start),checkId:'lcb-listed-bifurcation',conflict:false,message:'LCB3 prints “bifurcation” as one word, and LCB9 states that bi forms are one word. An intact determiner and finite singular predicate establish this selected ordinary noun occurrence. Compare the exact printed spelling; this does not infer a legal meaning or authorize unfamiliar prefix combinations.',listedBifurcationEvidence:{start:evidenceStart,end:evidenceEnd,sourceText:doc.text.slice(evidenceStart,evidenceEnd),phrase:{start,end,text:physical},determiner:{start:evidenceStart,end:start,text:doc.text.slice(evidenceStart,start)},predicate:{start:end,end:evidenceEnd,text:doc.text.slice(end,evidenceEnd)}},references:[{guideId:'lcb',guideName:'LCB Style Manual',guidePage:3,guidePrintedPage:String(page.printedPage),rule,preferred:'bifurcation',ruleText:sourceText,sourcePassage:{start:sourceAt,end:sourceAt+sourceText.length,text:sourceText}},{guideId:'lcb',guideName:'LCB Style Manual',guidePage:9,guidePrintedPage:String(prefixPage.printedPage),rule:'Printed bi prefix prescription',preferred:'bi (all one word)',ruleText:prefix[0],sourcePassage:{start:prefix.index,end:prefix.index+prefix[0].length,text:prefix[0]}}]});
+ }
+ return issues;
+}
+export function restoreListedBifurcationEvidence(e,map,text){const range=r=>{const start=map(r.start),end=map(r.end,true);return{...r,start,end,text:text.slice(start,end)};},start=map(e.start),end=map(e.end,true);return{...e,start,end,sourceText:text.slice(start,end),phrase:range(e.phrase),determiner:range(e.determiner),predicate:range(e.predicate)};}

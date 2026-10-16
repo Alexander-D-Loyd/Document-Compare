@@ -9,6 +9,7 @@ import {amendmentWordDiff} from './amendment-word-diff.mjs';
 import {digestChangedRanges} from './digest-delta.mjs';
 import {splitHistoryChanges} from './history-rows.mjs';
 import {isAmendmentMetadataLine as metadataLine} from './amendment-metadata.mjs';
+import {periodInsertionAnchor} from './amendment-period-anchor.mjs';
 const canonical=value=>value.normalize('NFKC').replace(/[“”]/g,'"').replace(/[‘’]/g,"'");
 const values=tokens=>tokens.map(t=>canonical(t.value));
 const phrase=(text,context=text)=>values(substantiveTokens(text,context));
@@ -167,6 +168,18 @@ function compile(rule,doc){
     const sourceOffset=block.end,next=tokens.findIndex(t=>t.start>=sourceOffset),boundary=next<0?tokens.length:next;
     return [{start:boundary,end:boundary,replacement,sourceOffset,finalInsertion:atFinalLine(block)}];
   };
+  const finalPeriod=t=>!!final&&t.value==='.'&&t.start>=final.start+final.margin.length&&t.end<=final.end&&!tokens.some(next=>next.start>=t.end&&next.start<final.end)&&atFinalLine(final);
+  const periodAnchor=rule.action==='insert'&&!rule.anchor?periodInsertionAnchor(rule.directive):null;
+  if(periodAnchor){
+    if(periodAnchor.ambiguous||rule.between||rule.beforeLine!=null||rule.afterLine!=null||rule.relativeLine||rule.title||rule.heading)throw Error('The period insertion combines incompatible source locations.');
+    const matches=indices.filter(i=>tokens[i].value==='.'&&!(/\d/u.test(doc.text[tokens[i].start-1]||'')&&/\d/u.test(doc.text[tokens[i].end]||''))).map(i=>({start:i,end:i+1}));
+    const selected=choose(matches,{...rule,all:false,occurrence:periodAnchor.occurrence});
+    return selected.map(match=>{
+      const token=tokens[match.end-1],isFinal=finalPeriod(token);
+      if((periodAnchor.billFinal||rule.billEnd)&&!isFinal)throw Error('The final sentence period could not be confirmed at the end of the bill.');
+      return {start:match.end,end:match.end,replacement,sourceOffset:token.end,finalInsertion:isFinal};
+    });
+  }
   if(rule.billEnd){
     if(rule.action!=='insert'||!final||rule.page&&rule.page!==final.page||!atFinalLine(final))throw Error('The final legislative line and end of the bill could not be confirmed.');
     return afterBlock(final);
@@ -198,7 +211,7 @@ function compile(rule,doc){
     return [{start:boundary,end:boundary,replacement}];
   }
   if(rule.action==='insert'){
-    if(rule.anchor){return choose(occurrences(tokens,phrase(rule.anchor,doc.text),indices),rule).map(match=>({start:rule.position==='before'?match.start:match.end,end:rule.position==='before'?match.start:match.end,replacement,sourceOffset:rule.position==='before'?tokens[match.start].start:tokens[match.end-1].end}));}
+    if(rule.anchor){return choose(occurrences(tokens,phrase(rule.anchor,doc.text),indices),rule).map(match=>({start:rule.position==='before'?match.start:match.end,end:rule.position==='before'?match.start:match.end,replacement,sourceOffset:rule.position==='before'?tokens[match.start].start:tokens[match.end-1].end,finalInsertion:rule.position==='after'&&finalPeriod(tokens[match.end-1])}));}
     if(!indices.length)throw Error('No text could be resolved at the insertion location.');
     if(/\bat\s+(?:the\s+)?(?:end|beginning|start)\b/i.test(rule.directive)){
       const atEnd=/\bat\s+(?:the\s+)?end\b/i.test(rule.directive),boundary=atEnd?indices.at(-1)+1:indices[0];return [{start:boundary,end:boundary,replacement,sourceOffset:atEnd?tokens[indices.at(-1)].end:tokens[indices[0]].start,finalInsertion:atEnd&&!!final&&tokens[indices.at(-1)].end===final.end&&atFinalLine(final)}];

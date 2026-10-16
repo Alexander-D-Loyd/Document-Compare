@@ -9,6 +9,11 @@ export function createReviewIgnores(){
   undo(){const action=history.pop();if(!action)return null;(action.all?matches:occurrences).delete(action.key);return {kind:action.kind,all:action.all};},
   has(kind,issue,text){return occurrences.has(occurrence(kind,issue,text))||matches.has(signature(kind,issue,text));},
   matchingCount(kind,issue,issues,text){const key=signature(kind,issue,text);return issues.filter(candidate=>signature(kind,candidate,text)===key).length;},
+  clearKind(kind){
+   for(const key of matches)if(JSON.parse(key)[0]===kind)matches.delete(key);
+   for(const key of occurrences)if(JSON.parse(JSON.parse(key)[0])[0]===kind)occurrences.delete(key);
+   for(let n=history.length-1;n>=0;n--)if(history[n].kind===kind)history.splice(n,1);
+  },
   clear(){occurrences.clear();matches.clear();history.length=0;}
  };
 }

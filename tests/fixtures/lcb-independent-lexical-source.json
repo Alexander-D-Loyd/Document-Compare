@@ -13315,7 +13315,7 @@
       "quoted": [
         {
           "id": "ab495-3d02b5beb3be",
-          "file": "C:\\Users\\Alexa\\Documents\\Codex\\2026-10-05\\i\\work\\leginfo-testing-batch2\\pdfs\\20250AB495_95.pdf",
+          "file": "work\\leginfo-testing-batch2\\pdfs\\20250AB495_95.pdf",
           "sha256": "3d02b5beb3bec1fe206bdc821b976e670e9cd304d29a6a3e0f54c37a57c2e5e8",
           "term": "licensed child day care facility",
           "start": 2588,
@@ -59374,7 +59374,7 @@
       "quoted": [
         {
           "id": "sb639-298f96edbef9",
-          "file": "C:\\Users\\Alexa\\Documents\\Codex\\2026-10-05\\i\\work\\leginfo-testing-batch3\\pdfs\\20250SB639_95.pdf",
+          "file": "work\\leginfo-testing-batch3\\pdfs\\20250SB639_95.pdf",
           "sha256": "298f96edbef94ee0587db6e62c48bab4b288eb9a6532c0134f79cacca50a1a09",
           "term": "open space land",
           "start": 1577,

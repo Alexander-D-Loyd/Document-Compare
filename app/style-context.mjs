@@ -2,7 +2,19 @@
 // across reviews: loaded documents can gain strikeouts or corrected text.
 import {wrappedStraightQuotes} from './style-wrapped-quotes.mjs';
 import {styleTechnicalLiteralRanges}from './style-technical-literals.mjs';
+import {styleDocumentType,isOpinionStyleDocument}from './style-document-type.mjs';
 const reviewContexts=new WeakMap();
+const reviewMemos=new WeakMap();
+// Derived source data lives only as long as the current synchronous review.
+// Alternate supplied contexts and asynchronous work never share this memo.
+export function memoizeStyleReview(doc,suppliedContext,key,calculate){
+ const context=reviewContexts.get(doc),memo=reviewMemos.get(doc);
+ if(!context||!memo||suppliedContext!==null&&suppliedContext!==context)return calculate();
+ if(memo.has(key))return memo.get(key);
+ const value=calculate();
+ if(!value||typeof value.then!=='function')memo.set(key,value);
+ return value;
+}
 export function styleRangeBlocked(doc,start,end){
  if((doc.struck||[]).some(r=>r.start<end&&r.end>start))return true;
  // Reader-identified interior running heads are masked in the style source.
@@ -11,8 +23,10 @@ export function styleRangeBlocked(doc,start,end){
 }
 export function withStyleContext(doc,review){
  const prior=reviewContexts.get(doc),context=prior||styleContext(doc);
+ const priorMemo=reviewMemos.get(doc),memo=priorMemo||new Map();
  reviewContexts.set(doc,context);
- try{return review();}finally{if(prior)reviewContexts.set(doc,prior);else reviewContexts.delete(doc);}
+ reviewMemos.set(doc,memo);
+ try{return review();}finally{if(prior)reviewContexts.set(doc,prior);else reviewContexts.delete(doc);if(priorMemo)reviewMemos.set(doc,priorMemo);else{memo.clear();reviewMemos.delete(doc);}}
 }
 export function styleSource(doc){
   if(reviewContexts.has(doc))return reviewContexts.get(doc).source;
@@ -23,7 +37,9 @@ export function styleSource(doc){
 }
 export function styleContext(doc){
   if(reviewContexts.has(doc))return reviewContexts.get(doc);
-  const source=styleSource(doc),digest=/legislative\s+counsel[’']s\s+digest/i.exec(source),enact=/do\s+enact\s+as\s+follows\s*:/i.exec(source);
+  // Opinion and cover-letter numerals inherit the Bill base under LCB21.
+  // Their explicit type owns the money/citation exceptions separately.
+  const source=styleSource(doc),documentType=styleDocumentType(doc),nonbill=isOpinionStyleDocument(doc),digest=nonbill?null:/legislative\s+counsel[’']s\s+digest/i.exec(source),enact=nonbill?null:/do\s+enact\s+as\s+follows\s*:/i.exec(source);
   const wrappedLiteralRanges=wrappedStraightQuotes(source,(start,end)=>styleRangeBlocked(doc,start,end));
   const literalRanges=[...[...source.matchAll(/“[^”]*”|"[^"\n]*"/g)].map(m=>({start:m.index,end:m.index+m[0].length})),...wrappedLiteralRanges];
   const technicalRanges=styleTechnicalLiteralRanges(source,doc.text),technicalAt=(start,end=start+1)=>technicalRanges.some(r=>r.start<end&&r.end>start);
@@ -62,5 +78,5 @@ export function styleContext(doc){
     return b.formatting?.headerGaps?.length>=2||/\.{3,}/.test(body)||wrappedLabel||(budget&&body&&!yearContinuation&&/^[\d\s,$().+%—–-]+$/.test(body));
   });
   const tableAt=offset=>{let lo=0,hi=tableRanges.length;while(lo<hi){const mid=(lo+hi)>>1;if(tableRanges[mid].end<=offset)lo=mid+1;else hi=mid;}return !!tableRanges[lo]&&tableRanges[lo].start<=offset;};
-  return {source,at,sentenceAt,tableAt,literalRanges,wrappedLiteralRanges,literalAt,technicalRanges,technicalAt};
+  return {source,documentType,at,sentenceAt,tableAt,literalRanges,wrappedLiteralRanges,literalAt,technicalRanges,technicalAt};
 }

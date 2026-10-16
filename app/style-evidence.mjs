@@ -1,13 +1,16 @@
-import {styleContext} from './style-context.mjs';
+import {styleContext,memoizeStyleReview} from './style-context.mjs';
+const originalBodyKey=Symbol('original-body-style-context');
 export const cutsOriginalStyleWord=(doc,index)=>/[\p{L}\p{N}\p{M}_]$/u.test(doc.text.slice(Math.max(0,index-2),index))&&/^[\p{L}\p{N}\p{M}_]/u.test(doc.text.slice(index,index+2));
 // Restore uncertain body characters only for conservative evidence checks.
 // Recognized margin/header exclusions remain masked; callers must never use
 // this context to manufacture a positive finding from removed source text.
 export function originalBodyStyleContext(doc){
+ return memoizeStyleReview(doc,null,originalBodyKey,()=>{
  const structural=doc.blocks.flatMap(b=>b.margin?[{start:b.start,end:b.start+b.margin.length}]:b.ignored&&b.formatting?.headerParts?.length?[{start:b.start,end:b.end}]:[]);
  const contained=r=>{let lo=0,hi=structural.length;while(lo<hi){const mid=(lo+hi)>>1;if(structural[mid].end<=r.start)lo=mid+1;else hi=mid;}return lo<structural.length&&structural[lo].start<=r.start&&structural[lo].end>=r.end;};
  const excluded=(doc.excluded||[]).filter(contained);if(!(doc.struck||[]).length&&excluded.length===(doc.excluded||[]).length)return null;
  return styleContext({...doc,struck:[],excluded});
+ });
 }
 // Validate complete grammatical/identity evidence without changing the source.
 // Excluded characters cannot become whitespace evidence except actual margin

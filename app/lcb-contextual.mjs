@@ -1,6 +1,7 @@
 import {nounHeadMatch} from './style-noun-heads.mjs';
 import {styleContext} from './style-context.mjs';
-import {predicateCompoundMatches,predicateRangeKey} from './style-predicate-evidence.mjs';
+import {predicateRangeKey} from './style-predicate-evidence.mjs';
+import {guardedPredicateCompoundEvidence} from './style-predicate-source-evidence.mjs';
 import {productiveEndWordPredicates,productiveEndWordCandidates,listedNominalBase} from './style-end-word-predicates.mjs';
 import {LCB_PREDICATE_EXAMPLES,listedPredicateCandidates,predicateBodyDash} from './style-predicate-examples.mjs';
 import {participialModifierEvidenceRanges} from './style-participial-modifier-evidence.mjs';
@@ -110,17 +111,20 @@ export function lcbContextualIssues(doc,references){
  // Predicate adjectives use open forms, while an embedded noun modifier
  // after "is a" is still attributive and must retain its hyphen.
  const listedPredicates=listedPredicateCandidates(source,doc.text),endPredicates=productiveEndWordCandidates(source).filter(m=>!predicateBodyDash(doc.text,source,m));
- const predicateMatches=predicateCompoundMatches(source,[...listedPredicates.map(p=>p.m),...endPredicates]);
- for(const {m,form} of listedPredicates)if(LCB_PREDICATE_EXAMPLES.includes(form)&&predicateMatches.has(predicateRangeKey(m)))add(m,m[0].replace(/\s*-\s*/g,' ').replace(/\s+/g,' '),'Hyphenation, item 2',8,'LCB omits the hyphen in an adjective phrase following the word it modifies. Explicit copular and closing/complement evidence also supports complete coordinated compounds; embedded noun modifiers and uncertain comma continuations remain protected.','Modifier hyphenation');
+ const predicateMatches=guardedPredicateCompoundEvidence(doc,[...listedPredicates.map(p=>p.m),...endPredicates],ctx);
+ const attachPredicateEvidence=(m,suggestion)=>{const e=predicateMatches.get(predicateRangeKey(m)),issue=issues.find(i=>i.start===m.index&&i.end===m.index+m[0].length&&i.suggestion===suggestion);if(e&&issue){issue.evidenceStart=e.start;issue.evidenceEnd=e.end;issue.predicateContextEvidence={kind:'copula-and-closing-role',start:e.start,end:e.end,sourceText:doc.text.slice(e.start,e.end)};}};
+ for(const {m,form} of listedPredicates)if(LCB_PREDICATE_EXAMPLES.includes(form)&&predicateMatches.has(predicateRangeKey(m))){add(m,m[0].replace(/\s*-\s*/g,' ').replace(/\s+/g,' '),'Hyphenation, item 2',8,'LCB omits the hyphen in an adjective phrase following the word it modifies. Explicit copular and closing/complement evidence also supports complete coordinated compounds; embedded noun modifiers and uncertain comma continuations remain protected.','Modifier hyphenation');attachPredicateEvidence(m,m[0].replace(/\s*-\s*/g,' ').replace(/\s+/g,' '));}
  // Page 16 explicitly makes these endings productive. Complete recognized
  // lexical bases and an explicit predicate supply the format evidence, without
  // treating the root list as approval of a compound's meaning or spelling.
  for(const {m,suggestion,baseReference} of productiveEndWordPredicates(source,listedPredicates.map(p=>p.m),endPredicates)){
+  if(!predicateMatches.has(predicateRangeKey(m)))continue;
   add(m,suggestion,'Hyphenation, item 2 and End words',8,'LCB opens the final participle boundary in an adjective phrase after the noun it modifies. Source-listed base spellings are preserved; other bases retain their internal hyphens for manual review. Confirm the compound’s meaning and any literal-name exception; embedded noun modifiers remain protected.','Modifier hyphenation');
   const issue=issues.find(i=>i.start===m.index&&i.end===m.index+m[0].length&&i.suggestion===suggestion);
   if(issue){
    issue.references.push({guideId:'lcb',guideName:'LCB Style Manual',guidePage:16,guidePrintedPage:references.lcb.pages[15].printedPage,rule:'End words',preferred:suggestion,ruleText:'LCB page 16 expressly uses -adopted, -approved, -based and -related in unit-modifier position.'});
    issue.references.push({guideId:'gpo',guideName:'GPO Style Manual',guidePage:116,guidePrintedPage:references.gpo.pages[115].printedPage,rule:'6.18',preferred:suggestion,ruleText:'GPO omits the hyphen in a compound predicate adjective whose second element is a past participle.'});
+   attachPredicateEvidence(m,suggestion);
    if(baseReference)issue.references.push({guideId:'lcb',guideName:'LCB Style Manual',guidePage:baseReference.page,guidePrintedPage:String(baseReference.page),rule:'Hyphenation examples: '+baseReference.preferred,preferred:baseReference.preferred,ruleText:'LCB explicitly lists this complete base spelling. Predicate position does not discard its internal spelling.'});
   }
  }

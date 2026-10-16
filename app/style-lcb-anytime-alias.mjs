@@ -1,0 +1,24 @@
+import{styleContext}from './style-context.mjs';
+import{styleEvidenceGuard,cutsOriginalStyleWord,originalBodyStyleContext}from './style-evidence.mjs';
+import{originalStyleLiteralGuard}from './style-original-literal-guard.mjs';
+import{originalRoleBoundaryBlocked}from './style-original-role-boundaries.mjs';
+import{billQuotedTermProtection}from './style-quoted-terms.mjs';
+import{explicitVerbRange}from './style-verb-evidence.mjs';
+import{WORD_CHOICE_RULES}from './style-word-choice.mjs';
+const timing=WORD_CHOICE_RULES.find(r=>r.id==='anytime-adverb').cueVerbForms,word='[\\p{L}\\p{N}\\p{M}_]',term='(?<term>any\\s*-\\s*time)',ending='(?<ending>\\s*(?:[.;,!?]|$)|\\s+(?:after|before|during|without)\\b)';
+const patterns=[{kind:'at-noun',pattern:new RegExp('(?<!'+word+')(?<cue>at)\\s+'+term+'(?!'+word+')'+ending,'giu'),preferred:'any time'},{kind:'existing-finite-adverb',pattern:new RegExp('(?<!'+word+')(?<cue>'+Object.keys(timing).join('|')+')\\s+'+term+'(?!'+word+')'+ending,'giu'),preferred:'anytime'}];
+export const LCB_ANYTIME_ALIAS_SCOPE='LCB3 prints any time (n.) and anytime (adv.). Only the exact hyphenated any-time alias is added in the already supported at-noun role or the current apply/resign/withdraw/call finite/adverb grammar and its existing ending contexts. No new verb, inflection, noun-head or semantic role is introduced. Complete original cue/alias/ending evidence, Unicode/technical boundaries, tables/headings, strikes/exclusions, original quotes and bill-local terms remain protected. Correct open/solid forms remain with their existing owners.';
+export function lcbAnytimeAliasIssues(doc,references,{existingIssues=[]}={}){
+ const page=references?.lcb?.pages?.[2];if(!page)return [];const sourceWitnesses=['any time (n.)','anytime (adv.)'].map(form=>{const start=page.text.indexOf(form);return start<0?null:{page:3,start,end:start+form.length,text:form};});if(sourceWitnesses.some(w=>!w))return [];
+ const ctx=styleContext(doc),source=ctx.source,original=originalBodyStyleContext(doc)?.source||source,blocked=styleEvidenceGuard(doc,ctx),literal=originalStyleLiteralGuard(doc,ctx),quoted=billQuotedTermProtection(doc,ctx),issues=[];
+ for(const row of patterns)for(const m of source.matchAll(row.pattern)){
+  const start=m.index+m[0].indexOf(m.groups.term),end=start+m.groups.term.length,verbRange=row.kind==='existing-finite-adverb'?explicitVerbRange(ctx,m.index,timing[m.groups.cue.toLowerCase()]):null;if(row.kind==='existing-finite-adverb'&&!verbRange)continue;
+  const evidenceStart=verbRange?.start??m.index,evidenceEnd=m.index+m[0].length;
+  if(m.groups.term!==m.groups.term.toLowerCase()&&m.groups.term!==m.groups.term[0].toUpperCase()+m.groups.term.slice(1).toLowerCase())continue;
+  if(ctx.at(start)==='Heading'||blocked(evidenceStart,evidenceEnd)||literal(evidenceStart,evidenceEnd)||cutsOriginalStyleWord(doc,evidenceStart)||cutsOriginalStyleWord(doc,evidenceEnd)||cutsOriginalStyleWord(doc,start)||cutsOriginalStyleWord(doc,end)||originalRoleBoundaryBlocked(original,evidenceStart,evidenceEnd)||originalRoleBoundaryBlocked(original,start,end)||quoted({start,end})||existingIssues.some(i=>i.start<end&&i.end>start)||issues.some(i=>i.start<end&&i.end>start))continue;
+  if([...doc.text.slice(start,end).matchAll(/[\u2012-\u2015]/gu)].some(d=>source[start+d.index]==='-'))continue;
+  const suggestion=/^[A-Z]/u.test(m.groups.term)?row.preferred[0].toUpperCase()+row.preferred.slice(1):row.preferred;
+  issues.push({start,end,text:doc.text.slice(start,end),suggestion,evidenceStart,evidenceEnd,guideId:'lcb',guidePage:3,guidePrintedPage:String(page.printedPage),rule:'Spelling and usage: any-time alias',category:'Printed lexical alias',context:ctx.at(start),checkId:'lcb-anytime-alias',conflict:false,message:'LCB3 prints “any time (n.)” and “anytime (adv.)”. This exact hyphenated alias has the existing supported '+(row.kind==='at-noun'?'at-noun':'finite timing-adverb')+' role; compare the printed form without inferring another meaning or grammatical use.',anytimeAliasEvidence:{start:evidenceStart,end:evidenceEnd,sourceText:doc.text.slice(evidenceStart,evidenceEnd),kind:row.kind,term:{start,end,text:doc.text.slice(start,end)},cue:{start:evidenceStart,end:start,text:doc.text.slice(evidenceStart,start)},ending:{start:end,end:evidenceEnd,text:doc.text.slice(end,evidenceEnd)},sourceWitnesses},references:sourceWitnesses.map(w=>({guideId:'lcb',guideName:'LCB Style Manual',guidePage:3,guidePrintedPage:String(page.printedPage),rule:w.text,preferred:row.preferred,ruleText:w.text,sourcePassage:{start:w.start,end:w.end,text:w.text}}))});
+ }return issues.sort((a,b)=>a.start-b.start);
+}
+export function restoreAnytimeAliasEvidence(e,map,text){const range=r=>{const start=map(r.start),end=map(r.end,true);return {...r,start,end,text:text.slice(start,end)};},start=map(e.start),end=map(e.end,true);return {...e,start,end,sourceText:text.slice(start,end),term:range(e.term),cue:range(e.cue),ending:range(e.ending)};}

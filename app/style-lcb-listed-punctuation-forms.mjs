@@ -1,0 +1,26 @@
+import {styleContext} from './style-context.mjs';
+import {styleEvidenceGuard,cutsOriginalStyleWord,originalBodyStyleContext} from './style-evidence.mjs';
+import {originalStyleLiteralGuard} from './style-original-literal-guard.mjs';
+export const LCB_LISTED_PUNCTUATION_FORMS_SCOPE='LCB7 exact printed constructions: city, county, or city and county retains its serial comma; the 16 months, or two or three years example retains its grouping comma; real estate broker license and real estate salesperson license omit a possessor apostrophe in explicit holds/obtains/issuance/renewal/application credential contexts; under United States control retains the printed open control form. Complete lexical and role evidence is required. This does not remove generic possessives or decide ownership. Other quantities, entity identities, title extensions, quotations, bill-local terms, tables, deleted or uncertain source remain protected. Findings cite the exact printed source passage.';
+const word='[\\p{L}\\p{N}\\p{M}_]';
+const forms=[
+ {key:'city-county-series',printed:'city, county, or city and county',pattern:new RegExp('(?<!'+word+')(?<first>city),\\s+county(?<comma>,?)\\s+(?<join>or)\\s+city\\s+and\\s+county(?!'+word+')','giu'),role:/^\s+(?:may|shall|must|is|are|that|which)\b/iu},
+ {key:'different-duration-series',printed:'16 months, or two or three years',pattern:new RegExp('(?<!'+word+')16\\s+months(?<comma>,?)\\s+(?<join>or)\\s+(?:two|2)\\s+or\\s+(?:three|3)\\s+years(?!'+word+')','giu'),role:/^\s*(?:[.,;:)]|$|(?:may|shall|must|is|are|of|for|after|before)\b)/iu},
+ {key:'credential-license',printed:null,pattern:new RegExp('(?<!'+word+')real\\s+estate\\s+(?<office>broker|salesperson)(?<poss>[’\']s)\\s+license(?!'+word+')','giu'),before:/\b(?:holds?|holding|obtains?|obtaining|renewing|renewal\s+of|issuance\s+of|issued|applies\s+for|application\s+for)\s+(?:(?:a|an|the|any|each|valid|active|current)\s+)*$/iu},
+ {key:'us-control',printed:'United States control',pattern:new RegExp('(?<!'+word+')United\\s+States(?<poss>[’\']|[’\']s)\\s+control(?!'+word+')','gu'),before:/\bunder\s+$/iu}
+];
+export function lcbListedPunctuationFormIssues(doc,references){
+ const ctx=styleContext(doc),source=ctx.source,original=originalBodyStyleContext(doc)?.source||source,blocked=styleEvidenceGuard(doc,ctx),literal=originalStyleLiteralGuard(doc,ctx),issues=[];
+ for(const form of forms)for(const m of source.matchAll(form.pattern)){
+  const start=m.index,end=start+m[0].length,before=source.slice(ctx.sentenceAt(start).start,start),cue=form.before?.exec(before),role=form.role?.exec(source.slice(end)),evidenceStart=cue?start-before.length+cue.index:start,evidenceEnd=end+(role?.[0].length||0);
+  if(form.key==='different-duration-series'&&(/(?:[+−\u2010-\u2015/⁄^*=$€£¥₹¢-]|[\p{L}\p{N}\p{M}_]\.)\s*$/u.test(doc.text.slice(0,start))||/\b(?:minus|negative|plus|positive)\s*$/iu.test(doc.text.slice(0,start))))continue;
+  if(cutsOriginalStyleWord(doc,evidenceStart)||form.before&&!cue||form.role&&!role||ctx.at(start)==='Heading'||blocked(evidenceStart,evidenceEnd)||literal(evidenceStart,evidenceEnd)||cutsOriginalStyleWord(doc,start)||cutsOriginalStyleWord(doc,end)||cutsOriginalStyleWord(doc,evidenceEnd)||/[-\u2010-\u2015/\\#@]/u.test(doc.text[end]||'')||/^\.\d/u.test(doc.text.slice(end))||role&&/[-\u2010-\u2015/\\#@]/u.test(doc.text[evidenceEnd]||'')||role&&/^\.\d/u.test(doc.text.slice(evidenceEnd))||/[\p{L}\p{N}\p{M}_/\\#@-]/u.test(doc.text[evidenceStart-1]||'')||/^\s+(?:Act|Code|Law|Fund|Account|Authority|Department|Agency|Commission|Board|Institute|Association)\b/u.test(source.slice(end)))continue;
+  let from=start,to=end,suggestion,printed=form.printed;
+  if(/^\s+(?:Act|Code|Law|Fund|Account|Authority|Department|Agency|Commission|Board|Institute|Association)\b/u.test(original.slice(end)))continue;
+  if(m.groups.comma!==undefined){if(m.groups.comma)continue;const join=new RegExp('\\b'+m.groups.join+'\\b','u').exec(m[0]);from=start+join.index;to=from+m.groups.join.length;while(from>start&&/\s/u.test(source[from-1]))from--;suggestion=', '+m.groups.join;}
+  else {suggestion=doc.text.slice(start,end).replace(m.groups.poss,'');if(form.key==='credential-license'){if(m[0].slice(1)!==m[0].slice(1).toLowerCase())continue;printed='real estate '+m.groups.office.toLowerCase()+' license';}}
+  const page=references.lcb.pages[6],match=new RegExp(printed.split(' ').join('\\s+'),'u').exec(page.text);if(!match)continue;
+  issues.push({start:from,end:to,text:doc.text.slice(from,to),suggestion,checkId:'lcb-listed-punctuation-form',guideId:'lcb',guidePage:7,guidePrintedPage:String(page.printedPage),rule:'Punctuation examples: '+printed,category:'Listed LCB punctuation',context:ctx.at(start),conflict:false,evidenceStart,evidenceEnd,message:'LCB prints “'+printed+'”. Review this complete supported construction against that source form.',listedPunctuationEvidence:{kind:form.key,start:evidenceStart,end:evidenceEnd,sourceText:doc.text.slice(evidenceStart,evidenceEnd),printedForm:printed},references:[{guideId:'lcb',guideName:'LCB Style Manual',guidePage:7,guidePrintedPage:String(page.printedPage),rule:'Punctuation examples',preferred:printed,ruleText:match[0],sourcePassage:{start:match.index,end:match.index+match[0].length,text:match[0]}}]});
+ }
+ return issues;
+}

@@ -1,3 +1,5 @@
+import {createEntityAuthorityPanel} from './entity-authority-ui.mjs';
+import {normalizeStyleDocumentType} from './style-document-type.mjs';
 import {digestDisplay,digestPayload,amendmentName} from './digest-amendment.mjs';
 import {styleReviewView} from './style-review-view.mjs';
 import {STYLE_REVIEW_SCOPE,STYLE_EXCEPTION_SUMMARY} from './style-finding-policy.mjs';
@@ -68,14 +70,16 @@ let spellingIssues = [];
 let spellingSequence = 0;
 let languageIssues=[],languageIndex=-1,languageChecked=false;
 let languageRequestId=null,styleRequestId=null,spellingAbort=null,styleEngineWarning='',languageEngineWarning='';
+let stylePending=false;
 let personalWords = new Set();
 let dictionaryError = '';
 let allStyleIssues=[],styleIssues=[],styleIndex=-1,styleWorker=null,styleSequence=0,styleChecked=false;
 const guideReferencePromises=new Map(),guidePdfPromises=new Map(),guideViews=new Map(STYLE_GUIDES.map(g=>[g.id,{page:g.defaultPage,query:''}]));
-const guideTabs=[...STYLE_GUIDES,{id:'custom',title:'Custom Terms'},{id:'coverage',title:'Check Coverage'}];guideViews.set('custom',{query:''});guideViews.set('coverage',{query:''});
+const guideTabs=[...STYLE_GUIDES,{id:'custom',title:'Custom Terms'},{id:'entities',title:'Entity Authority'},{id:'coverage',title:'Check Coverage'}];guideViews.set('custom',{query:''});guideViews.set('coverage',{query:''});guideViews.set('entities',{query:''});
 let customTerms=[],customTermsError='';
 try{customTerms=loadStyleTerms(localStorage);}catch{customTermsError='Saved custom terms could not be loaded.';}
 let activeGuideId='lcb',guideContext=null,guidePage=1,guideRenderTask,guideRenderSequence=0;
+const entityPanel=createEntityAuthorityPanel({$,getQuery:()=>$('guide-search').value.trim(),isActive:()=>activeGuideId==='entities',onChange:entityAuthorityChanged});
 try { personalWords = loadDictionary(localStorage); }
 catch { dictionaryError = 'Personal dictionary could not be loaded. Saved words may still be flagged.'; }
 
@@ -115,7 +119,8 @@ function availability() {
   $('review-amendments').disabled = !docs.every(Boolean) || !hasAmendments() || Object.values(loading).some(Boolean) || !!amendmentWorker;
   $('refresh').disabled = Object.values(loading).some(Boolean);
   $('continue-reference').disabled = !externalDocs[referenceBill] || Object.values(loading).some(Boolean);
-  $('check-style').disabled = !docs.every(Boolean) || loading[0] || loading[1] || !!compareWorker || !!styleWorker;
+  $('style-document-type').disabled=!docs[1]||loading[1];
+  $('check-style').disabled = !docs.every(Boolean) || loading[0] || loading[1] || !!compareWorker || !!styleWorker || stylePending;
 }
 function invalidateAmendments(){
   activeAmendmentIssue=null;
@@ -166,6 +171,7 @@ function refreshView(){
 
 async function readFile(file, side) {
   uploadedFiles.delete(side);
+  if(side===1)$('style-document-type').value='bill';
   const version = ++versions[side];
   const requestedBill=referenceBill;
   if(side!=='reference'){
@@ -292,6 +298,7 @@ async function readFile(file, side) {
 }
 
 function removeFile(side){
+  if(side===1)$('style-document-type').value='bill';
   const sides=side==='amendments'?['digest','amendments']:[side];
   for(const slot of sides){
     uploadedFiles.delete(slot);$('name'+slot).removeAttribute('role');$('name'+slot).removeAttribute('tabindex');$('name'+slot).removeAttribute('title');
@@ -718,7 +725,14 @@ function addToDictionary(){
     $('spelling-status').textContent=`Could not save “${issue.word}” to your dictionary. It remains flagged; try again.`;
   }
 }
+function entityAuthorityChanged(){
+  const recheck=reviewMode==='style'&&(styleChecked||stylePending||!!styleWorker);
+  reviewIgnores.clearKind('style');resetStyle();availability();
+  if(compared)renderDocuments();
+  if(compared&&recheck)checkStyle();
+}
 function resetStyle(){
+  stylePending=false;
   cancelOfflineLanguage(styleRequestId);styleRequestId=null;
   styleEngineWarning='';
   styleSequence++;styleWorker?.terminate();styleWorker=null;allStyleIssues=[];styleIssues=[];styleIndex=-1;styleChecked=false;
@@ -758,14 +772,15 @@ function applyStyleReviewView(preferredId=null,preferredIndex=0){
   availability();updateIgnoreControls();
 }
 async function checkStyle(){
-  if(!compared||compareWorker||!docs[1]||styleWorker)return;
+  if(!compared||compareWorker||!docs[1]||styleWorker||stylePending)return;
   setReviewMode('style');
   if(styleChecked){if(styleIndex>=0)selectStyle(styleIndex);return;}
-  resetStyle();const seq=++styleSequence;
-  await authorityReady;if(seq!==styleSequence||!compared||!docs[1])return;
+  resetStyle();const seq=++styleSequence;stylePending=true;availability();
+  $('style-status').textContent='Loading local style authorities…';
+  await Promise.all([authorityReady,entityPanel.ready]);if(seq!==styleSequence||!compared||!docs[1]){if(seq===styleSequence)stylePending=false;return;}
   styleWorker=new Worker('./style-worker.mjs',{type:'module'});availability();
   $('style-status').textContent='Checking Current Version against explicit LCB and GPO rules…';
-  const finish=()=>{cancelOfflineLanguage(styleRequestId);styleWorker?.terminate();styleWorker=null;styleRequestId=null;availability();};
+  const finish=()=>{stylePending=false;cancelOfflineLanguage(styleRequestId);styleWorker?.terminate();styleWorker=null;styleRequestId=null;availability();};
   styleWorker.onerror=()=>{if(seq!==styleSequence)return;finish();$('style-status').textContent='Stylistic check could not finish. Try again.';};
   styleWorker.onmessage=({data})=>{
     if(seq!==styleSequence)return;finish();
@@ -773,10 +788,11 @@ async function checkStyle(){
     allStyleIssues=data.issues;styleChecked=true;styleIndex=-1;
     applyStyleReviewView();
   };
-  const doc=docs[1],id=styleRequestId='style-'+crypto.randomUUID(),native=await reviewOfflineLanguage(doc,'style',id);
-  if(seq!==styleSequence||native.cancelled||!styleWorker)return;
-  styleEngineWarning=native.warning||'';
-  styleWorker.postMessage({doc:{text:doc.text,blocks:doc.blocks,excluded:doc.excluded,struck:doc.struck,wrappedWords:doc.wrappedWords},terms:customTerms,engineIssues:native.issues,authority:offlineAuthority});
+  const doc={...docs[1],styleDocumentType:normalizeStyleDocumentType($('style-document-type').value)},id=styleRequestId='style-'+crypto.randomUUID(),native=await reviewOfflineLanguage(doc,'style',id);
+  if(seq!==styleSequence)return;
+  if(native.cancelled||!styleWorker){finish();return;}
+  styleEngineWarning=[native.warning||'',entityPanel.warning()].filter(Boolean).join(' ');
+  styleWorker.postMessage({doc:{text:doc.text,blocks:doc.blocks,excluded:doc.excluded,struck:doc.struck,wrappedWords:doc.wrappedWords,styleDocumentType:doc.styleDocumentType},terms:customTerms,engineIssues:native.issues,authority:offlineAuthority,entityAuthority:entityPanel.selected()});
 }
 function loadGuideReference(id=activeGuideId){
   if(!guideReferencePromises.has(id))guideReferencePromises.set(id,fetch(guideById(id).referenceUrl).then(response=>{if(!response.ok)throw Error(`${guideById(id).title} reference could not be loaded.`);return response.json();}).catch(error=>{guideReferencePromises.delete(id);throw error;}));
@@ -786,6 +802,7 @@ async function renderGuideSearch(){
   const id=activeGuideId,query=$('guide-search').value.trim();guideViews.get(id).query=query;
   if(id==='custom'){renderCustomTerms(query);return;}
   if(id==='coverage'){renderCoverage(query);return;}
+  if(id==='entities'){entityPanel.render(query);return;}
   try{
     const reference=await loadGuideReference(id),pages=searchGuide(reference,query);
     if(id!==activeGuideId||query!==$('guide-search').value.trim())return;
@@ -801,7 +818,7 @@ async function renderGuideSearch(){
   }catch(error){if(id===activeGuideId)$('guide-search-status').textContent=error.message;}
 }
 async function renderGuidePage(pageNumber){
-  if(['custom','coverage'].includes(activeGuideId))return;
+  if(['custom','coverage','entities'].includes(activeGuideId))return;
   const guide=guideById(activeGuideId),page=Number(pageNumber);if(!Number.isInteger(page)||page<1||page>guide.totalPages)return;
   guideViews.get(guide.id).page=page;
   guidePage=page;const seq=++guideRenderSequence,oldTask=guideRenderTask;
@@ -830,6 +847,16 @@ function renderGuideContext(){
   const taskText=document.createElement('p');taskText.textContent=guideContext.reviewTask||guideContext.message;
   const scope=document.createElement('p');scope.textContent=officePreference?'Confirm the selected office preference and intended meaning before editing. Listed alternatives remain accepted forms.':STYLE_REVIEW_SCOPE;
   task.append(taskTitle,taskText,scope);root.append(task);
+  const entitySource=guideContext.entitySource||guideContext.officialHeadEvidence?.registry;
+  if(entitySource){
+    const box=document.createElement('article');box.className='guide-rule-card';
+    const title=document.createElement('strong');title.textContent=entitySource.datasetId?'Selected entity authority':'Bundled entity snapshot';
+    const source=document.createElement('p');source.textContent=[entitySource.sourceTitle,entitySource.sourceAuthority,entitySource.sourceCitation,entitySource.citation].filter(Boolean).join(' · ');
+    const date=document.createElement('p');date.textContent=`Source as-of: ${entitySource.asOfDate||'unknown'}${entitySource.importedAt?' · Imported: '+entitySource.importedAt:''}`;
+    const receipt=document.createElement('p');receipt.textContent=`${entitySource.inputFile||entitySource.file||entitySource.sourceFile} · SHA-256: ${entitySource.datasetId||entitySource.sha256||entitySource.sourceSHA256}`;
+    const note=document.createElement('p');note.textContent='The source date and file hash identify the selected data; they do not establish freshness, legal status or authenticity. A missing name is not evidence of an error.';
+    box.append(title,source,date,receipt,note);root.append(box);
+  }
   for(const reference of guideContext.references){
     const box=document.createElement('article');box.className='guide-rule-card';
     const title=document.createElement('strong');title.textContent=`${guideById(reference.guideId).title}${reference.guideId==='lcb'?' · Primary':''} · ${reference.rule} · p. ${reference.guidePrintedPage}`;
@@ -919,20 +946,20 @@ function renderGuideContext(){
     const evidence=guideContext.introducedSeriesEvidence,box=document.createElement('article');box.className='guide-rule-card';
     const title=document.createElement('strong');title.textContent='Introduced Series Context';box.append(title);
     const text=document.createElement('p');text.textContent=evidence.text;box.append(text);
-    const note=document.createElement('p');note.textContent='Confirm whether these phrases or clauses are parallel items at the same level. No punctuation change is selected.';box.append(note);guideRules.append(box);
+    const note=document.createElement('p');note.textContent='Confirm whether these phrases or clauses are parallel items at the same level. No punctuation change is selected.';box.append(note);root.append(box);
   }
   if(guideContext.groupedSeriesEvidence){
     const evidence=guideContext.groupedSeriesEvidence,box=document.createElement('article');box.className='guide-rule-card';
     const title=document.createElement('strong');title.textContent='Grouped Series Context';box.append(title);
     const text=document.createElement('p');text.textContent=evidence.text;box.append(text);
-    const note=document.createElement('p');note.textContent='Confirm whether the final “and” joins another group or belongs inside the last group. No punctuation change is selected.';box.append(note);guideRules.append(box);
+    const note=document.createElement('p');note.textContent='Confirm whether the final “and” joins another group or belongs inside the last group. No punctuation change is selected.';box.append(note);root.append(box);
   }
   if(guideContext.timePossessiveEvidence){
     const evidence=guideContext.timePossessiveEvidence,box=document.createElement('article');box.className='guide-rule-card';
     const title=document.createElement('strong');title.textContent='Time Expression Context';box.append(title);
     const text=document.createElement('p');text.textContent=evidence.text;box.append(text);
     const role=document.createElement('p');role.textContent='Possible head: '+evidence.head.text+'. Confirm the relationship; no punctuation change is selected.';box.append(role);
-    guideRules.append(box);
+    root.append(box);
   }
   if(guideContext.quoteEvidence){
     const evidence=guideContext.quoteEvidence,box=document.createElement('article');box.className='guide-rule-card';
@@ -1004,13 +1031,13 @@ function renderGuideContext(){
 }
 function selectGuide(id,page=null,query=null){
   guideViews.get(activeGuideId).query=$('guide-search').value;
-  const custom=id==='custom',coverage=id==='coverage';$('custom-terms-panel').hidden=!custom;$('coverage-panel').hidden=!coverage;$('guide-content').hidden=custom||coverage;
-  $('guide-search-label').textContent=custom?'Search custom terms (case sensitive)':coverage?'Search check coverage':'Search the guide';
-  $('guide-search').placeholder=custom?'Search saved terms or replacements':coverage?'Search a rule area, context or limitation':'Search a phrase, topic, or rule number (for example 6.20)';
+  const custom=id==='custom',coverage=id==='coverage',entities=id==='entities';$('custom-terms-panel').hidden=!custom;$('coverage-panel').hidden=!coverage;$('entity-panel').hidden=!entities;$('guide-content').hidden=custom||coverage||entities;
+  $('guide-search-label').textContent=custom?'Search custom terms (case sensitive)':coverage?'Search check coverage':entities?'Search entity names and source citations':'Search the guide';
+  $('guide-search').placeholder=custom?'Search saved terms or replacements':coverage?'Search a rule area, context or limitation':entities?'Search an exact name, category, or citation':'Search a phrase, topic, or rule number (for example 6.20)';
   for(const item of guideTabs){const tab=$('guide-tab-'+item.id);tab.setAttribute('aria-selected',String(item.id===id));tab.tabIndex=item.id===id?0:-1;}
-  if(custom||coverage){
+  if(custom||coverage||entities){
     activeGuideId=id;guideRenderSequence++;guideRenderTask?.cancel();guideRenderTask=null;$('guide-rule-context').hidden=true;
-    $('guide-description').textContent=custom?'Your saved style terms · Case-sensitive matching and search':'Supported checks and rules requiring manual review';
+    $('guide-description').textContent=custom?'Your saved style terms · Case-sensitive matching and search':entities?'Selected local entity authority · Exact names and source provenance':'Supported checks and rules requiring manual review';
     $('guide-search').value=query??guideViews.get(id).query;renderGuideSearch();return;
   }
   renderGuideContext();
@@ -1023,7 +1050,7 @@ function selectGuide(id,page=null,query=null){
 function openGuide(page=null,query='',id='lcb',context=null){
   $('dictionary-dialog').close();guideContext=context;renderGuideContext();
   if(!$('guide-dialog').open)$('guide-dialog').showModal();
-  selectGuide(id,page??(['custom','coverage'].includes(id)?null:guideById(id).defaultPage),query);
+  selectGuide(id,page??(['custom','coverage','entities'].includes(id)?null:guideById(id).defaultPage),query);
 }
 async function renderCoverage(query=''){
   const root=$('coverage-list');root.replaceChildren();
@@ -1055,7 +1082,7 @@ function renderCustomTerms(query=$('guide-search').value.trim()){
 }
 function updateCustomTerms(next){
   try{saveStyleTerms(localStorage,next);}catch{customTermsError='Could not save custom terms. Try again.';renderCustomTerms();return false;}
-  const recheck=reviewMode==='style'&&(styleChecked||!!styleWorker);customTerms=next;customTermsError='';resetStyle();availability();if(compared)renderDocuments();renderCustomTerms();if(recheck)checkStyle();return true;
+  const recheck=reviewMode==='style'&&(styleChecked||stylePending||!!styleWorker);customTerms=next;customTermsError='';resetStyle();availability();if(compared)renderDocuments();renderCustomTerms();if(recheck)checkStyle();return true;
 }
 async function checkSpelling(selectMode=true){
   if(!compared || compareWorker || !docs.every(Boolean))return;
@@ -1364,6 +1391,12 @@ setReviewMode('changes');
 $('compare').addEventListener('click',runComparison);
 $('refresh').addEventListener('click',refreshView);
 $('check-style').addEventListener('click',checkStyle);
+$('style-document-type').addEventListener('change',()=>{
+  const recheck=styleChecked||stylePending||!!styleWorker;
+  reviewIgnores.clearKind('style');resetStyle();availability();
+  if(compared)renderDocuments();
+  if(compared&&recheck)checkStyle();
+});
 $('previous-style').addEventListener('click',()=>nextStyle(-1));
 $('next-style').addEventListener('click',()=>nextStyle(1));
 $('style-rule').addEventListener('click',()=>{const issue=styleIssues[styleIndex];if(issue)openGuide(issue.guidePage,'',issue.guideId,issue);});
@@ -1371,6 +1404,7 @@ $('view-guide').addEventListener('click',()=>openGuide());
 for(const guide of guideTabs){
   const tab=document.createElement('button');tab.id='guide-tab-'+guide.id;tab.className='quiet guide-tab';tab.setAttribute('role','tab');tab.setAttribute('aria-controls',guide.id==='custom'?'custom-terms-panel':'guide-content');tab.textContent=guide.title+(guide.primary?' · Primary':'');tab.setAttribute('aria-selected',String(guide.id===activeGuideId));tab.tabIndex=guide.id===activeGuideId?0:-1;
   if(guide.id==='coverage')tab.setAttribute('aria-controls','coverage-panel');
+  if(guide.id==='entities')tab.setAttribute('aria-controls','entity-panel');
   tab.addEventListener('click',()=>selectGuide(guide.id));
   tab.addEventListener('keydown',event=>{if(!['ArrowLeft','ArrowRight','Home','End'].includes(event.key))return;event.preventDefault();const index=guideTabs.findIndex(g=>g.id===activeGuideId),next=event.key==='Home'?0:event.key==='End'?guideTabs.length-1:(index+(event.key==='ArrowRight'?1:-1)+guideTabs.length)%guideTabs.length;selectGuide(guideTabs[next].id);$('guide-tab-'+guideTabs[next].id).focus();});
   $('guide-tabs').append(tab);

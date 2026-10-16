@@ -1,3 +1,4 @@
+import {possessiveTechnicalBoundaryBlocked} from './style-possessive-technical-boundaries.mjs';
 import {styleContext,withStyleContext}from './style-context.mjs';
 import {createNounQuantityReader}from './style-noun-quantities.mjs';
 import {canonicalWrittenValue}from './style-cardinal-values.mjs';
@@ -15,7 +16,7 @@ const scalar=s=>/^(?:\d{1,3}(?:,\d{3})+|\d+)(?:\.\d+)?$/.test(s)||/^(?:several|m
 const overlaps=(rows,start,end)=>rows.some(r=>r.start<end&&r.end>start);
 const currencyPrefix=(source,start)=>{while(start>0&&/\s/u.test(source[start-1]))start--;return /[$€£¥₹¢]/u.test(source[start-1]||'');};
 function detector(doc,references,{existingIssues=[]}={}){
- const ctx=styleContext(doc),source=ctx.source,readQuantity=createNounQuantityReader(doc,ctx),blocked=styleEvidenceGuard(doc,ctx),issues=[];let names=null,literals=null,original=null;
+ const ctx=styleContext(doc),source=ctx.source,readQuantity=createNounQuantityReader(doc,ctx),blocked=styleEvidenceGuard(doc,ctx),issues=[];let names=null,literals=null,original=null,technicalOriginal=null;
  for(const m of source.matchAll(pattern)){
   const phraseStart=m.index,unitStart=phraseStart+m.groups.qualifier.length,unitEnd=unitStart+m.groups.unit.length,q=readQuantity(phraseStart);if(!q||ctx.at(unitStart)==='Heading')continue;
   const count=source.slice(q.start,q.end).replace(/\s+/g,' ').trim();if(!scalar(count))continue;
@@ -26,6 +27,8 @@ function detector(doc,references,{existingIssues=[]}={}){
   // Preserve whole selected adjective chains. Do not silently classify every
   // intervening word as an adjective or claim the final word is a noun.
   while(adjectives.has(head.toLowerCase())){const next=new RegExp('^\\s+('+atom+')(?![\\p{L}\\p{N}\\p{M}_])','u').exec(source.slice(end));if(!next){head='';break;}headStart=end+next[0].length-next[1].length;head=next[1];end=headStart+head.length;}
+  technicalOriginal??=originalBodyStyleContext(doc)?.source||source;
+  if(possessiveTechnicalBoundaryBlocked(technicalOriginal,q.start,end))continue;
   if(!head||/^(?:based\s+on|increased\s+by|reduced\s+by)\b/i.test(source.slice(headStart))||!/^[a-z]/.test(head)||continuation.has(head.toLowerCase())||cutsOriginalStyleWord(doc,q.start)||cutsOriginalStyleWord(doc,end)||/^[-\u00ad\u2010\u2011’']/u.test(doc.text.slice(end))||blocked(q.start,end)||overlaps(existingIssues.filter(i=>!i.reviewSuggested),phraseStart,end)||overlaps(issues,phraseStart,end))continue;
   if(names===null)names=sourceNameRanges(source);if(overlaps(names,q.start,end))continue;
   if(literals===null){original=originalBodyStyleContext(doc);literals=[...styleSingleQuoteRanges(source),...(original?[...original.literalRanges,...styleSingleQuoteRanges(original.source)]:[])];}if(overlaps(literals,q.start,end)||currencyPrefix(source,q.start)||original&&currencyPrefix(original.source,q.start))continue;

@@ -1,0 +1,25 @@
+import{styleContext}from './style-context.mjs';
+import{styleEvidenceGuard,cutsOriginalStyleWord,originalBodyStyleContext}from './style-evidence.mjs';
+import{originalStyleLiteralGuard}from './style-original-literal-guard.mjs';
+import{originalRoleBoundaryBlocked}from './style-original-role-boundaries.mjs';
+import{billQuotedTermProtection}from './style-quoted-terms.mjs';
+import{CALENDAR_MONTHS,validCompleteCalendarDate}from './style-calendar-dates.mjs';
+const word='[\\p{L}\\p{N}\\p{M}_]',pattern=new RegExp('(?<!'+word+')(?<month>'+CALENDAR_MONTHS.join('|')+')\\s+(?<day>\\d{1,2})(?<separator>,\\s*|\\s+)(?<year>[1-9]\\d{3})(?!'+word+')','giu');
+const cue=/(?<![\p{L}\p{N}\p{M}_])(?:in|during|before|after|through|until|by|since|from|on|dated|effective|beginning|ending|commencing|as\s+of|month\s+of)\s+$/iu;
+const continuation=/^\s+(?<word>[A-Za-z]+)(?![\p{L}\p{N}\p{M}_])/u,terminal=/^\s*(?:[.;!?)]|$)/u,alreadyComma=/^\s*,/u;
+const ownsDateLayout=issue=>issue.checkId==='lcb-full-date-layout'||issue.checkId==='punctuation'&&issue.rule==='Punctuation: Full dates';
+export const LCB_FULL_DATE_LAYOUT_SCOPE='Only complete valid month-day-year dates after the existing finite temporal cue vocabulary compare a missing day/year comma or absent whitespace after that comma with LCB7 April 1, 2001,. Date values and source month capitalization are retained. A complete immediate English prose word establishes a trailing year comma only if one is absent. Original entire cue/date/continuation evidence, Unicode/technical boundaries, source masks, quotes and bill-local wording, headings/tables and body dash/identifier fragments remain protected. No unknown calendar, numeric date, meaning or generic whitespace inference.';
+export function lcbFullDateLayoutIssues(doc,references,{existingIssues=[]}={}){
+ const page=references?.lcb?.pages?.[6],sourceMatch=page&&/April\s+1,\s+2001,/u.exec(page.text);if(!sourceMatch)return [];
+ const ctx=styleContext(doc),source=ctx.source,original=originalBodyStyleContext(doc)?.source||source,blocked=styleEvidenceGuard(doc,ctx),literal=originalStyleLiteralGuard(doc,ctx),quoted=billQuotedTermProtection(doc,ctx),issues=[];
+ for(const m of source.matchAll(pattern)){
+  const start=m.index,end=start+m[0].length,{month,day,year,separator}=m.groups;if(/^,\s+$/u.test(separator)||!validCompleteCalendarDate(month,Number(day),Number(year)))continue;
+  const before=source.slice(ctx.sentenceAt(start).start,start),lead=cue.exec(before);if(!lead)continue;const evidenceStart=start-before.length+lead.index,after=source.slice(end),next=continuation.exec(after),ending=terminal.exec(after),comma=alreadyComma.exec(after);if(!next&&!ending&&!comma)continue;
+  const evidenceEnd=end+(next?.[0].length||ending?.[0].length||comma[0].length);
+  if(ctx.at(start)==='Heading'||blocked(evidenceStart,evidenceEnd)||literal(evidenceStart,evidenceEnd)||cutsOriginalStyleWord(doc,evidenceStart)||cutsOriginalStyleWord(doc,end)||cutsOriginalStyleWord(doc,evidenceEnd)||originalRoleBoundaryBlocked(original,evidenceStart,evidenceEnd)||quoted({start,end})||existingIssues.some(i=>ownsDateLayout(i)&&i.start<end&&i.end>start))continue;
+  if(/^\s+(?:Act|Code|Law|Fund|Account|Program|Authority|Department|Agency|Commission|Board)\b/u.test(original.slice(end)))continue;
+  const suggestion=month+' '+day+', '+year+(next?',':''),sourceWitness={page:7,start:sourceMatch.index,end:sourceMatch.index+sourceMatch[0].length,text:sourceMatch[0]};
+  issues.push({start,end,text:doc.text.slice(start,end),suggestion,evidenceStart,evidenceEnd,guideId:'lcb',guidePage:7,guidePrintedPage:String(page.printedPage),rule:'Punctuation examples: full calendar date',category:'Listed date punctuation',context:ctx.at(start),checkId:'lcb-full-date-layout',conflict:false,message:'LCB7 prints “April 1, 2001,”. This complete valid date has an intact temporal cue; compare only its comma and spacing. A continuing prose word requires the trailing year comma. Verify the original PDF before editing; the source and date value are unchanged.',fullDateLayoutEvidence:{start:evidenceStart,end:evidenceEnd,sourceText:doc.text.slice(evidenceStart,evidenceEnd),date:{start,end,text:doc.text.slice(start,end)},temporalCue:{start:evidenceStart,end:start,text:doc.text.slice(evidenceStart,start)},...(next?{continuation:{start:end,end:evidenceEnd,text:doc.text.slice(end,evidenceEnd)}}:{}),sourceWitness},references:[{guideId:'lcb',guideName:'LCB Style Manual',guidePage:7,guidePrintedPage:String(page.printedPage),rule:'Punctuation examples',preferred:suggestion,ruleText:sourceWitness.text,sourcePassage:{start:sourceWitness.start,end:sourceWitness.end,text:sourceWitness.text}}]});
+ }return issues;
+}
+export function restoreFullDateLayoutEvidence(e,map,text){const range=r=>{const start=map(r.start),end=map(r.end,true);return {...r,start,end,text:text.slice(start,end)};},start=map(e.start),end=map(e.end,true);return {...e,start,end,sourceText:text.slice(start,end),date:range(e.date),temporalCue:range(e.temporalCue),...(e.continuation?{continuation:range(e.continuation)}:{})};}

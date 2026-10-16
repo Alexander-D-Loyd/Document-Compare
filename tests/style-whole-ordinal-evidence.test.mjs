@@ -30,5 +30,5 @@ test('count-plus-adjective plurals and independent intact quantities remain elig
 });
 test('whole ordinal coverage retains authority and meaning limits and the shared public primitive',()=>{
  assert.equal(directSpellOrdinal,publicSpellOrdinal);const row=CHECK_COVERAGE.find(r=>r.title==='Complete written ordinal evidence');assert.ok(row);for(const s of ['no fixed13-word','singular-rank','plural count-plus-adjective','whole-rule','dictionary authority'])assert.ok(row.text.includes(s),s);
- const rows=styleRuleInventory(refs).filter(r=>r.guide==='lcb'&&r.page===21&&r.status==='Partially automated');assert.ok(rows.length);assert.ok(rows.every(r=>r.scope.includes('Complete canonical scale ordinals')));
+ const rows=styleRuleInventory(refs).filter(r=>r.id.startsWith('lcb-21-')&&r.status==='Partially automated');assert.ok(rows.length);assert.ok(rows.every(r=>r.scope.includes('Complete canonical scale ordinals')));
 });

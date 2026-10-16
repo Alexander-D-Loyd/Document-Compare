@@ -3,7 +3,7 @@ import {styleEvidenceGuard} from './style-evidence.mjs';
 import {originalStyleLiteralGuard} from './style-original-literal-guard.mjs';
 
 export const STYLE_REVIEW_SCOPE='Style findings require an explicit LCB or GPO provision and a supported context. Grammar and spelling remain separate language checks. General compound guesses, fuzzy name comparisons and inferred legal targets are disabled.';
-export const STYLE_EXCEPTION_SUMMARY='Quoted wording is respected within this bill. Literal quotations, legislative identifiers, names, deleted text and table contexts retain their applicable protections. LCB takes priority when its applicable provision differs from GPO.';
+export const STYLE_EXCEPTION_SUMMARY='Quoted wording is respected within this Current Version. Literal quotations, legislative identifiers, names, deleted text and table contexts retain their applicable protections. LCB takes priority when its applicable provision differs from GPO.';
 const titleChecks=new Set(['lcb-created-title-reference-review','lcb-created-official-title-review','lcb-created-title-identity-review','lcb-designated-title-reference-review','lcb-designated-title-creation-review','lcb-created-public-entity-creation-review','lcb-created-public-entity-reference-review','lcb-official-head-title-review']);
 const tableChecks=new Set(['table-figures','lcb-table-cell-figures','lcb-table-cell-review']);
 const quoteBoundaryRules=new Set(['Punctuation: Quotation Marks','8.120']);

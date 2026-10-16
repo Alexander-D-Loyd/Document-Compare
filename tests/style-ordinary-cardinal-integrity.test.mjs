@@ -28,5 +28,5 @@ test('ordinal and fractional constructions keep their dedicated complete recogni
 });
 test('ordinary cardinal coverage states ambiguity and remaining meaning limits',()=>{
  const row=CHECK_COVERAGE.find(r=>r.title==='Whole ordinary cardinal integrity');assert.ok(row);for(const s of ['Malformed adjacent counts','and/or series','rather than repairing','whole-rule','dictionary authority'])assert.ok(row.text.includes(s),s);
- const rows=styleRuleInventory(refs).filter(r=>r.guide==='lcb'&&r.page===21&&r.status==='Partially automated');assert.ok(rows.length);assert.ok(rows.every(r=>r.scope.includes('Complete unconjoined cardinal runs')));
+ const rows=styleRuleInventory(refs).filter(r=>r.id.startsWith('lcb-21-')&&r.status==='Partially automated');assert.ok(rows.length);assert.ok(rows.every(r=>r.scope.includes('Complete unconjoined cardinal runs')));
 });

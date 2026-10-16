@@ -21,7 +21,7 @@ const document=(body,kind='Bill')=>makeDocument([kind==='Digest'?'LEGISLATIVE CO
 const selected=(doc,ids)=>check(doc).filter(issue=>ids.includes(issue.checkId));
 
 test('independent frozen public PDF models keep every established source selection and all original text/geometry',()=>{
- assert.equal(sha(fixtureBytes),'55aa30248c5841b7ebdf255f75d0172ed2a8e91ca86e4edc3b61055e48d6692c');
+ assert.equal(sha(fixtureBytes),'5ad22bcbd2b52d052422e4b00c5adfbfbfd6237eb4001097ab46a95035dc8e57');
  let pages=0,positives=0;
  for(const entry of fixture.entries){
   const doc=makeDocument(entry.pages.map(page=>page.text),entry.sourcePDF.name,entry.pages.map(page=>page.struck),structuredClone(entry.pages.map(page=>page.formatting)),words);

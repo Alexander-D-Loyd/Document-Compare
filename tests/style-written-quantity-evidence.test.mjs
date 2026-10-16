@@ -42,5 +42,5 @@ test('independent intact counts remain eligible beside unrelated uncertain quant
 });
 test('written quantity metadata retains bounded role and whole-rule limits',()=>{
  const card=CHECK_COVERAGE.find(r=>r.title==='Complete written quantity evidence');assert.ok(card);for(const text of ['schoolday','original word','page heads','whole-rule','bounded'])assert.ok(card.text.includes(text),text);
- const rows=styleRuleInventory(refs).filter(r=>r.guide==='lcb'&&r.page===21&&r.status==='Partially automated');assert.ok(rows.length);assert.ok(rows.every(r=>r.scope.includes('Complete written cardinal runs')));
+ const rows=styleRuleInventory(refs).filter(r=>r.id.startsWith('lcb-21-')&&r.status==='Partially automated');assert.ok(rows.length);assert.ok(rows.every(r=>r.scope.includes('Complete written cardinal runs')));
 });

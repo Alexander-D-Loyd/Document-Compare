@@ -10,7 +10,9 @@ test('each supplemental spelling is source-listed or an identified source-noun r
  const reference=JSON.parse(fs.readFileSync(new URL('lcb-reference.json',source),'utf8'));
  assert.equal(crypto.createHash('sha256').update(fs.readFileSync(new URL(supplement.sourceFile,source))).digest('hex'),supplement.sourceSha256);
  for(const row of supplement.words){
-  assert.ok(reference.pages[row.page-1].text.split('\n').some(line=>line.trim()===row.sourceEntry),row.word);
+  const page=reference.pages[row.page-1].text,exactLine=page.split('\n').some(line=>line.trim()===row.sourceEntry);
+  const wrappedCommercialCode=row.word==='indorsement'&&row.page===4&&row.sourceEntry==='indorsement (used in Commercial \nCode)'&&page.includes(row.sourceEntry);
+  assert.ok(exactLine||wrappedCommercialCode,row.word);
   const lemma=row.sourceEntry.replace(/\s+\([^)]*\)$/,'');
   if(row.derivation){
    assert.equal(row.derivation,'Regular noun plural');assert.equal(row.sourceWord,lemma);

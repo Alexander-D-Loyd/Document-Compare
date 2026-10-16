@@ -26,5 +26,5 @@ test('invalid long runs do not suppress independent intact ordinary counts',()=>
 });
 test('whole-value scope preserves safe-value and remaining meaning limits',()=>{
  const row=CHECK_COVERAGE.find(r=>r.title==='Complete scale-and-remainder values');assert.ok(row);for(const text of ['no fixed19-token cap','Invalid repeated scales','safe-integer','whole-rule','dictionary authority'])assert.ok(row.text.includes(text),text);
- const rows=styleRuleInventory(refs).filter(r=>r.guide==='lcb'&&r.page===21&&r.status==='Partially automated');assert.ok(rows.length);assert.ok(rows.every(r=>r.scope.includes('no fixed19-token cap')));
+ const rows=styleRuleInventory(refs).filter(r=>r.id.startsWith('lcb-21-')&&r.status==='Partially automated');assert.ok(rows.length);assert.ok(rows.every(r=>r.scope.includes('no fixed19-token cap')));
 });

@@ -31,8 +31,8 @@ test('divided style word coverage retains true compound, exact-case custom term 
  const row=CHECK_COVERAGE.find(r=>r.title==='Divided words in style checks');assert.ok(row);assert.match(row.text,/existing contextual checks/);assert.match(row.text,/original PDF text/);assert.match(row.text,/Listed compound hyphens/);assert.match(row.text,/first-listed dictionary authority/);assert.match(row.text,/Saved case-sensitive terms/);assert.match(row.text,/Unknown words/);assert.match(styleRuleInventory(refs).find(r=>r.id==='lcb-2-2').scope,/Full dictionary data/);
 });
 
-test('Supreme Court mapping distinguishes agreed full names from guide conflicts and unresolved short forms',()=>{
- const row=styleRuleInventory(refs).find(r=>r.id==='lcb-entry-20-supreme-court-u-s-and-state');assert.equal(row.status,'Partially automated');assert.equal(row.text,'Supreme Court (U.S. and state)');assert.match(row.scope,/United States/);assert.match(row.scope,/California\/Ohio/);assert.match(row.scope,/Short descriptive state references conflict/);assert.match(row.scope,/unresolved jurisdiction/);assert.match(row.scope,/Complete qualifier\/name evidence/);assert.match(row.scope,/Other variants, meanings and exceptions are not certified/);
+test('Supreme Court mapping describes selected state qualifiers with LCB priority and unresolved jurisdiction limits',()=>{
+ const row=styleRuleInventory(refs).find(r=>r.id==='lcb-entry-20-supreme-court-u-s-and-state');assert.equal(row.status,'Partially automated');assert.equal(row.text,'Supreme Court (U.S. and state)');assert.match(row.scope,/United States/);assert.match(row.scope,/California\/Ohio/);assert.match(row.scope,/state-prefix and of-this\/that\/the-state/);assert.match(row.scope,/intact finite court predicate/);assert.match(row.scope,/including where GPO differs/);assert.match(row.scope,/Unresolved jurisdiction/);assert.match(row.scope,/Complete qualifier\/name evidence/);assert.match(row.scope,/Other variants, meanings and exceptions are not certified/);
 });
 
 test('compass coverage retains its printed principle and separate manual alignment example',()=>{
@@ -61,7 +61,7 @@ test('coverage inventory retains every nonempty source page and distinguishes so
 });
 
 test('LCB repeated rule numbers retain distinct general, bill and digest entries',()=>{
- const rows=styleRuleInventory(refs).filter(r=>r.guide==='lcb'&&r.page===21);
+ const rows=styleRuleInventory(refs).filter(r=>r.id.startsWith('lcb-21-'));
  assert.equal(rows.length,12);assert.equal(new Set(rows.map(r=>r.id)).size,12);
  assert.ok(rows.some(r=>r.id==='lcb-21-bill-1'&&/fractions/.test(r.text)));
  assert.ok(rows.some(r=>r.id==='lcb-21-digest-1'&&/except the number one/.test(r.text)));
@@ -185,7 +185,7 @@ test('unlisted participle guesses are disabled while complete source conditions 
 });
 
 test('office definition scope records exact source bindings and unresolved hierarchy limits',()=>{
- const row=styleRuleInventory(refs).find(r=>r.guide==='lcb'&&r.page===17&&r.text.includes('standing alone'));
+ const row=styleRuleInventory(refs).find(r=>r.id==='lcb-17-3');
  assert.equal(row.status,'Partially automated');assert.match(row.scope,/this-section/);assert.match(row.scope,/identical source code title/);assert.match(row.scope,/local conflicting definitions/);assert.match(row.scope,/article\/chapter\/subdivision boundaries/);assert.match(row.scope,/not an official code registry/);
  assert.ok(searchRuleInventory(refs,'this-code').some(r=>r.id===row.id));
 });

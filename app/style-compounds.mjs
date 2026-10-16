@@ -1,5 +1,6 @@
 import {styleContext,styleRangeBlocked} from './style-context.mjs';
-import {styleEvidenceGuard} from './style-evidence.mjs';
+import {styleEvidenceGuard,originalBodyStyleContext} from './style-evidence.mjs';
+import {compoundSourceBoundaryBlocked} from './style-compound-source-boundaries.mjs';
 import {additionalNominalCompoundEvidence} from './style-nominal-compound-heads.mjs';
 const escape=s=>s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
 // Source examples explicitly listed on LCB p.15. Exceptions are individual
@@ -21,7 +22,7 @@ export const NOMINAL_COMPOUNDS=[['back up','backup',9],['build up','buildup',9],
 const heads='agreement|application|assistance|costs?|crews?|equipment|fees?|funding|inspection|notice|operations?|payments?|plans?|procedures?|programs?|projects?|requirements?|services?|systems?|work';
 export function compoundIssues(doc,references){
  const ctx=styleContext(doc),source=ctx.source,issues=[],literal=[...source.matchAll(/“[^”]*”|"[^"\n]*"/g)].map(m=>({start:m.index,end:m.index+m[0].length}));
- const blockedEvidence=styleEvidenceGuard(doc,ctx);
+ const blockedEvidence=styleEvidenceGuard(doc,ctx),original=originalBodyStyleContext(doc)?.source||source;
  let stateParkParents=null;
  const inStateParkParent=(start,end)=>{
   if(!stateParkParents){
@@ -38,7 +39,7 @@ export function compoundIssues(doc,references){
  const cutsSourceWord=index=>/[\p{L}\p{N}\p{M}_]$/u.test(doc.text.slice(Math.max(0,index-2),index))&&/^[\p{L}\p{N}\p{M}_]/u.test(doc.text.slice(index,index+2));
  const add=(m,item,rule,message,evidence=null)=>{
   const evidenceStart=evidence?.start??m.index,evidenceEnd=evidence?.end??m.index+m[0].length;
-  if(cutsSourceWord(m.index)||cutsSourceWord(m.index+m[0].length)||blockedEvidence(evidenceStart,evidenceEnd)||styleRangeBlocked(doc,evidenceStart,evidenceEnd))return;
+  if(cutsSourceWord(m.index)||cutsSourceWord(m.index+m[0].length)||blockedEvidence(evidenceStart,evidenceEnd)||styleRangeBlocked(doc,evidenceStart,evidenceEnd)||compoundSourceBoundaryBlocked(doc.text,source,original,m.index,m.index+m[0].length)||compoundSourceBoundaryBlocked(doc.text,source,original,evidenceStart,evidenceEnd))return;
   if(m[0].replace(/\s+/g,' ').toLowerCase()===item.preferred.toLowerCase())return;
   if(literal.some(r=>r.start<m.index+m[0].length&&r.end>m.index)||ctx.at(m.index)==='Heading'||ctx.tableAt(m.index)||[...(doc.struck||[]),...(evidence?[]:doc.blocks.filter(b=>b.ignored).map(b=>({start:b.start,end:b.end})))].some(r=>r.start<m.index+m[0].length&&r.end>m.index))return;
   // Holder compounds can instead be a transitive verb followed by people:

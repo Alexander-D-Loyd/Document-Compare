@@ -1,10 +1,10 @@
 # Document Compare
 
-Offline Windows desktop app for legislative PDF comparison and amendment/style review. This is the **1.21.13 release source**. Digest edits use red deletions and blue additions without selection contours or inline plus markers; the shared trash clears both optional uploads. Style findings are limited to explicit supported LCB/GPO provisions, with LCB priority and legislative exceptions.
+Offline Windows desktop app for legislative PDF comparison and amendment/style review. This is the **1.21.15 local review package source**. It adds exact printed LCB spelling/phrase acceptance and stabilizes source-sensitive context checks. Digest edits use red deletions and blue additions. Style findings retain applicable LCB priority, legislative exceptions and bill-local quoted terms.
 
 ## Run the packaged app
 
-Extract the entire **Document-Compare-Windows-1.21.13.zip** and open **Document Compare/Document Compare.exe**. Keep the runtime and resources together. No installation or development tools are required. PDF and language review run locally.
+Extract the entire **Document-Compare-Windows-1.21.15.zip** and open **Document Compare/Document Compare.exe**. Keep the runtime and resources together. No installation or development tools are required. PDF and language review run locally.
 
 ## Features
 
@@ -18,7 +18,9 @@ Extract the entire **Document-Compare-Windows-1.21.13.zip** and open **Document 
 - Searchable LCB/GPO sources and honest check-coverage inventory. Applicable printed LCB provisions take priority where the guides disagree; unknown conditions remain manual.
 - Local authorized-data spelling importer; see OFFLINE_AUTHORITY.md. Complete Merriam-Webster data is not bundled.
 - On-demand local OCR for printed bill scans, with uncertainty and embedded-text disagreement warnings.
-- Offline California Entities snapshot and selected LanguageTool/spaCy contextual methods. Engines start on demand and do not send text online.
+- Profile-persisted authorized entity-list import, source metadata, bounded search and restoration of the bundled snapshot; see ENTITY_AUTHORITY.md. Missing names do not become errors.
+- Explicit Bill/Digest, Opinion and Cover letter style selection for the Current document; a replacement Current file resets to Bill/Digest.
+- Selected LanguageTool/spaCy contextual methods. Engines start on demand and do not send text online.
 
 Blue indicates additions, red deletions, yellow non-amendment changes, and purple potential style issues. Red and blue underlines identify spelling and grammar.
 
@@ -45,4 +47,4 @@ For full offline language-engine functionality, copy the Windows release's `Docu
 
 Run `npm start` to launch the source app. Run `npm test` after restoring the two reference JSON files to execute the complete source suite. The launcher exits with an explicit setup message if those references are missing; it does not label a skipped suite as passed.
 
-The public source ZIP contains the same source as the release tag, including development setup scripts. Generated OCR/assets and reference files are restored as above. The Windows ZIP contains the complete runtime. Native desktop workflow verification of 1.21.10 remains unrun. The renderer blocks external network requests, and native engine requests are restricted to the trusted app frame.
+This local public-source ZIP is a prepared source snapshot, including development setup scripts. No GitHub tag or publication is created by this preparation. Generated OCR/assets and reference files are restored as above. The Windows ZIP contains the complete runtime. Native desktop workflow verification of 1.21.15 remains unrun. The renderer blocks external network requests, and native engine requests are restricted to the trusted app frame.

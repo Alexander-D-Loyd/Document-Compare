@@ -1,4 +1,5 @@
-import {legislativeContext} from './legislative-context.mjs';
+import {createFrequencyUnknownExclusionGuard} from './style-frequency-unknown-exclusion.mjs';
+import {commercialCodeSectionWitnesses} from './style-commercial-code-context.mjs';
 import {styleContext,styleRangeBlocked} from './style-context.mjs';
 import {styleEvidenceGuard,cutsOriginalStyleWord as cutsOriginalSourceWord,originalBodyStyleContext} from './style-evidence.mjs';
 import {originalStyleLiteralGuard} from './style-original-literal-guard.mjs';
@@ -145,7 +146,7 @@ export const WORD_CHOICE_RULES=[
  {id:'any-time-noun',pattern:/\bat\s+(?<term>anytime)\b/gi,preferred:'any time',page:3,explanation:'After at, the expression is the noun phrase any time. LCB lists any time as a noun and anytime as an adverb; adverb uses such as apply anytime are preserved.'}
 ];
 export function wordChoiceIssues(doc,references){
- const ctx=styleContext(doc),source=ctx.source,issues=[],evidenceBlocked=styleEvidenceGuard(doc,ctx);let commerceRanges;
+ const ctx=styleContext(doc),source=ctx.source,issues=[],evidenceBlocked=styleEvidenceGuard(doc,ctx);let commerceRanges,frequencyUnknownExclusion;
  const quoted=[...source.matchAll(/“[^”]*”|"[^"\n]*"/g)].map(m=>({start:m.index,end:m.index+m[0].length}));
  for(const rule of WORD_CHOICE_RULES)for(const pattern of [rule.pattern,rule.inflectionPattern,rule.passivePattern].filter(Boolean))for(const m of source.matchAll(pattern)){
   const term=m.groups.term,start=m.index+m[0].lastIndexOf(term),end=start+term.length;
@@ -181,18 +182,21 @@ export function wordChoiceIssues(doc,references){
   }
   if(cutsOriginalSourceWord(doc,start)||cutsOriginalSourceWord(doc,end)||cutsOriginalSourceWord(doc,evidenceStart)||cutsOriginalSourceWord(doc,evidenceEnd)||evidenceBlocked(evidenceStart,evidenceEnd)||styleRangeBlocked(doc,evidenceStart,evidenceEnd)||ctx.literalAt(evidenceStart,evidenceEnd)||doc.blocks.some(b=>b.start<evidenceEnd&&b.end>evidenceStart&&ctx.tableAt(Math.max(b.start,evidenceStart))))continue;
   if(rule.guard==='positive-frequency'){
-   const sentence=ctx.sentenceAt(start),before=source.slice(Math.max(sentence.start,start-140),start).split(/[;:,]/).at(-1),after=source.slice(m.index+m[0].length,sentence.end);
+   const sentence=ctx.sentenceAt(start),before=source.slice(sentence.start,start).split(/[;:,]/).at(-1),after=source.slice(m.index+m[0].length,sentence.end);
    if(/\b(?:not|never|without|avoids?|avoided|avoiding|prohibits?|prohibited|prohibiting)\b/i.test(before)||/^\s+(?:is|are|was|were)\s+(?:not|never)\b/i.test(after))continue;
+   frequencyUnknownExclusion??=createFrequencyUnknownExclusionGuard(doc,ctx);
+   if(frequencyUnknownExclusion(start,m.index+m[0].length))continue;
   }
   if(['all-mail-ballot-election-noun','limited-english-proficiency-noun','very-low-income-noun','offset-financial-verb','full-time-equivalent','non-life-threatening-predicate','non-civil-service-predicate'].includes(rule.id)&&/-[ \t]*\n/.test(term))continue;
   if((rule.id.endsWith('-noun-boundary')||['all-mail-ballot-election-noun','limited-english-proficiency-noun','very-low-income-noun'].includes(rule.id))&&/[A-Z][a-z]+[\s-]+[A-Z][a-z]+/.test(term))continue;
-  if(rule.guard==='commercial-code'){commerceRanges??=legislativeContext(doc).sections.filter(s=>s.kind==='Codified'&&/\bCommercial Code\b/i.test(s.intro));if(!commerceRanges.some(s=>s.start<=start&&s.end>start))continue;}
+  let commercialWitness=null;
+  if(rule.guard==='commercial-code'){commerceRanges??=commercialCodeSectionWitnesses(doc,ctx);commercialWitness=commerceRanges.find(s=>s.start<=start&&s.end>start);if(!commercialWitness)continue;}
   if(ctx.at(start)==='Heading'||ctx.tableAt(start)||term===term.toUpperCase()&&!rule.allowCapital||[...(doc.struck||[]),...quoted].some(r=>r.start<end&&r.end>start))continue;
   const after=source.slice(end);if(/^[A-Z]/.test(term)&&/^\s+[A-Z][a-z]/.test(after))continue;
   const preferred=(verb?.preferred||rule.preferredForms?.[term.toLowerCase()]||rule.preferred)+(rule.plural&&/s$/i.test(term)?'s':'');
   const suggestion=/^[A-Z]/.test(term)?preferred[0].toUpperCase()+preferred.slice(1):preferred;
   if(term.replace(/\s+/g,' ')===suggestion)continue;
-  issues.push({start,end,evidenceStart,evidenceEnd,text:doc.text.slice(start,end),suggestion,guideId:'lcb',guidePage:rule.page,guidePrintedPage:String(rule.page),rule:'Spelling and usage: '+rule.id,category:'Contextual word choice',context:ctx.at(start),checkId:'word-choice',conflict:false,message:rule.explanation+' Confirm the intended meaning before accepting the suggestion.',references:[{guideId:'lcb',guideName:'LCB Style Manual',guidePage:rule.page,guidePrintedPage:references.lcb.pages[rule.page-1].printedPage,rule:'Spelling and usage examples',preferred:suggestion,ruleText:rule.explanation},...(rule.id==='cannot-negative-modal'?[{guideId:'lcb',guideName:'LCB Style Manual',guidePage:9,guidePrintedPage:references.lcb.pages[8].printedPage,rule:'Printed LCB spelling',preferred:'cannot',ruleText:'cannot'}]:[])]});
+  issues.push({start,end,evidenceStart,evidenceEnd,...(commercialWitness?{sectionContext:commercialWitness.sectionContext}:{}),text:doc.text.slice(start,end),suggestion,guideId:'lcb',guidePage:rule.page,guidePrintedPage:String(rule.page),rule:'Spelling and usage: '+rule.id,category:'Contextual word choice',context:ctx.at(start),checkId:'word-choice',conflict:false,message:rule.explanation+' Confirm the intended meaning before accepting the suggestion.',references:[{guideId:'lcb',guideName:'LCB Style Manual',guidePage:rule.page,guidePrintedPage:references.lcb.pages[rule.page-1].printedPage,rule:'Spelling and usage examples',preferred:suggestion,ruleText:rule.explanation},...(rule.id==='cannot-negative-modal'?[{guideId:'lcb',guideName:'LCB Style Manual',guidePage:9,guidePrintedPage:references.lcb.pages[8].printedPage,rule:'Printed LCB spelling',preferred:'cannot',ruleText:'cannot'}]:[])]});
  }
  return issues.sort((a,b)=>a.start-b.start);
 }

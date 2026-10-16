@@ -4,6 +4,7 @@ import {budgetContext,budgetLeaderRanges} from './budget-layout.mjs';
 import guideSpellings from './data/lcb-spelling-words.json' with {type:'json'};
 import {guidePhraseSpellingRanges} from './spelling-guide-phrases.mjs';
 import {statuteChapterSpellingRanges} from './spelling-statute-chapters.mjs';
+import {numberedSubchapterSpellingRanges} from './spelling-lcb-numbered-subchapter.mjs';
 import {billJrBoxes} from './amendment-jr-box.mjs';
 const guideCompounds=guideSpellings.words.filter(r=>r.word.includes('-')).map(r=>r.word);
 const compoundPattern=new RegExp('(?<![\\p{L}\\p{N}_])(?:'+guideCompounds.map(word=>word.split('-').map(s=>s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('[-\\u2010\\u2011]')).join('|')+')(?:[’\']s)?(?![\\p{L}\\p{N}_])','giu');
@@ -217,7 +218,7 @@ export function makeDocument(pages, name, pageStrikes=[], pageFormatting=[], wor
 }
 export function spellingCandidates(doc) {
   let rangeIndex=0;
-  const guidePhrases=[...guidePhraseSpellingRanges(doc),...statuteChapterSpellingRanges(doc)].sort((a,b)=>a.start-b.start);let phraseIndex=0;
+  const guidePhrases=[...guidePhraseSpellingRanges(doc),...statuteChapterSpellingRanges(doc),...numberedSubchapterSpellingRanges(doc)].sort((a,b)=>a.start-b.start);let phraseIndex=0;
   // Alphabetic clause labels are structural identifiers, not spelling words.
   // Require a leading marker sequence or an explicit legal reference label;
   // ordinary prose and parenthetical words retain their spelling checks.

@@ -1,3 +1,205 @@
+Document Compare 1.21.15 — October 16, 2026
+
+- Accepts nine additional exact printed LCB spelling rows using complete phrases or a qualified numbered citation. Component words and nearby misspellings retain their normal checks. Caltrans keeps its printed proper spelling.
+- Adds a bounded comparison for the exact printed word bifurcation, with source and role evidence.
+- Requires the operative Commercial Code target for the indorsement exception. A body cross-reference to that code does not change another section's spelling domain.
+- Preserves complete frequency negation, distinguishing deliberate deletions from unreadable source exclusions.
+- Stabilizes quoted terminal abbreviations and original quote-authority boundaries, number-relation evidence and technical possessive endpoints.
+- Includes the earlier source-evidence, lexical-case, same-unit numeral, final-period insertion and explicit document-type/entity-import work. Generic English compound guessing remains disabled; applicable LCB guidance has priority.
+
+All 2,504 source tests pass with the runtime, data and test inputs fingerprinted before and after execution. The final paired style comparison covers 87 unchanged PDF models / 4,506 pages: 2,648 to 2,648 findings, 0 removals, 0 additions and 0 changed retained findings; every difference is reviewed. Physical source models and PDFs remain unchanged. The earlier pre-afternoon comparison separately removed nine false positives; its evidence remains historical.
+
+The independent exact-entry audit checks all 663 canonical LCB source intervals, 2,736 canonical style inputs, 29 complete phrase projections and 3,893 accepted/protected/reset joint calls. Ten repaired printed spelling contexts are accepted and ten nearby misspellings remain flagged. These are bounded source/context checks, with no completion percentage or office accuracy claim. A separate 87-model spelling candidate comparison removes 38 candidate items belonging to 19 complete CalWORKs program occurrences and adds none.
+
+The native desktop workflow for 1.21.15 remains unrun. The four-page real-PDF regression fixture and version-gated stage have source, assertion and adapter controls; those controls do not establish a native pass. The Electron/offline-engine runtime is copied from local 1.21.14 and is verified separately by file hashes. This review build is prepared for GitHub publication; publication verification is recorded separately.
+
+Remaining LCB scope: unfamiliar bi/in/multi/non formations and ambiguous meaning, quotation, grouping, possession or legal referents require human judgment under the stated source conditions. Complete ordered Merriam-Webster data, current official entity/name data and full supplementary California Style Manual citation authority require external sources. The importers and selected explicit LCB checks are implemented. Fresh native and eventual office verification remain separate.
+
+Earlier sections below are historical checkpoints; the current validation and remaining scope are stated above.
+
+---
+
+Completed current LCB work batch — October 16, 2026
+
+All 2,416 source tests pass. The paired full style comparison covers 87 saved
+PDF models / 4,506 pages: 2,657 findings become 2,648, with nine reviewed false
+positives removed, no added findings and no changed retained metadata apart
+from generated IDs. Original PDFs, models and source fingerprints pass.
+
+Three later exact spelling entries—attachés, indorsement and résumé—are
+accepted with the existing capitalization and possessive policy. Their printed
+source and Commercial Code annotation are retained. Independent checks cover
+1,763 worker candidates, unchanged controlled style outcomes, real two-page
+divisions and scoped candidate/view parity across all 87 models. The frozen
+legacy root vocabulary is preserved with its original input, without expanding
+root-based grammar. These later changes remain unpackaged and natively unrun.
+
+All 27 previously unassociated lexical targets now have exact production proof
+in 29 source-supported examples; three were spelling gaps and the other 24
+needed corrected audit attribution. This does not establish a universal LCB
+completion percentage. Broader bi/in/multi/non prescriptions, ambiguous source
+conditions, unavailable authority data and native/office verification remain.
+The independent provision review indexed all 246 provision/example rows and
+replayed 149 historical inputs across 78 rows, finding no additional confirmed
+deterministic omission in that bounded review. Deeper per-entry accepted,
+actionable and protected-context regressions remain part of final verification.
+
+---
+
+Working-source stabilization checkpoint — October 16, 2026
+
+All 2,410 source tests pass. Existing predicate and printed modifier-position
+checks now require complete original copula, noun, connecting-space and closing
+evidence. Masked source text and attached identifiers cannot manufacture these
+roles. Complete evidence is retained through lexical-priority ownership and
+restored to physical PDF coordinates. No new grammatical roles or GPO rules
+were added. Independent predicate checks pass; the complete 87-model behavior
+comparison is running. A separate accepted-form replay covers 213 source rows /
+628 supported-role probes with no unexpected case or join candidates. This is
+working source after local 1.21.14; it is not packaged or natively verified.
+
+---
+
+Coverage accounting correction — October 16, 2026
+
+The historical 657-of-663 figure counted probe sets with any LCB finding,
+including findings unrelated to the target entry. It is not evidence that 657
+entries are implemented. The 23-page source inventory remains valid; exact
+entry-specific acceptance, actionable conditions and exception witnesses are
+being audited separately. Historical checkpoint text below retains its original
+wording and must be read with this correction. No completion percentage is claimed.
+
+---
+
+Working source after the local 1.21.14 package — October 16, 2026
+
+All 2,359 source tests pass. Bounded full-date and any-time checks preserve
+existing roles, complete physical evidence, quoted-term exceptions and distinct
+finding ownership. Exact LCB citation offsets are checked against the actual
+cited page before display. Review-local derived-data reuse and accepted-span
+indexing pass independent lifecycle/overlap tests and exact word-division-view
+parity on 87 unchanged PDF models / 4,506 pages. The paired whole-joint
+performance comparison passes all 87 models / 4,506 pages with 2,657 findings
+and all in-memory metadata identical. These source changes are not yet
+packaged or natively verified; local 1.21.14 and published 1.21.13 are separate
+immutable snapshots. See TESTING_REPORT.md for evidence and limits.
+
+---
+
+Document Compare 1.21.14 — continuous LCB checkpoint, October 16, 2026
+
+All 2,328 source tests pass. The new local entity-authority workflow is integrated
+through the app, worker and both exact/head matchers. Tests cover committed
+replacement, failed-save retention, corrupt-state recovery, selected provenance,
+stale-result cancellation, bill-local quotes and exact physical highlights.
+Ordinary possessives, narrative punctuation and budget labels retain valid name
+protection; attached technical strings and damaged Unicode boundaries do not.
+
+The scoped 87-model / 4,506-page entity replay preserves exact-name/head findings
+and source hashes. Ten physical-view and twelve production-view attached-name
+protection ranges differ in four models; a separate full joint comparison on
+these four adds or removes no findings. The earlier new-helper replay
+also preserves source/model hashes. These
+are scoped source checks, not a fresh complete joint replay, native UI result or
+office accuracy certification. Explicit Opinion/Cover letter controls and source
+evidence are tested independently. The local review package retains the verified
+Electron/offline-engine runtime. Complete native workflow remains unrun.
+
+Historical checkpoint and release evidence follows with its original scope.
+
+---
+
+Continuous LCB checkpoint — October 16, 2026
+
+All 2,277 source tests pass. New source-backed checks cover additional printed
+modifier and prefix roles, noun/modifier distinctions, standalone plurals,
+selected personal-office/Member/state-court/human-race capitalization, explicit
+meaning clauses and single-quote punctuation. Complete mixed-half ages and
+durations now preserve larger whole values. Explicit Opinion/Cover letter
+selection inherits the Bill numeral base and adds the printed monetary,
+reference and Constitution exceptions. Plain written monetary openings remain
+accepted; figure and repeated-pair openings get whole-amount review without an
+automatic figure-start replacement. Mode switching cancels stale checks and
+preserves independent language Ignore decisions.
+
+An independent scoped replay checks the nine added finding helpers, matching
+meaning protections and default-Bill type controls on all 87 immutable PDF models
+/ 4,506 pages, both physical and production word-division views. It finds zero
+new candidates. All original PDF/model hashes and frozen app-module fingerprints
+pass. This is scoped evidence, not a fresh full-joint or native desktop run.
+Browser visual verification of the source UI was unavailable because its local
+connection timed out; functional control tests execute the actual app handlers.
+
+Entity-authority schema/storage readiness has isolated tests; active matcher/UI
+integration and validation hardening are the next work batch. Complete current
+authority data is not supplied. This checkpoint remains unpackaged source after
+published 1.21.13. Full LCB semantic or office-accuracy certification is not claimed.
+
+Explicit LCB source completion pass — October 16, 2026
+
+All 2,166 source tests pass. The new checks cover exact printed punctuation
+constructions, complete mixed-half age/duration quantities, eleven printed verb
+forms after finite required-to cues, and the Article XIII B form with an explicit
+California Constitution qualifier. Complete source evidence, accepted forms,
+quoted-term reset, strikes/exclusions, tables, technical boundaries and original
+physical coordinates are checked. Larger written quantities cannot be partially
+corrected through a two-digit suffix.
+
+The independent production replay covers 87 immutable actual PDF models /
+4,506 pages: 24 added findings and 0 removed relative to the frozen October 16
+in-progress snapshot, not the published release. All original model/PDF hashes
+and implementation module fingerprints are unchanged during the replay. The
+source-confirmed additions and per-model evidence are retained privately. A
+final all 87-model replay of the two changed helpers confirms that the additional
+original-source guards leave every corpus helper result identical, both on physical
+models and through the exact production word-division/shared-context path. This
+replay checks current source results; it does not re-import every PDF or exercise
+the native packaged window.
+
+A separate 2,975-probe reconciliation accounts for all 23 LCB pages, 663 canonical
+lexical rows and 763 distinct source rows. 657 lexical rows have at least one
+demonstrated LCB-cited trigger in a supported role. Four productive-prefix
+prescriptions remain meaning/dictionary dependent and two corporation-letter
+forms follow the user's quoted-term exception. The page checklist records the
+remaining conditional, authority-data and document-type limits. No new GPO
+coverage or office accuracy certification is claimed.
+
+This is source-only work after published 1.21.13. The published package is
+unchanged and these changes have not received native desktop verification.
+Historical verification and earlier October 16 fixes follow.
+
+# Follow-up functionality audit — October 16, 2026
+
+Source fixes after published 1.21.13 — October 16, 2026
+
+Constructed document examples reproduce missed repeated-unit sentences and
+after-period insertions. A sentence-level exception now retains existing figures
+when complete live quantities use the same recognized unit and one is ten or
+larger. It does not add new word-to-figure findings without an independently
+proven numerical expression. Existing explicit ranges/series remain checked;
+different units, age versus elapsed terms, conviction lookbacks versus jail terms,
+sentence openings, literals and uncertain source retain their own safeguards.
+
+The insertion parser resolves named periods, ordinal periods, the final sentence
+and quoted terminal punctuation. It keeps precise source offsets and the normal
+insertion arrow/Current selection, and rejects inserted content after the zero
+marker. Ambiguous periods and conflicting locations remain review items.
+
+All 2,120 source tests pass. The numeral comparison covers 87 immutable source
+models / 4,506 pages, removing 6 additional flags with zero added
+findings. Constructed tails from 71 actual bill editions verify final-period
+insertions and reject after-marker placement. These tail cases are text models,
+not edited PDFs or native desktop workflow evidence. The production renderer is
+executed in DOM tests for exact selections and the after-line arrow.
+
+Original source models and frozen implementation hashes are unchanged during
+the final corpus run. The published 1.21.13 package is unchanged; these follow-up
+source fixes are not packaged or native-desktop verified.
+
+Historical verification follows with its original scope.
+
+---
+
 # Functionality audit — October 14, 2026
 
 Post-publication source corrections, October 14: the reported AB224 Digest now

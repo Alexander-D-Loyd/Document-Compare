@@ -27,5 +27,5 @@ test('independent counts and whole simple fractions remain checked',()=>{
 test('numeric boundary scope stays partial and preserves existing ordinal decisions',()=>{
  assert.deepEqual(numbers(make('A 3rd meeting applies.')).map(i=>i.suggestion),['third']);
  const card=CHECK_COVERAGE.find(r=>r.title==='Whole numeric expression evidence');assert.ok(card);assert.match(card.text,/Original uncertain body text/);assert.match(card.text,/partially automated/);
- const rows=styleRuleInventory(refs).filter(r=>r.guide==='lcb'&&r.page===21&&r.status==='Partially automated');assert.ok(rows.length);assert.ok(rows.every(r=>r.scope.includes('Whole numeric source expressions')));
+ const rows=styleRuleInventory(refs).filter(r=>r.id.startsWith('lcb-21-')&&r.status==='Partially automated');assert.ok(rows.length);assert.ok(rows.every(r=>r.scope.includes('Whole numeric source expressions')));
 });

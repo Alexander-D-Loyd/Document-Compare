@@ -2,7 +2,7 @@
   "authority": "LCB Style Manual, updated February 1, 2019",
   "sourceFile": "lcb-stylemanual-2019.pdf",
   "sourceSha256": "ae0ef412dafe30a3257d891b221cdbb3f371b7a9f51cbe363051739735cb9688",
-  "scope": "Exact single-word forms explicitly listed in the LCB spelling and hyphenation tables (pages 3–5 and 9–15), plus Medi-Cal and 22 identified regular noun plurals from source-listed noun examples. Category labels, prefix instructions and multiword expressions are omitted. Lowercase entries accept initial capitalization and possessives; Medi-Cal keeps its exact internal capitalization. Spelling acceptance does not establish correct meaning, grammatical role, guide agreement, or Merriam-Webster first-spelling ordering.",
+  "scope": "Exact single-word forms explicitly listed in the LCB spelling and hyphenation tables (pages 3–5 and 9–15), plus the exact proper word Caltrans (page 18), Medi-Cal and 22 identified regular noun plurals from source-listed noun examples. Category labels, prefix instructions and multiword expressions are omitted. Lowercase entries accept initial capitalization and possessives; Medi-Cal keeps its exact internal capitalization. Spelling acceptance does not establish correct meaning, grammatical role, guide agreement, or Merriam-Webster first-spelling ordering.",
   "words": [
     {
       "word": "abridgment",
@@ -63,6 +63,11 @@
       "word": "assigner",
       "page": 3,
       "sourceEntry": "assigner"
+    },
+    {
+      "word": "attachés",
+      "page": 3,
+      "sourceEntry": "attachés"
     },
     {
       "word": "aural",
@@ -350,6 +355,11 @@
       "sourceEntry": "includable"
     },
     {
+      "word": "indorsement",
+      "page": 4,
+      "sourceEntry": "indorsement (used in Commercial \nCode)"
+    },
+    {
       "word": "insure",
       "page": 4,
       "sourceEntry": "insure (relating to insurance)"
@@ -593,6 +603,11 @@
       "word": "residuum",
       "page": 5,
       "sourceEntry": "residuum"
+    },
+    {
+      "word": "résumé",
+      "page": 5,
+      "sourceEntry": "résumé"
     },
     {
       "word": "reviver",
@@ -1717,6 +1732,11 @@
       "sourceEntry": "worksite",
       "sourceWord": "worksite",
       "derivation": "Regular noun plural"
+    },
+    {
+      "word": "Caltrans",
+      "page": 18,
+      "sourceEntry": "Caltrans"
     }
   ]
 }

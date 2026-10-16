@@ -26,6 +26,11 @@ test('actual AB224 Current Digest colors every physically crossed-out fragment i
 test('regular instructions retain their existing evidence groups and exact changed text',()=>{
  const old=makeDocument(['line 1 The office funds ten programs.'],'old'),now=makeDocument(['line 1 The office funds twelve programs.'],'current'),result=verifyAmendments('Amendment 1\nOn page 1, in line 1, strike out “ten” and insert:\ntwelve',old,now)[0];assert.equal(result.status,'implemented');for(const side of [0,1]){const doc=side?now:old,tree=rendered(doc,result,side),selected=tree.filter(e=>e.dataset.selectionText==='true');assert.equal(selected.map(e=>e.textContent).join(''),side?'twelve':'ten');assert.ok(selected.every(e=>e.dataset.outlineGroup==='A1.1'));}assert.equal(amendmentOutlineGroup(result,'A1.2'),'A1.2');
 });
+test('a final-period insertion renders the ordinary after-line arrow and exact Current insertion selection',()=>{
+ const old=makeDocument(['line 1 Existing law applies.\n- 0 -'],'Previous'),now=makeDocument(['line 1 Existing law applies.\nline 2 SEC. 2. New law.\n- 0 -'],'Current'),result=verifyAmendments('On page 1, in line 1, after the period, insert:\nSEC. 2. New law.',old,now)[0];assert.equal(result.status,'implemented');
+ const previous=rendered(old,result,0),current=rendered(now,result,1),arrows=previous.filter(e=>e.classList.contains('amendment-after-arrow'));assert.equal(arrows.length,1);assert.equal(arrows[0].textContent,'➜');
+ assert.equal(current.filter(e=>e.dataset.selectionText==='true').map(e=>e.textContent).join(''),'SEC. 2. New law.');assert.ok(current.every(e=>!e.classList.contains('current-amendment-issue')));
+});
 
 test('Digest discrepancies and missing wording remain visible without outlines or plus badges',()=>{
  const heading='LEGISLATIVE COUNSEL’S DIGEST',enact='The people of the State of California do enact as follows:',bill=text=>makeDocument([heading+'\n'+text+'\n'+enact+'\nline 1 Existing body.'],'bill');

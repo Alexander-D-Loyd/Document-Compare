@@ -31,6 +31,13 @@ export function guidePassage(reference,citation){
    const passages=lcbSourceItems(page).filter(p=>p.number===item[1]&&(!section||p.section===section)&&(!spelling||p.section!=='Office Preferences'));
    if(passages.length===1)return {text:passages[0].text,kind:'Source provision',page:page.page,start:passages[0].start,end:passages[0].end};
   }
+  // A bounded detector can identify a more precise printed example than a
+  // preferred-form lookup. Accept only exact offsets into this cited page;
+  // labels or paraphrases supplied by a finding cannot establish authority.
+  const witness=citation.sourcePassage;
+  if(witness&&Number.isInteger(witness.start)&&Number.isInteger(witness.end)&&witness.start>=0&&witness.end>witness.start&&witness.end<=page.text.length&&(witness.page===undefined||witness.page===page.page)&&typeof witness.text==='string'&&witness.text.trim()&&page.text.slice(witness.start,witness.end)===witness.text){
+   return {text:witness.text,kind:'Printed source passage',page:page.page,start:witness.start,end:witness.end};
+  }
   const preferred=fold(citation.preferred||'');
   if(preferred){
    const entries=(page.lexicalEntries||[]).filter(entry=>{
