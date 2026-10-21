@@ -1,10 +1,12 @@
+import {currencySymbolSeriesIssues} from './style-currency-symbol-series.mjs';
+import {mathResultIssues,GPO_MATH_RESULT_SCOPE} from './style-math-result-evidence.mjs';
 import {styleContext} from './style-context.mjs';
 import {symbolSeriesIssues} from './style-symbol-series.mjs';
 import {styleEvidenceGuard,cutsOriginalStyleWord,originalBodyStyleContext} from './style-evidence.mjs';
 import {originalStyleLiteralGuard} from './style-original-literal-guard.mjs';
 import {entityNameBoundaryBlocked} from './style-entity-name-boundaries.mjs';
 import {billQuotedTermProtection} from './style-quoted-terms.mjs';
-export const GPO_MATH_SYMBOL_SPACING_SCOPE='GPO 10.3 checks the five printed arithmetic operators only after an explicit equation/formula/expression cue, with two to six single-letter or numeric operands. Plain and canonical comma-grouped numeric strings, including decimals, retain every original digit without numeric conversion. Complete original cue, operand, operator and whitespace evidence, Unicode/technical endpoints, literal and bill-local quoted forms, finite name continuations, tables, strikes and unknown exclusions are protected. Recognized interior page heads preserve exact source selections. Explicit adjacent magnification/breeding descriptions and original preceding exception language protect the multiplication sign. Malformed number continuations, technical suffixes, unsupported algebra, scientific notation, unfamiliar contexts and typographic/semantic interpretation remain manual; this does not certify the whole mathematical rule.';
+export const GPO_MATH_SYMBOL_SPACING_SCOPE='GPO 10.3 checks selected forms of the five printed arithmetic operators after an explicit equation/formula/expression cue, with two to six single-letter or numeric operands. Plain and canonical comma-grouped numeric strings, including decimals, retain every original digit without numeric conversion. Complete original cue, operand, operator and whitespace evidence, Unicode/technical endpoints, literal and bill-local quoted forms, finite name continuations, tables, strikes and unknown exclusions are protected. Recognized interior page heads preserve exact source selections. Explicit adjacent magnification/breeding descriptions and original preceding exception language protect the multiplication sign. Malformed number continuations, technical suffixes, unsupported algebra, scientific notation, unfamiliar contexts and typographic/semantic interpretation remain manual; this does not certify the whole mathematical rule.'+' '+GPO_MATH_RESULT_SCOPE;
 export function symbolIssues(doc,references){
  const ctx=styleContext(doc),source=ctx.source,issues=[];
  const literal=[...source.matchAll(/“[^”]*”|"[^"\n]*"/g)].map(m=>({start:m.index,end:m.index+m[0].length}));
@@ -40,6 +42,6 @@ export function symbolIssues(doc,references){
   }
   add(start,end,expr.replace(/\s*([+−±×÷])\s*/gu,'$1'),'10.3','GPO 10.3 closes the printed arithmetic operators against figures and symbols. This complete original mathematical cue and its simple operands establish a selected spacing comparison. Numeric strings are preserved; explicit breeding/magnification meanings, malformed or technical continuations and unfamiliar mathematical contexts remain protected or manual.',{evidenceStart:m.index,evidenceEnd:end});
  }
- issues.push(...symbolSeriesIssues(doc,references));
+ issues.push(...symbolSeriesIssues(doc,references),...mathResultIssues(doc,references),...currencySymbolSeriesIssues(doc,references));
  return issues;
 }

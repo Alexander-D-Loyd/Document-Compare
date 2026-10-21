@@ -1,3 +1,6 @@
+import {gpoWebTypographyIssues} from './style-gpo-web-typography.mjs';
+import {gpoListedWordingIssues} from './style-gpo-listed-wording.mjs';
+import {gpoHolidayNameIssues} from './style-gpo-holiday-names.mjs';
 import {lcbListedBifurcationIssues,restoreListedBifurcationEvidence} from './style-lcb-listed-bifurcation.mjs';
 import {compoundSourceBoundaryBlocked} from './style-compound-source-boundaries.mjs';
 import {originalBodyStyleContext} from './style-evidence.mjs';
@@ -166,7 +169,16 @@ export function jointStylisticIssues(doc,references,{engineIssues=[],includeRevi
   const view=styleWordDivisionView(doc,{preserveRemainingWords:true}),reviewDoc=view?.doc||doc;
   const candidates=view?engineIssues.map(i=>({...mapReviewEvidence(i,view.toView,reviewDoc.text),start:view.toView(i.start),end:view.toView(i.end)})):engineIssues;
   const issues=withStyleContext(reviewDoc,()=>reviewStylisticIssues(reviewDoc,references,candidates,includeReviewSuggestions,includeDefinitionReview,includeLexicalSuffixReview,includeLocalInitialismReview,includeCreatedPublicEntities,includeOfficialHeadReview,includeNounSequenceReview,includeQualifiedNounPrefixReview,includeParsedPredicateReview,includeProductiveLikeReview,includeCreatedEntityNameReview,includeCreatedTitleNameReview,includeDecimalOpeningReview,includeFractionOpeningReview,includeLargeIntegerOpeningReview,includeIntegerOpeningReview,authority,entityAuthority));
-  return consolidateStyleFindings(view?view.restore(issues.map(i=>mapReviewEvidence(i,view.toSource,doc.text))):issues).map(i=>attachGuideEvidence(isOpinionStyleDocument(doc)?{...i,context:styleDocumentTypeLabel(doc)}:i,references));
+  const physicalIssues=view?view.restore(issues.map(i=>mapReviewEvidence(i,view.toSource,doc.text))):issues;
+  // Font-run offsets belong to the physical PDF text. Word-division views
+  // cannot establish source-font evidence for a differently positioned token.
+  if(includeReviewSuggestions)physicalIssues.push(...withStyleContext(doc,()=>{
+    const context=styleContext(doc),candidates=gpoWebTypographyIssues(doc,references,{context});
+    if(!candidates.length)return [];
+    const names=[...sourceNameRanges(context.source),...lcbCreatedOfficialTitleProtectionRanges(doc,references),...lcbCreatedTitleReferenceProtectionRanges(doc,references),...lcbCreatedTitleIdentityProtectionRanges(doc,references),...designatedTitleProtectionRanges(doc,references),...(includeCreatedPublicEntities?createdPublicEntityProtectionRanges(doc,references):[]),...californiaEntityReview(doc,references,{entityAuthority}).ranges];
+    return candidates.filter(styleFindingPolicy(doc,{context,names}));
+  }));
+  return consolidateStyleFindings(physicalIssues).map(i=>attachGuideEvidence(isOpinionStyleDocument(doc)?{...i,context:styleDocumentTypeLabel(doc)}:i,references));
 }
 function mapReviewEvidence(issue,map,text=null){
  const result={...issue};
@@ -191,6 +203,8 @@ function mapReviewEvidence(issue,map,text=null){
   const role=r=>{const start=map(r.start),end=map(r.end,true);return {...r,start,end,headStart:map(r.headStart),headEnd:map(r.headEnd,true),...(text!==null?{sourceText:text.slice(start,end)}:{})};};
   const e=issue.modifierRoleEvidence;result.modifierRoleEvidence={...e,components:e.components.map(role),head:role(e.head),predicate:{...role(e.predicate),finiteAuxiliaries:e.predicate.finiteAuxiliaries.map(role)}};
  }
+ for(const key of ['measurementDefinitionEvidence','temperatureGravityEvidence'])if(issue[key]){const e=issue[key];result[key]={...e,evidenceStart:map(e.evidenceStart),evidenceEnd:map(e.evidenceEnd,true)};}
+ for(const key of ['listedWordingEvidence','holidayEvidence'])if(issue[key]){const e=issue[key],start=map(e.start),end=map(e.end,true);result[key]={...e,start,end,...(text!==null?{sourceText:text.slice(start,end)}:{})};}
  if(Number.isInteger(issue.evidenceStart))result.evidenceStart=map(issue.evidenceStart);
  if(Number.isInteger(issue.sentenceEvidenceStart))result.sentenceEvidenceStart=map(issue.sentenceEvidenceStart);
  if(Number.isInteger(issue.sentenceEvidenceEnd))result.sentenceEvidenceEnd=map(issue.sentenceEvidenceEnd,true);
@@ -261,7 +275,7 @@ function reviewStylisticIssues(doc,references,engineIssues=[],includeReviewSugge
    for(let n=combined.length-1;n>=0;n--)if(combined[n].start>=issue.start&&combined[n].end<=issue.end)combined.splice(n,1);
    if(!combined.some(i=>i.start<issue.end&&i.end>issue.start))combined.push(issue);
   }
-  for(const issue of [...calendarIssues(doc,references),...verbEndingIssues(doc,references),...listedNounIssues(doc,references),...calendarAbbreviationIssues(doc,references),...quantitySeparatorIssues(doc,references),...symbolIssues(doc,references),...editorialNotationIssues(doc,references),...tableFigureIssues(doc,references),...compoundPluralIssues(doc,references),...geologicNameIssues(doc,references),...modifierPositionIssues(doc,references),...semicolonSeriesIssues(doc,references),...serialCommaIssues(doc,references),...reflexivePronounIssues(doc,references),...phrasalVerbIssues(doc,references),...phrasalInflectionIssues(doc,references),...nominalPluralIssues(doc,references),...gpoNominalIssues(doc,references),...metricDefinitionIssues(doc,references),...numberArticleIssues(doc,references),...suffixSpellingIssues(doc,references),...lcbRoleFormIssues(doc,references),...contractionIssues(doc,references),...lcbSpellingIssues(doc,references),...lcbPrefixIssues(doc,references)]){if(!combined.some(i=>i.start<issue.end&&i.end>issue.start))combined.push(issue);}
+  for(const issue of [...calendarIssues(doc,references),...verbEndingIssues(doc,references),...listedNounIssues(doc,references),...calendarAbbreviationIssues(doc,references),...gpoListedWordingIssues(doc,references),...gpoHolidayNameIssues(doc,references),...quantitySeparatorIssues(doc,references),...symbolIssues(doc,references),...editorialNotationIssues(doc,references),...tableFigureIssues(doc,references),...compoundPluralIssues(doc,references),...geologicNameIssues(doc,references),...modifierPositionIssues(doc,references),...semicolonSeriesIssues(doc,references),...serialCommaIssues(doc,references),...reflexivePronounIssues(doc,references),...phrasalVerbIssues(doc,references),...phrasalInflectionIssues(doc,references),...nominalPluralIssues(doc,references),...gpoNominalIssues(doc,references),...metricDefinitionIssues(doc,references),...numberArticleIssues(doc,references),...suffixSpellingIssues(doc,references),...lcbRoleFormIssues(doc,references),...contractionIssues(doc,references),...lcbSpellingIssues(doc,references),...lcbPrefixIssues(doc,references)]){if(!combined.some(i=>i.start<issue.end&&i.end>issue.start))combined.push(issue);}
   // Existing source rules retain precedence and their original citations.
   // Only add parser findings after every local rule has been considered.
   const referenceProtections=lcbReferenceIdentityProtectionRanges(doc,references);

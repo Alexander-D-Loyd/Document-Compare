@@ -1,3 +1,4 @@
+import {validGpoWebTypographyFinding} from './style-gpo-web-typography.mjs';
 import {billQuotedTermProtection} from './style-quoted-terms.mjs';
 import {styleEvidenceGuard} from './style-evidence.mjs';
 import {originalStyleLiteralGuard} from './style-original-literal-guard.mjs';
@@ -36,9 +37,11 @@ export function styleFindingPolicy(doc,{context,names=[],conflictRanges=[]}){
   const lexicalJoin=issue.references.some(r=>r.guideId==='lcb'&&r.guidePage>=8&&r.guidePage<=16)&&!issue.references.some(r=>r.guideId==='lcb'&&r.guidePage>=21);
   const bodyDashes=[...physical.matchAll(/[\u2012-\u2015]/gu)].filter(m=>context.source[issue.start+m.index]==='-').length;
   if(lexicalJoin&&typeof issue.suggestion==='string'&&bodyDashes>(issue.suggestion.match(/[\u2012-\u2015]/gu)||[]).length)return false;
-  if(issue.conflict||quoted(issue)||context.technicalAt(issue.start,issue.end)||sourceBlocked(issue.start,issue.end))return false;
+  const sourceFontAddress=issue.checkId==='gpo-web-typography-review'&&validGpoWebTypographyFinding(doc,issue,{context});
+  if(issue.checkId==='gpo-web-typography-review'&&!sourceFontAddress)return false;
+  if(issue.conflict||quoted(issue)||!sourceFontAddress&&context.technicalAt(issue.start,issue.end)||sourceBlocked(issue.start,issue.end))return false;
   if(!quoteBoundaryRules.has(issue.rule)&&context.wrappedLiteralRanges.some(r=>r.start<issue.end&&r.end>issue.start)&&!['lcb-designated-title-creation-review','lcb-fresh-definition-term-review'].includes(issue.checkId))return false;
-  if(!quoteBoundaryRules.has(issue.rule)&&!['lcb-designated-title-creation-review','lcb-fresh-definition-term-review'].includes(issue.checkId)&&originalLiteral(Number.isInteger(issue.evidenceStart)?issue.evidenceStart:issue.start,Number.isInteger(issue.evidenceEnd)?issue.evidenceEnd:issue.end))return false;
+  if(!sourceFontAddress&&!quoteBoundaryRules.has(issue.rule)&&!['lcb-designated-title-creation-review','lcb-fresh-definition-term-review'].includes(issue.checkId)&&originalLiteral(Number.isInteger(issue.evidenceStart)?issue.evidenceStart:issue.start,Number.isInteger(issue.evidenceEnd)?issue.evidenceEnd:issue.end))return false;
   if(styleNameProtected(issue,names,context.source,doc.text)||issue.checkId!=='california-entities'&&conflictRanges.some(r=>r.start<issue.end&&r.end>issue.start))return false;
   if(!tableChecks.has(issue.checkId)&&doc.blocks.some(b=>!b.ignored&&!b.runningHead&&!b.layoutLabel&&b.start<issue.end&&b.end>issue.start&&context.tableAt(b.start)))return false;
   return true;

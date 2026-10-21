@@ -52,6 +52,12 @@ export function guidePassage(reference,citation){
   }
   const examples=lcbExampleSection(page,citation.rule);if(examples)return examples;
  }else if(citation.guideId==='gpo'){
+  // GPO tables can continue beyond the page containing their numbered rule.
+  // Retain an exact source-validated example on its own cited page.
+  const witness=citation.sourcePassage;
+  if(witness&&Number.isInteger(witness.start)&&Number.isInteger(witness.end)&&witness.start>=0&&witness.end>witness.start&&witness.end<=page.text.length&&(witness.page===undefined||witness.page===page.page)&&typeof witness.text==='string'&&witness.text.trim()&&page.text.slice(witness.start,witness.end)===witness.text){
+   return {text:witness.text,kind:'Printed source passage',page:page.page,start:witness.start,end:witness.end};
+  }
   const number=/^\d+\.\d+$/u.test(citation.rule||'')?citation.rule:null;
   if(number){
    const pages=reference.pages.filter(p=>p.chapter===page.chapter&&p.page>=page.page),source=pages.map(p=>p.flowText||p.text).join('\n');

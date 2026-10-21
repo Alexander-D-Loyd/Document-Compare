@@ -18,6 +18,7 @@ import { makeDocument, spellingCandidates, comparisonTokens, substantiveTokens, 
 import { loadDictionary, saveWord, removeWord, normalizeWord, isAccepted } from './personal-dictionary.mjs';
 import { extractPageLayout,hasVisiblePdfContent } from './pdf-strikes.mjs';
 import {pdfFontStyle} from './pdf-font-style.mjs';
+import {PDF_SOURCE_FONT_OPTIONS} from './pdf-source-font-options.mjs';
 import { printedAmendmentItems } from './amendment-markings.mjs';
 import {jrBoxPageNotices,jrBoxMetadata,markJrBoxGeometry} from './amendment-jr-box.mjs';
 import { ocrDictionary,repairOcrSpacing,isOcrStyle,repairOcrInstructions } from './ocr-text.mjs';
@@ -195,7 +196,7 @@ async function readFile(file, side) {
     const data = new Uint8Array(await file.arrayBuffer());
     if(versions[side]!==version)return;
     if (!new TextDecoder().decode(data.slice(0, 1024)).includes('%PDF-')) throw Error('This file is not a valid PDF.');
-    task = pdfjs.getDocument({ data, isEvalSupported: false, enableXfa: false, fontExtraProperties:true, cMapUrl: new URL('./vendor/cmaps/', import.meta.url).href, cMapPacked: true, standardFontDataUrl: new URL('./vendor/standard_fonts/', import.meta.url).href, wasmUrl: new URL('./vendor/wasm/', import.meta.url).href });
+    task = pdfjs.getDocument({ data, isEvalSupported: false, enableXfa: false, ...PDF_SOURCE_FONT_OPTIONS, cMapUrl: new URL('./vendor/cmaps/', import.meta.url).href, cMapPacked: true, standardFontDataUrl: new URL('./vendor/standard_fonts/', import.meta.url).href, wasmUrl: new URL('./vendor/wasm/', import.meta.url).href });
     pdfTasks[side]=task;
     // Do not request or retain document passwords.
     task.onPassword = () => { task.destroy(); };

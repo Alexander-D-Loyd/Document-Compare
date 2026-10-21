@@ -1,3 +1,9 @@
+import {GPO_WEB_TYPOGRAPHY_SCOPE} from './style-gpo-web-typography.mjs';
+import {GPO_LISTED_WORDING_SCOPE} from './style-gpo-listed-wording.mjs';
+import {GPO_HOLIDAY_NAME_SCOPE} from './style-gpo-holiday-names.mjs';
+import {GPO_CURRENCY_SYMBOL_SERIES_SCOPE} from './style-currency-symbol-series.mjs';
+import {GPO_BARE_MEASUREMENT_EVIDENCE_SCOPE} from './style-measurement-source-evidence.mjs';
+import {GPO_TEMPERATURE_GRAVITY_DEFINITION_SCOPE} from './style-gpo-measurement-remaining.mjs';
 import {GPO_PERCENT_SERIES_SCOPE,GPO_DIMENSION_SERIES_SCOPE} from './style-symbol-series.mjs';
 import {GPO_MEASUREMENT_DEFINITION_SCOPE} from './style-measurement-definitions.mjs';
 // Human-readable source audit decisions. Applicability is separate from
@@ -230,3 +236,12 @@ for(const rule of ['9.56','9.58'])GPO_ASSESSMENTS.set(rule,{...GPO_ASSESSMENTS.g
 
 GPO_ASSESSMENTS.set('10.5',{...GPO_ASSESSMENTS.get('10.5'),scope:GPO_PERCENT_SERIES_SCOPE});
 GPO_ASSESSMENTS.set('10.6',{...GPO_ASSESSMENTS.get('10.6'),scope:GPO_DIMENSION_SERIES_SCOPE});
+
+GPO_ASSESSMENTS.set('9.53',{...GPO_ASSESSMENTS.get('9.53'),scope:GPO_BARE_MEASUREMENT_EVIDENCE_SCOPE+' '+GPO_TEMPERATURE_GRAVITY_DEFINITION_SCOPE});
+GPO_ASSESSMENTS.set('9.56',{...GPO_ASSESSMENTS.get('9.56'),scope:GPO_ASSESSMENTS.get('9.56').scope+' '+GPO_BARE_MEASUREMENT_EVIDENCE_SCOPE});
+
+GPO_ASSESSMENTS.set('10.6',{...GPO_ASSESSMENTS.get('10.6'),scope:GPO_ASSESSMENTS.get('10.6').scope.replace('currency/temperature series','unrecognized currency/temperature series')+' '+GPO_CURRENCY_SYMBOL_SERIES_SCOPE});
+
+for(const rule of ['6.33','8.16'])GPO_ASSESSMENTS.set(rule,{status:'Partially automated',scope:GPO_LISTED_WORDING_SCOPE});
+GPO_ASSESSMENTS.set('3.25',{...GPO_ASSESSMENTS.get('3.25'),scope:GPO_ASSESSMENTS.get('3.25').scope+' '+GPO_HOLIDAY_NAME_SCOPE});
+GPO_ASSESSMENTS.set('11.16',{status:'Partially automated',scope:GPO_WEB_TYPOGRAPHY_SCOPE});

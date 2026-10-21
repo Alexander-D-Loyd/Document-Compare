@@ -1,3 +1,9 @@
+import {GPO_WEB_TYPOGRAPHY_SCOPE} from './style-gpo-web-typography.mjs';
+import {GPO_LISTED_WORDING_SCOPE} from './style-gpo-listed-wording.mjs';
+import {GPO_HOLIDAY_NAME_SCOPE} from './style-gpo-holiday-names.mjs';
+import {GPO_CURRENCY_SYMBOL_SERIES_SCOPE} from './style-currency-symbol-series.mjs';
+import {GPO_BARE_MEASUREMENT_EVIDENCE_SCOPE} from './style-measurement-source-evidence.mjs';
+import {GPO_TEMPERATURE_GRAVITY_DEFINITION_SCOPE} from './style-gpo-measurement-remaining.mjs';
 import {GPO_PERCENT_SERIES_SCOPE,GPO_DIMENSION_SERIES_SCOPE} from './style-symbol-series.mjs';
 import {GPO_MEASUREMENT_DEFINITION_SCOPE} from './style-measurement-definitions.mjs';
 import {MULTIWORD_QUANTITY_OPENING_SCOPE}from './style-opening-quantity-evidence.mjs';
@@ -67,6 +73,12 @@ import {GPO_COMPOUND_PLURAL_SCOPE}from './style-compound-plurals.mjs';
 import {GPO_ENGLISH_ABBREVIATION_SCOPE}from './style-english-abbreviations.mjs';
 import {GPO_MATH_SYMBOL_SPACING_SCOPE}from './style-symbols.mjs';
 export const CHECK_COVERAGE=[
+ {title:'Source-font review of web and email addresses',status:'Conditional Review Suggested',text:GPO_WEB_TYPOGRAPHY_SCOPE,guide:'gpo',page:286},
+ {title:'GPO printed prefix and sake forms',status:'Selected source roles',text:GPO_LISTED_WORDING_SCOPE,guide:'gpo',page:119},
+ {title:'Additional printed GPO holiday names',status:'Selected calendar roles',text:GPO_HOLIDAY_NAME_SCOPE,guide:'gpo',page:48},
+ {title:'GPO dollar-symbol series with LCB agreement',status:'Selected monetary contexts',text:GPO_CURRENCY_SYMBOL_SERIES_SCOPE,guide:'gpo',page:277},
+ {title:'Explicit temperature and gravity definitions',status:'Selected source forms',text:GPO_TEMPERATURE_GRAVITY_DEFINITION_SCOPE,guide:'gpo',page:250},
+ {title:'Complete bare measurement evidence',status:'Finite source safeguards',text:GPO_BARE_MEASUREMENT_EVIDENCE_SCOPE,guide:'gpo',page:250},
  {title:'GPO English measurement and time abbreviations',status:'Selected source forms',text:GPO_ENGLISH_ABBREVIATION_SCOPE,guide:'gpo',page:251},
  {title:'GPO mathematical operator spacing',status:'Selected source forms',text:GPO_MATH_SYMBOL_SPACING_SCOPE,guide:'gpo',page:277},
  {title:'GPO calendar abbreviations',status:'Selected source forms',text:CALENDAR_ABBREVIATION_EVIDENCE_SCOPE,guide:'gpo',page:247},

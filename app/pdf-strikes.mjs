@@ -1,6 +1,7 @@
 import {sourceTextEvidence} from './pdf-text-evidence.mjs';
 import {partialStrikeGlyphEvidence} from './pdf-strike-glyphs.mjs';
 import {pageTextIntegrity} from './pdf-page-quality.mjs';
+import {knownPdfRunItalic} from './pdf-font-style.mjs';
 const identity=()=>[1,0,0,1,0,0];
 const multiply=(a,b)=>[a[0]*b[0]+a[2]*b[1],a[1]*b[0]+a[3]*b[1],a[0]*b[2]+a[2]*b[3],a[1]*b[2]+a[3]*b[3],a[0]*b[4]+a[2]*b[5]+a[4],a[1]*b[4]+a[3]*b[5]+a[5]];
 const point=(m,x,y)=>({x:m[0]*x+m[2]*y+m[4],y:m[1]*x+m[3]*y+m[5]});
@@ -109,7 +110,8 @@ export function extractPageLayout(items,operators,OPS,styles={},pageWidth=612){
       const start=text.length;text+=item.str;end=x+item.width;
       const rowHeight=Math.max(...row.items.map(glyph=>glyph.height));
       const fractionDigit=/^\d+$/.test(item.str.trim())&&item.height<rowHeight*.85&&row.items.some(glyph=>/^[⁄/]\d*/.test(glyph.str.trim())&&Math.min(Math.abs(x+item.width-glyph.transform[4]),Math.abs(x-(glyph.transform[4]+glyph.width)))<=Math.max(1.5,rowHeight*.15));
-      runs.push({start,end:text.length,x,width:item.width,height:item.height,space:!item.str.trim(),font:styles[item.fontName]?.fontFamily||'serif',bold:!!styles[item.fontName]?.bold,italic:!!styles[item.fontName]?.italic,smallCaps:!!(styles[item.fontName]?.ascent>0&&styles[item.fontName]?.ascent<.5),...(fractionDigit?{fractionOffset:y-row.y}: {}),...(item.sourceCharSpacing!==undefined?{sourceCharSpacing:item.sourceCharSpacing}: {})});
+      const style=styles[item.fontName]||{};
+      runs.push({start,end:text.length,x,width:item.width,height:item.height,space:!item.str.trim(),font:styles[item.fontName]?.fontFamily||'serif',bold:!!styles[item.fontName]?.bold,italic:!!styles[item.fontName]?.italic,italicKnown:knownPdfRunItalic(style)!==null,fontStyleConflict:style.fontStyleConflict===true,fontStyleProvenance:style.fontStyleProvenance||null,smallCaps:!!(styles[item.fontName]?.ascent>0&&styles[item.fontName]?.ascent<.5),...(fractionDigit?{fractionOffset:y-row.y}: {}),...(item.sourceCharSpacing!==undefined?{sourceCharSpacing:item.sourceCharSpacing}: {})});
       if(item.sourceGlyphs){
         for(const glyph of item.sourceGlyphs)if(item.ocrStruck||strokes.some(line=>line.y-y>item.height*.15&&line.y-y<item.height*.65&&Math.max(0,Math.min(glyph.x+glyph.width,line.x2)-Math.max(glyph.x,line.x1))>=glyph.width*.7))spans.push({start:start+glyph.start,end:start+glyph.end});
       }else{

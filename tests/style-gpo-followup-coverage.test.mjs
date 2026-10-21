@@ -3,7 +3,7 @@ import {makeDocument} from '../app/core.mjs';import {reviewStyleIssues} from '..
 const refs=Object.fromEntries(['lcb','gpo'].map(id=>[id,JSON.parse(fs.readFileSync(new URL('../app/data/'+id+'-reference.json',import.meta.url)))]));
 test('near-completion GPO source slices keep partial status and disclose manual exceptions',()=>{
  const inventory=styleRuleInventory(refs);
- for(const [id,match]of [['gpo-5.6',/nine/u],['gpo-9.44',/seven printed weekday and nine printed month/u],['gpo-9.46',/sentence-opening/u],['gpo-9.54',/noon\/midnight/u],['gpo-9.55',/military time/u],['gpo-11.4',/four printed emphasis/u],['gpo-11.8',/legal case identity/u]]){const row=inventory.find(r=>r.id===id);assert.ok(row,id);assert.equal(row.status,'Partially automated',id);assert.match(row.scope,match,id);assert.match(row.scope,/manual/u,id);}
+ for(const [id,match]of [['gpo-5.6',/nine/u],['gpo-9.44',/seven printed weekday and nine printed month/u],['gpo-9.46',/sentence-opening/u],['gpo-9.54',/noon\/midnight/u],['gpo-9.55',/military/u],['gpo-11.4',/four printed emphasis/u],['gpo-11.8',/legal case identity/u]]){const row=inventory.find(r=>r.id===id);assert.ok(row,id);assert.equal(row.status,'Partially automated',id);assert.match(row.scope,match,id);assert.match(row.scope,/manual/u,id);}
  for(const title of ['GPO calendar abbreviations','GPO measurement notation','Compound plurals','Editorial annotations and legal versus']){const row=CHECK_COVERAGE.find(r=>r.title===title);assert.ok(row,title);assert.equal(row.guide,'gpo');assert.match(row.text,/manual/u);}
 });
 test('new GPO forms coexist with LCB priority and the separate California Codes reference',()=>{

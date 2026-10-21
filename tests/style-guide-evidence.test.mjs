@@ -51,3 +51,11 @@ test('an identified numbered provision retains its conditions ahead of a supplie
  const source=refs.lcb.pages[20].text,text='Bill',start=source.indexOf(text),citation={guideId:'lcb',guidePage:21,rule:'Numerals: Bill, item 3',sourcePassage:{start,end:start+text.length,text}};
  const found=guidePassage(refs.lcb,citation);assert.equal(found.kind,'Source provision');assert.match(found.text,/different numerical expressions/u);
 });
+
+test('GPO continuation-page witnesses retain only exact source-validated printed examples',()=>{
+ for(const [page,text]of [[48,'Halloween'],[49,'Ramadan']]){
+  const source=refs.gpo.pages[page-1].text,start=source.indexOf(text);assert.ok(start>=0);const citation={guideId:'gpo',guidePage:page,rule:'3.25',sourcePassage:{start,end:start+text.length,text,page,kind:'Ignored supplied label'}},found=guidePassage(refs.gpo,citation);
+  assert.deepEqual(found,{start,end:start+text.length,text,page,kind:'Printed source passage'});assert.deepEqual(attachGuideEvidence({text:text.toLowerCase(),suggestion:text,references:[citation]},refs).references[0].sourcePassage,found);
+  const fallback=guidePassage(refs.gpo,{...citation,sourcePassage:null});for(const bad of [{...citation.sourcePassage,start:-1},{...citation.sourcePassage,end:source.length+1},{...citation.sourcePassage,text:'Invented requirement'},{...citation.sourcePassage,page:page+1}])assert.deepEqual(guidePassage(refs.gpo,{...citation,sourcePassage:bad}),fallback);
+ }
+});

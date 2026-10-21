@@ -16,8 +16,9 @@ export function originalTemporalNameBlocked(original,start,end){
  if(!/(?<![\p{L}\p{N}\p{M}_./:\\#@’'\-])[Tt]he\s+$/u.test(original.slice(0,start)))return false;
  return creationTail.test(after)||/^,\s*(?:Inc\.|Corp\.|Incorporated|Corporation),?\s+is\s+(?:hereby\s+)?(?:created|established|designated)(?![\p{L}\p{N}\p{M}_])/u.test(after);
 }
-function technicalClockBoundary(doc,source,original,start,end){
+export function technicalClockBoundary(doc,source,original,start,end){
  const before=original.slice(0,start),after=original.slice(end);
+ if(/(?<![\p{L}\p{N}\p{M}_])(?:minus|negative|plus|positive)\s+$/iu.test(before))return true;
  const prefix=/(?:[-+−/⁄∕*^×÷±]\s*|\d[\d.,]*\s*[eE]\s*[-+−]?\s*|\d\s*[:.,]\s*)$/u.exec(before);
  const suffix=/^\s*([-+−/⁄∕*^×÷±=])/u.exec(after);
  const narrativeDash=at=>/[\u2013-\u2015]/u.test(doc.text[at]||'')&&source[at]==='-';

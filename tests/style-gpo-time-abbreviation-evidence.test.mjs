@@ -14,8 +14,8 @@ test('complete numeric exact-hour and redundant-clock forms follow the printed G
   const doc=make(text),before=JSON.stringify(doc);for(const check of [direct,joint]){const found=check(doc);assert.equal(found.length,1,text);const i=found[0];assert.equal(i.suggestion,wanted);assert.equal(i.rule,rule);assert.equal(i.guidePage,250);assert.equal(doc.text.slice(i.start,i.end),i.text);assert.equal(i.guidePrintedPage,'236');}assert.equal(JSON.stringify(doc),before);
  }
 });
-test('valid meridians and time readings outside the selected exact numeric-hour scope remain quiet',()=>{
- for(const text of ['Meet at 10 a.m.','Meet at 2:30 p.m.','Meet at 12 p.m.','Meet at 12 a.m.','Meet at noon.','Meet at midnight.','Meet at 0:00 a.m.','Meet at 13:00 p.m.','Meet at 2:03 o’clock p.m.','Meet at ten o’clock p.m.'])for(const check of [direct,joint])assert.equal(check(make(text)).length,0,text);
+test('canonical meridians and unsupported time meanings remain quiet',()=>{
+ for(const text of ['Meet at 10 a.m.','Meet at 2:30 p.m.','Meet at 12 p.m.','Meet at 12 a.m.','Meet at noon.','Meet at midnight.','Meet at 0:00 a.m.','Meet at 13:00 p.m.','Meet at 2:03 o’clock p.m.'])for(const check of [direct,joint])assert.equal(check(make(text)).length,0,text);
 });
 test('technical and Unicode endpoints never turn a clock fragment into an exact hour',()=>{
  for(const text of ['Use x10:00 a.m.','Use 10:00 a.m.x','Use 10:00 a.m.é','Use 10:00 a.m.\u0301','Use key/10:00 a.m.','Use 10:00 a.m./key','Use pre-10:00 a.m.','Use 10:00 a.m.-key','Use 2:03 o’clock a.m.','Cite Section 10:00 a.m.'])for(const check of [direct,joint])assert.equal(check(make(text)).length,0,text);

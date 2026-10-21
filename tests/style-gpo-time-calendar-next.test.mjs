@@ -9,6 +9,10 @@ const make=text=>makeDocument(['The people do enact as follows:\n'+text],'Curren
 const run=(fn,input)=>{const d=typeof input==='string'?make(input):input,before=JSON.stringify(d),issues=fn(d,refs);assert.equal(JSON.stringify(d),before);for(const i of issues)assert.equal(d.text.slice(i.start,i.end),i.text);return issues;};
 const times=input=>run(nonzeroMinuteTimeIssues,input),calendar=input=>run(calendarAbbreviationIssues,input);
 
+test('nonzero clocks keep original finite sign-word prefixes manual',()=>{
+ for(const sign of ['minus','negative','plus','positive']){const text='Meet at '+sign+' 2:30 P.M.';assert.deepEqual(times(text),[]);for(const field of ['struck','excluded']){const d=make(text),start=d.text.indexOf(sign);d[field].push({start,end:start+sign.length});assert.deepEqual(times(d),[]);}}
+});
+
 test('nonzero clock meridians retain original digits and cite printed GPO/LCB agreement',()=>{
  assert.match(refs.gpo.pages[249].text,/2:30 p\.m\./u);assert.match(refs.lcb.pages[22].text,/10:30 p\.m\./u);assert.match(GPO_NONZERO_MINUTE_TIME_SCOPE,/nonzero/u);
  for(const hour of ['1','2','9','10','11','12'])for(const minute of ['01','03','30','59'])for(const [suffix,wanted]of [['P. M.','p.m.'],['A.M.','a.m.'],['a. m.','a.m.']]){
