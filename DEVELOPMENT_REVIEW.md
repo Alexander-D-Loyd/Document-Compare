@@ -1,3 +1,21 @@
+Document Compare 1.21.18 — October 21, 2026
+
+GPO 9.56/9.58 now compare 41 explicit full-name/parenthesized-symbol definitions: 23 bare English/time forms, 14 metric powers and four printed English powers. Complete quantity or measurement-role evidence is required; supported case, punctuation, plural and explicit 2/3 power differences can be compared without guessing a unit. Plain and superscript powers are accepted equivalently, with no font certification. GPO 10.5 checks complete homogeneous lists of two or more repeated percent values in Bill prose. GPO 10.6 repeats missing marks in complete same-unit physical-dimension lists and two-endpoint ranges. Original digits, connectors, source offsets and exceptions are preserved; applicable LCB Digest percentage forms retain priority.
+
+The time/calendar continuation normalizes complete nonzero-minute clock meridians, such as 2:30 P. M. to 2:30 p.m., without changing time digits. Calendar abbreviation checks add Since, As of, Effective, Beginning, Starting and No later than. Months require a complete numeric-day witness; these checks do not validate calendar dates. Original quotations, source-created names, tables, strikes, uncertain exclusions and technical attachments remain protected.
+
+All 2,735 source tests pass. The staged Windows 1.21.18 EXE passed 14 controlled native stages, preserving the earlier 13 stages and adding the new GPO fixture. The new stage verifies eight GPO comparisons, six protected controls, independent LCB/California Codes/Counties findings, exact source selections, manual-page navigation and searchable coverage. The 23-model / 2,024-page production replay yields 857 → 857 findings: 0 additions, 0 removals and 0 changed retained findings excluding regenerated IDs. All differences were reviewed. All 34 original PDFs retain their hashes.
+
+Corpus review: The production combined style replay across 23 unchanged bill models / 2,024 pages retains all 857 findings: no additions, removals or changed retained finding metadata apart from regenerated IDs. Exact source selections and model/source fingerprints remain unchanged. The added finite forms are verified by focused fixtures; these corpus results do not establish office precision or recall. Existing OCR and drafting-material review items remain.
+
+Coverage remains partial. Broad mathematical expressions, unfamiliar or ambiguous units, temporal meaning, noon/midnight or military-time conversion, font/layout interpretation, full citation semantics and every unencoded context require manual review. LCB priority, the separate 29-code name/shorthand list and all 58 California Counties remain active. California Codes checks do not validate section numbers; county checks do not establish jurisdiction or legal identity. AB 2266 OCR warnings and the AB 109/SB 879 drafting-material gap remain review items. Office precision/recall is unmeasured.
+
+Native verification uses the actual staged Windows EXE, real PDFs, workers and bundled engines with an isolated profile. Loopback CDP supplies file-input events; OS chooser gestures and physical drag-and-drop are outside this result. Archive finalization requires unchanged native-tested application/runtime bytes, refreshes only root documentation/status snapshots, reopens and hashes every ZIP entry, and writes a SHA-256 sidecar. Test PDFs, personal profiles and development dependencies are excluded. This packaged status is a build-time snapshot; final archive checks and GitHub publication are recorded separately without changing the archive.
+
+Earlier checkpoints below retain their historical scope.
+
+---
+
 Document Compare 1.21.17 — October 21, 2026
 
 Added the separate California Counties reference from the user's 58-name image. The required forms are “County of [Name]” and “Counties of [Name], [Name], …”. Exact names and capitalization are checked, including reversed county forms, complete supported plural lists, quoted references and table cells. Unknown names require review without a guessed county. Bare city/place names are not classified as counties. Source strikeouts, unknown exclusions and incomplete/technical attachments remain protected; ordinary generic county descriptions and prose following lists do not supply new county names.

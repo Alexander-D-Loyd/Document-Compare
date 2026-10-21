@@ -1,10 +1,12 @@
+import {nonzeroMinuteTimeIssues,GPO_NONZERO_MINUTE_TIME_SCOPE} from './style-time-abbreviations-next.mjs';
+import {measurementDefinitionIssues} from './style-measurement-definitions.mjs';
 import {styleContext} from './style-context.mjs';
 import {englishUnitAbbreviationIssues} from './style-english-abbreviations.mjs';
 export {GPO_ENGLISH_ABBREVIATION_SCOPE} from './style-english-abbreviations.mjs';
 import {styleEvidenceGuard,cutsOriginalStyleWord,originalBodyStyleContext} from './style-evidence.mjs';
 import {originalStyleLiteralGuard} from './style-original-literal-guard.mjs';
 import {billQuotedTermProtection} from './style-quoted-terms.mjs';
-export const GPO_TIME_ABBREVIATION_SCOPE='GPO 9.54/9.55: exact 1–12 hours with :00 and a.m./p.m., including uppercase meridian letters and layout whitespace, and redundant o’clock with numeric hours and time abbreviations. Complete active source evidence, original Unicode/technical endpoints, quotations, bill-local forms, names, tables and identifiers remain protected. Complete finite document-local creation names supply negative protection without establishing legal identity. Reader-identified interior page heads preserve physical offsets. Nonzero minutes, written hours, military time, noon/midnight interpretation and unrecognized typography remain manual.';
+export const GPO_TIME_ABBREVIATION_SCOPE='GPO 9.54/9.55: exact 1–12 hours with :00 and a.m./p.m., including uppercase meridian letters and layout whitespace, and redundant o’clock with numeric hours and time abbreviations. Complete active source evidence, original Unicode/technical endpoints, quotations, bill-local forms, names, tables and identifiers remain protected. Complete finite document-local creation names supply negative protection without establishing legal identity. Reader-identified interior page heads preserve physical offsets. Written hours, military time, noon/midnight interpretation and unrecognized typography remain manual.'+' '+GPO_NONZERO_MINUTE_TIME_SCOPE;
 // This is negative name evidence only: the original complete declaration
 // prevents a time-format edit inside its title, even if later source masking
 // removes a title word or its creation cue. It creates no registry identity.
@@ -56,5 +58,6 @@ export function measurementIssues(doc,references){
    issues.push({start,end,evidenceStart:m.index,evidenceEnd:end,text:doc.text.slice(start,end),suggestion:preferred,guideId:'lcb',guidePage:page,guidePrintedPage:String(page),rule:cites[0].rule,category:'Temperature scale name',context:ctx.at(start),checkId:'temperature-name',conflict:false,message,references:cites});
   }
  }
+ issues.push(...measurementDefinitionIssues(doc,references),...nonzeroMinuteTimeIssues(doc,references));
  return issues;
 }

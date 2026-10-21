@@ -66,5 +66,5 @@ test('recognized physical page heads preserve exact source evidence and highligh
 });
 test('mathematical spacing remains independent of LCB priority and existing percent/range rules',()=>{
  const d=doc('Use the formula A + B. The healthcare is provided.'),issues=reviewStyleIssues(d,refs);assert.ok(issues.some(i=>i.rule==='10.3'&&i.suggestion==='A+B'));assert.ok(issues.some(i=>i.guideId==='lcb'&&i.suggestion==='health care'));assert.ok(!issues.some(i=>i.conflict));
- const old=doc('Prices rose 12 percent, 15 percent, and 19 percent. The panels are 3 to 4″ wide.'),result=symbolIssues(old,refs);assert.deepEqual(result.map(i=>[i.rule,i.suggestion]),[['10.5','12, 15, and 19 percent'],['10.6','3″ to 4″']]);assert.ok(result.every(i=>!('evidenceStart'in i)));
+ const old=doc('Prices rose 12 percent, 15 percent, and 19 percent. The panels are 3 to 4″ wide.'),result=symbolIssues(old,refs);assert.deepEqual(result.map(i=>[i.rule,i.suggestion]),[['10.5','12, 15, and 19 percent'],['10.6','3″ to 4″']]);assert.ok(result.every(i=>i.evidenceStart===i.start&&i.evidenceEnd>=i.end));
 });

@@ -1,10 +1,10 @@
 # Document Compare
 
-Offline Windows desktop app for legislative PDF comparison and amendment/style review. Version **1.21.17** adds California Counties to the packaged program-name protection, California Codes reference checks, both GPO coverage follow-ups and portable development setup repairs. Digest edits use red deletions and blue additions. Style findings retain applicable LCB priority, legislative exceptions and bill-local quoted terms.
+Offline Windows desktop app for legislative PDF comparison and amendment/style review. Version **1.21.18** adds explicit measurement definitions, complete percentage/dimension series and time/calendar coverage to the verified LCB, California Codes and Counties package. Digest edits use red deletions and blue additions. Style findings retain applicable LCB priority, legislative exceptions and bill-local quoted terms.
 
 ## Run the packaged app
 
-Extract the entire **Document-Compare-Windows-1.21.17.zip** and open **Document Compare/Document Compare.exe**. Keep the runtime and resources together. No installation or development tools are required. PDF and language review run locally.
+Extract the entire **Document-Compare-Windows-1.21.18.zip** and open **Document Compare/Document Compare.exe**. Keep the runtime and resources together. No installation or development tools are required. PDF and language review run locally.
 
 ## Features
 
@@ -20,6 +20,7 @@ Extract the entire **Document-Compare-Windows-1.21.17.zip** and open **Document 
 - California Codes: checks code names and shorthand against the user-supplied 29-row list, including incorrect name/shorthand pairs. Browse and search the list in Style Guides → California Codes. Differences in capitalization or punctuation are flagged; the name–shorthand separator and PDF layout whitespace are ignored. Unlisted citation forms require review, with no invented replacement. This additional reference does not validate section numbers or replace LCB/GPO guidance.
 - GPO follow-up covers all nine printed noun/preposition plural examples, all 16 printed calendar abbreviations after supported prose cues, exact-hour/meridian forms, and selected editorial annotations/legal versus connectors. Whole-source safeguards preserve names, quotations, tables, removed text and physical offsets; full-rule contextual and typography exceptions remain manual.
 - GPO 9.58 checks appended-s variants for 21 unambiguous measurement/time abbreviations from the 23-symbol table. GPO 10.3 closes the five printed arithmetic operators in explicitly identified simple expressions, preserving source numbers, names, breeding and magnification exceptions. Ambiguous units, scientific notation, complex algebra and broader semantic interpretation remain manual.
+- GPO continuation: checks 41 explicit measurement definitions, complete repeated-percent lists and same-unit physical-dimension lists/ranges. Nonzero-minute meridians and six additional calendar leads have bounded source checks. Source numbers and connectors are preserved; numeric-day witnesses do not validate calendar dates. Ambiguous units, semantic meaning and typography remain manual.
 - Local authorized-data spelling importer; see OFFLINE_AUTHORITY.md. Complete Merriam-Webster data is not bundled.
 - On-demand local OCR for printed bill scans, with uncertainty and embedded-text disagreement warnings.
 - Profile-persisted authorized entity-list import, source metadata, bounded search and restoration of the bundled snapshot; see ENTITY_AUTHORITY.md. Missing names do not become errors.
@@ -30,7 +31,7 @@ Blue indicates additions, red deletions, yellow non-amendment changes, and purpl
 
 ## Validation and limitations
 
-The 1.21.17 Windows package passes 13 controlled native stages, including county checks and the searchable 58-county list. All 2,699 source tests pass. The county replay across 23 unchanged bill models / 2,024 pages yields 833 → 857 findings, with all differences reviewed. All 34 original Drive PDFs retain their hashes. Each ZIP entry is verified against the tested package manifest, with a separate archive SHA-256. See [desktop verification](DESKTOP_VERIFICATION.md) for evidence and limitations. These checks do not measure office precision or recall.
+The 1.21.18 Windows package passes 14 controlled native stages, including the new GPO fixture and the earlier county, code, LCB and bundled-engine checks. All 2,735 source tests pass. Production replay across 23 unchanged bill models / 2,024 pages yields 857 → 857 findings, with all differences reviewed. All 34 original Drive PDFs retain their hashes. Finalization verifies every ZIP entry against the tested package manifest and writes a separate archive SHA-256. See [desktop verification](DESKTOP_VERIFICATION.md) for evidence and limitations. These checks do not measure office precision or recall.
 
 Full contextual LCB/GPO automation and the complete ordered Merriam-Webster authority remain incomplete. Genuine SB 879 differences and missing drafting attachments remain flagged. Office-wide precision/recall has not been measured; controlled tests are not an exhaustive human benchmark.
 

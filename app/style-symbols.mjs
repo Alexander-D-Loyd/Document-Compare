@@ -1,5 +1,5 @@
-import {styleContext,styleRangeBlocked} from './style-context.mjs';
-import {dimensionMarkParts} from './style-dimension-marks.mjs';
+import {styleContext} from './style-context.mjs';
+import {symbolSeriesIssues} from './style-symbol-series.mjs';
 import {styleEvidenceGuard,cutsOriginalStyleWord,originalBodyStyleContext} from './style-evidence.mjs';
 import {originalStyleLiteralGuard} from './style-original-literal-guard.mjs';
 import {entityNameBoundaryBlocked} from './style-entity-name-boundaries.mjs';
@@ -40,20 +40,6 @@ export function symbolIssues(doc,references){
   }
   add(start,end,expr.replace(/\s*([+−±×÷])\s*/gu,'$1'),'10.3','GPO 10.3 closes the printed arithmetic operators against figures and symbols. This complete original mathematical cue and its simple operands establish a selected spacing comparison. Numeric strings are preserved; explicit breeding/magnification meanings, malformed or technical continuations and unfamiliar mathematical contexts remain protected or manual.',{evidenceStart:m.index,evidenceEnd:end});
  }
- // Apply the explicit three-number percent-series example only in bill
- // prose; the digest’s symbol choice disagrees with GPO and is excluded.
- for(const m of source.matchAll(/\b(\d+(?:\.\d+)?)\s+percent,\s+(\d+(?:\.\d+)?)\s+percent,?\s+(and|or)\s+(\d+(?:\.\d+)?)\s+percent\b/gi)){
-  if(ctx.at(m.index)!=='Bill')continue;
-  add(m.index,m.index+m[0].length,m[1]+', '+m[2]+', '+m[3]+' '+m[4]+' percent','10.5','GPO 10.5 illustrates a simple percent series with the word percent after its final figure. This check is limited to three bare percentage values, without intervening labels or distinct clauses.');
- }
- // GPO 10.6 explicitly illustrates 5′–7′ long versus 5–7′ long.
- // Preserve both values and the source connector; infer a shared physical
- // unit only when neither endpoint already states a different unit.
- for(const r of dimensionMarkParts(source)){
-  if(!r.missingFirstMark||ctx.literalAt(r.start,r.evidenceEnd)||styleRangeBlocked(doc,r.start,r.evidenceEnd)||doc.blocks.some(b=>b.start<r.evidenceEnd&&b.end>r.start&&ctx.tableAt(Math.max(b.start,r.start))))continue;
-  const originalJoin=doc.text.slice(r.joinStart,r.joinStart+r.bridge.length),bridge=[...r.bridge].map((c,n)=>/\S/.test(c)?originalJoin[n]:c).join('');
-  const suggestion=(r.first+r.lastMark+r.firstGap+bridge+r.last+r.lastGap+r.lastMark).replace(/\s+/g,' ');
-  add(r.start,r.end,suggestion,'10.6','GPO 10.6 repeats the unit symbol at each end of a range, including its 5′–7′ long example. This complete physical-dimension expression omits the first endpoint’s unit mark; repeat the final mark without changing either value or the connector. Other unit meanings, mixed-unit endpoints and unfamiliar contexts require review.');
- }
+ issues.push(...symbolSeriesIssues(doc,references));
  return issues;
 }

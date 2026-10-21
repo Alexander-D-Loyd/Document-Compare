@@ -1,3 +1,4 @@
+import {dimensionSeriesEvidence} from './style-symbol-series.mjs';
 import {styleContext,styleRangeBlocked} from './style-context.mjs';
 import {dimensionMarkParts} from './style-dimension-marks.mjs';
 import {percentageOpeningEvidence,percentageAllocationFragmentEvidence} from './style-percentage-openings.mjs';
@@ -55,6 +56,7 @@ export function numeralIssues(doc,references){
  // A proven physical figure-mark expression is indivisible, like other
  // technical units. Ordinary written-unit LCB/GPO conflict rules stay intact.
  for(const r of dimensionMarkParts(source))if(!styleRangeBlocked(doc,r.start,r.evidenceEnd))protectedRanges.push({start:r.start,end:r.end});
+ for(const r of dimensionSeriesEvidence(doc))protectedRanges.push({start:r.start,end:r.end});
  // Identifiers and dates are not counts. A repeated citation list stays one scope.
  // A comma followed by a recognized complete counted noun phrase starts a
  // quantity, not another Article/Section identifier. Unknown continuations

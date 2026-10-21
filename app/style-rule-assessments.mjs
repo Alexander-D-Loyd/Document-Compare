@@ -1,3 +1,5 @@
+import {GPO_PERCENT_SERIES_SCOPE,GPO_DIMENSION_SERIES_SCOPE} from './style-symbol-series.mjs';
+import {GPO_MEASUREMENT_DEFINITION_SCOPE} from './style-measurement-definitions.mjs';
 // Human-readable source audit decisions. Applicability is separate from
 // automatic detection; manual checks remain visible in Check Coverage.
 import {DECIMAL_OPENING_REVIEW_SCOPE}from './style-decimal-openings.mjs';
@@ -223,3 +225,8 @@ chapter7([10],'Partially automated','461 explicit particle-ending noun entries f
 chapter7([12,13],'Manual review required','The flush keyword, indentation, space-mark and part-of-speech abbreviations govern interpretation of this multi-column lexical table. Whole-table hierarchy and every entry’s noun/verb/modifier/prefix exception are not fully mapped to tested checks; page search must not be counted as automation.');
 if([...GPO_ASSESSMENTS.keys()].filter(id=>id.startsWith('7.')).length!==13)throw Error('Chapter 7 audit must account for all 13 introductory rules.');
 
+
+for(const rule of ['9.56','9.58'])GPO_ASSESSMENTS.set(rule,{...GPO_ASSESSMENTS.get(rule),scope:GPO_ASSESSMENTS.get(rule).scope+' '+GPO_MEASUREMENT_DEFINITION_SCOPE});
+
+GPO_ASSESSMENTS.set('10.5',{...GPO_ASSESSMENTS.get('10.5'),scope:GPO_PERCENT_SERIES_SCOPE});
+GPO_ASSESSMENTS.set('10.6',{...GPO_ASSESSMENTS.get('10.6'),scope:GPO_DIMENSION_SERIES_SCOPE});

@@ -1,31 +1,27 @@
 {
   "date": "2026-10-21",
-  "packagedVersion": "1.21.17",
+  "packagedVersion": "1.21.18",
   "localFollowOn": false,
   "desktopVerification": {
     "date": "2026-10-21",
-    "sourceTestsPassed": 2699,
-    "nativeDevelopmentStagesPassed": 11,
-    "nativeReleasedExeStagesPassed": 11,
-    "nativePdfIntakeFiles": 34,
-    "sourcePdfPages": 2119,
-    "nativeAmendmentSets": 11,
-    "amendmentStatuses": {
-      "implemented": 90,
-      "needsReview": 4,
-      "incorrect": 1
-    },
+    "version": "1.21.18",
+    "sourceTestsPassed": 2735,
+    "nativeRelease12118StagesPassed": 14,
+    "nativeStagesPassed": 14,
+    "nativeErrors": 0,
+    "executableUnchanged": true,
     "pairedStyleModels": 23,
-    "pairedStyleFindingsBefore": 124,
-    "pairedStyleFindingsAfter": 120,
-    "pairedStyleRemoved": 4,
+    "pairedStylePages": 2024,
+    "pairedStyleFindingsBefore": 857,
+    "pairedStyleFindingsAfter": 857,
+    "pairedStyleRemoved": 0,
     "pairedStyleAdded": 0,
     "pairedStyleChangedRetainedExcludingIds": 0,
+    "corpusDifferencesReviewed": true,
+    "originalPdfsUnchanged": 34,
     "localSourcePackaged": true,
-    "scope": "Controlled native workflows and bounded source/corpus checks; OS chooser gestures and office precision/recall remain outside this result.",
-    "report": "DESKTOP_VERIFICATION.md",
-    "nativeRelease12116StagesPassed": 12,
-    "nativeRelease12117StagesPassed": 13
+    "scope": "Current 1.21.18 controlled staged-EXE workflow and bounded source/corpus checks. Prior 34-file native intake and 11-set amendment results are retained in historicalValidationSnapshotsBefore12118. OS chooser/drag gestures and office precision/recall remain outside this result.",
+    "report": "DESKTOP_VERIFICATION.md"
   },
   "californiaCodes": {
     "source": "User-supplied image",
@@ -36,7 +32,9 @@
     "cachedModelsChecked": 34,
     "unlistedCodeOfRegulationsReviewFindings": 16,
     "sectionNumbersValidated": false,
-    "includedInDownloadedExe": false
+    "includedInDownloadedExe": false,
+    "includedInDownloadedExeScope": "The historical downloaded 1.21.15 EXE; the current staged package includes these checks.",
+    "includedInCurrentPackage": true
   },
   "gpoFollowUp": {
     "date": "2026-10-21",
@@ -70,7 +68,8 @@
       "9.58 finite English/time abbreviation table",
       "10.3 complete mathematical cue/operator evidence"
     ],
-    "report": "DESKTOP_VERIFICATION.md"
+    "report": "DESKTOP_VERIFICATION.md",
+    "historicalCheckpointScope": "Retains the original version-specific validation and corpus evidence; current validation is under gpoContinuation12118 and desktopVerification."
   },
   "documentReview": "Offline",
   "githubPushed": false,
@@ -90,8 +89,8 @@
     "countInterpretation": "Declared partially automated inventory rows; no entry completion or measured accuracy percentage."
   },
   "pending": [
-    "Package and verify the October 21 local source follow-up before future publication.",
-    "Continue GPO coverage in completion-first order: finite 9.58 table, then 10.3 complete mathematical cue/operator evidence.",
+    "Finalize the verified 1.21.18 archive and publish its fixed source commit, ZIP and checksum; publication is recorded externally to this immutable build snapshot.",
+    "Continue source-bound GPO gaps after the implemented measurement, percentage/dimension and time/calendar slices; broader math, ambiguous units and semantic/typographic conditions remain manual.",
     "Human confirmation of AB 2266 amendments 5, 9 and 10 OCR review warnings.",
     "Human review of unfamiliar prefix formations and ambiguous source-dependent meaning, punctuation, possession, grouping and legal referents.",
     "Complete authorized offline Merriam-Webster ordering and word-sense data.",
@@ -454,52 +453,18 @@
     "target": "More accurate issue detection than an experienced human reader; not yet established.",
     "offlineEngineEvaluation": "Candidates researched; no engine installed, integrated or performance-validated in this checkpoint."
   },
-  "updatedAt": "2026-10-11T17:13:05.310887-07:00",
+  "updatedAt": "2026-10-21T19:45:29.200Z",
   "currentValidation": {
-    "sourceTests": 1906,
-    "nativePackagedWorkflow": "1.21.6 not run at user request; unchanged 1.21.5 previously passed 21 stages.",
-    "knownOlderPackageFailures": [
-      "AB 2266 OCR warning expectations",
-      "AB 1502 scanned clause marker",
-      "AB 109/SB 879 fragmented amount selections"
-    ],
-    "cachedSourceReplay": "AB 1502 and AB 2266 align; five reviewed budget replacements select whole amounts; genuine missing provision remains flagged. Saved readings, not fresh imports.",
-    "officeAccuracyBenchmark": "Deferred at user request; precision/recall not established.",
-    "ruleScope": "Selected automated and reader-review methods; full contextual LCB/GPO automation remains incomplete.",
-    "packagedSourceSuite": "Source tests passed; exact shipped source bytes checked against that source.",
-    "packagedRuntimeIntegrity": "Actual grammar/style positive and corrected controls through bundled Python/Java/model; all 7912 engine files unchanged. Electron IPC/UI pending.",
-    "priorNativeOutcome": {
-      "version": "1.21.3",
-      "at": "2026-10-11T23:11:19.713Z",
-      "runId": "2026-10-11T22-41-29-240Z-d39cb746",
-      "report": "work/offline-engine-evaluation/packaged-workflow-runs/2026-10-11T22-41-29-240Z-d39cb746/result.json",
-      "reportSHA256": "7089461090ac12dea9c0d6bae31ac8eacc8fde678bd09be56b584a0d79291fc6",
-      "nativeStagesPassed": 19,
-      "nativeStagesTotal": 19,
-      "failedStages": [],
-      "remainingFailure": null,
-      "fullWorkflowVerified": true,
-      "verificationBasis": "The complete rerun passed all 19 stages on the identical package. The original failed report is preserved.",
-      "evidence": [
-        {
-          "report": "work/offline-engine-evaluation/packaged-workflow-runs/2026-10-11T22-29-46-521Z-b9ae574e/result.json",
-          "sha256": "75c411dadc0603add8af66dcd2afbb61888e6d0a3578914e5afc57ee0138c483",
-          "passed": 18,
-          "total": 19
-        },
-        {
-          "report": "work/offline-engine-evaluation/packaged-workflow-runs/2026-10-11T22-41-29-240Z-d39cb746/result.json",
-          "sha256": "7089461090ac12dea9c0d6bae31ac8eacc8fde678bd09be56b584a0d79291fc6",
-          "passed": 19,
-          "total": 19
-        }
-      ],
-      "packageManifestSHA256": "215b62a23fcf98ae158b8a81ea1ded3136ed5d2a2596e980aa9f6987ccfc719d",
-      "packagedFilesUnchanged": true,
-      "securitySettingsChanged": false,
-      "packagedBuildChanged": false,
-      "overallOfficeAccuracyMeasured": false
-    }
+    "version": "1.21.18",
+    "sourceTests": 2735,
+    "passed": 2735,
+    "failed": 0,
+    "nativePackagedWorkflow": "All 14 staged Windows EXE stages passed.",
+    "corpusModels": 23,
+    "corpusPages": 2024,
+    "sourceOffsetIntegrity": true,
+    "originalPdfsUnchanged": 34,
+    "scope": "Current controlled regression/workflow evidence; office precision/recall is not measured."
   },
   "validationHistoryBefore1210": {
     "tests": 1235,
@@ -1304,9 +1269,10 @@
     }
   },
   "validation": {
-    "tests": 1906,
+    "version": "1.21.18",
+    "tests": 2735,
     "sourceTestsPassed": true,
-    "nativePackagedWorkflowPassed": false
+    "nativePackagedWorkflowPassed": true
   },
   "currentRuleInventory": {
     "sourcePassages": 59,
@@ -1435,7 +1401,7 @@
     "previousNativeStages": 20,
     "sourcePdfsEdited": false
   },
-  "localVersion": "1.21.8",
+  "localVersion": "1.21.18",
   "lcbNearCompletionFollowOn": {
     "localVersion": "1.21.6",
     "packaged": true,
@@ -1601,10 +1567,10 @@
     "officeAccuracyMeasured": false,
     "nativeWorkflowSkippedByUser": true
   },
-  "nativeWorkflow": "complete 1.21.15 native workflow unrun",
+  "nativeWorkflow": "Staged Windows 1.21.18 EXE passed all 14 controlled native stages; real PDF/worker/IPC engines, isolated profile and loopback file-input events. OS chooser/drag gestures and office accuracy are unmeasured.",
   "nativeWorkflowSkippedByUser": false,
-  "localSourceVersion": "1.21.17",
-  "localFollowOnScope": "Release 1.21.17: separate California Counties list and singular/plural form checks, alongside the verified 1.21.16 LCB, Codes and GPO changes. Full semantics and office accuracy remain manual.",
+  "localSourceVersion": "1.21.18",
+  "localFollowOnScope": "Release 1.21.18: source-bound explicit measurement definitions, complete repeated-percent and same-unit physical-dimension series, and time/calendar continuation; retains LCB priority and the separate California Codes/Counties references.",
   "quotedTermPolicy": {
     "source": "Active Current Version, including digest and heading",
     "initialCapitalizationDifferences": true,
@@ -1614,13 +1580,13 @@
     "scope": "Style preferences within matching complete quoted-term occurrences are suppressed. Clause-boundary punctuation and surrounding wording remain independently checked."
   },
   "localSourceChecks": {
-    "tests": 2504,
-    "passed": 2504,
+    "version": "1.21.18",
+    "tests": 2735,
+    "passed": 2735,
     "failed": 0,
-    "parserPrecisionTests": 22,
-    "stagedRuntimeSmoke": "passed; four grammar corrections, exact printed style positives, eight quiet controls, UTF-16/cross-page selection, cancellation/recovery and invalid payload",
-    "nativeDesktop": "not run; Electron startup unavailable in this execution environment",
-    "publishedBaseline": "1.21.7"
+    "sourceTestLogSHA256": "e015caa996d8a07dff619252c7fe298823bdfb92e87c1eb5387d7d5bf21e8da9",
+    "corpusReport": "qa-output/gpo-next-corpus-comparison.json",
+    "originalPdfsUnchanged": 34
   },
   "allAvailableBillHyphenationAudit": {
     "documents": 87,
@@ -1658,30 +1624,23 @@
     "quotedTerms": "Bill local; exact interior spelling/case/punctuation with authorized initial-letter case variation; no cross-bill authority",
     "historicalHyphenCountsVersion": "1.21.9"
   },
-  "sourceVersion": "1.21.17",
+  "sourceVersion": "1.21.18",
   "guidePriority": {
     "primary": "LCB",
     "scope": "Applicable explicit printed forms in supported contexts; compliant LCB stays quiet; unknown roles remain manual."
   },
   "currentReleaseValidation": {
-    "version": "1.21.15",
-    "tests": 2504,
-    "passed": 2504,
+    "version": "1.21.18",
+    "tests": 2735,
+    "passed": 2735,
     "failed": 0,
-    "runtimeAndTestInputsUnchanged": true,
-    "sourceTestLogSHA256": "d179b73642a90937c8e2a6e473545327f3aa07e61e61ec5f3ab4efbd7e805cb8",
-    "nativeDesktopVerified": false,
-    "officeAccuracyMeasured": false,
-    "wholeRuleCertification": false,
-    "localOnly": true,
-    "pairedModels": 87,
-    "pairedPages": 4506,
-    "priorStyleFindings": 2648,
-    "currentStyleFindings": 2648,
-    "removed": 0,
-    "added": 0,
-    "changedRetained": 0,
-    "reviewProofSHA256": "3899891805ad740b38d5c4f6f839af5bdede5bcee4a955a3bd5c5ff1c7cdadf6"
+    "sourceTestLogSHA256": "e015caa996d8a07dff619252c7fe298823bdfb92e87c1eb5387d7d5bf21e8da9",
+    "corpusReport": "qa-output/gpo-next-corpus-comparison.json",
+    "originalPdfsUnchanged": 34,
+    "nativeStagesPassed": 14,
+    "nativeReport": "qa-output/release-1.21.18/native-results.json",
+    "sourceOffsetIntegrity": true,
+    "scope": "Build-time source and staged-EXE validation; archive and publication verification follow separately."
   },
   "canonicalLexicalHistoricalVersion": "1.21.7",
   "localFollowOnValidation": {
@@ -1763,7 +1722,7 @@
     "packaged": true,
     "githubPublished": false
   },
-  "workingSourceScope": "Current local 1.21.15 checkpoint: explicit LCB source forms and bounded context stabilization, with no new GPO coverage. Native verification unrun.",
+  "workingSourceScope": "Release 1.21.18: source-bound explicit measurement definitions, complete repeated-percent and same-unit physical-dimension series, and time/calendar continuation; retains LCB priority and the separate California Codes/Counties references.",
   "predicateSourceStabilization": {
     "date": "2026-10-16T20:25:56.420Z",
     "status": "source-checkpoint-passed-corpus-comparison-running",
@@ -2186,21 +2145,27 @@
       "vendor/pdf.worker.mjs": "07ceb740d746e5d9012fcf9f27d5c7dea09f7d2f5e74f5c8109e5787551a2333"
     }
   },
-  "publicationFieldsScope": "Package-preparation state only; later GitHub publication is recorded separately without changing the archived build.",
+  "publicationFieldsScope": "Immutable build-preparation snapshot. Final ZIP/checksum verification and later GitHub source/release publication are recorded separately without changing packaged bytes.",
   "currentFinishCheckpoint": {
-    "date": "2026-10-16",
-    "sourceTests": 2504,
-    "exactEntryRows": 663,
-    "canonicalStyleInputs": 2736,
-    "phraseProjections": 29,
-    "acceptedProtectedResetJointCalls": 3893,
-    "protectionFailures": 0,
-    "exactPrintedSpellingContexts": 10,
-    "nearMissSpellingContexts": 10,
-    "declaredExplicitSourceRecords": 43,
-    "nativeDesktopVerified": false,
-    "githubPublished": false,
-    "remaining": "Remaining LCB scope: unfamiliar bi/in/multi/non formations and ambiguous meaning, quotation, grouping, possession or legal referents require human judgment under the stated source conditions. Complete ordered Merriam-Webster data, current official entity/name data and full supplementary California Style Manual citation authority require external sources. The importers and selected explicit LCB checks are implemented. Fresh native and eventual office verification remain separate."
+    "date": "2026-10-21",
+    "version": "1.21.18",
+    "sourceTests": 2735,
+    "passed": 2735,
+    "failed": 0,
+    "nativePackagedWorkflowPassed": true,
+    "nativeStagesPassed": 14,
+    "nativeErrors": 0,
+    "sourceOffsetIntegrity": true,
+    "corpusDocuments": 23,
+    "corpusPages": 2024,
+    "findingsBefore": 857,
+    "findingsAfter": 857,
+    "added": 0,
+    "removed": 0,
+    "changedRetainedExcludingIds": 0,
+    "corpusDifferencesReviewed": true,
+    "originalPdfsUnchanged": 34,
+    "scope": "Current 1.21.18 source, staged-EXE and reviewed corpus checkpoint; archive and GitHub publication are recorded separately. Earlier finish-checkpoint fields remain in historicalValidationSnapshotsBefore12118."
   },
   "release12116": {
     "date": "2026-10-21",
@@ -2238,7 +2203,8 @@
     "package": "dist/Document-Compare-Windows-1.21.16.zip",
     "packageIntegrity": "Finalizer checks application/runtime bytes against the native-tested stage and reopens the ZIP to hash every file; archive SHA-256 is recorded beside the ZIP.",
     "githubPublication": "Recorded separately after archive finalization; githubPushed reflects the build-time snapshot.",
-    "report": "DESKTOP_VERIFICATION.md"
+    "report": "DESKTOP_VERIFICATION.md",
+    "historicalCheckpointScope": "Retains the original version-specific validation and corpus evidence; current validation is under gpoContinuation12118 and desktopVerification."
   },
   "californiaCounties": {
     "source": "User-supplied California Counties Legend image and formatting instructions",
@@ -2267,6 +2233,191 @@
     "corpusDifferencesReviewed": true,
     "originalPdfsUnchanged": 34,
     "package": "dist/Document-Compare-Windows-1.21.17.zip",
+    "report": "DESKTOP_VERIFICATION.md",
+    "historicalCheckpointScope": "Retains the original version-specific validation and corpus evidence; current validation is under gpoContinuation12118 and desktopVerification."
+  },
+  "historicalValidationSnapshotsBefore12118": {
+    "scope": "Historical checkpoint fields retained verbatim before the 1.21.18 active metadata refresh. These values describe their original versions and dates, rather than current validation.",
+    "fields": {
+      "localVersion": "1.21.8",
+      "nativeWorkflow": "complete 1.21.15 native workflow unrun",
+      "workingSourceScope": "Current local 1.21.15 checkpoint: explicit LCB source forms and bounded context stabilization, with no new GPO coverage. Native verification unrun.",
+      "currentValidation": {
+        "sourceTests": 1906,
+        "nativePackagedWorkflow": "1.21.6 not run at user request; unchanged 1.21.5 previously passed 21 stages.",
+        "knownOlderPackageFailures": [
+          "AB 2266 OCR warning expectations",
+          "AB 1502 scanned clause marker",
+          "AB 109/SB 879 fragmented amount selections"
+        ],
+        "cachedSourceReplay": "AB 1502 and AB 2266 align; five reviewed budget replacements select whole amounts; genuine missing provision remains flagged. Saved readings, not fresh imports.",
+        "officeAccuracyBenchmark": "Deferred at user request; precision/recall not established.",
+        "ruleScope": "Selected automated and reader-review methods; full contextual LCB/GPO automation remains incomplete.",
+        "packagedSourceSuite": "Source tests passed; exact shipped source bytes checked against that source.",
+        "packagedRuntimeIntegrity": "Actual grammar/style positive and corrected controls through bundled Python/Java/model; all 7912 engine files unchanged. Electron IPC/UI pending.",
+        "priorNativeOutcome": {
+          "version": "1.21.3",
+          "at": "2026-10-11T23:11:19.713Z",
+          "runId": "2026-10-11T22-41-29-240Z-d39cb746",
+          "report": "work/offline-engine-evaluation/packaged-workflow-runs/2026-10-11T22-41-29-240Z-d39cb746/result.json",
+          "reportSHA256": "7089461090ac12dea9c0d6bae31ac8eacc8fde678bd09be56b584a0d79291fc6",
+          "nativeStagesPassed": 19,
+          "nativeStagesTotal": 19,
+          "failedStages": [],
+          "remainingFailure": null,
+          "fullWorkflowVerified": true,
+          "verificationBasis": "The complete rerun passed all 19 stages on the identical package. The original failed report is preserved.",
+          "evidence": [
+            {
+              "report": "work/offline-engine-evaluation/packaged-workflow-runs/2026-10-11T22-29-46-521Z-b9ae574e/result.json",
+              "sha256": "75c411dadc0603add8af66dcd2afbb61888e6d0a3578914e5afc57ee0138c483",
+              "passed": 18,
+              "total": 19
+            },
+            {
+              "report": "work/offline-engine-evaluation/packaged-workflow-runs/2026-10-11T22-41-29-240Z-d39cb746/result.json",
+              "sha256": "7089461090ac12dea9c0d6bae31ac8eacc8fde678bd09be56b584a0d79291fc6",
+              "passed": 19,
+              "total": 19
+            }
+          ],
+          "packageManifestSHA256": "215b62a23fcf98ae158b8a81ea1ded3136ed5d2a2596e980aa9f6987ccfc719d",
+          "packagedFilesUnchanged": true,
+          "securitySettingsChanged": false,
+          "packagedBuildChanged": false,
+          "overallOfficeAccuracyMeasured": false
+        }
+      },
+      "validation": {
+        "tests": 1906,
+        "sourceTestsPassed": true,
+        "nativePackagedWorkflowPassed": false
+      },
+      "localSourceChecks": {
+        "tests": 2504,
+        "passed": 2504,
+        "failed": 0,
+        "parserPrecisionTests": 22,
+        "stagedRuntimeSmoke": "passed; four grammar corrections, exact printed style positives, eight quiet controls, UTF-16/cross-page selection, cancellation/recovery and invalid payload",
+        "nativeDesktop": "not run; Electron startup unavailable in this execution environment",
+        "publishedBaseline": "1.21.7"
+      },
+      "currentReleaseValidation": {
+        "version": "1.21.15",
+        "tests": 2504,
+        "passed": 2504,
+        "failed": 0,
+        "runtimeAndTestInputsUnchanged": true,
+        "sourceTestLogSHA256": "d179b73642a90937c8e2a6e473545327f3aa07e61e61ec5f3ab4efbd7e805cb8",
+        "nativeDesktopVerified": false,
+        "officeAccuracyMeasured": false,
+        "wholeRuleCertification": false,
+        "localOnly": true,
+        "pairedModels": 87,
+        "pairedPages": 4506,
+        "priorStyleFindings": 2648,
+        "currentStyleFindings": 2648,
+        "removed": 0,
+        "added": 0,
+        "changedRetained": 0,
+        "reviewProofSHA256": "3899891805ad740b38d5c4f6f839af5bdede5bcee4a955a3bd5c5ff1c7cdadf6"
+      },
+      "desktopVerification": {
+        "date": "2026-10-21",
+        "sourceTestsPassed": 2699,
+        "nativeDevelopmentStagesPassed": 11,
+        "nativeReleasedExeStagesPassed": 11,
+        "nativePdfIntakeFiles": 34,
+        "sourcePdfPages": 2119,
+        "nativeAmendmentSets": 11,
+        "amendmentStatuses": {
+          "implemented": 90,
+          "needsReview": 4,
+          "incorrect": 1
+        },
+        "pairedStyleModels": 23,
+        "pairedStyleFindingsBefore": 124,
+        "pairedStyleFindingsAfter": 120,
+        "pairedStyleRemoved": 4,
+        "pairedStyleAdded": 0,
+        "pairedStyleChangedRetainedExcludingIds": 0,
+        "localSourcePackaged": true,
+        "scope": "Controlled native workflows and bounded source/corpus checks; OS chooser gestures and office precision/recall remain outside this result.",
+        "report": "DESKTOP_VERIFICATION.md",
+        "nativeRelease12116StagesPassed": 12,
+        "nativeRelease12117StagesPassed": 13
+      },
+      "currentFinishCheckpoint": {
+        "date": "2026-10-16",
+        "sourceTests": 2504,
+        "exactEntryRows": 663,
+        "canonicalStyleInputs": 2736,
+        "phraseProjections": 29,
+        "acceptedProtectedResetJointCalls": 3893,
+        "protectionFailures": 0,
+        "exactPrintedSpellingContexts": 10,
+        "nearMissSpellingContexts": 10,
+        "declaredExplicitSourceRecords": 43,
+        "nativeDesktopVerified": false,
+        "githubPublished": false,
+        "remaining": "Remaining LCB scope: unfamiliar bi/in/multi/non formations and ambiguous meaning, quotation, grouping, possession or legal referents require human judgment under the stated source conditions. Complete ordered Merriam-Webster data, current official entity/name data and full supplementary California Style Manual citation authority require external sources. The importers and selected explicit LCB checks are implemented. Fresh native and eventual office verification remain separate."
+      }
+    }
+  },
+  "gpoContinuation12118": {
+    "date": "2026-10-21",
+    "version": "1.21.18",
+    "status": "Partially automated finite source slices",
+    "sourceTestsPassed": 2735,
+    "measurementDefinitions": {
+      "total": 41,
+      "bareEnglishAndTime": 23,
+      "metricPowerForms": 14,
+      "englishPowerForms": 4,
+      "requiresFullNameAndParenthesizedSymbol": true,
+      "plainAndSuperscriptPowersEquivalent": true,
+      "fontCertification": false
+    },
+    "percentLists": "Complete homogeneous lists of two or more repeated percent values in Bill prose; original numeric strings and connectors preserved; applicable LCB Digest forms take priority.",
+    "dimensionLists": "Complete same-unit physical lists and two-endpoint ranges with an explicit final mark and physical continuation; mixed/unknown meanings remain manual.",
+    "time": "Complete nonzero-minute meridian notation; original digits retained; temporal interpretation remains manual.",
+    "addedCalendarLeads": [
+      "Since",
+      "As of",
+      "Effective",
+      "Beginning",
+      "Starting",
+      "No later than"
+    ],
+    "calendarDateValidation": false,
+    "rules": [
+      "9.44",
+      "9.46",
+      "9.54",
+      "9.56",
+      "9.58",
+      "10.5",
+      "10.6"
+    ],
+    "nativeStagesPassed": 14,
+    "nativeNewGpoComparisons": 8,
+    "nativeProtectedControls": 6,
+    "independentLcbCodesAndCountiesVerified": true,
+    "sourceOffsetIntegrity": true,
+    "models": 23,
+    "pages": 2024,
+    "findingsBefore": 857,
+    "findingsAfter": 857,
+    "added": 0,
+    "removed": 0,
+    "changedRetainedExcludingIds": 0,
+    "corpusDifferencesReviewed": true,
+    "corpusReview": "The production combined style replay across 23 unchanged bill models / 2,024 pages retains all 857 findings: no additions, removals or changed retained finding metadata apart from regenerated IDs. Exact source selections and model/source fingerprints remain unchanged. The added finite forms are verified by focused fixtures; these corpus results do not establish office precision or recall. Existing OCR and drafting-material review items remain.",
+    "originalPdfsUnchanged": 34,
+    "package": "dist/Document-Compare-Windows-1.21.18.zip",
+    "packageIntegrity": "Archive finalization requires unchanged native-tested app/runtime bytes and verifies every ZIP entry; external archive checksum records the finalized bytes.",
+    "githubPublication": "Recorded separately after finalization; githubPushed is the immutable build-time snapshot.",
+    "manualScope": "Coverage remains partial. Broad mathematical expressions, unfamiliar or ambiguous units, temporal meaning, noon/midnight or military-time conversion, font/layout interpretation, full citation semantics and every unencoded context require manual review. LCB priority, the separate 29-code name/shorthand list and all 58 California Counties remain active. California Codes checks do not validate section numbers; county checks do not establish jurisdiction or legal identity. AB 2266 OCR warnings and the AB 109/SB 879 drafting-material gap remain review items. Office precision/recall is unmeasured.",
     "report": "DESKTOP_VERIFICATION.md"
   }
 }

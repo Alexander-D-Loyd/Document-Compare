@@ -45,8 +45,8 @@ test('source initialism coverage retains literal HUD limits and source pronuncia
  assert.match(rows.find(r=>r.id==='gpo-5.18').scope,/BLS\/GAO\/WWW\/CIO\/UFO\/AEC\/NSC\/RFC/);
 });
 
-test('GPO10.6 retains its source rule and bounded two-endpoint unit scope',()=>{
- const row=styleRuleInventory(refs).find(r=>r.id==='gpo-10.6');assert.equal(row.page,277);assert.equal(row.status,'Partially automated');assert.match(row.text,/symbol set close up to figures/);assert.match(row.scope,/missing first endpoint/);assert.match(row.scope,/mixed-unit/);assert.match(row.scope,/Currency, temperature, longer series/);assert.match(row.scope,/does not certify every/);
+test('GPO10.6 retains its source rule and bounded complete physical-series scope',()=>{
+ const row=styleRuleInventory(refs).find(r=>r.id==='gpo-10.6');assert.equal(row.page,277);assert.equal(row.status,'Partially automated');assert.match(row.text,/symbol set close up to figures/);assert.match(row.scope,/complete same-unit physical-dimension lists/);assert.match(row.scope,/two-endpoint ranges/);assert.match(row.scope,/Mixed-unit/);assert.match(row.scope,/currency\/temperature series/);assert.match(row.scope,/remain manual/);
 });
 
 test('GPO 6.38 has bounded fraction automation with its true printed rule and retained exceptions',()=>{
