@@ -1,10 +1,10 @@
 {
   "date": "2026-10-21",
-  "packagedVersion": "1.21.16",
+  "packagedVersion": "1.21.17",
   "localFollowOn": false,
   "desktopVerification": {
     "date": "2026-10-21",
-    "sourceTestsPassed": 2618,
+    "sourceTestsPassed": 2699,
     "nativeDevelopmentStagesPassed": 11,
     "nativeReleasedExeStagesPassed": 11,
     "nativePdfIntakeFiles": 34,
@@ -24,7 +24,8 @@
     "localSourcePackaged": true,
     "scope": "Controlled native workflows and bounded source/corpus checks; OS chooser gestures and office precision/recall remain outside this result.",
     "report": "DESKTOP_VERIFICATION.md",
-    "nativeRelease12116StagesPassed": 12
+    "nativeRelease12116StagesPassed": 12,
+    "nativeRelease12117StagesPassed": 13
   },
   "californiaCodes": {
     "source": "User-supplied image",
@@ -1602,8 +1603,8 @@
   },
   "nativeWorkflow": "complete 1.21.15 native workflow unrun",
   "nativeWorkflowSkippedByUser": false,
-  "localSourceVersion": "1.21.16",
-  "localFollowOnScope": "Release 1.21.16: verified LCB program-name protection, separate California Codes list, two finite GPO coverage batches and development setup/packaging repairs. Full-rule semantics and office accuracy remain manual.",
+  "localSourceVersion": "1.21.17",
+  "localFollowOnScope": "Release 1.21.17: separate California Counties list and singular/plural form checks, alongside the verified 1.21.16 LCB, Codes and GPO changes. Full semantics and office accuracy remain manual.",
   "quotedTermPolicy": {
     "source": "Active Current Version, including digest and heading",
     "initialCapitalizationDifferences": true,
@@ -1657,7 +1658,7 @@
     "quotedTerms": "Bill local; exact interior spelling/case/punctuation with authorized initial-letter case variation; no cross-bill authority",
     "historicalHyphenCountsVersion": "1.21.9"
   },
-  "sourceVersion": "1.21.16",
+  "sourceVersion": "1.21.17",
   "guidePriority": {
     "primary": "LCB",
     "scope": "Applicable explicit printed forms in supported contexts; compliant LCB stays quiet; unknown roles remain manual."
@@ -2237,6 +2238,35 @@
     "package": "dist/Document-Compare-Windows-1.21.16.zip",
     "packageIntegrity": "Finalizer checks application/runtime bytes against the native-tested stage and reopens the ZIP to hash every file; archive SHA-256 is recorded beside the ZIP.",
     "githubPublication": "Recorded separately after archive finalization; githubPushed reflects the build-time snapshot.",
+    "report": "DESKTOP_VERIFICATION.md"
+  },
+  "californiaCounties": {
+    "source": "User-supplied California Counties Legend image and formatting instructions",
+    "sourceDate": null,
+    "entries": 58,
+    "acceptedForms": [
+      "County of [Name]",
+      "Counties of [Name], [Name], …"
+    ],
+    "caseSensitive": true,
+    "quotedAndTableReferencesChecked": true,
+    "unlistedNames": "Review only; no guessed county name",
+    "barePlaceNamesInferred": false,
+    "sourceTestsPassed": 2699,
+    "nativePackagedStagesPassed": 13,
+    "nativeKnownCorrections": 6,
+    "nativeUnknownReviews": 1,
+    "sourceOffsetIntegrity": true,
+    "models": 23,
+    "pages": 2024,
+    "findingsBefore": 833,
+    "findingsAfter": 857,
+    "added": 24,
+    "removed": 0,
+    "changedRetainedExcludingIds": 0,
+    "corpusDifferencesReviewed": true,
+    "originalPdfsUnchanged": 34,
+    "package": "dist/Document-Compare-Windows-1.21.17.zip",
     "report": "DESKTOP_VERIFICATION.md"
   }
 }

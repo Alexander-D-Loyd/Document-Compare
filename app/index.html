@@ -51,6 +51,10 @@
 <label id="guide-search-label" for="guide-search">Search the guide</label><input id="guide-search" type="search" placeholder="Search a phrase, topic, or rule number (for example 6.20)" autocomplete="off">
 <p id="guide-search-status" class="tool-status" aria-live="polite"></p>
 <section id="coverage-panel" role="tabpanel" aria-label="Check Coverage" hidden><div id="coverage-list" class="guide-rules"></div></section>
+<section id="california-counties-panel" role="tabpanel" aria-label="California Counties" hidden>
+<p class="small-note">Check county names against your supplied 58-county list. Use “County of [Name]” for one county, or “Counties of [Name], [Name], …” for a list. Names and capitalization must match; PDF layout whitespace is ignored.</p>
+<p class="small-note">Source: user-supplied California Counties Legend image and formatting instructions. Source date unknown.</p><div id="california-counties-results" class="guide-rules"></div>
+</section>
 <section id="california-codes-panel" role="tabpanel" aria-label="California Codes" hidden>
 <p class="small-note">Names and shorthand are checked against your supplied 29-code list, including capitalization and punctuation. The hyphen between them is only a separator. Section numbers and statutory text are not checked.</p>
 <p class="small-note">Source: user-supplied reference image. Source date unknown.</p><div id="california-codes-results" class="guide-rules"></div>

@@ -1,6 +1,18 @@
 # Desktop verification — October 21, 2026
 
-Release 1.21.16 packages the restored desktop checkout and the verified LCB, California Codes and GPO follow-ups. The release checkpoint below supersedes earlier unpackaged-source notes. Original PDFs and the downloaded 1.21.15 EXE remain unchanged.
+Release 1.21.17 adds California Counties to the verified 1.21.16 LCB, California Codes and GPO package. The release checkpoint below supersedes earlier unpackaged-source notes. Original PDFs and the downloaded 1.21.15 EXE remain unchanged.
+
+## California Counties / release 1.21.17 verification
+
+Document Compare 1.21.17 — October 21, 2026
+
+Added the separate California Counties reference from the user's 58-name image. The required forms are “County of [Name]” and “Counties of [Name], [Name], …”. Exact names and capitalization are checked, including reversed county forms, complete supported plural lists, quoted references and table cells. Unknown names require review without a guessed county. Bare city/place names are not classified as counties. Source strikeouts, unknown exclusions and incomplete/technical attachments remain protected; ordinary generic county descriptions and prose following lists do not supply new county names.
+
+All 2,699 source tests pass. The Windows 1.21.17 package passed 13 controlled native stages, including its bundled engines, the earlier GPO/LCB/Codes controls, county form and name findings, a review-only unknown name, accepted plural lists, exact source offsets, all 58 reference rows, search and source navigation. The 23-model / 2,024-page production replay yields 833 → 857 findings: 24 additions, 0 removals and 0 changed retained findings excluding regenerated IDs. The reviewed differences are recorded in the county checkpoint below. All 34 original PDFs retain their hashes.
+
+Application/runtime bytes are verified against the native-tested stage before archiving; every ZIP entry is checked and the ZIP has a SHA-256 sidecar. No uploaded PDFs or personal profiles are packaged. This verification does not certify office precision/recall, county jurisdiction or legal effect. Existing OCR and drafting-material review items remain. Earlier release checkpoints retain their historical scope.
+
+County replay review: All 24 additions were reviewed: 22 exact known reversed county references compare with County of [Name], including physically wrapped references; two unfamiliar Greater Los Angeles Ventura County phrases in Veterans Home captions remain review-only with no guessed name. No existing findings were removed or changed. Canonical County of Los Angeles Citizens Redistricting Commission titles and generic Apportionment—County captions are quiet. These are findings for review, not automatic edits or assertions about official entity identity.
 
 ## Release 1.21.16 verification
 

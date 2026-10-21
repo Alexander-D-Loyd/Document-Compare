@@ -1,10 +1,10 @@
 # Document Compare
 
-Offline Windows desktop app for legislative PDF comparison and amendment/style review. Version **1.21.16** packages program-name protection, California Codes reference checks, both GPO coverage follow-ups and portable development setup repairs. Digest edits use red deletions and blue additions. Style findings retain applicable LCB priority, legislative exceptions and bill-local quoted terms.
+Offline Windows desktop app for legislative PDF comparison and amendment/style review. Version **1.21.17** adds California Counties to the packaged program-name protection, California Codes reference checks, both GPO coverage follow-ups and portable development setup repairs. Digest edits use red deletions and blue additions. Style findings retain applicable LCB priority, legislative exceptions and bill-local quoted terms.
 
 ## Run the packaged app
 
-Extract the entire **Document-Compare-Windows-1.21.16.zip** and open **Document Compare/Document Compare.exe**. Keep the runtime and resources together. No installation or development tools are required. PDF and language review run locally.
+Extract the entire **Document-Compare-Windows-1.21.17.zip** and open **Document Compare/Document Compare.exe**. Keep the runtime and resources together. No installation or development tools are required. PDF and language review run locally.
 
 ## Features
 
@@ -16,6 +16,7 @@ Extract the entire **Document-Compare-Windows-1.21.16.zip** and open **Document 
 - Separate Changes, Amendments, Spelling & Grammar, and Stylistic Check modes with forward/backward arrows.
 - Current-only language checking, case-sensitive dictionary and custom style terms, Ignore/Ignore All and Undo.
 - Searchable LCB/GPO sources and honest check-coverage inventory. Applicable printed LCB provisions take priority where the guides disagree; unknown conditions remain manual.
+- California Counties: checks all 58 supplied names and the required “County of [Name]” or “Counties of [Name], [Name], …” forms. Reversed forms and capitalization differences are flagged for review; unknown names receive no guessed replacement. Browse and search the separate California Counties tab.
 - California Codes: checks code names and shorthand against the user-supplied 29-row list, including incorrect name/shorthand pairs. Browse and search the list in Style Guides → California Codes. Differences in capitalization or punctuation are flagged; the name–shorthand separator and PDF layout whitespace are ignored. Unlisted citation forms require review, with no invented replacement. This additional reference does not validate section numbers or replace LCB/GPO guidance.
 - GPO follow-up covers all nine printed noun/preposition plural examples, all 16 printed calendar abbreviations after supported prose cues, exact-hour/meridian forms, and selected editorial annotations/legal versus connectors. Whole-source safeguards preserve names, quotations, tables, removed text and physical offsets; full-rule contextual and typography exceptions remain manual.
 - GPO 9.58 checks appended-s variants for 21 unambiguous measurement/time abbreviations from the 23-symbol table. GPO 10.3 closes the five printed arithmetic operators in explicitly identified simple expressions, preserving source numbers, names, breeding and magnification exceptions. Ambiguous units, scientific notation, complex algebra and broader semantic interpretation remain manual.
@@ -29,7 +30,7 @@ Blue indicates additions, red deletions, yellow non-amendment changes, and purpl
 
 ## Validation and limitations
 
-The 1.21.16 Windows package passes 12 controlled native stages with its bundled engines. All 2,618 source tests pass. The second GPO replay preserves all 833 findings across 23 unchanged bill models / 2,024 pages, with zero additions, removals or changed retained findings. All 34 original Drive PDFs retain their hashes. Earlier native intake covered all 34 PDFs and 11 amendment sets; genuine OCR and missing-drafting-material warnings remain. Each ZIP entry is verified against the tested package manifest, with a separate archive SHA-256. See [desktop verification](DESKTOP_VERIFICATION.md) for evidence and limitations. These checks do not measure office precision or recall.
+The 1.21.17 Windows package passes 13 controlled native stages, including county checks and the searchable 58-county list. All 2,699 source tests pass. The county replay across 23 unchanged bill models / 2,024 pages yields 833 → 857 findings, with all differences reviewed. All 34 original Drive PDFs retain their hashes. Each ZIP entry is verified against the tested package manifest, with a separate archive SHA-256. See [desktop verification](DESKTOP_VERIFICATION.md) for evidence and limitations. These checks do not measure office precision or recall.
 
 Full contextual LCB/GPO automation and the complete ordered Merriam-Webster authority remain incomplete. Genuine SB 879 differences and missing drafting attachments remain flagged. Office-wide precision/recall has not been measured; controlled tests are not an exhaustive human benchmark.
 
@@ -62,7 +63,7 @@ For full offline language-engine functionality, copy the Windows release's `Docu
 
 Run `npm start` to launch the source app. Run `npm test` after restoring the two reference JSON files to execute the complete source suite. The launcher exits with an explicit setup message if those references are missing; it does not label a skipped suite as passed.
 
-The Windows ZIP contains the complete runtime; generated development assets and reference files are restored as above. The October 21 local changes have not been packaged or published. The renderer blocks external network requests, and native engine requests are restricted to the trusted app frame.
+The Windows ZIP contains the complete runtime; generated development assets and reference files are restored as above. The October 21 changes are included in the Windows package; GitHub publication is recorded separately. The renderer blocks external network requests, and native engine requests are restricted to the trusted app frame.
 
 ## Build the Windows package
 
@@ -72,7 +73,7 @@ Restore the release-only references and offline engines described above, then ru
 node scripts/package-windows.cjs --stage-only --electron-base "../Document Compare"
 ```
 
-This preserves the matching branded Electron executable from the extracted release. Omit --electron-base to use the installed pinned Electron executable. Run the staged app from dist/Document-Compare-Windows-1.21.16/Document Compare and finish native verification before archiving:
+This preserves the matching branded Electron executable from the extracted release. Omit --electron-base to use the installed pinned Electron executable. Run the staged app from dist/Document-Compare-Windows-1.21.17/Document Compare and finish native verification before archiving:
 
 ```text
 node scripts/package-windows.cjs --archive-existing --refresh-docs --electron-base "../Document Compare"

@@ -1,0 +1,11 @@
+// Exact county names supplied by the user. The requested County of / Counties
+// of forms are an additional review reference, not an LCB/GPO source passage.
+export const CALIFORNIA_COUNTIES_SOURCE=Object.freeze({title:'California Counties',suppliedBy:'User-supplied county reference list',asOfDate:null,file:null,sha256:null});
+export const CALIFORNIA_COUNTIES=Object.freeze([
+ 'Alameda','Alpine','Amador','Butte','Calaveras','Colusa','Contra Costa','Del Norte','El Dorado','Fresno','Glenn','Humboldt','Imperial','Inyo','Kern','Kings','Lake','Lassen','Los Angeles','Madera','Marin','Mariposa','Mendocino','Merced','Modoc','Mono','Monterey','Napa','Nevada','Orange','Placer','Plumas','Riverside','Sacramento','San Benito','San Bernardino','San Diego','San Francisco','San Joaquin','San Luis Obispo','San Mateo','Santa Barbara','Santa Clara','Santa Cruz','Shasta','Sierra','Siskiyou','Solano','Sonoma','Stanislaus','Sutter','Tehama','Trinity','Tulare','Tuolumne','Ventura','Yolo','Yuba'
+].map(name=>Object.freeze({name,preferred:'County of '+name})));
+export const CALIFORNIA_COUNTIES_SCOPE='The user-supplied 58 county names are checked exactly, including capitalization. Singular references use County of [Name]; named lists may use Counties of [Name], [Name], etc. Complete known [Name] County references and bounded known-name lists ending Counties receive the requested form for review. Each forward plural-list member is checked separately; unlisted names receive review findings without a guessed replacement. Explicit references in quotations, table cells and institutional names are included. The City and County of San Francisco already contains the accepted form. Bare city/place names are not inferred to be counties. Original source offsets, figures, printed text, recognized PDF divisions and complete active evidence are preserved; strikeouts, unknown exclusions, technical attachments and incomplete boundaries cannot create a reference. Unrecognized list syntax, county identity, jurisdiction, historical naming and legal effect remain manual.';
+export function searchCaliforniaCounties(query=''){
+ const terms=query.toLocaleLowerCase('en-US').split(/\s+/u).filter(Boolean);
+ return CALIFORNIA_COUNTIES.filter(row=>terms.every(term=>(row.name+' '+row.preferred).toLocaleLowerCase('en-US').includes(term)));
+}

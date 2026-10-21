@@ -22,6 +22,7 @@ function isAppFileAllowed(relative){
  if(parts[0]==='assets')return parts.length===2&&/\.(?:png|ico|svg|json)$/u.test(parts[1]);
  return parts[0]==='vendor'&&!/\.pdf$/iu.test(parts.at(-1));
 }
+function isRuntimeFileAllowed(relative){return !relative.replaceAll('\\','/').split('/').some(part=>/^__pycache__$/iu.test(part));}
 function outputPaths(root,version,allowExistingStage=false){
  if(!/^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/u.test(version))throw Error('A safe semantic package version is required.');
  const dist=path.resolve(root,'dist'),name='Document-Compare-Windows-'+version,stage=path.join(dist,name),folder=path.join(stage,'Document Compare'),zip=path.join(dist,name+'.zip');
@@ -53,7 +54,7 @@ function createPlan(options={}){
  for(const file of APP_MAIN_FILES)add(path.join(root,file),'resources/app/'+file);
  for(const file of fs.readdirSync(root).filter(n=>n.endsWith('.md')).sort())add(path.join(root,file),'resources/app/'+file);
  for(const file of walk(app)){const relative=slashes(path.relative(app,file));if(isAppFileAllowed(relative))add(file,'resources/app/app/'+relative);}
- for(const directory of RUNTIME_DIRS)for(const file of walk(path.join(runtime,directory)))add(file,'resources/offline-engines/'+slashes(path.relative(runtime,file)));
+ for(const directory of RUNTIME_DIRS)for(const file of walk(path.join(runtime,directory))){const relative=slashes(path.relative(runtime,file));if(isRuntimeFileAllowed(relative))add(file,'resources/offline-engines/'+relative);}
  for(const file of RUNTIME_FILES)add(path.join(runtime,file),'resources/offline-engines/'+file);
  const duplicates=new Set();for(const row of plan){const key=row.relative.toLowerCase();if(duplicates.has(key))throw Error('Duplicate package path: '+row.relative);duplicates.add(key);if(row.relative.startsWith('/')||row.relative.split('/').includes('..'))throw Error('Unsafe package path: '+row.relative);}
  plan.sort((a,b)=>a.relative<b.relative?-1:a.relative>b.relative?1:0);
@@ -94,7 +95,7 @@ print(json.dumps({'archiveEntriesVerified':len(files),'manifestFilesVerified':le
 function planSummary(plan){return {version:plan.pkg.version,electronVersion:plan.electronVersion,inputFiles:plan.files.length,folder:slashes(path.relative(plan.root,plan.outputs.folder)),archive:slashes(path.relative(plan.root,plan.outputs.zip))};}
 function documentationPath(relative){return /^resources\/app\/[^/]+\.md$/u.test(relative)||relative==='resources/app/STYLE_COVERAGE_STATUS.json';}
 function manifestForPlan(plan,rows){return {format:'document-compare.windows-package',manifestVersion:1,applicationVersion:plan.pkg.version,electronVersion:plan.electronVersion,electronExecutableSHA256:sha(path.join(plan.base,plan.exe)),offlineRuntimeManifestSHA256:sha(path.join(plan.root,'engines/runtime/runtime-manifest.json')),scope:'Complete Windows folder. Manifest excludes itself; archive SHA-256 is recorded beside the ZIP. No user profiles, uploaded PDFs, development dependencies or QA artifacts are included.',files:rows};}
-function checkPython(options){const python=options.python||DEFAULT_PYTHON,probe=spawnSync(python,['-c','import zipfile,hashlib;print("ready")'],{encoding:'utf8',windowsHide:true});if(probe.error||probe.status!==0)throw Error('Python with zipfile is required; pass --python with its executable path.');return python;}
+function checkPython(options){const python=options.python||DEFAULT_PYTHON,probe=spawnSync(python,['-B','-c','import zipfile,hashlib;print("ready")'],{encoding:'utf8',windowsHide:true});if(probe.error||probe.status!==0)throw Error('Python with zipfile is required; pass --python with its executable path.');return python;}
 function stagePackage(options={}){
  if(options.archiveExisting)throw Error('Fresh staging cannot use --archive-existing.');
  const plan=createPlan(options),summary=planSummary(plan);if(options.check)return {...summary,checkedOnly:true};
@@ -122,10 +123,10 @@ function archivePackage(options={}){
  // explicitly requested refresh can copy the current root Markdown/status
  // snapshots over their already-staged counterparts; no app code is refreshed.
  if(options.refreshDocs){for(const input of plan.files.filter(r=>documentationPath(r.relative))){const destination=path.join(plan.outputs.folder,...input.relative.split('/')),digest=copyVerified(input.source,destination,true);rows.set(input.relative,{path:input.relative,bytes:fs.statSync(destination).size,sha256:digest});}manifest=manifestForPlan(plan,[...rows.values()].sort((a,b)=>a.path<b.path?-1:a.path>b.path?1:0));fs.writeFileSync(manifestFile,JSON.stringify(manifest,null,2)+'\n');verifyStagedPackage(plan,manifest);}
- const zipped=spawnSync(python,['-c',ZIP_SCRIPT,plan.outputs.folder,plan.outputs.zip],{encoding:'utf8',windowsHide:true,maxBuffer:2*1024*1024});if(zipped.error||zipped.status!==0)throw Error('Archive creation/verification failed. The staged folder is retained for inspection. '+(zipped.error?.message||zipped.stderr?.trim()||''));
+ const zipped=spawnSync(python,['-B','-c',ZIP_SCRIPT,plan.outputs.folder,plan.outputs.zip],{encoding:'utf8',windowsHide:true,maxBuffer:2*1024*1024});if(zipped.error||zipped.status!==0)throw Error('Archive creation/verification failed. The staged folder is retained for inspection. '+(zipped.error?.message||zipped.stderr?.trim()||''));
  const archiveSHA256=sha(plan.outputs.zip);fs.writeFileSync(plan.outputs.zip+'.sha256',archiveSHA256+'  '+path.basename(plan.outputs.zip)+'\n',{flag:'wx'});
  return {...summary,packagedFiles:rows.size+1,archiveBytes:fs.statSync(plan.outputs.zip).size,archiveSHA256,...JSON.parse(zipped.stdout.trim())};
 }
 function buildPackage(options={}){if(options.archiveExisting)return archivePackage(options);const staged=stagePackage(options);return options.check||options.stageOnly?staged:archivePackage(options);}
 if(require.main===module){try{const options=readOptions(process.argv.slice(2));if(options.help)console.log('Usage: node scripts/package-windows.cjs [--check] [--stage-only | --archive-existing [--refresh-docs]] [--electron-base PATH] [--python EXECUTABLE]\nBuilds a fresh dist/Document-Compare-Windows-VERSION/Document Compare and verified ZIP.\nUse --electron-base "../Document Compare" to preserve an existing branded EXE of the pinned Electron version.\nStage-only allows native verification before archiving. Archive-existing verifies every unchanged staged/source byte; --refresh-docs allows only the current root Markdown/status snapshots.\nExisting build folders and ZIPs are never removed or replaced. No downloads or Git operations.');else console.log(JSON.stringify(buildPackage(options),null,2));}catch(error){console.error(error.message);process.exitCode=1;}}
-module.exports={isAppFileAllowed,outputPaths,readOptions,validateRuntime,createPlan,stagePackage,archivePackage,verifyStagedPackage,documentationPath,buildPackage,ZIP_SCRIPT};
+module.exports={isAppFileAllowed,isRuntimeFileAllowed,outputPaths,readOptions,validateRuntime,createPlan,stagePackage,archivePackage,verifyStagedPackage,documentationPath,buildPackage,ZIP_SCRIPT};

@@ -1,6 +1,6 @@
 import test from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs';import path from 'node:path';import os from 'node:os';import crypto from 'node:crypto';import {spawnSync} from 'node:child_process';import {fileURLToPath} from 'node:url';
 import builder from '../scripts/package-windows.cjs';
-const {isAppFileAllowed,outputPaths,readOptions,validateRuntime,verifyStagedPackage,documentationPath,ZIP_SCRIPT}=builder;
+const {isAppFileAllowed,isRuntimeFileAllowed,outputPaths,readOptions,validateRuntime,verifyStagedPackage,documentationPath,ZIP_SCRIPT}=builder;
 const hash=bytes=>crypto.createHash('sha256').update(bytes).digest('hex');
 function temp(t){const base=fs.realpathSync(os.tmpdir()),dir=fs.mkdtempSync(path.join(base,'document-compare-package-test-'));t.after(()=>{const actual=path.resolve(dir);assert.equal(path.dirname(actual),path.resolve(base));assert.ok(path.basename(actual).startsWith('document-compare-package-test-'));fs.rmSync(actual,{recursive:true,force:true});});return dir;}
 test('Windows app allowlist includes actual runtime assets and excludes user uploads profiles and build dependencies',()=>{
@@ -10,6 +10,10 @@ test('Windows app allowlist includes actual runtime assets and excludes user upl
 test('Windows packaging refuses unsafe versions and preserves every existing output',t=>{
  const dir=temp(t);for(const version of ['../1.0.0','1.0.0/other','v1.0.0','1.0.0:stream',''])assert.throws(()=>outputPaths(dir,version));
  const planned=outputPaths(dir,'1.2.3');assert.equal(planned.folder,path.join(dir,'dist','Document-Compare-Windows-1.2.3','Document Compare'));fs.mkdirSync(planned.dist);fs.writeFileSync(planned.zip,'keep');assert.throws(()=>outputPaths(dir,'1.2.3'),/already exists/);assert.equal(fs.readFileSync(planned.zip,'utf8'),'keep');
+});
+test('offline runtime packaging excludes generated Python caches and retains distributed bytecode elsewhere',()=>{
+ for(const file of ['python/Lib/__pycache__/zipfile.cpython-312.pyc','python/Lib/site-packages/spacy/__pycache__/__init__.cpython-312.pyc','python\\Lib\\__pycache__\\cached.pyc','python/Lib/__PYCACHE__/cached.pyc'])assert.equal(isRuntimeFileAllowed(file),false,file);
+ for(const file of ['python/Lib/zipfile.py','python/Lib/distributed.pyc','python/Lib/site-packages/package/module.pyc','python/Lib/site-packages/package/LICENSE','bridge/OfflineGrammar.class','java/bin/java.exe'])assert.equal(isRuntimeFileAllowed(file),true,file);
 });
 test('offline runtime checks reject changed worker/configuration bytes before packaging',t=>{
  const runtime=temp(t),files={'offline-worker.py':'worker','lcb_parser.py':'parser','language-config.json':'{}','bridge/OfflineGrammar.class':'bridge','python/python.exe':'python','java/bin/java.exe':'java'};

@@ -1,3 +1,13 @@
+Document Compare 1.21.17 — October 21, 2026
+
+Added the separate California Counties reference from the user's 58-name image. The required forms are “County of [Name]” and “Counties of [Name], [Name], …”. Exact names and capitalization are checked, including reversed county forms, complete supported plural lists, quoted references and table cells. Unknown names require review without a guessed county. Bare city/place names are not classified as counties. Source strikeouts, unknown exclusions and incomplete/technical attachments remain protected; ordinary generic county descriptions and prose following lists do not supply new county names.
+
+All 2,699 source tests pass. The Windows 1.21.17 package passed 13 controlled native stages, including its bundled engines, the earlier GPO/LCB/Codes controls, county form and name findings, a review-only unknown name, accepted plural lists, exact source offsets, all 58 reference rows, search and source navigation. The 23-model / 2,024-page production replay yields 833 → 857 findings: 24 additions, 0 removals and 0 changed retained findings excluding regenerated IDs. The reviewed differences are recorded in the county checkpoint below. All 34 original PDFs retain their hashes.
+
+Application/runtime bytes are verified against the native-tested stage before archiving; every ZIP entry is checked and the ZIP has a SHA-256 sidecar. No uploaded PDFs or personal profiles are packaged. This verification does not certify office precision/recall, county jurisdiction or legal effect. Existing OCR and drafting-material review items remain. Earlier release checkpoints retain their historical scope.
+
+---
+
 Document Compare 1.21.16 — October 21, 2026
 
 All 2,618 source tests pass. GPO 9.58 records all 23 bare English measurement/time abbreviations and checks 21 unambiguous appended-s variants; ds/hs and uppercase Ts retain their distinct meanings. GPO 10.3 checks the five printed arithmetic operators in explicitly identified simple expressions, preserving original numeric strings and breeding, magnification and source-name exceptions. Both provisions remain partially automated. The new batch adds 26 rule tests, two coverage/integration tests and five packaging tests.
