@@ -140,6 +140,12 @@ export function makeDocument(pages, name, pageStrikes=[], pageFormatting=[], wor
     if(!b.margin){
       const width=c.right-c.left,center=(c.left+c.right)/2;
       f.centered=(Math.abs((f.x+f.right)/2-center)<width*.015||Math.abs((f.x+f.right)/2-f.pageWidth/2)<f.pageWidth*.01)&&(f.right-f.x<width*.97||f.runs.some(r=>r.bold||r.smallCaps));
+      // A left-column Digest line can happen to have a centered bounding
+      // box. Centering that prose also centers each newly wrapped short line.
+      // Preserve its actual paragraph indent; keep the Digest heading and
+      // genuinely inset headings available to the normal layout inference.
+      const digestLeft=digestColumns.get(f.pageWidth);
+      if(digest&&b.start>digest.start&&b.end<=digest.end&&digestLeft!==undefined&&f.x>=digestLeft&&f.x-digestLeft<=Math.max(1,f.bodyHeight||f.height)*2)f.centered=false;
     }
     if(f.headerGaps?.length||b.ignored){
       // A JR notice is still a numbered source row. Its line label and

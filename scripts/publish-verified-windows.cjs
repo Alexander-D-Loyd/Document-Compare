@@ -28,16 +28,27 @@ function validateReceipt(receipt,manifestBytes){
 function readReceipt(file,root=ROOT){const receipt=JSON.parse(fs.readFileSync(file,'utf8')),manifestFile=contained(root,receipt.manifestPath),manifestBytes=fs.readFileSync(manifestFile),manifest=validateReceipt(receipt,manifestBytes);return {receipt,manifest,manifestBytes};}
 function normalizeExpected(bytes,row){if(bytes.length===row.bytes&&digest(bytes)===row.sha256)return bytes;if(bytes.includes(0))return null;let text;try{text=new TextDecoder('utf-8',{fatal:true}).decode(bytes);}catch{return null;}for(const candidate of [text.replace(/\r\n/g,'\n'),text.replace(/\r\n/g,'\n').replace(/\n/g,'\r\n')]){const normalized=Buffer.from(candidate,'utf8');if(normalized.length===row.bytes&&digest(normalized)===row.sha256)return normalized;}return null;}
 function sourcePath(relative){if(relative.startsWith('resources/app/'))return relative.slice('resources/app/'.length);if(['offline-worker.py','lcb_parser.py','language-config.json'].some(name=>relative==='resources/offline-engines/'+name))return 'engines/'+relative.slice('resources/offline-engines/'.length);return null;}
+function refreshRuntimeManifest(previous,manifest){
+ const metadata=JSON.parse(previous.toString('utf8'));
+ for(const [file,field]of [['offline-worker.py','workerSHA256'],['lcb_parser.py','parserSHA256'],['language-config.json','configSHA256']]){
+  const row=manifest.files.find(r=>r.path==='resources/offline-engines/'+file);
+  if(!row||!/^[a-f0-9]{64}$/u.test(row.sha256))throw Error('Missing verified runtime source: '+file);
+  metadata[field]=row.sha256;
+ }
+ // Preserve every vendor field. The normal expected-byte check below must
+ // still match the complete regenerated file before anything is published.
+ return Buffer.from(JSON.stringify(metadata,null,2)+'\n','utf8');
+}
 function reconstruct({receipt,manifest,manifestBytes,sourceRoot,priorRoot,folder,tracked}){
  if(fs.existsSync(folder))throw Error('Reconstruction destination already exists.');
  const expected=new Map(manifest.files.map(row=>[row.path,row]));
  const {isAppFileAllowed}=require(path.join(sourceRoot,'scripts/package-windows.cjs'));
- for(const relative of tracked){let packaged;if(relative.startsWith('app/')&&isAppFileAllowed(relative.slice(4)))packaged='resources/app/'+relative;else if(['package.json','main.cjs','preload.cjs','engine-host.cjs','STYLE_COVERAGE_STATUS.json'].includes(relative)||/^[^/]+\.md$/u.test(relative))packaged='resources/app/'+relative;else if(['engines/offline-worker.py','engines/lcb_parser.py','engines/language-config.json'].includes(relative))packaged='resources/offline-engines/'+relative.slice(8);if(packaged&&!expected.has(packaged))throw Error('Verified package omits a current source input: '+relative);}
+ for(const relative of tracked){let packaged;if(relative.startsWith('app/')&&isAppFileAllowed(relative.slice(4)))packaged='resources/app/'+relative;else if(['package.json','main.cjs','preload.cjs','engine-host.cjs','supplementary-source.cjs','STYLE_COVERAGE_STATUS.json'].includes(relative)||/^[^/]+\.md$/u.test(relative))packaged='resources/app/'+relative;else if(['engines/offline-worker.py','engines/lcb_parser.py','engines/language-config.json'].includes(relative))packaged='resources/offline-engines/'+relative.slice(8);if(packaged&&!expected.has(packaged))throw Error('Verified package omits a current source input: '+relative);}
  fs.mkdirSync(folder,{recursive:true});let sourceFiles=0,priorFiles=0,normalizedFiles=0;
  for(const row of manifest.files){const relative=sourcePath(row.path);let bytes,original;
   if(row.path==='START HERE.txt')original=Buffer.from(receipt.startHere,'utf8');
   else if(relative&&tracked.has(relative)){const file=contained(sourceRoot,relative);if(!fs.existsSync(file)||!fs.statSync(file).isFile()||fs.lstatSync(file).isSymbolicLink())throw Error('Missing current source file: '+relative);original=fs.readFileSync(file);sourceFiles++;}
-  else{const file=contained(priorRoot,row.path);if(!fs.existsSync(file)||!fs.statSync(file).isFile()||fs.lstatSync(file).isSymbolicLink())throw Error('Previous public release lacks required asset: '+row.path);original=fs.readFileSync(file);priorFiles++;}
+  else{const file=contained(priorRoot,row.path);if(!fs.existsSync(file)||!fs.statSync(file).isFile()||fs.lstatSync(file).isSymbolicLink())throw Error('Previous public release lacks required asset: '+row.path);original=fs.readFileSync(file);if(row.path==='resources/offline-engines/runtime-manifest.json')original=refreshRuntimeManifest(original,manifest);priorFiles++;}
   bytes=normalizeExpected(original,row);if(!bytes)throw Error('Cannot reconstruct the verified bytes: '+row.path);if(!bytes.equals(original))normalizedFiles++;
   const destination=contained(folder,row.path);fs.mkdirSync(path.dirname(destination),{recursive:true});fs.writeFileSync(destination,bytes,{flag:'wx'});
  }
@@ -78,4 +89,4 @@ async function publishVerified(data,files,{api,env=process.env}={}){
 }
 async function main(){const [mode,file,...extra]=process.argv.slice(2);if(!['--prepare','--publish','--check-receipt'].includes(mode)||!file||extra.length)throw Error('Usage: node scripts/publish-verified-windows.cjs --prepare|--publish|--check-receipt RECEIPT.json');const data=readReceipt(path.resolve(file)),files=artifactPaths(data.receipt);if(mode==='--check-receipt')console.log(JSON.stringify({version:data.receipt.version,sourceCommit:data.receipt.sourceCommit,manifestFiles:data.manifest.files.length,archiveSHA256:data.receipt.archiveSHA256},null,2));else if(mode==='--prepare')await prepare(data,files);else console.log(JSON.stringify(await publishVerified(data,files),null,2));}
 if(require.main===module)main().catch(error=>{console.error(error.message);process.exitCode=1;});
-module.exports={digest,fileHash,safeRelative,contained,validateReceipt,normalizeExpected,sourcePath,reconstruct,verifyFolder,artifactPaths,verifyArtifacts,findPreviousRoot,assertWorkflow,verifyAssets,verifyTag,publishVerified};
+module.exports={digest,fileHash,safeRelative,contained,validateReceipt,normalizeExpected,sourcePath,refreshRuntimeManifest,reconstruct,verifyFolder,artifactPaths,verifyArtifacts,findPreviousRoot,assertWorkflow,verifyAssets,verifyTag,publishVerified};

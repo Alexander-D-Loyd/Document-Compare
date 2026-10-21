@@ -29,8 +29,8 @@ function createEngineHost({runtimeRoot,idleMs=120000,timeoutMs=300000,stopGraceM
    current.stdin.on('error',()=>{if(current===child)stop();});return true;
   }catch{child=null;return false;}
  }
- function valid({id,kind,chunks}={}){
-  return typeof id==='string'&&/^[\w-]{1,80}$/.test(id)&&['grammar','style'].includes(kind)&&Array.isArray(chunks)&&chunks.length<=3000&&chunks.every(c=>c&&typeof c.text==='string'&&c.text.length<=11000&&Number.isSafeInteger(c.start)&&c.start>=0&&typeof c.completeStart==='boolean'&&typeof c.completeEnd==='boolean')&&chunks.reduce((n,c)=>n+c.text.length,0)<=25000000;
+ function valid({id,kind,chunks,includeLcbReaderReview}={}){
+  return typeof id==='string'&&/^[\w-]{1,80}$/.test(id)&&['grammar','style'].includes(kind)&&(includeLcbReaderReview===undefined||typeof includeLcbReaderReview==='boolean')&&Array.isArray(chunks)&&chunks.length<=3000&&chunks.every(c=>c&&typeof c.text==='string'&&c.text.length<=11000&&Number.isSafeInteger(c.start)&&c.start>=0&&typeof c.completeStart==='boolean'&&typeof c.completeEnd==='boolean')&&chunks.reduce((n,c)=>n+c.text.length,0)<=25000000;
  }
  return {
   review(request,{progress}={}){if(!valid(request))return Promise.resolve({issues:[],error:'Invalid offline language request.'});if(pending.has(request.id))return Promise.resolve({issues:[],error:'Offline request is already running.'});clearTimeout(idle);if(!ensure())return Promise.resolve(unavailable());

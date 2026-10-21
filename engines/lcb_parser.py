@@ -3,7 +3,9 @@
 Production candidates require direct attribution to an adjacent complete noun
 in intact finite-clause evidence. Missing or uncertain roles are quiet; no
 generic compound, predicate, postnominal or noun-adjacent fallback is generated.
-Legacy analytical helpers remain available only to explicit nonproduction calls.
+An explicitly requested reader layer also supplies complete grammatical-role
+witnesses for noun prefixes, predicates and following participles. These are
+questions, never spelling authority or automatic replacements.
 """
 import re
 
@@ -477,6 +479,44 @@ def postnominal_compound_reviews(doc):
 
 def listed_token_role(t):
  return {'start':t.idx,'end':t.idx+len(t.text),'text':t.text,'pos':t.pos_,'tag':t.tag_,'dep':t.dep_,'headStart':t.head.idx,'headEnd':t.head.idx+len(t.head.text),'headText':t.head.text}
+
+def lcb_reader_review_candidates(doc):
+ """Explicitly requested source-role questions, never automatic corrections.
+
+ Keep legacy analytical generators out of ordinary exact-form style mode.
+ The application independently validates every returned source witness and
+ applies source exceptions before displaying a question.
+ """
+ seen=set()
+ for candidate in complete_noun_prefix_reviews(doc):
+  head=doc.char_span(candidate['headStart'],candidate['headEnd'],alignment_mode='strict')
+  if head is None or len(head)!=1:continue
+  candidate['nounRoleEvidence']['head']=listed_token_role(head[0])
+  seen.add((candidate['start'],candidate['end'],candidate['headStart']))
+  yield candidate
+ for candidate in attributive_phrase_reviews(doc):
+  if (candidate['start'],candidate['end'],candidate['headStart'])not in seen:yield candidate
+ yield from predicate_compound_reviews(doc)
+ yield from postnominal_compound_reviews(doc)
+
+def attributive_phrase_reviews(doc):
+ """Complete direct multiword modifier subtrees, without lexical corrections."""
+ finite=lambda t:t.pos_ in {'VERB','AUX'}and t.tag_ in {'VBD','VBP','VBZ','MD'}
+ for head in doc:
+  if head.pos_!='NOUN'or head.tag_ not in {'NN','NNS'}or head.dep_ in {'compound','nmod'}:continue
+  predicate=head.sent.root
+  auxiliaries=[t for t in predicate.children if finite(t)and t.dep_ in {'aux','auxpass','cop'}]
+  if not(finite(predicate)or auxiliaries):continue
+  for root in head.children:
+   if root.dep_ not in {'compound','amod','nmod'}or root.idx>=head.idx:continue
+   members=sorted(root.subtree,key=lambda t:t.i)
+   if not members or members[-1]!=root or root.i+1!=head.i:continue
+   span=doc[members[0].i:root.i+1];words=[t for t in span if not t.is_punct]
+   if len(words)<2 or {t.i for t in members}!={t.i for t in span}:continue
+   if any(not t.text.isalpha()or not t.text.islower()or t.pos_ not in {'NOUN','ADJ','ADV','VERB'}or t.pos_=='VERB'and t.tag_ not in {'VBN','VBG'}for t in words):continue
+   if any(t.is_punct and t.text!='-'for t in span)or lexical_hyphen_before(doc.text,span.start_char)or protected_verb_use(span)or source_object_boundary(span,head)or not attached(span,head):continue
+   if span.text.casefold()=='greenhouse gas'and head.lemma_.casefold()=='emission':continue
+   yield {'start':span.start_char,'end':span.end_char,'headStart':head.idx,'headEnd':head.idx+len(head.text),'head':head.text,'evidenceStart':head.sent.start_char,'evidenceEnd':head.sent.end_char,'suggestion':None,'engine':'spaCy','engineRule':'LCB_ATTRIBUTIVE_PHRASE_REVIEW','reviewSuggested':True,'attributiveRoleEvidence':{'components':[listed_token_role(t)for t in words],'head':listed_token_role(head),'predicate':{**listed_token_role(predicate),'finiteAuxiliaries':[listed_token_role(t)for t in auxiliaries]}}}
 
 LISTED_COMPONENT_EDGES={'compound','amod','nmod','advmod','npadvmod','poss','case','det','prep','pobj','neg'}
 

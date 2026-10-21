@@ -10,6 +10,7 @@ import {digestChangedRanges} from './digest-delta.mjs';
 import {splitHistoryChanges} from './history-rows.mjs';
 import {isAmendmentMetadataLine as metadataLine} from './amendment-metadata.mjs';
 import {periodInsertionAnchor} from './amendment-period-anchor.mjs';
+import {commaInsertionAnchor} from './amendment-comma-anchor.mjs';
 const canonical=value=>value.normalize('NFKC').replace(/[“”]/g,'"').replace(/[‘’]/g,"'");
 const values=tokens=>tokens.map(t=>canonical(t.value));
 const phrase=(text,context=text)=>values(substantiveTokens(text,context));
@@ -170,6 +171,15 @@ function compile(rule,doc){
   };
   const finalPeriod=t=>!!final&&t.value==='.'&&t.start>=final.start+final.margin.length&&t.end<=final.end&&!tokens.some(next=>next.start>=t.end&&next.start<final.end)&&atFinalLine(final);
   const periodAnchor=rule.action==='insert'&&!rule.anchor?periodInsertionAnchor(rule.directive):null;
+  const commaAnchor=rule.action==='insert'?commaInsertionAnchor(rule.directive):null;
+  if(commaAnchor){
+    if(commaAnchor.ambiguous||rule.anchor||periodAnchor||rule.between||rule.beforeLine!=null||rule.afterLine!=null||rule.relativeLine||rule.title||rule.heading||rule.billEnd||rule.all)throw Error('The comma insertion combines incompatible or ambiguous source locations.');
+    const matches=indices.filter(i=>tokens[i].value===','&&!(/\d/u.test(doc.text[tokens[i].start-1]||'')&&/\d/u.test(doc.text[tokens[i].end]||''))).map(i=>({start:i,end:i+1}));
+    return choose(matches,{...rule,all:false,occurrence:commaAnchor.occurrence}).map(match=>{
+      const token=tokens[match.start],after=commaAnchor.position==='after',boundary=after?match.end:match.start;
+      return {start:boundary,end:boundary,replacement,sourceOffset:after?token.end:token.start};
+    });
+  }
   if(periodAnchor){
     if(periodAnchor.ambiguous||rule.between||rule.beforeLine!=null||rule.afterLine!=null||rule.relativeLine||rule.title||rule.heading)throw Error('The period insertion combines incompatible source locations.');
     const matches=indices.filter(i=>tokens[i].value==='.'&&!(/\d/u.test(doc.text[tokens[i].start-1]||'')&&/\d/u.test(doc.text[tokens[i].end]||''))).map(i=>({start:i,end:i+1}));

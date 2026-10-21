@@ -1,0 +1,14 @@
+import test from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs';import {makeDocument} from '../app/core.mjs';import {reviewStyleIssues} from '../app/style-review.mjs';
+const refs=Object.fromEntries(['lcb','gpo'].map(id=>[id,JSON.parse(fs.readFileSync(new URL('../app/data/'+id+'-reference.json',import.meta.url)))]));
+const bill=t=>makeDocument(['The people of the State of California do enact as follows:\nline 1 '+t],'Current');const rows=d=>reviewStyleIssues(d,refs,{includeReviewSuggestions:true}).filter(i=>i.text==='in kind'&&i.suggestion==='in-kind');
+test('selected direct and coordinated in-kind modifier roles receive the exact printed form',()=>{
+ for(const phrase of ['other in kind or cash assistance','the in kind support','any in kind and monetary contributions','such in kind donations','their in kind payments','these in kind or financial benefits','some in kind compensation']){const d=bill('The agency shall provide '+phrase+'.'),before=JSON.stringify(d),[i]=rows(d);assert.ok(i,phrase);assert.equal(i.text,'in kind');assert.equal(i.suggestion,'in-kind');assert.equal(i.guidePage,11);assert.equal(d.text.slice(i.start,i.end),i.text);assert.equal(JSON.stringify(d),before);}
+});
+test('adverbial, correct, unrecognized, quoted, named and technically attached forms remain unchanged',()=>{
+ for(const text of ['The payment is in kind.','The agency shall pay in kind or cash.','The agency shall provide other in-kind or cash assistance.','The agency shall provide other in kind or token assistance.','The agency shall provide other in kind or cash equipment.','The text is “other in kind or cash assistance”.','The other in kind or cash assistance Program is established.','The other in kind or cash assistance program is hereby established.','The other in kind or cash assistance, Inc., applies.','The term “in kind or cash assistance” means the aid. The agency provides other in kind or cash assistance.','The agency provides éother in kind or cash assistance.','The agency provides other in kind or cash assistance/ID.','Form the in kind or cash support applies.'])assert.equal(rows(bill(text)).length,0,text);
+});
+test('every original role character must survive strikes or uncertain exclusions, including coordination and head',()=>{
+ const text='The agency shall provide other in kind or cash assistance.',base=bill(text),start=base.text.indexOf('other'),end=base.text.indexOf('assistance')+10;assert.equal(rows(base).length,1);
+ for(const field of ['struck','excluded'])for(let at=start;at<end;at++){if(/\s/u.test(base.text[at]))continue;const d=structuredClone(base);d[field].push({start:at,end:at+1});assert.equal(rows(d).length,0,field+' '+at);}
+ const d=bill('The agency provides other in kind or cash assistance.');d.blocks.at(-1).formatting={headerGaps:[{},{}]};assert.equal(rows(d).length,0);
+});

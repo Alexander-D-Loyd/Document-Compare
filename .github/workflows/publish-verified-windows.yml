@@ -2,20 +2,20 @@ name: Publish verified Windows package
 
 on:
   push:
-    branches: [codex/publish-verified-1.21.19]
+    branches: [codex/publish-verified-1.21.20]
     paths:
       - .github/workflows/publish-verified-windows.yml
-      - .github/release-receipts/1.21.19.json
-      - .github/release-receipts/1.21.19.package-manifest.json
+      - .github/release-receipts/1.21.20.json
+      - .github/release-receipts/1.21.20.package-manifest.json
       - scripts/publish-verified-windows.cjs
 
 concurrency:
-  group: document-compare-release-1.21.19
+  group: document-compare-release-1.21.20
   cancel-in-progress: false
 
 jobs:
   publish:
-    if: github.repository == 'Alexander-D-Loyd/Document-Compare' && github.ref == 'refs/heads/codex/publish-verified-1.21.19'
+    if: github.repository == 'Alexander-D-Loyd/Document-Compare' && github.ref == 'refs/heads/codex/publish-verified-1.21.20'
     runs-on: windows-latest
     timeout-minutes: 60
     permissions:
@@ -28,8 +28,8 @@ jobs:
         with:
           persist-credentials: false
       - name: Reconstruct and verify the exact locally tested package
-        run: node scripts/publish-verified-windows.cjs --prepare .github/release-receipts/1.21.19.json
+        run: node scripts/publish-verified-windows.cjs --prepare .github/release-receipts/1.21.20.json
       - name: Publish the verified ZIP and checksum as the latest release
-        run: node scripts/publish-verified-windows.cjs --publish .github/release-receipts/1.21.19.json
+        run: node scripts/publish-verified-windows.cjs --publish .github/release-receipts/1.21.20.json
         env:
           GH_TOKEN: ${{ github.token }}

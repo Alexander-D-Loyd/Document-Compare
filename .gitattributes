@@ -3,9 +3,13 @@ app/vendor/en_US/index.aff text eol=lf
 app/vendor/en_US/index.dic text eol=lf
 app/data/lcb-prefix-spelling-input.json text eol=lf
 tests/fixtures/lcb-independent-lexical-source.json text eol=lf
+# Portable engine manifests use exact application-source bytes.
+engines/language-config.json text eol=lf
 # Existing Markdown/status documents use CRLF. Check their real whitespace
 # without treating the line-ending carriage return as an added trailing space.
 *.md whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
 *.json whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
 *.mjs whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
 *.html whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+*.py whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+*.cjs whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol

@@ -7,6 +7,7 @@ import {OFFLINE_MODIFIERS}from './offline-rules.mjs';
 import {openIncomeQualifierBefore}from './style-income-qualifiers.mjs';
 import {inStatePrepositionalEvidence}from './style-in-state-evidence.mjs';
 import {nonNominalModifierHeadEvidence}from './style-modifier-head-evidence.mjs';
+import {mapLcbReaderCandidate,isLcbReaderCandidate} from './style-lcb-parser-review.mjs';
 export function listedModifierSelection(rule,text){
  const words=text.split(/[\s-]+/u),expected=rule.preferred.split('-');
  if(words.length!==expected.length)return null;
@@ -64,16 +65,18 @@ export function prepareOfflineLanguage(doc){
  }
  return {text,chunks,range};
 }
-export function mapOfflineIssues(doc,plan,raw,kind){
+export function mapOfflineIssues(doc,plan,raw,kind,{includeLcbReaderReview=false}={}){
  const ctx=styleContext(doc),blocked=styleEvidenceGuard(doc,ctx),names=sourceNameRanges(ctx.source),singles=[...ctx.source.matchAll(/(?<![\p{L}\p{N}\p{M}_])(?:‘[^’]*’|'[^']*')/gu)].map(m=>({start:m.index,end:m.index+m[0].length})),out=[];
  for(const issue of raw||[]){
-  if(!['grammar','style'].includes(kind)||kind==='style'&&!OFFLINE_MODIFIERS.some(r=>r.engineRule===issue.engineRule))continue;
+  const reader=kind==='style'&&includeLcbReaderReview&&isLcbReaderCandidate(issue);
+  if(!['grammar','style'].includes(kind)||kind==='style'&&!reader&&!OFFLINE_MODIFIERS.some(r=>r.engineRule===issue.engineRule))continue;
   const selected=plan.range(issue.start,issue.end),evidence=plan.range(issue.evidenceStart,issue.evidenceEnd);
   if(!selected||!evidence||!plan.text.slice(issue.start,issue.end).trim()||selected.start<evidence.start||selected.end>evidence.end||/[\uD800-\uDFFF]/u.test(ctx.source.slice(evidence.start,evidence.end))||cutsOriginalStyleWord(doc,selected.start)||cutsOriginalStyleWord(doc,selected.end)||ctx.at(selected.start)==='Heading'||names.some(r=>r.start<selected.end&&r.end>selected.start))continue;
   const quotedEvidence=blocked(evidence.start,evidence.end)||singles.some(r=>r.start<evidence.end&&r.end>evidence.start);
   // Uncertain full sentence evidence cannot establish an applicable style
   // condition. No adjacent-noun or quotation fallback manufactures a flag.
   if(quotedEvidence)continue;
+  if(reader){const question=mapLcbReaderCandidate(doc,plan,issue,selected,evidence);if(question)out.push(question);continue;}
   if(typeof issue.suggestion!=='string'||!issue.suggestion.trim())continue;
   if(kind==='grammar'){
    if(!['AGREEMENT_SENT_START','APOS_ARE','FEWER_LESS','SPACY_REQUIRED_INFINITIVE_REVIEW'].includes(issue.engineRule))continue;
@@ -113,13 +116,13 @@ export function mergeOfflineGrammar(local,additional){
  const result=[...local];for(const issue of additional)if(!result.some(r=>r.start<issue.end&&r.end>issue.start))result.push(issue);
  return result.sort((a,b)=>a.start-b.start||a.end-b.end).map((issue,id)=>({...issue,id}));
 }
-export async function reviewOfflineLanguage(doc,kind,id,bridge=globalThis.offlineLanguage){
+export async function reviewOfflineLanguage(doc,kind,id,bridge=globalThis.offlineLanguage,{includeLcbReaderReview=false}={}){
  if(!bridge?.review)return {issues:[],warning:'Additional offline language checks are unavailable; existing checks were used.'};
  try{
-  const plan=prepareOfflineLanguage(doc),result=await bridge.review(id,kind,plan.chunks);
+  const plan=prepareOfflineLanguage(doc),result=await bridge.review(id,kind,plan.chunks,{includeLcbReaderReview});
   if(result.cancelled)return {cancelled:true,issues:[]};
   if(result.error)return {issues:[],warning:result.error};
-  return {issues:mapOfflineIssues(doc,plan,result.issues,kind)};
+  return {issues:mapOfflineIssues(doc,plan,result.issues,kind,{includeLcbReaderReview})};
  }catch{return {issues:[],warning:'Additional offline language checks could not finish; existing checks were used.'};}
 }
 export function cancelOfflineLanguage(id){if(id)try{globalThis.offlineLanguage?.cancel(id)?.catch(()=>{});}catch{}}

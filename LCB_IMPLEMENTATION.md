@@ -1,4 +1,24 @@
-Local source follow-up — October 21, 2026
+Version 1.21.20 — ordered LCB follow-up, October 21, 2026
+
+All 2,865 source tests pass (zero failed, skipped or cancelled). The exact-target audit fingerprints all23 LCB pages and retains41 numbered/section provisions. All497 source-derived target rows have exact overlapping source/page evidence;213 plain solid forms have no justified alternate probe. Literal controls pass. This finite test matrix is not whole-rule or complete dictionary coverage.
+
+The actual staged Windows EXE passed the four supplied AB1967 PDFs: the Digest and all eight amendments, named-comma placement/Current selection, exact in-kind selection, LCB11 source navigation and Digest prose alignment. All four original hashes remain unchanged. The AB1967 style result contains 61 findings, including reader questions that are not established errors. A controlled real PDF additionally passed five supplementary citation findings, exact physical highlighting, manual-section links, document-type isolation, the guarded changed-title question, whole-expression numerical question and independently quoted corporation classification. The fixture remains unchanged.
+
+Production replay across23 unchanged cached bill models /2,024 pages yields 9,913 findings: 140 form comparisons and 9,773 questions. This is a coverage/stability replay, not newly extracted PDFs, fresh corpus-wide parser output or human precision/recall. Relative to the current precise/established-question API, no automatic correction was added; two5-to-five comparisons became conditional because the whole-sentence numerical relationship remains unresolved. Corpus review also removed overly broad institutional spans, determiner/auxiliary productive-ending questions and repetitive ordinary Bill-state questions. Remaining broad role/meaning questions can still be correct wording; the count is not an error count.
+
+Complete ordered Merriam-Webster authority remains unavailable. Selected California Style Manual citation forms now run for explicit Opinion/Cover letter selections; complete citation authority, case validity/publication status, pinpoint support and italics remain unverified. Legal identity, source currency, parser omissions/mistakes, unsupported syntax and semantic decisions remain limits. A quiet check does not certify full LCB compliance. See LCB_COVERAGE_REVIEW.md for the source dispositions.
+
+Evidence: qa-output/lcb-full/full-suite-release-1.21.20.log, target-audit.json, corpus-results.json and qa-output/ab1967/release-1.21.20/{verified,citation-verified}.json. These local QA inputs and receipts are excluded from the public package.
+
+---
+
+LCB reader-assisted expansion — October 21, 2026
+
+The desktop now adds source-form, separated-prefix, productive-ending, grammatical-role, complete-sentence series/number and entity-source review layers. These questions cite the applicable LCB provision and select no replacement. The newly supplied California Entities DOCX matches the existing bundled source exactly; all 512 entries remain retained, including review triggers for the 30 entries excluded from automatic correction. Complete ordered dictionary authority remains unavailable, and full supplementary citation authority is incomplete. Whole-rule automatic compliance is not certified. See LCB_COVERAGE_REVIEW.md for the implementation scope and TESTING_REPORT.md for final validation. Changes remain local and unreleased.
+
+---
+
+Earlier local source follow-up — October 21, 2026
 
 All 2,548 source tests pass, including 39 checks for the additional user-supplied California Codes reference. This list covers all 29 exact code names and shorthand, including name–shorthand pair consistency; it is separate from LCB/GPO provisions. Native PDF, finding-source, list/search and guide-tab checks pass. Unlisted titles receive review findings without invented replacements, and section numbers are not validated. The full supplementary California Style Manual remains outstanding.
 

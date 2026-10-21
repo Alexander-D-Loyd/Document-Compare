@@ -5,7 +5,7 @@ const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypt
 const ROOT=path.resolve(__dirname,'..');
 const DEFAULT_PYTHON=path.join(ROOT,'engines/runtime/python/python.exe');
 const ELECTRON_FILES=['chrome_100_percent.pak','chrome_200_percent.pak','d3dcompiler_47.dll','dxcompiler.dll','dxil.dll','ffmpeg.dll','icudtl.dat','LICENSE','LICENSES.chromium.html','resources.pak','snapshot_blob.bin','v8_context_snapshot.bin','version','vk_swiftshader_icd.json','vk_swiftshader.dll','vulkan-1.dll'];
-const APP_MAIN_FILES=['package.json','main.cjs','preload.cjs','engine-host.cjs','STYLE_COVERAGE_STATUS.json'];
+const APP_MAIN_FILES=['package.json','main.cjs','preload.cjs','engine-host.cjs','supplementary-source.cjs','STYLE_COVERAGE_STATUS.json'];
 const MANUALS=new Set(['lcb-stylemanual-2019.pdf','gpo-stylemanual-2016.pdf']);
 const RUNTIME_DIRS=['python','java','languagetool','bridge'];
 const RUNTIME_FILES=['offline-worker.py','lcb_parser.py','language-config.json','runtime-manifest.json'];

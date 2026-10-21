@@ -1,10 +1,10 @@
 # Document Compare
 
-Offline Windows desktop app for legislative PDF comparison and amendment/style review. Version **1.21.19** adds the next source-bound abbreviation/time, symbol and wording checks plus conditional PDF-font review of web/email addresses. Applicable LCB guidance and both California reference lists remain active.
+Offline Windows desktop app for legislative PDF comparison and amendment/style review. Version **1.21.20** adds broader LCB reader questions, selected supplementary citation checks and the AB 1967 amendment-placement, in-kind and Digest-layout fixes. Applicable LCB guidance and both California reference lists remain active. Complete dictionary authority, full citation coverage and office accuracy remain unverified; a quiet check does not certify compliance.
 
 ## Run the packaged app
 
-Extract the entire **Document-Compare-Windows-1.21.19.zip** and open **Document Compare/Document Compare.exe**. Keep the runtime and resources together. No installation or development tools are required. PDF and language review run locally.
+Extract the entire **Document-Compare-Windows-1.21.20.zip** and open **Document Compare/Document Compare.exe**. Keep the runtime and resources together. No installation or development tools are required. PDF and language review run locally.
 
 ## Features
 

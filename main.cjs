@@ -1,4 +1,5 @@
-const { app, BrowserWindow, protocol, net, session, Menu, ipcMain } = require('electron');
+const { app, BrowserWindow, protocol, net, session, Menu, ipcMain, shell } = require('electron');
+const {isSupplementaryCitationSource}=require('./supplementary-source.cjs');
 const path = require('node:path');
 const { pathToFileURL } = require('node:url');
 const {createEngineHost}=require('./engine-host.cjs');
@@ -11,7 +12,7 @@ app.setName('Document Compare');
 protocol.registerSchemesAsPrivileged([{ scheme: 'compare', privileges: { standard: true, secure: true, supportFetchAPI: true, corsEnabled: true } }]);
 async function createWindow() {
   const win = new BrowserWindow({ icon: path.join(__dirname, 'app', 'assets', 'document-compare.ico'), width: 1360, height: 920, minWidth: 850, minHeight: 650, backgroundColor: '#101722', show: false, autoHideMenuBar: true, webPreferences: { preload:path.join(__dirname,'preload.cjs'), nodeIntegration: false, contextIsolation: true, sandbox: true, webSecurity: true } });
-  win.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
+  win.webContents.setWindowOpenHandler(({url}) => { if(isSupplementaryCitationSource(url))shell.openExternal(url).catch(()=>{});return { action: 'deny' }; });
   win.webContents.on('will-navigate', (event, url) => { if (url !== 'compare://local/index.html') event.preventDefault(); });
   win.once('ready-to-show', () => { if (process.env.DOCUMENT_COMPARE_QA !== '1') win.show(); });
   await win.loadURL('compare://local/index.html');

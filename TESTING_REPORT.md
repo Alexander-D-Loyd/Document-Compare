@@ -1,3 +1,51 @@
+Version 1.21.20 — ordered LCB follow-up, October 21, 2026
+
+All 2,865 source tests pass (zero failed, skipped or cancelled). The exact-target audit fingerprints all23 LCB pages and retains41 numbered/section provisions. All497 source-derived target rows have exact overlapping source/page evidence;213 plain solid forms have no justified alternate probe. Literal controls pass. This finite test matrix is not whole-rule or complete dictionary coverage.
+
+The actual staged Windows EXE passed the four supplied AB1967 PDFs: the Digest and all eight amendments, named-comma placement/Current selection, exact in-kind selection, LCB11 source navigation and Digest prose alignment. All four original hashes remain unchanged. The AB1967 style result contains 61 findings, including reader questions that are not established errors. A controlled real PDF additionally passed five supplementary citation findings, exact physical highlighting, manual-section links, document-type isolation, the guarded changed-title question, whole-expression numerical question and independently quoted corporation classification. The fixture remains unchanged.
+
+Production replay across23 unchanged cached bill models /2,024 pages yields 9,913 findings: 140 form comparisons and 9,773 questions. This is a coverage/stability replay, not newly extracted PDFs, fresh corpus-wide parser output or human precision/recall. Relative to the current precise/established-question API, no automatic correction was added; two5-to-five comparisons became conditional because the whole-sentence numerical relationship remains unresolved. Corpus review also removed overly broad institutional spans, determiner/auxiliary productive-ending questions and repetitive ordinary Bill-state questions. Remaining broad role/meaning questions can still be correct wording; the count is not an error count.
+
+Complete ordered Merriam-Webster authority remains unavailable. Selected California Style Manual citation forms now run for explicit Opinion/Cover letter selections; complete citation authority, case validity/publication status, pinpoint support and italics remain unverified. Legal identity, source currency, parser omissions/mistakes, unsupported syntax and semantic decisions remain limits. A quiet check does not certify full LCB compliance. See LCB_COVERAGE_REVIEW.md for the source dispositions.
+
+Evidence: qa-output/lcb-full/full-suite-release-1.21.20.log, target-audit.json, corpus-results.json and qa-output/ab1967/release-1.21.20/{verified,citation-verified}.json. These local QA inputs and receipts are excluded from the public package.
+
+---
+
+Unreleased LCB reader-assisted expansion — October 21, 2026
+
+All 2,852 source tests pass, with zero failures, skips or cancellations. The 27 additional tests exercise source-table questions, all 30 entity entries excluded from automatic correction, real bundled-parser witnesses, source-corruption controls, native bridge options, complete-sentence list/numerical questions and dictionary-readiness limits. Ordinary precise-only APIs retain their existing behavior; the desktop explicitly enables the added review layer.
+
+The source sweep retains 663 LCB lexical table entries and 47 page 15 end-word examples and exceptions. It asks about unresolved printed forms and roles without inventing replacements. The parser adds complete noun/qualified-noun prefixes, direct attributive subtrees, supported linking-verb compounds and following participial phrases. Independent component/head/predicate/attachment/source validation remains necessary. The parsed -ly adverb exception and printed open components stay protected. Complete-sentence questions extend series punctuation and Bill item 3 beyond finite noun-head/introducer lists; structural legal identifiers, paragraph labels and valid dates do not create numerical-threshold questions.
+
+The newly supplied California Entities.docx has SHA-256 273ba8d47f33ba9bdc15823ce381a547a03074a52886fc03a3a7a3d14dabd4e3, identical to the bundled source. A read-only OOXML audit inspected 416 paragraphs and verified all 311 retained source paragraphs across 16 categories. All 512 entries remain retained: 482 eligible case checks and 30 source-review entries. No source entries are unparsed, no eligibility was changed, and the input file is unchanged. This establishes source fidelity, not current legal status.
+
+The final actual Electron desktop retest loaded all four AB 1967 PDFs through the production reader and used the actual workers and refreshed portable engines. The replacement Digest and all eight amendments still verify. The page 4 line 2 comma marker and Current selection, exact in-kind highlight, LCB11 navigation and Digest alignment all pass. All four PDF hashes remain unchanged. This wider mode yields 62 findings: four guide-form comparisons, the three existing meaning questions and 55 added reader questions. The added questions are not 55 established errors. The earlier narrower seven-finding checkpoint below is historical.
+
+The complete ordered Merriam-Webster editions are unavailable, as confirmed by the user; no licensed content was fetched. The visible desktop readiness warning distinguishes ordinary spelling/the preference subset from complete first-spelling verification. Full supplementary California Style Manual citation authority is also incomplete. Semantic intent, legal identity, missing/mistaken parses, noncontiguous roles, source exclusions and chunk limits remain explicit limits. A quiet check is not a whole-rule compliance certificate.
+
+The source-owned worker/parser were refreshed in the existing portable runtime with matching manifest hashes. The engine configuration's LF bytes are pinned so Windows checkout conversion cannot silently invalidate its checksum. The published 1.21.19 ZIP remains unchanged. Detailed evidence is in qa-output/lcb-full and qa-output/ab1967/source-lcb-full-final; implementation scope is in LCB_COVERAGE_REVIEW.md. These changes remain local and unreleased.
+
+---
+
+Earlier unreleased AB 1967 fixes — October 21, 2026
+
+The supplied AB 1967 files were tested first in the published Windows 1.21.19 program and then in the fixed working copy using the actual Electron desktop app, production PDF reader, workers and bundled engines. Previous Version is v99 (introduced February 13); Current Version is v98 (amended March 25). The separate two-page Digest and the instructional amendment file were loaded in their respective slots. Only the first two pages of the 13-page instruction PDF supply instructions; its proposed-bill appendix remains excluded.
+
+All three reported problems reproduced in 1.21.19. Amendment 3 could not resolve the named comma. The coordinated modifier “in kind or cash assistance” lacked a finding. Four ordinary Digest paragraph rows across the two bill versions were incorrectly classified as centered, causing exaggerated indentation when viewer text wrapped.
+
+The working copy resolves named before/after comma insertions only within the referenced active source scope, requiring a unique comma or an explicit occurrence. Missing, numeric, removed and conflicting punctuation evidence remains unresolved. All eight amendments plus the replacement Digest now verify. Desktop navigation confirms Amendment 3's Previous marker at offset 6688 immediately after the page 4, line 2 comma and the complete Current selection “or by the minor’s attorney,”.
+
+A source-bound LCB page 11 check now identifies selected direct/coordinated in-kind noun modifiers. The actual “in kind” is highlighted precisely and links to the printed “in-kind (u.m.)” provision. Adverbial payment in kind, quoted/local forms, names, uncertain heads and removed source evidence retain their protections. Existing direct-modifier owners retain precedence. The actual bill has seven style findings after this addition, compared with six before; semantic review suggestions remain distinct from replacement findings.
+
+Digest prose near its own left column retains its source paragraph indentation rather than acquiring inferred centering. The native before/after comparison confirms that only four Digest centered flags changed; every other block field, text character, strike span and physical geometry field in both bills is identical. The Digest heading remains centered.
+
+All 2,825 source regression tests passed, with no failures, skips or cancellations. This includes nine added tests using actual native-intake fixtures, punctuation ambiguity controls and original-source modifier protections. The desktop retest additionally verifies the comma marker/selection, precise in-kind highlight, LCB page navigation and Digest paragraph alignment. All four original PDF hashes are unchanged. Controlled file-input events were used; physical chooser and drag gestures were not tested.
+
+These changes are local and unreleased on codex/ab1967-review-fixes. The published 1.21.19 ZIP is unchanged. Detailed local evidence is under qa-output/ab1967, including source/verified.json, geometry-review.json and full-suite.log. Earlier checkpoints below retain their original version-specific scope.
+
+---
+
 Document Compare 1.21.19 — October 21, 2026
 
 The requested follow-on groups were implemented in order. Abbreviation/time checks add six exact Celsius, Fahrenheit, Rankine, kelvin, Baumé and Twaddell full-name/symbol definitions, complete whole-hour/o’clock forms, and original-source safeguards for bare measurements and clock signs. Symbol checks add the printed “The result is” numeric multiplication form and complete dollar-symbol series in applicable Digest/Opinion/Cover letter contexts, with LCB priority. Contextual wording checks add three printed repeated-prefix forms, four sake expressions and five printed holiday names in finite source roles.

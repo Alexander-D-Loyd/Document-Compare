@@ -1,3 +1,17 @@
+Version 1.21.20 — ordered LCB follow-up, October 21, 2026
+
+All 2,865 source tests pass (zero failed, skipped or cancelled). The exact-target audit fingerprints all23 LCB pages and retains41 numbered/section provisions. All497 source-derived target rows have exact overlapping source/page evidence;213 plain solid forms have no justified alternate probe. Literal controls pass. This finite test matrix is not whole-rule or complete dictionary coverage.
+
+The actual staged Windows EXE passed the four supplied AB1967 PDFs: the Digest and all eight amendments, named-comma placement/Current selection, exact in-kind selection, LCB11 source navigation and Digest prose alignment. All four original hashes remain unchanged. The AB1967 style result contains 61 findings, including reader questions that are not established errors. A controlled real PDF additionally passed five supplementary citation findings, exact physical highlighting, manual-section links, document-type isolation, the guarded changed-title question, whole-expression numerical question and independently quoted corporation classification. The fixture remains unchanged.
+
+Production replay across23 unchanged cached bill models /2,024 pages yields 9,913 findings: 140 form comparisons and 9,773 questions. This is a coverage/stability replay, not newly extracted PDFs, fresh corpus-wide parser output or human precision/recall. Relative to the current precise/established-question API, no automatic correction was added; two5-to-five comparisons became conditional because the whole-sentence numerical relationship remains unresolved. Corpus review also removed overly broad institutional spans, determiner/auxiliary productive-ending questions and repetitive ordinary Bill-state questions. Remaining broad role/meaning questions can still be correct wording; the count is not an error count.
+
+Complete ordered Merriam-Webster authority remains unavailable. Selected California Style Manual citation forms now run for explicit Opinion/Cover letter selections; complete citation authority, case validity/publication status, pinpoint support and italics remain unverified. Legal identity, source currency, parser omissions/mistakes, unsupported syntax and semantic decisions remain limits. A quiet check does not certify full LCB compliance. See LCB_COVERAGE_REVIEW.md for the source dispositions.
+
+Evidence: qa-output/lcb-full/full-suite-release-1.21.20.log, target-audit.json, corpus-results.json and qa-output/ab1967/release-1.21.20/{verified,citation-verified}.json. These local QA inputs and receipts are excluded from the public package.
+
+---
+
 # Desktop verification — October 21, 2026
 
 Release 1.21.19 adds the next abbreviation/time, symbol, contextual wording and conditional source-font checks. The checkpoint below supersedes earlier source notes; original PDFs and earlier releases remain unchanged.

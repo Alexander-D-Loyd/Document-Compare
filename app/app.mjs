@@ -788,10 +788,11 @@ async function checkStyle(){
   styleWorker.onmessage=({data})=>{
     if(seq!==styleSequence)return;finish();
     if(data.error){$('style-status').textContent=data.error;return;}
+    styleEngineWarning=[styleEngineWarning,data.lcbReadiness?.warning||''].filter(Boolean).join(' ');
     allStyleIssues=data.issues;styleChecked=true;styleIndex=-1;
     applyStyleReviewView();
   };
-  const doc={...docs[1],styleDocumentType:normalizeStyleDocumentType($('style-document-type').value)},id=styleRequestId='style-'+crypto.randomUUID(),native=await reviewOfflineLanguage(doc,'style',id);
+  const doc={...docs[1],styleDocumentType:normalizeStyleDocumentType($('style-document-type').value)},id=styleRequestId='style-'+crypto.randomUUID(),native=await reviewOfflineLanguage(doc,'style',id,undefined,{includeLcbReaderReview:true});
   if(seq!==styleSequence)return;
   if(native.cancelled||!styleWorker){finish();return;}
   styleEngineWarning=[native.warning||'',entityPanel.warning()].filter(Boolean).join(' ');
@@ -887,6 +888,13 @@ function renderGuideContext(){
     const message=document.createElement('p');message.textContent=guideContext.message;
     const button=document.createElement('button');button.className='quiet';button.textContent='View California Counties';button.addEventListener('click',()=>selectGuide('california-counties'));
     box.append(title,entry,message,button);root.append(box);
+  }
+  if(guideContext.supplementarySource){
+    const source=guideContext.supplementarySource,box=document.createElement('article');box.className='guide-rule-card';
+    const title=document.createElement('strong');title.textContent=source.title+' · '+source.section+' · p. '+source.printedPage;
+    const note=document.createElement('p');note.textContent=source.reason+' '+source.scope;
+    const link=document.createElement('a');link.textContent='View supplementary citation source';link.href=source.url+'#page='+source.pdfPage;link.target='_blank';link.rel='noopener noreferrer';
+    box.append(title,note,link);root.append(box);
   }
   for(const reference of guideContext.references.filter(r=>!['california-codes','california-counties'].includes(r.guideId))){
     const box=document.createElement('article');box.className='guide-rule-card';

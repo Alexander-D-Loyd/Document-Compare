@@ -1,4 +1,5 @@
 import {gpoWebTypographyIssues} from './style-gpo-web-typography.mjs';
+import {lcbInKindIssues} from './style-lcb-in-kind.mjs';
 import {gpoListedWordingIssues} from './style-gpo-listed-wording.mjs';
 import {gpoHolidayNameIssues} from './style-gpo-holiday-names.mjs';
 import {lcbListedBifurcationIssues,restoreListedBifurcationEvidence} from './style-lcb-listed-bifurcation.mjs';
@@ -395,6 +396,7 @@ function reviewStylisticIssues(doc,references,engineIssues=[],includeReviewSugge
    for(let n=combined.length-1;n>=0;n--){const prior=combined[n];if(prior.start===issue.start&&prior.end===issue.end&&prior.suggestion===issue.suggestion){for(const ref of prior.references||[])if(!issue.references.some(r=>r.guideId===ref.guideId&&r.rule===ref.rule))issue.references.push(ref);combined.splice(n,1);}}
    combined.push(issue);
   }
+  for(const issue of lcbInKindIssues(doc,references))if(!combined.some(i=>i.start<issue.end&&i.end>issue.start))combined.push(issue);
   combined.push(...lcbPage16ListedModifierIssues(doc,references,{existingIssues:combined}));
   combined.push(...lcbListedBifurcationIssues(doc,references,{existingIssues:combined}));
   combined.push(...lcbListedServiceNounIssues(doc,references,{existingIssues:combined}));

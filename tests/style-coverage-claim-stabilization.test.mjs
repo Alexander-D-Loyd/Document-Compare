@@ -34,7 +34,8 @@ test('amount summary acknowledges selected Opinion forms and preserves unknown-c
 });
 
 test('metadata repair never re-enables broad parser prefix fuzzy or full-rule claims',()=>{
- for(const title of ['Parsed predicate compounds','Qualified noun-prefix review','Complete noun-prefix review','Selected suffix boundaries','Near-matching official entity names','Unfamiliar unit modifiers','Parsed numerical relationships across clauses'])assert.equal(coverage(title).status,'Disabled — manual review');
+ for(const title of ['Selected suffix boundaries','Near-matching official entity names','Parsed numerical relationships across clauses'])assert.equal(coverage(title).status,'Disabled — manual review');
+ for(const title of ['Parsed predicate compounds','Qualified noun-prefix review','Complete noun-prefix review','Unfamiliar unit modifiers'])assert.equal(coverage(title).status,'Reader-assisted checking');
  for(const id of ['lcb-entry-9-bi-all-one-word','lcb-entry-11-in-as-a-prefix-generally-one-word','lcb-entry-12-multi-all-uses-one-word','lcb-entry-12-non-as-a-prefix-generally-one-word'])assert.equal(row(id).status,'Manual review required');
  assert.equal(row('lcb-21-opinions-and-cover-letters-source').status,'Partially automated');assert.equal(inventory.some(item=>item.guide==='lcb'&&item.status==='Fully automated'),false);
 });
