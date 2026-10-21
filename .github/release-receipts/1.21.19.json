@@ -1,0 +1,22 @@
+{
+  "format": "document-compare.verified-release",
+  "repository": "Alexander-D-Loyd/Document-Compare",
+  "version": "1.21.19",
+  "sourceCommit": "f9c89ce3056b676bc1c34cc9abda07177becd938",
+  "tag": "v1.21.19",
+  "branch": "codex/publish-verified-1.21.19",
+  "manifestPath": ".github/release-receipts/1.21.19.package-manifest.json",
+  "manifestSHA256": "25b90e45262cadd242301a3e4119cedef4b138ffb5aa55469dda7ae9e9149d63",
+  "archiveName": "Document-Compare-Windows-1.21.19.zip",
+  "archiveBytes": 538137613,
+  "archiveSHA256": "87c962a5b18564bfdc99ed732bc92d4878914c1a0a3be7128799e0227ae243e3",
+  "startHere": "Document Compare 1.21.19\r\n\r\nOpen Document Compare.exe and keep this entire folder together.\r\nPDF, OCR, spelling, grammar and style review run locally.\r\nLCB retains priority over differing GPO guidance. California Codes checks\r\nuse the supplied name/shorthand list and do not validate section numbers.\r\nStyle coverage is partial; review the source provisions and exceptions.\r\nSee resources/app/DESKTOP_VERIFICATION.md for verification scope.\r\nPACKAGE-MANIFEST.json records the SHA-256 of every packaged file except itself.\r\nIncluded Electron, PDF/OCR, dictionary and offline-engine licenses/notices\r\nare retained in their original folders.\r\n",
+  "title": "Document Compare 1.21.19",
+  "notes": "The requested follow-on groups were implemented in order. Abbreviation/time checks add six exact Celsius, Fahrenheit, Rankine, kelvin, Baumé and Twaddell full-name/symbol definitions, complete whole-hour/o’clock forms, and original-source safeguards for bare measurements and clock signs. Symbol checks add the printed “The result is” numeric multiplication form and complete dollar-symbol series in applicable Digest/Opinion/Cover letter contexts, with LCB priority. Contextual wording checks add three printed repeated-prefix forms, four sake expressions and five printed holiday names in finite source roles.\n\nGPO 11.16 now offers conditional Review Suggested findings for selected complete web/email addresses whose entire physical source span has coherent known font-run evidence and at least one italic run. Evidence is limited to the 12 standard Latin Times, Helvetica and Courier faces. Unknown/OCR/invalid fonts, gaps, overlaps, quotes, source-created names, tables and removed text cannot establish a finding. Original physical PDF offsets are checked after word-division restoration. The finding has no replacement: preserve italics required for legislative additions, amendment markup and faithful quotation until their purpose is confirmed in the original PDF.\n\nValidation: all 2,816 source tests and 17 controlled packaged desktop stages passed. Production replay across 23 unchanged bill models / 2,024 pages yields 857 → 857 findings, with 0 additions, 0 removals and 0 changed retained findings excluding regenerated IDs. All differences reviewed; all 34 original PDFs retain their hashes. Existing cached corpus models lack the new font provenance; a separate real PDF verifies font extraction, worker review and physical selections. Office precision/recall is unmeasured.\n\nCoverage remains partial. Broad algebra, ambiguous or signed/fractional/scientific measurement meanings, military/noon/midnight interpretation, unfamiliar wording, complex address syntax, visual font appearance, insertion-markup purpose and general page layout remain manual. The 29 supplied California Codes name/shorthand rows and all 58 California Counties remain independent checks. Code section numbers and jurisdiction/identity are not validated. AB 2266 OCR uncertainty and missing AB 109/SB 879 drafting materials remain review items. Office precision/recall is unmeasured.\n\nExtract the ZIP and keep the entire \"Document Compare\" folder together, then open Document Compare.exe. Offline engines, reference manuals and their licenses/notices are included. LCB priority and the separate California Codes/Counties references remain active.\n\nSource commit: f9c89ce3056b676bc1c34cc9abda07177becd938\nWindows ZIP SHA-256: 87c962a5b18564bfdc99ed732bc92d4878914c1a0a3be7128799e0227ae243e3",
+  "priorRelease": {
+    "tag": "v1.21.18",
+    "assetName": "Document-Compare-Windows-1.21.18.zip",
+    "sha256": "f01b6f34d310bb0f8877e9557ebe93ab83edf7868ffd2183c79aa40ad0f34691",
+    "bytes": 538106403
+  }
+}
