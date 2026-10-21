@@ -1,0 +1,22 @@
+{
+  "format": "document-compare.verified-release",
+  "repository": "Alexander-D-Loyd/Document-Compare",
+  "version": "1.21.18",
+  "sourceCommit": "75d41e205243d4084f1770ca549d15289fb2bf44",
+  "tag": "v1.21.18",
+  "branch": "codex/publish-verified-1.21.18",
+  "manifestPath": ".github/release-receipts/1.21.18.package-manifest.json",
+  "manifestSHA256": "1b98b9361c8b70707390ca0a7bcf0ad827ec90b05ab32260cce9287af609d302",
+  "archiveName": "Document-Compare-Windows-1.21.18.zip",
+  "archiveBytes": 538106403,
+  "archiveSHA256": "f01b6f34d310bb0f8877e9557ebe93ab83edf7868ffd2183c79aa40ad0f34691",
+  "startHere": "Document Compare 1.21.18\r\n\r\nOpen Document Compare.exe and keep this entire folder together.\r\nPDF, OCR, spelling, grammar and style review run locally.\r\nLCB retains priority over differing GPO guidance. California Codes checks\r\nuse the supplied name/shorthand list and do not validate section numbers.\r\nStyle coverage is partial; review the source provisions and exceptions.\r\nSee resources/app/DESKTOP_VERIFICATION.md for verification scope.\r\nPACKAGE-MANIFEST.json records the SHA-256 of every packaged file except itself.\r\nIncluded Electron, PDF/OCR, dictionary and offline-engine licenses/notices\r\nare retained in their original folders.\r\n",
+  "title": "Document Compare 1.21.18",
+  "notes": "Adds source-bound GPO checks in the requested order: explicit measurement abbreviations, complete percentage/dimension series, then time/calendar coverage.\n\nMeasurement checks cover 41 full-name/parenthesized-symbol definitions: 23 English/time forms, 14 metric powers and four printed English powers. Complete homogeneous percent lists and same-unit physical-dimension lists/ranges preserve every original figure and connector. Nonzero-minute meridians and six additional calendar leads receive bounded checks; numeric-day witnesses do not validate calendar dates.\n\nApplicable LCB guidance retains priority. The separate 29-row California Codes name/shorthand reference and 58 California Counties checks remain included. Source names, quotations, tables, removed text, uncertain source evidence and technical meanings remain protected. Broader mathematics, unfamiliar units, temporal interpretation, font/layout and unencoded contexts remain manual.\n\nVerification: all 2,735 source tests and 14 packaged desktop stages passed. The new fixture verifies eight GPO comparisons, six protected controls and independent LCB/California Codes/Counties findings. Production replay retains all 857 findings across 23 unchanged bill models / 2,024 pages, with no additions, removals or changed retained metadata apart from regenerated IDs. All 34 original PDFs retain their hashes. These results do not establish office precision or recall.\n\nExtract the ZIP and keep the entire \"Document Compare\" folder together, then open Document Compare.exe. Offline engines, reference manuals and their licenses/notices are included. Review applicable source provisions and exceptions.\n\nSource commit: 75d41e205243d4084f1770ca549d15289fb2bf44\nWindows ZIP SHA-256: f01b6f34d310bb0f8877e9557ebe93ab83edf7868ffd2183c79aa40ad0f34691",
+  "priorRelease": {
+    "tag": "v1.21.17",
+    "assetName": "Document-Compare-Windows-1.21.17.zip",
+    "sha256": "a15a2ae59ffb2e07d993bd138abf6807d7c2e6635f3f7a786c57bb877602e040",
+    "bytes": 538090104
+  }
+}
