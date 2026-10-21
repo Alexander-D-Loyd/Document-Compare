@@ -1,0 +1,22 @@
+{
+  "format": "document-compare.verified-release",
+  "repository": "Alexander-D-Loyd/Document-Compare",
+  "version": "1.21.17",
+  "sourceCommit": "cfefa717cd0271d92a04025a5740ecf3280123c6",
+  "tag": "v1.21.17",
+  "branch": "codex/publish-verified-1.21.17",
+  "manifestPath": ".github/release-receipts/1.21.17.package-manifest.json",
+  "manifestSHA256": "9d7498686e891153a04808db79e8810f7af317dfc462d563f4fb520e8ddc05ae",
+  "archiveName": "Document-Compare-Windows-1.21.17.zip",
+  "archiveBytes": 538090104,
+  "archiveSHA256": "a15a2ae59ffb2e07d993bd138abf6807d7c2e6635f3f7a786c57bb877602e040",
+  "startHere": "Document Compare 1.21.17\r\n\r\nOpen Document Compare.exe and keep this entire folder together.\r\nPDF, OCR, spelling, grammar and style review run locally.\r\nLCB retains priority over differing GPO guidance. California Codes checks\r\nuse the supplied name/shorthand list and do not validate section numbers.\r\nStyle coverage is partial; review the source provisions and exceptions.\r\nSee resources/app/DESKTOP_VERIFICATION.md for verification scope.\r\nPACKAGE-MANIFEST.json records the SHA-256 of every packaged file except itself.\r\nIncluded Electron, PDF/OCR, dictionary and offline-engine licenses/notices\r\nare retained in their original folders.\r\n",
+  "title": "Document Compare 1.21.17",
+  "notes": "California Counties checks now cover all 58 exact county names, including singular \"County of\" and plural \"Counties of\" constructions. Known form and capitalization problems receive explicit corrections. Unrecognized names are flagged for review without a guessed replacement.\n\nThis release also includes the 1.21.16 work: explicit California Codes name and shorthand checks, continued LCB coverage, the GPO abbreviation table, and mathematical-symbol spacing. LCB retains priority where its guidance differs from GPO. California Codes checks validate the supplied code names and shorthand, rather than section numbers.\n\nVerification: 2,699 source tests and 13 packaged desktop verification stages passed. The county stage verified all 58 county rows/search, six known form/case corrections, and one unknown-name review. All 34 original PDFs remained unchanged. The corpus increased from 833 to 857 comparisons: 22 known county comparisons and two unknown compound-title reviews, with no prior comparisons removed or changed.\n\nExtract the ZIP and keep the entire \"Document Compare\" folder together, then open Document Compare.exe. Offline engines, reference manuals, and their licenses/notices are included. Style coverage remains partial; review the applicable source provisions and exceptions.\n\nSource commit: cfefa717cd0271d92a04025a5740ecf3280123c6\nWindows ZIP SHA-256: a15a2ae59ffb2e07d993bd138abf6807d7c2e6635f3f7a786c57bb877602e040",
+  "priorRelease": {
+    "tag": "v1.21.15",
+    "assetName": "Document-Compare-Windows-1.21.15.zip",
+    "sha256": "c810ab03c31ee9eb19ecebef02732d31ff1fbbe04e856f0c4b2667e5c11d83cb",
+    "bytes": 545056087
+  }
+}
