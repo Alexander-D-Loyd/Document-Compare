@@ -1,0 +1,22 @@
+{
+  "format": "document-compare.verified-release",
+  "repository": "Alexander-D-Loyd/Document-Compare",
+  "version": "1.21.20",
+  "sourceCommit": "f1a41372ebbfa0892f2c5abcecf6d1615b7242c6",
+  "tag": "v1.21.20",
+  "branch": "codex/publish-verified-1.21.20",
+  "manifestPath": ".github/release-receipts/1.21.20.package-manifest.json",
+  "manifestSHA256": "0cdda7edbc2a7cb679f483095cc66347c1df4d9b971d478b2171d99288630b3a",
+  "archiveName": "Document-Compare-Windows-1.21.20.zip",
+  "archiveBytes": 538177284,
+  "archiveSHA256": "9a011a5587ef4165d39063a9bb3c023ca1d4f70e9d0b12df16b66431a8dc420f",
+  "startHere": "Document Compare 1.21.20\r\n\r\nOpen Document Compare.exe and keep this entire folder together.\r\nPDF, OCR, spelling, grammar and style review run locally.\r\nLCB retains priority over differing GPO guidance. California Codes checks\r\nuse the supplied name/shorthand list and do not validate section numbers.\r\nStyle coverage is partial; review the source provisions and exceptions.\r\nSee resources/app/DESKTOP_VERIFICATION.md for verification scope.\r\nPACKAGE-MANIFEST.json records the SHA-256 of every packaged file except itself.\r\nIncluded Electron, PDF/OCR, dictionary and offline-engine licenses/notices\r\nare retained in their original folders.\r\n",
+  "title": "Document Compare 1.21.20",
+  "notes": "This release fixes the three reported AB 1967 problems: the amendment after the named comma now resolves to its insertion point, the coordinated in-kind modifier is flagged, and ordinary Digest prose no longer acquires the large centered indentation. The Digest and all eight amendments pass in the actual packaged desktop app; all four original PDFs remain unchanged.\n\nLCB review now adds source-linked questions for lexical roles, separated prefixes, productive endings, validated parsed modifiers, complete-sentence series/numerical relationships, all30 entity entries excluded from automatic case correction, selected document-local title differences and recognizable unsupported numerical forms. Questions select no replacement. Independently quoted c/s corporation classifications retain their specific source case check. Every review displays the unavailable complete dictionary authority and other coverage limits.\n\nSelected supplementary California Style Manual checks now run for explicit Opinion/Cover letter selections: reporter spacing, year placement, code separators, code supra and unresolved Id./Ibid. chains. Findings identify the supplementary section and page and link to the reviewed manual. These checks do not validate case identity, publication status, supporting point pages or full citation authority.\n\nValidation: all2,865 source tests pass. The exact-target audit fingerprints23 LCB pages and separately retains41 numbered/section provisions;497 source-derived target rows have exact target/source-page findings, while213 plain solid forms have no justified alternative probe. These are finite tests, not a completion percentage. Native packaged verification includes the four AB1967 PDFs and a controlled citation PDF with exact selections and document-type isolation. Replay across23 unchanged cached models /2,024 pages yields140 form comparisons and9,773 reader questions; the questions are not established errors, and office accuracy is unmeasured. No automatic correction was added in this replay; two5-to-five comparisons became conditional. All34 original corpus PDFs retain their hashes.\n\nCoverage remains partial. Complete ordered Merriam-Webster authority is unavailable; unsupported grammatical/numerical contexts, full citation coverage, legal identity, source freshness, parser errors/omissions and semantic judgments remain limits. Reader questions can be correct wording and still need further reduction. California Codes and Counties checks remain independent; code section numbers are not validated. A quiet review does not certify full LCB compliance.\n\nExtract the ZIP and keep the entire Document Compare folder together, then open Document Compare.exe. The offline engines and existing LCB/GPO references are included; the supplementary citation manual is linked externally.\n\nSource commit: f1a41372ebbfa0892f2c5abcecf6d1615b7242c6\nWindows ZIP SHA-256: 9a011a5587ef4165d39063a9bb3c023ca1d4f70e9d0b12df16b66431a8dc420f",
+  "priorRelease": {
+    "tag": "v1.21.19",
+    "assetName": "Document-Compare-Windows-1.21.19.zip",
+    "sha256": "87c962a5b18564bfdc99ed732bc92d4878914c1a0a3be7128799e0227ae243e3",
+    "bytes": 538137613
+  }
+}
