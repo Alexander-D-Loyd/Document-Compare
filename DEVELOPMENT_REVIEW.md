@@ -1,3 +1,13 @@
+Document Compare 1.21.16 — October 21, 2026
+
+All 2,618 source tests pass. GPO 9.58 records all 23 bare English measurement/time abbreviations and checks 21 unambiguous appended-s variants; ds/hs and uppercase Ts retain their distinct meanings. GPO 10.3 checks the five printed arithmetic operators in explicitly identified simple expressions, preserving original numeric strings and breeding, magnification and source-name exceptions. Both provisions remain partially automated. The new batch adds 26 rule tests, two coverage/integration tests and five packaging tests.
+
+The staged Windows 1.21.16 EXE passed 12 controlled native stages with its bundled PDF, OCR and language engines, including three abbreviation and two mathematical comparisons, independent LCB and California Codes findings, exact highlights, manual-page navigation and searchable coverage. All packaged application/runtime bytes are checked against the tested stage before ZIP creation; each archived file is SHA-256 verified. The build includes the earlier California Codes, LCB program-name, first GPO and development-setup repairs. Test PDFs, personal profiles and development dependencies are excluded.
+
+The second 23-model / 2,024-page production-style replay preserves all 833 findings with zero additions, removals or changed retained metadata except regenerated IDs. All 34 original PDFs retain their hashes. This is controlled regression/workflow evidence; office precision/recall, OS chooser gestures and physical drag-and-drop remain outside this result. AB 2266 OCR warnings and the AB 109/SB 879 drafting-material gap remain review items. Earlier checkpoints below retain their historical scope. See DESKTOP_VERIFICATION.md.
+
+---
+
 Document Compare 1.21.15 — October 16, 2026
 
 - Accepts nine additional exact printed LCB spelling rows using complete phrases or a qualified numbered citation. Component words and nearby misspellings retain their normal checks. Caltrans keeps its printed proper spelling.

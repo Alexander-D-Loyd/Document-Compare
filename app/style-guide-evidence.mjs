@@ -67,6 +67,7 @@ export function guidePassage(reference,citation){
 }
 
 export function attachGuideEvidence(issue,references){
+ if(issue.guideId==='california-codes')return {...issue,reviewTask:issue.message+' Compare with the supplied list before editing; section numbers are not checked.'};
  const citations=(issue.references||[]).map(citation=>({...citation,sourcePassage:guidePassage(references[citation.guideId],citation)}));
  return {...issue,references:citations,reviewTask:issue.suggestion?
   `Compare “${issue.matchText||issue.text}” with the guide form “${issue.suggestion}”. Confirm that the stated context and exceptions apply before editing.`:

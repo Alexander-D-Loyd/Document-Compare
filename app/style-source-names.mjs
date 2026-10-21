@@ -7,10 +7,13 @@ const names=['Department of Healthcare Access and Information','Missing Persons 
  'English Language Arts/English Language Development Framework for California Public Schools: Kindergarten Through Grade Twelve',
  'Alzheimer’s Disease Program','California Alzheimer’s Disease Centers','Alzheimer’s Disease and Related Disorders Advisory Committee',
  'Clean Cars 4 All Program','2026 University Capital Outlay Bond Fund Conditions',
+ // Literal title in SB 879 p. 99 and AB 109 p. 119 in the reviewed corpus.
+ // This preserves the printed name; it does not certify current legal identity.
+ 'State Government Oral History Program',
 ];
 const escape=s=>s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
 export function sourceNameRanges(source){
  const ranges=[];
- for(const name of names){const pattern=name.split(' ').map(w=>[...w].map(c=>/[’']/.test(c)?'[’\']':escape(c)).join('(?:-\\s*)?')).join('\\s+');for(const m of source.matchAll(new RegExp('\\b'+pattern+'\\b','g')))ranges.push({start:m.index,end:m.index+m[0].length});}
+ for(const name of names){const pattern=name.split(' ').map(w=>[...w].map(c=>/[’']/.test(c)?'[’\']':escape(c)).join('(?:-\\s*)?')).join('\\s+');for(const m of source.matchAll(new RegExp('(?<![\\p{L}\\p{N}\\p{M}_])'+pattern+'(?![\\p{L}\\p{N}\\p{M}_])','gu')))ranges.push({start:m.index,end:m.index+m[0].length});}
  return ranges;
 }

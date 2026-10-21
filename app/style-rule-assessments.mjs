@@ -11,6 +11,12 @@ import {GROUPED_SEMICOLON_REVIEW_SCOPE}from './style-grouped-semicolon-review.mj
 import {INTRODUCED_SERIES_REVIEW_SCOPE}from './style-introduced-series-review.mjs';
 import {REPEATED_COUNT_PHRASE_SCOPE}from './style-repeated-count-phrases.mjs';
 import {EXACT_COUNT_THRESHOLD_SCOPE}from './style-lcb-review-number-relations.mjs';
+import {GPO_TIME_ABBREVIATION_SCOPE}from './style-measures.mjs';
+import {CALENDAR_ABBREVIATION_EVIDENCE_SCOPE}from './style-calendar-abbreviations.mjs';
+import {EDITORIAL_NOTATION_SCOPE}from './style-editorial-notation.mjs';
+import {GPO_COMPOUND_PLURAL_SCOPE}from './style-compound-plurals.mjs';
+import {GPO_ENGLISH_ABBREVIATION_SCOPE}from './style-english-abbreviations.mjs';
+import {GPO_MATH_SYMBOL_SPACING_SCOPE}from './style-symbols.mjs';
 export const GPO_ASSESSMENTS=new Map();
 const classify=(numbers,status,scope)=>{for(const n of numbers){if(GPO_ASSESSMENTS.has('2.'+n))throw Error('Duplicate rule audit '+n);GPO_ASSESSMENTS.set('2.'+n,{status,scope});}};
 const range=(a,b)=>Array.from({length:b-a+1},(_,i)=>a+i);
@@ -45,7 +51,7 @@ chapter5([1],'Manual review required','Webster’s Third authority, colloquial/d
 chapter5([2],'Partially automated','Selected preferred spellings and selected contextual LCB meaning pairs are checked. This extensive list contains semantic, legal and scientific distinctions; each unencoded entry and ambiguous sense requires review.');
 chapter5([3,4],'Manual review required','Anglicized versus foreign use controls whether accents are retained. Proper names, quotations and LCB’s explicit preferences may override a proposed change; no universal accent stripping or insertion is performed.');
 chapter5([5,7,9,10,11],'Manual review required','Plural or suffix choice depends on noun/adjective role, lexical exceptions, scientific versus general use, containers versus quantities or stress in a derivative. These source lists are searchable but not fully encoded as tested contextual checks.');
-chapter5([6],'Partially automated','Selected listed hyphenated noun-plus-adverb/preposition plurals such as hangers-on and passers-by are checked. Unlisted terms, grammatical role, literal names and source quotations remain manual.');
+chapter5([6],'Partially automated',GPO_COMPOUND_PLURAL_SCOPE);
 chapter5([8],'Partially automated','Selected explicit compound plural errors are checked, including attorneys general, rights-of-way and notaries public. The full significant-word list, names and semantic exceptions remain manual.');
 chapter5([12],'Partially automated','Selected -ise/-ize/-yze spelling variants and inflections are checked. Listed -ise exceptions remain accepted; unencoded forms and semantic distinctions require review.');
 chapter5([13],'Partially automated','Selected close misspellings of supersede, exceed, proceed, succeed and precede, including ordinary verb inflections, have source-backed checks. Remaining -cede forms and established proper names require review.');
@@ -86,13 +92,13 @@ chapter9([16,17,18,19],'Manual review required','Address, geographic-name and st
 chapter9([20,21,22],'Manual review required','Public-land township/range descriptions, half/quarter terminology and line-break conventions require identifying land-description groups and reliable source geometry. Ordinary fractions must not be silently restyled as land descriptions.');
 chapter9([23,24,25,26,27,28,29,30,31,32,33,34,35,36,37],'Manual review required','Personal/company names, signatures, titles, degrees, military ranks and informal companionships depend on literal naming, formal context, referents, order of qualifications and typography. The rule’s source examples remain available; a complete offline identity/rank authority and safe rewrite are not established.');
 chapter9([38,39,40,41,42,43],'Manual review required','Publication and congressional/statute abbreviations depend on reference/legend/paragraph roles, series position, footnotes and typography. Numeral checks protect selected legal citations but do not certify these abbreviation forms.');
-chapter9([44,45],'Partially automated','Explicit abbreviated calendar dates in ordinary prose are expanded, while parenthetical/bracketed references, quotes and recognized tables are protected. Footnotes, bibliography and narrow-column exceptions need layout review; first-use reference context is not universally inferred.');
-chapter9([46],'Partially automated','Selected weekday abbreviations with explicit prose calendar cues are expanded. Recognized tables, quotations and references are protected; narrow columns and list exceptions still need contextual/visual review.');
+chapter9([44,45],'Partially automated',CALENDAR_ABBREVIATION_EVIDENCE_SCOPE);
+chapter9([46],'Partially automated',CALENDAR_ABBREVIATION_EVIDENCE_SCOPE);
 chapter9([47,48,49,50,51,52],'Manual review required','Time-zone meanings, legal/copyrighted acronym forms, Latin references, compass/land exceptions and latitude/longitude groups require technical/referent and often line-layout evidence. These rules are not covered by generic spelling similarity.');
 chapter9([53],'Partially automated','Selected Celsius/Fahrenheit/Rankine degree-symbol spacing is checked, retaining plane-angle distinctions. Gravity scales, kelvin, Baumé, API and Twaddell forms remain manual.');
-chapter9([54,55],'Partially automated','Exact-hour :00 and redundant o’clock plus a.m./p.m. are checked. Other meridian readings, noon/midnight meanings and all typography variants require review.');
+chapter9([54,55],'Partially automated',GPO_TIME_ABBREVIATION_SCOPE);
 chapter9([56,57],'Partially automated','Selected metric/electrical symbols have spacing and plural-s checks. The 2016 prefix table is used for meter/gram/liter symbol protection and explicit full-name/symbol consistency, including significant prefix case. The fifteen explicit GPO 9.57 electrical forms are also checked with source-specific references. Unlisted derived units, squared/cubed, cubic-centimeter preference, angle and roman-type rules are not fully encoded.');
-chapter9([58],'Partially automated','Selected English-unit/time abbreviations are checked for an appended plural s. The complete table, symbol role, exceptions such as tons and notation context remain manual.');
+chapter9([58],'Partially automated',GPO_ENGLISH_ABBREVIATION_SCOPE);
 chapter9([59,60],'Manual review required','Astrophysical notation and monetary/currency symbols require the actual technical/currency meaning. LCB monetary-form checks do not implement every GPO currency-table choice or scientific time expression.');
 chapter9([61,62,63,64],'Manual review required','These extensive standard-abbreviation, symbol, Latin and IT reference tables are searchable but their individual entries and semantic exceptions are not comprehensively mapped to tested checks. The referenced external acronym authority is not bundled; table search must not be counted as automatic coverage.');
 if([...GPO_ASSESSMENTS.keys()].filter(id=>id.startsWith('9.')).length!==64)throw Error('Chapter 9 audit must account for all 64 rules.');
@@ -147,7 +153,7 @@ if([...GPO_ASSESSMENTS.keys()].filter(id=>id.startsWith('12.')).length!==29)thro
 
 const chapter10=(numbers,status,scope)=>{for(const n of numbers){if(GPO_ASSESSMENTS.has('10.'+n))throw Error('Duplicate symbol audit '+n);GPO_ASSESSMENTS.set('10.'+n,{status,scope});}};
 chapter10([1,2,17,18],'Manual review required','Symbol standardization depends on the actual scientific field, recognized authority and literal notation. These source tables/examples remain searchable; no complete technical-symbol authority or semantic parser is bundled.');
-chapter10([3],'Partially automated','Simple arithmetic operators after an explicit equation/formula/expression cue are closed against single-letter or numeric operands. Numeric operands are protected from ordinary count spelling. Breeding crosses, magnification, quoted formulas, complex operands and unsupported formula context remain manual.');
+chapter10([3],'Partially automated',GPO_MATH_SYMBOL_SPACING_SCOPE);
 chapter10([4],'Manual review required','Technical-publication degree-symbol preference depends on measurement meaning and publication class. Legislative wording and LCB temperature forms must not be universally rewritten as symbols.');
 chapter10([5],'Partially automated','Bill percent versus symbol wording and a simple three-figure repeated-percent series are checked. The LCB digest symbol preference differs and is excluded. Narrow-space exceptions, longer/labeled series and publication context require review.');
 chapter10([6],'Partially automated','A complete two-endpoint prime/quote-mark expression followed by a recognized physical dimension continuation repeats a missing first endpoint mark. Source connectors and values are preserved through identified running heads; quotes, source strikes, mixed-unit endpoints and unknown ignored bridges are protected. Currency, temperature, longer series, unqualified marks and unfamiliar unit meanings remain manual. This selected source-example check does not certify every grouped-symbol form.');
@@ -155,9 +161,9 @@ chapter10([7,8,9,10,11,12,13,14,15,16],'Manual review required','Equation letter
 if([...GPO_ASSESSMENTS.keys()].filter(id=>id.startsWith('10.')).length!==18)throw Error('Chapter 10 audit must account for all 18 rules.');
 const chapter11=(numbers,status,scope)=>{for(const n of numbers){if(GPO_ASSESSMENTS.has('11.'+n))throw Error('Duplicate italic audit '+n);GPO_ASSESSMENTS.set('11.'+n,{status,scope});}};
 chapter11([1,2,3,5],'Manual review required','Italic purpose, foreign/legal citation use, publication/title role and all-roman instructions require contextual and typographic evidence. In legislative drafts, italics may mark amendment additions; source treatment must not be removed by an unrestricted style rule.');
-chapter11([4],'Partially automated','The exact bracketed annotation underscore supplied is changed to italic supplied. Emphasis in original/supplied/added/ours remains literal. This wording check does not certify italic typography in the underlying extract or complex editorial annotations.');
+chapter11([4],'Partially automated',EDITORIAL_NOTATION_SCOPE);
 chapter11([6,7],'Manual review required','Aircraft/vessel/spacecraft names, missile/type exceptions, class uses, table roles and reverse italic/quoted treatment depend on authoritative identity and PDF typography. The source’s examples remain searchable; universal vessel recognition is not implemented.');
-chapter11([8],'Partially automated','An uppercase V. connector between simple surnames is lowercased only after an explicit case of/decision in/holding in cue. Middle initials and quoted names are protected. Authentic names, requested reverse type, multiword case names, italic styling and broader court citation recognition remain manual.');
+chapter11([8],'Partially automated',EDITORIAL_NOTATION_SCOPE);
 chapter11([9,10],'Manual review required','Scientific taxonomic rank, name identity and inverse italic/quotation treatment require scientific authority and reliable typography. Spell resemblance cannot establish genus/species/rank or certify this rule.');
 chapter11([11],'Manual review required','Resolved/provided/ordered forms and continuation/index cross-references depend on legal/document role and typography. In inserted or deleted legislative text, italic treatment has drafting significance; no blanket alteration is applied.');
 chapter11([12,13,14],'Manual review required','Mathematical/scientific letter symbols, chemical exceptions, legends and reverse type require symbol roles and reliable PDF font evidence. Ordinary letters and legislative labels must not be restyled as equations.');

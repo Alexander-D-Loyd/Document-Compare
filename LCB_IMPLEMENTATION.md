@@ -1,3 +1,13 @@
+Local source follow-up — October 21, 2026
+
+All 2,548 source tests pass, including 39 checks for the additional user-supplied California Codes reference. This list covers all 29 exact code names and shorthand, including name–shorthand pair consistency; it is separate from LCB/GPO provisions. Native PDF, finding-source, list/search and guide-tab checks pass. Unlisted titles receive review findings without invented replacements, and section numbers are not validated. The full supplementary California Style Manual remains outstanding.
+
+The earlier 2,509-test checkpoint confirmed the following LCB fix: A source-confirmed literal protection for State Government Oral History Program removes four false positives in the new 23-bill-model replay (124 to 120 findings), with zero additions and zero changed retained metadata except generated IDs. Unicode word boundaries prevent extended identifiers from borrowing a shorter source name. Five new accepted/actionable/protected-context tests and a native style/grammar check pass. The authoritative entity dataset is unchanged.
+
+The restored source and downloaded 1.21.15 EXE each passed 11 controlled native workflow stages. All 34 Drive PDFs passed native intake; 11 amendment sets retain the AB 2266 OCR warnings and AB 109 drafting-material discrepancies. The source follow-up is not yet packaged. See DESKTOP_VERIFICATION.md for exact scope, remaining limits and local evidence. Older checkpoints below retain their original version-specific results.
+
+---
+
 Document Compare 1.21.15 — October 16, 2026
 
 - Accepts nine additional exact printed LCB spelling rows using complete phrases or a qualified numbered citation. Component words and nearby misspellings retain their normal checks. Caltrans keeps its printed proper spelling.

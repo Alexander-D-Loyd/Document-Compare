@@ -1,3 +1,4 @@
+import {searchCaliforniaCodes} from './data/california-codes.mjs';
 import {createEntityAuthorityPanel} from './entity-authority-ui.mjs';
 import {normalizeStyleDocumentType} from './style-document-type.mjs';
 import {digestDisplay,digestPayload,amendmentName} from './digest-amendment.mjs';
@@ -75,7 +76,7 @@ let personalWords = new Set();
 let dictionaryError = '';
 let allStyleIssues=[],styleIssues=[],styleIndex=-1,styleWorker=null,styleSequence=0,styleChecked=false;
 const guideReferencePromises=new Map(),guidePdfPromises=new Map(),guideViews=new Map(STYLE_GUIDES.map(g=>[g.id,{page:g.defaultPage,query:''}]));
-const guideTabs=[...STYLE_GUIDES,{id:'custom',title:'Custom Terms'},{id:'entities',title:'Entity Authority'},{id:'coverage',title:'Check Coverage'}];guideViews.set('custom',{query:''});guideViews.set('coverage',{query:''});guideViews.set('entities',{query:''});
+const guideTabs=[...STYLE_GUIDES,{id:'custom',title:'Custom Terms'},{id:'entities',title:'Entity Authority'},{id:'california-codes',title:'California Codes'},{id:'coverage',title:'Check Coverage'}];guideViews.set('custom',{query:''});guideViews.set('coverage',{query:''});guideViews.set('entities',{query:''});guideViews.set('california-codes',{query:''});
 let customTerms=[],customTermsError='';
 try{customTerms=loadStyleTerms(localStorage);}catch{customTermsError='Saved custom terms could not be loaded.';}
 let activeGuideId='lcb',guideContext=null,guidePage=1,guideRenderTask,guideRenderSequence=0;
@@ -749,7 +750,7 @@ function selectStyle(index){
   const block=docs[1].blocks.find(b=>b.start<=issue.start&&b.end>issue.start);
   const officePreference=issue.guideId==='custom'||issue.dictionaryEvidence?.authority==='Office preference list';
   const recommendation=issue.matchesPrimary||!issue.suggestion?'':`${officePreference?'Saved replacement':'Guide form'} to compare: “${issue.suggestion}”.`;
-  const references=issue.references.map(r=>`${guideById(r.guideId).title} ${r.rule}, p. ${r.guidePrintedPage}`).join(' · ');
+  const references=issue.references.map(r=>`${guideById(r.guideId).title} ${r.rule}${r.guidePrintedPage?", p. "+r.guidePrintedPage:""}`).join(' · ');
   $('style-status').textContent=`${officePreference?'Office preference review':'Style review'} ${index+1} of ${styleIssues.length} · p. ${block?.page||1}${issue.context?' · '+issue.context+' text':''} · ${issue.category}: “${issue.matchText||issue.text}”. ${recommendation} ${issue.message} ${references}${issue.conflict?' · LCB takes priority.':''}`+(styleEngineWarning?' '+styleEngineWarning:'');
   $('style-rule').disabled=false;
   updateIgnoreControls();
@@ -779,7 +780,7 @@ async function checkStyle(){
   $('style-status').textContent='Loading local style authorities…';
   await Promise.all([authorityReady,entityPanel.ready]);if(seq!==styleSequence||!compared||!docs[1]){if(seq===styleSequence)stylePending=false;return;}
   styleWorker=new Worker('./style-worker.mjs',{type:'module'});availability();
-  $('style-status').textContent='Checking Current Version against explicit LCB and GPO rules…';
+  $('style-status').textContent='Checking Current Version against LCB, GPO, and the California Codes list…';
   const finish=()=>{stylePending=false;cancelOfflineLanguage(styleRequestId);styleWorker?.terminate();styleWorker=null;styleRequestId=null;availability();};
   styleWorker.onerror=()=>{if(seq!==styleSequence)return;finish();$('style-status').textContent='Stylistic check could not finish. Try again.';};
   styleWorker.onmessage=({data})=>{
@@ -798,11 +799,17 @@ function loadGuideReference(id=activeGuideId){
   if(!guideReferencePromises.has(id))guideReferencePromises.set(id,fetch(guideById(id).referenceUrl).then(response=>{if(!response.ok)throw Error(`${guideById(id).title} reference could not be loaded.`);return response.json();}).catch(error=>{guideReferencePromises.delete(id);throw error;}));
   return guideReferencePromises.get(id);
 }
+function renderCaliforniaCodes(query){
+  const root=$('california-codes-results');root.replaceChildren();const rows=searchCaliforniaCodes(query);
+  $('guide-search-status').textContent=`${rows.length} of 29 code names and shorthand pairs. Both forms are checked for exact matches.`;
+  for(const row of rows){const card=document.createElement('article');card.className='guide-rule-card';const name=document.createElement('strong');name.textContent=row.name;const short=document.createElement('p');short.textContent=row.shorthand;card.append(name,short);root.append(card);}
+}
 async function renderGuideSearch(){
   const id=activeGuideId,query=$('guide-search').value.trim();guideViews.get(id).query=query;
   if(id==='custom'){renderCustomTerms(query);return;}
   if(id==='coverage'){renderCoverage(query);return;}
   if(id==='entities'){entityPanel.render(query);return;}
+  if(id==='california-codes'){renderCaliforniaCodes(query);return;}
   try{
     const reference=await loadGuideReference(id),pages=searchGuide(reference,query);
     if(id!==activeGuideId||query!==$('guide-search').value.trim())return;
@@ -818,7 +825,7 @@ async function renderGuideSearch(){
   }catch(error){if(id===activeGuideId)$('guide-search-status').textContent=error.message;}
 }
 async function renderGuidePage(pageNumber){
-  if(['custom','coverage','entities'].includes(activeGuideId))return;
+  if(['custom','coverage','entities','california-codes'].includes(activeGuideId))return;
   const guide=guideById(activeGuideId),page=Number(pageNumber);if(!Number.isInteger(page)||page<1||page>guide.totalPages)return;
   guideViews.get(guide.id).page=page;
   guidePage=page;const seq=++guideRenderSequence,oldTask=guideRenderTask;
@@ -841,11 +848,11 @@ function renderGuideContext(){
   $('guide-rule-context').hidden=!guideContext;
   const root=$('guide-rules');root.replaceChildren();if(!guideContext)return;
   const officePreference=guideContext.guideId==='custom'||guideContext.dictionaryEvidence?.authority==='Office preference list';
-  $('guide-conflict-note').textContent=officePreference?'This finding comes from a saved or imported office preference. It is not a spelling error or a claim that LCB/GPO lists this word.':guideContext.conflict?guideContext.conflictNote:'LCB is the primary standard. GPO supplies secondary guidance. '+STYLE_EXCEPTION_SUMMARY;
+  $('guide-conflict-note').textContent=guideContext.codeSource?'This finding compares the citation with your California Codes list.':officePreference?'This finding comes from a saved or imported office preference. It is not a spelling error or a claim that LCB/GPO lists this word.':guideContext.conflict?guideContext.conflictNote:'LCB is the primary standard. GPO supplies secondary guidance. '+STYLE_EXCEPTION_SUMMARY;
   const task=document.createElement('article');task.className='guide-rule-card';
   const taskTitle=document.createElement('strong');taskTitle.textContent='Review this finding';
   const taskText=document.createElement('p');taskText.textContent=guideContext.reviewTask||guideContext.message;
-  const scope=document.createElement('p');scope.textContent=officePreference?'Confirm the selected office preference and intended meaning before editing. Listed alternatives remain accepted forms.':STYLE_REVIEW_SCOPE;
+  const scope=document.createElement('p');scope.textContent=guideContext.codeSource?'Check the name and shorthand against your supplied list. Differences are highlighted for review; section numbers are not checked.':officePreference?'Confirm the selected office preference and intended meaning before editing. Listed alternatives remain accepted forms.':STYLE_REVIEW_SCOPE;
   task.append(taskTitle,taskText,scope);root.append(task);
   const entitySource=guideContext.entitySource||guideContext.officialHeadEvidence?.registry;
   if(entitySource){
@@ -857,7 +864,15 @@ function renderGuideContext(){
     const note=document.createElement('p');note.textContent='The source date and file hash identify the selected data; they do not establish freshness, legal status or authenticity. A missing name is not evidence of an error.';
     box.append(title,source,date,receipt,note);root.append(box);
   }
-  for(const reference of guideContext.references){
+  if(guideContext.codeSource){
+    const box=document.createElement('article');box.className='guide-rule-card';
+    const title=document.createElement('strong');title.textContent='California Codes · User-supplied list';
+    const entry=document.createElement('p');const row=guideContext.codeSource.entry;entry.textContent=row?row.name+' — '+row.shorthand:'No exact listed form was identified.';
+    const message=document.createElement('p');message.textContent=guideContext.message;
+    const button=document.createElement('button');button.className='quiet';button.textContent='View California Codes';button.addEventListener('click',()=>selectGuide('california-codes'));
+    box.append(title,entry,message,button);root.append(box);
+  }
+  for(const reference of guideContext.references.filter(r=>r.guideId!=='california-codes')){
     const box=document.createElement('article');box.className='guide-rule-card';
     const title=document.createElement('strong');title.textContent=`${guideById(reference.guideId).title}${reference.guideId==='lcb'?' · Primary':''} · ${reference.rule} · p. ${reference.guidePrintedPage}`;
     const form=document.createElement('p');form.textContent=`${reference.guideId==='lcb'?'Recommended LCB form':'GPO form'}: “${reference.preferred}”`;
@@ -1031,13 +1046,13 @@ function renderGuideContext(){
 }
 function selectGuide(id,page=null,query=null){
   guideViews.get(activeGuideId).query=$('guide-search').value;
-  const custom=id==='custom',coverage=id==='coverage',entities=id==='entities';$('custom-terms-panel').hidden=!custom;$('coverage-panel').hidden=!coverage;$('entity-panel').hidden=!entities;$('guide-content').hidden=custom||coverage||entities;
-  $('guide-search-label').textContent=custom?'Search custom terms (case sensitive)':coverage?'Search check coverage':entities?'Search entity names and source citations':'Search the guide';
-  $('guide-search').placeholder=custom?'Search saved terms or replacements':coverage?'Search a rule area, context or limitation':entities?'Search an exact name, category, or citation':'Search a phrase, topic, or rule number (for example 6.20)';
+  const custom=id==='custom',coverage=id==='coverage',entities=id==='entities',codes=id==='california-codes';$('california-codes-panel').hidden=!codes;$('custom-terms-panel').hidden=!custom;$('coverage-panel').hidden=!coverage;$('entity-panel').hidden=!entities;$('guide-content').hidden=custom||coverage||entities||codes;
+  $('guide-search-label').textContent=codes?'Search California Codes':custom?'Search custom terms (case sensitive)':coverage?'Search check coverage':entities?'Search entity names and source citations':'Search the guide';
+  $('guide-search').placeholder=codes?'Search a code name or shorthand':custom?'Search saved terms or replacements':coverage?'Search a rule area, context or limitation':entities?'Search an exact name, category, or citation':'Search a phrase, topic, or rule number (for example 6.20)';
   for(const item of guideTabs){const tab=$('guide-tab-'+item.id);tab.setAttribute('aria-selected',String(item.id===id));tab.tabIndex=item.id===id?0:-1;}
-  if(custom||coverage||entities){
-    activeGuideId=id;guideRenderSequence++;guideRenderTask?.cancel();guideRenderTask=null;$('guide-rule-context').hidden=true;
-    $('guide-description').textContent=custom?'Your saved style terms · Case-sensitive matching and search':entities?'Selected local entity authority · Exact names and source provenance':'Supported checks and rules requiring manual review';
+  if(custom||coverage||entities||codes){
+    activeGuideId=id;guideRenderSequence++;guideRenderTask?.cancel();guideRenderTask=null;$('guide-rule-context').hidden=!codes||!guideContext;
+    $('guide-description').textContent=codes?'Your supplied reference list · Exact code names and shorthand':custom?'Your saved style terms · Case-sensitive matching and search':entities?'Selected local entity authority · Exact names and source provenance':'Supported checks and rules requiring manual review';
     $('guide-search').value=query??guideViews.get(id).query;renderGuideSearch();return;
   }
   renderGuideContext();
@@ -1050,7 +1065,7 @@ function selectGuide(id,page=null,query=null){
 function openGuide(page=null,query='',id='lcb',context=null){
   $('dictionary-dialog').close();guideContext=context;renderGuideContext();
   if(!$('guide-dialog').open)$('guide-dialog').showModal();
-  selectGuide(id,page??(['custom','coverage','entities'].includes(id)?null:guideById(id).defaultPage),query);
+  selectGuide(id,page??(['custom','coverage','entities','california-codes'].includes(id)?null:guideById(id).defaultPage),query);
 }
 async function renderCoverage(query=''){
   const root=$('coverage-list');root.replaceChildren();
@@ -1405,6 +1420,7 @@ for(const guide of guideTabs){
   const tab=document.createElement('button');tab.id='guide-tab-'+guide.id;tab.className='quiet guide-tab';tab.setAttribute('role','tab');tab.setAttribute('aria-controls',guide.id==='custom'?'custom-terms-panel':'guide-content');tab.textContent=guide.title+(guide.primary?' · Primary':'');tab.setAttribute('aria-selected',String(guide.id===activeGuideId));tab.tabIndex=guide.id===activeGuideId?0:-1;
   if(guide.id==='coverage')tab.setAttribute('aria-controls','coverage-panel');
   if(guide.id==='entities')tab.setAttribute('aria-controls','entity-panel');
+  if(guide.id==='california-codes')tab.setAttribute('aria-controls','california-codes-panel');
   tab.addEventListener('click',()=>selectGuide(guide.id));
   tab.addEventListener('keydown',event=>{if(!['ArrowLeft','ArrowRight','Home','End'].includes(event.key))return;event.preventDefault();const index=guideTabs.findIndex(g=>g.id===activeGuideId),next=event.key==='Home'?0:event.key==='End'?guideTabs.length-1:(index+(event.key==='ArrowRight'?1:-1)+guideTabs.length)%guideTabs.length;selectGuide(guideTabs[next].id);$('guide-tab-'+guideTabs[next].id).focus();});
   $('guide-tabs').append(tab);

@@ -1,7 +1,76 @@
 {
-  "date": "2026-10-16",
-  "packagedVersion": "1.21.15",
+  "date": "2026-10-21",
+  "packagedVersion": "1.21.16",
   "localFollowOn": false,
+  "desktopVerification": {
+    "date": "2026-10-21",
+    "sourceTestsPassed": 2618,
+    "nativeDevelopmentStagesPassed": 11,
+    "nativeReleasedExeStagesPassed": 11,
+    "nativePdfIntakeFiles": 34,
+    "sourcePdfPages": 2119,
+    "nativeAmendmentSets": 11,
+    "amendmentStatuses": {
+      "implemented": 90,
+      "needsReview": 4,
+      "incorrect": 1
+    },
+    "pairedStyleModels": 23,
+    "pairedStyleFindingsBefore": 124,
+    "pairedStyleFindingsAfter": 120,
+    "pairedStyleRemoved": 4,
+    "pairedStyleAdded": 0,
+    "pairedStyleChangedRetainedExcludingIds": 0,
+    "localSourcePackaged": true,
+    "scope": "Controlled native workflows and bounded source/corpus checks; OS chooser gestures and office precision/recall remain outside this result.",
+    "report": "DESKTOP_VERIFICATION.md",
+    "nativeRelease12116StagesPassed": 12
+  },
+  "californiaCodes": {
+    "source": "User-supplied image",
+    "sourceDate": null,
+    "entries": 29,
+    "sourceTests": 39,
+    "nativePdfAndReferenceTabVerified": true,
+    "cachedModelsChecked": 34,
+    "unlistedCodeOfRegulationsReviewFindings": 16,
+    "sectionNumbersValidated": false,
+    "includedInDownloadedExe": false
+  },
+  "gpoFollowUp": {
+    "date": "2026-10-21",
+    "priority": "Small existing source-supported gaps first",
+    "sourceTestsPassed": 2585,
+    "newGpoTests": 37,
+    "rules": [
+      "5.6",
+      "9.44",
+      "9.45",
+      "9.46",
+      "9.54",
+      "9.55",
+      "11.4",
+      "11.8"
+    ],
+    "status": "Partially automated finite source slices",
+    "printedNounPrepositionExamples": 9,
+    "printedCalendarAbbreviations": 16,
+    "nativeControlledGpoComparisons": 9,
+    "lcbPriorityAndCaliforniaCodesVerified": true,
+    "pairedModels": 23,
+    "pairedPages": 2024,
+    "findingsBefore": 833,
+    "findingsAfter": 833,
+    "added": 0,
+    "removed": 0,
+    "changedRetainedExcludingIds": 0,
+    "sourcePackaged": false,
+    "nextCandidates": [
+      "9.58 finite English/time abbreviation table",
+      "10.3 complete mathematical cue/operator evidence"
+    ],
+    "report": "DESKTOP_VERIFICATION.md"
+  },
   "documentReview": "Offline",
   "githubPushed": false,
   "wholeRuleCertification": false,
@@ -20,7 +89,9 @@
     "countInterpretation": "Declared partially automated inventory rows; no entry completion or measured accuracy percentage."
   },
   "pending": [
-    "Fresh native verification of the complete 1.21.15 package.",
+    "Package and verify the October 21 local source follow-up before future publication.",
+    "Continue GPO coverage in completion-first order: finite 9.58 table, then 10.3 complete mathematical cue/operator evidence.",
+    "Human confirmation of AB 2266 amendments 5, 9 and 10 OCR review warnings.",
     "Human review of unfamiliar prefix formations and ambiguous source-dependent meaning, punctuation, possession, grouping and legal referents.",
     "Complete authorized offline Merriam-Webster ordering and word-sense data.",
     "Current authoritative entity/name data and legal identity.",
@@ -43,7 +114,7 @@
       "sourceListed": 316,
       "identifiedRegularNounPlurals": 22,
       "data": "app/data/lcb-spelling-words.json",
-      "scope": "Exact single-word forms explicitly listed in the LCB spelling and hyphenation tables (pages 3\u20135 and 9\u201315), plus the exact proper word Caltrans (page 18), Medi-Cal and 22 identified regular noun plurals from source-listed noun examples. Category labels, prefix instructions and multiword expressions are omitted. Lowercase entries accept initial capitalization and possessives; Medi-Cal keeps its exact internal capitalization. Spelling acceptance does not establish correct meaning, grammatical role, guide agreement, or Merriam-Webster first-spelling ordering.",
+      "scope": "Exact single-word forms explicitly listed in the LCB spelling and hyphenation tables (pages 3–5 and 9–15), plus the exact proper word Caltrans (page 18), Medi-Cal and 22 identified regular noun plurals from source-listed noun examples. Category labels, prefix instructions and multiword expressions are omitted. Lowercase entries accept initial capitalization and possessives; Medi-Cal keeps its exact internal capitalization. Spelling acceptance does not establish correct meaning, grammatical role, guide agreement, or Merriam-Webster first-spelling ordering.",
       "independentVerification": "Original PDF word positions confirmed for every listed spelling or plural base; selected original pages visually reviewed.",
       "examples": [
         "schoolbus",
@@ -442,7 +513,7 @@
     "latestContextualFollowOn": "Passed: productive predicates, selected expression inflections, modal/direct-object list punctuation, compound-count time possessives; 15 bill contexts",
     "amendmentIssueNavigation": "Passed: 12 real AB 109/SB 879 discrepancies plus replacement/deletion/insertion, backward/forward wrapping and mode clearing fixtures",
     "pdfReadingFixes": "AB 1502 italic (l) independently reread from original local pixels; AB 192 raised vote fraction remains inline",
-    "latestSemanticFollowOn": "Passed: selected meaning-dependent verb inflections, employment r\u00e9sum\u00e9 submission forms, explicit positive event frequency predicates; 15 bill contexts and 15 full Current Version audits",
+    "latestSemanticFollowOn": "Passed: selected meaning-dependent verb inflections, employment résumé submission forms, explicit positive event frequency predicates; 15 bill contexts and 15 full Current Version audits",
     "latestPassiveFollowOn": "Passed: selected explicit passive meaning-dependent word-choice predicates; 496-test checkpoint and 15 full cached Current Version style audits.",
     "accuracyFollowOn": "Passed: whole-number amendment alignment, contextual budget-leader exclusions, genuine missing-number guards; 142 ordinary amendments and 16 Changes on 11 real bill sets; source-grounded 3-page AB 1546 and 14-page AB 1753 boundaries/contours; AB 1502, 192 and 1018 rereview; real AB 109/SB 879 amount and issue-focus checks.",
     "languageFollowOn": "Passed: multi-fragment spelling with real bundled dictionary, conservative article-pronunciation and letter-reference guards; all 15 cached Current Versions audited; 32 known false grammar warnings removed; Current Version-only dictionary save and Ignore/Ignore All Undo desktop checks.",
@@ -1531,8 +1602,8 @@
   },
   "nativeWorkflow": "complete 1.21.15 native workflow unrun",
   "nativeWorkflowSkippedByUser": false,
-  "localSourceVersion": "1.21.15",
-  "localFollowOnScope": "Current local 1.21.15 checkpoint: explicit LCB source forms and bounded context stabilization, with no new GPO coverage. Native verification unrun.",
+  "localSourceVersion": "1.21.16",
+  "localFollowOnScope": "Release 1.21.16: verified LCB program-name protection, separate California Codes list, two finite GPO coverage batches and development setup/packaging repairs. Full-rule semantics and office accuracy remain manual.",
   "quotedTermPolicy": {
     "source": "Active Current Version, including digest and heading",
     "initialCapitalizationDifferences": true,
@@ -1586,7 +1657,7 @@
     "quotedTerms": "Bill local; exact interior spelling/case/punctuation with authorized initial-letter case variation; no cross-bill authority",
     "historicalHyphenCountsVersion": "1.21.9"
   },
-  "sourceVersion": "1.21.15",
+  "sourceVersion": "1.21.16",
   "guidePriority": {
     "primary": "LCB",
     "scope": "Applicable explicit printed forms in supported contexts; compliant LCB stays quiet; unknown roles remain manual."
@@ -1740,9 +1811,9 @@
     },
     "dataOnlyFollowOn": {
       "exactListedSpellings": [
-        "attach\u00e9s",
+        "attachés",
         "indorsement",
-        "r\u00e9sum\u00e9"
+        "résumé"
       ],
       "changedAppFiles": [
         "data/lcb-prefix-roots.json",
@@ -2129,5 +2200,43 @@
     "nativeDesktopVerified": false,
     "githubPublished": false,
     "remaining": "Remaining LCB scope: unfamiliar bi/in/multi/non formations and ambiguous meaning, quotation, grouping, possession or legal referents require human judgment under the stated source conditions. Complete ordered Merriam-Webster data, current official entity/name data and full supplementary California Style Manual citation authority require external sources. The importers and selected explicit LCB checks are implemented. Fresh native and eventual office verification remain separate."
+  },
+  "release12116": {
+    "date": "2026-10-21",
+    "version": "1.21.16",
+    "sourceTestsPassed": 2618,
+    "newRuleTests": 26,
+    "newCoverageTests": 2,
+    "newPackagingTests": 5,
+    "rules": [
+      "9.58",
+      "10.3"
+    ],
+    "englishTableSymbols": 23,
+    "unambiguousPluralChecks": 21,
+    "mathOperators": [
+      "+",
+      "−",
+      "±",
+      "×",
+      "÷"
+    ],
+    "status": "Partially automated finite source slices",
+    "nativePackagedStagesPassed": 12,
+    "nativeEnglishTableComparisons": 3,
+    "nativeMathComparisons": 2,
+    "independentLcbAndCaliforniaCodesVerified": true,
+    "models": 23,
+    "pages": 2024,
+    "findingsBefore": 833,
+    "findingsAfter": 833,
+    "added": 0,
+    "removed": 0,
+    "changedRetainedExcludingIds": 0,
+    "originalPdfsUnchanged": 34,
+    "package": "dist/Document-Compare-Windows-1.21.16.zip",
+    "packageIntegrity": "Finalizer checks application/runtime bytes against the native-tested stage and reopens the ZIP to hash every file; archive SHA-256 is recorded beside the ZIP.",
+    "githubPublication": "Recorded separately after archive finalization; githubPushed reflects the build-time snapshot.",
+    "report": "DESKTOP_VERIFICATION.md"
   }
 }

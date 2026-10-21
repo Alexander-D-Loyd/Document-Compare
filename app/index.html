@@ -51,6 +51,10 @@
 <label id="guide-search-label" for="guide-search">Search the guide</label><input id="guide-search" type="search" placeholder="Search a phrase, topic, or rule number (for example 6.20)" autocomplete="off">
 <p id="guide-search-status" class="tool-status" aria-live="polite"></p>
 <section id="coverage-panel" role="tabpanel" aria-label="Check Coverage" hidden><div id="coverage-list" class="guide-rules"></div></section>
+<section id="california-codes-panel" role="tabpanel" aria-label="California Codes" hidden>
+<p class="small-note">Names and shorthand are checked against your supplied 29-code list, including capitalization and punctuation. The hyphen between them is only a separator. Section numbers and statutory text are not checked.</p>
+<p class="small-note">Source: user-supplied reference image. Source date unknown.</p><div id="california-codes-results" class="guide-rules"></div>
+</section>
 <section id="entity-panel" role="tabpanel" aria-label="Entity Authority" hidden>
 <p class="small-note">Check exact entity names using the bundled snapshot or an authorized local JSON export. Source dates and file hashes identify the supplied data; they do not verify that it is current. A missing name is not an error.</p>
 <div class="tool-buttons"><button id="entity-import" class="quiet" disabled>Import Authorized Entity Data</button><button id="entity-remove" class="quiet" disabled>Use Bundled Snapshot</button><input id="entity-file" type="file" accept=".json,application/json" hidden disabled></div>

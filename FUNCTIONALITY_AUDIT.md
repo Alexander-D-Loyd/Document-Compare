@@ -1,3 +1,29 @@
+Document Compare 1.21.16 — October 21, 2026
+
+All 2,618 source tests pass. GPO 9.58 records all 23 bare English measurement/time abbreviations and checks 21 unambiguous appended-s variants; ds/hs and uppercase Ts retain their distinct meanings. GPO 10.3 checks the five printed arithmetic operators in explicitly identified simple expressions, preserving original numeric strings and breeding, magnification and source-name exceptions. Both provisions remain partially automated. The new batch adds 26 rule tests, two coverage/integration tests and five packaging tests.
+
+The staged Windows 1.21.16 EXE passed 12 controlled native stages with its bundled PDF, OCR and language engines, including three abbreviation and two mathematical comparisons, independent LCB and California Codes findings, exact highlights, manual-page navigation and searchable coverage. All packaged application/runtime bytes are checked against the tested stage before ZIP creation; each archived file is SHA-256 verified. The build includes the earlier California Codes, LCB program-name, first GPO and development-setup repairs. Test PDFs, personal profiles and development dependencies are excluded.
+
+The second 23-model / 2,024-page production-style replay preserves all 833 findings with zero additions, removals or changed retained metadata except regenerated IDs. All 34 original PDFs retain their hashes. This is controlled regression/workflow evidence; office precision/recall, OS chooser gestures and physical drag-and-drop remain outside this result. AB 2266 OCR warnings and the AB 109/SB 879 drafting-material gap remain review items. Earlier checkpoints below retain their historical scope. See DESKTOP_VERIFICATION.md.
+
+---
+
+GPO follow-up — October 21, 2026
+
+The first completion-first GPO batch covers finite noun/preposition plurals (5.6), calendar abbreviations (9.44–9.46), exact-hour/meridian forms (9.54–9.55), and editorial annotation/legal versus wording (11.4/11.8). All 2,585 source tests pass, including 37 new GPO tests. A controlled native PDF verifies nine GPO comparisons alongside independent LCB and California Codes findings, exact offsets, original source pages and coverage descriptions.
+
+The fresh 23-model / 2,024-page production-style comparison preserves all 833 findings: zero additions, removals or changed retained metadata except generated IDs. All 34 originals retain their hashes. This is regression and controlled-workflow evidence, not office precision/recall or full-rule certification. The local source is not packaged. See DESKTOP_VERIFICATION.md for exact source pages, remaining exceptions, review evidence and next candidates. Earlier checkpoints below retain their historical scope.
+
+---
+
+Desktop audit follow-up — October 21, 2026
+
+Development dependencies, private references and offline engines are restored. Missing icon setup data and Windows checksum portability are repaired. All 2,509 source tests pass; the source app and downloaded 1.21.15 EXE each pass 11 controlled native workflow stages. The 34-PDF native intake and 11-set amendment replay are complete, with OCR and missing-drafting-material review items retained.
+
+The confirmed local LCB change protects State Government Oral History Program as a complete source name and enforces Unicode literal-name boundaries. The 23-model replay removes four false positives, adds none and preserves retained metadata except IDs. This source follow-up remains unpackaged. See DESKTOP_VERIFICATION.md for the exact scope and remaining limitations. Historical checkpoints follow.
+
+---
+
 Document Compare 1.21.15 — October 16, 2026
 
 - Accepts nine additional exact printed LCB spelling rows using complete phrases or a qualified numbered citation. Component words and nearby misspellings retain their normal checks. Caltrans keeps its printed proper spelling.
