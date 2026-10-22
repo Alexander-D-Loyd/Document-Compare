@@ -1,3 +1,19 @@
+Current status — October 22, 2026
+
+[PROJECT_STATUS.md](PROJECT_STATUS.md) and [STYLE_COVERAGE_STATUS.json](STYLE_COVERAGE_STATUS.json) record the current build. Version 1.21.22 has passed source and staged Windows verification; final archive/publication follows this build-time snapshot. Version 1.21.21 is already published. Automatic bill sections require no ruleset selection.
+
+Historical checkpoints follow. Earlier test totals, release tasks, reader modes and coverage summaries apply only to their dated versions. Original release receipts and package manifests are retained unchanged.
+
+---
+
+Local source follow-up — October 22, 2026
+
+All 2,981 source tests pass after the explicit style-scope correction. A fresh native AB 2266 run goes from 17 style findings to zero on the unchanged original Current PDF. Matching load-serving/state-mandated forms and standalone state stay quiet; generic modifier, meaning and sentence-series questions are disabled. The reader preserves both original Article XIII B source gaps, including the gap hidden inside a merged PDF.js item. All 10 instructional amendments pass after confirming four unchanged uncertain readings against the original pages. A new import can still request source confirmation.
+
+Fresh native AB 109/SB 879 comparison retains the genuine reference differences and linked deletion review; additional attached LCB RNs remain unavailable. Five amount occurrences and the struck menopause-awareness provision were checked against complete original-page renders. All 34 corpus PDFs retain their hashes. These are local source results, not a new packaged release; the published 1.21.21 build-time snapshot below retains its historical scope. Details and evidence: [SOURCE_CASE_AUDIT.md](SOURCE_CASE_AUDIT.md).
+
+---
+
 Version 1.21.21 — verified Windows package, October 21, 2026
 
 The staged Windows 1.21.21 executable includes both prior source follow-ups and the completed grammar/numerical, citation and review-quality changes. All 2,975 source tests pass, and the 13 packaging/publishing regressions were rechecked. Native packaged verification passes the four supplied AB 1967 PDFs, all nine amendment results, comma insertion placement/selection, exact in-kind highlighting/LCB11 navigation and Digest alignment. Existing citation and two-page regression PDFs also pass. The new three-page fixture verifies grammar uncertainty (including “requires hard to obtain”), whole numerical/table review, explicit numerical roles, canonical modifier controls, exact physical highlighting, processing receipts and individual citation-provision cards with separate overlapping requirements. Its 46 findings include reader questions. All original inputs and fixtures retain their hashes.

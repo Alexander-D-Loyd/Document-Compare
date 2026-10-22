@@ -11,12 +11,16 @@ const byShort=new Map(CALIFORNIA_CODES.map(e=>[e.shorthand,e]));
 const names=new RegExp('(?<![\\p{L}\\p{N}\\p{M}_])(?:'+CALIFORNIA_CODES.map(e=>e.name.split(' ').map(w=>[...w].map(escape).join('(?:-[ \\t]*\\n\\s*)?')).join('\\s+')).sort((a,b)=>b.length-a.length).join('|')+')(?![\\p{L}\\p{N}\\p{M}_])','giu');
 // Uppercase title words and explicit "of/under the ... Code" citations give
 // unlisted titles a bounded review path, without guessing a replacement.
-const titled=/(?<![\p{L}\p{N}\p{M}_])[\p{Lu}][\p{L}\p{M}'’.-]*(?:\s+(?:[\p{Lu}][\p{L}\p{M}'’.-]*|and|of|&)){0,7}\s+Codes?\b(?:\s+of\s+(?:Civil\s+Procedures?|[\p{Lu}][\p{L}\p{M}]+(?:\s+[\p{Lu}][\p{L}\p{M}]+){0,3}))?/gu;
+// Only recognized abbreviated prefixes may carry a period inside a title.
+// Sentence punctuation cannot join independent citations into one finding.
+const titled=/(?<![\p{L}\p{N}\p{M}_])(?:Cal\.|U\.\s*S\.|[\p{Lu}][\p{L}\p{M}'’\-]*)(?:\s+(?:(?:Cal\.|U\.\s*S\.|[\p{Lu}][\p{L}\p{M}'’\-]*)|and|of|&)){0,7}\s+Codes?\b(?:\s+of\s+(?:Civil\s+Procedures?|[\p{Lu}][\p{L}\p{M}]+(?:\s+[\p{Lu}][\p{L}\p{M}]+){0,3}))?/gu;
 const explicit=/(?:\b(?:of|under|pursuant\s+to)\s+the\s+)([\p{L}&][\p{L}\p{M}&'’ \n-]{0,100}?\bCodes?\b(?:\s+of\s+(?:civil\s+procedures?|regulations))?)/giu;
 const otherJurisdiction='(?:United\\s+States|U\\.\\s*S\\.|Internal\\s+Revenue|Federal|Nevada|New\\s+York|Texas|Arizona|Oregon|Washington|Idaho|Utah|Colorado|Florida|Louisiana|Canadian|Uniform|Model|International|Municipal|County|City)';
 const foreign=new RegExp('\\b'+otherJurisdiction+'\\s*$','iu'),foreignTitle=new RegExp('^'+otherJurisdiction+'\\s+','iu');
 const titlePrefix=/^(?:(?:The|Under|See|Notwithstanding|Amend|Amending|California|Cal\.)\s+)+/iu;
 const codeWords=new Set([...CALIFORNIA_CODES.flatMap(e=>e.name.toLowerCase().split(' ')),'regulations']);
+const shorts=new RegExp('(?<![\\p{L}\\p{N}\\p{M}_])(?:'+CALIFORNIA_CODES.map(e=>e.shorthand).sort((a,b)=>b.length-a.length).join('|')+')(?:\\.)?(?![\\p{L}\\p{N}\\p{M}_])','giu');
+const sectionAfter=/^\s*(?:§{1,2}|[Ss]ections?\b|[Ss]ecs?\.|\d)/u;
 export function californiaCodeIssues(doc){
  const view=styleWordDivisionView(doc,{knownWords:codeWords,knownWordsOnly:true,includeLiterals:true,includeTables:true});
  return view?view.restore(withStyleContext(view.doc,()=>codeIssues(view.doc))):codeIssues(doc);
@@ -40,14 +44,30 @@ function codeIssues(doc){
  for(const m of source.matchAll(/\bcode\s+of\s+civil\s+procedures?\b/giu))add(m.index,m.index+m[0].length,'name');
  // Prefer a complete title to its nested, otherwise-valid suffix (for example
  // "Unemployment Insurance Code" versus "Insurance Code").
- const titles=candidates.sort((a,b)=>a.start-b.start||b.end-a.end).filter((r,n,rows)=>!rows.slice(0,n).some(p=>p.start<=r.start&&p.end>=r.end));
+ const titles=candidates.sort((a,b)=>a.start-b.start||b.end-a.end).filter((r,n,rows)=>!rows.slice(0,n).some(p=>p.start<=r.start&&p.end>=r.end)).filter(r=>{
+  // This separate regulatory title is outside the supplied statutory-code
+  // registry. Require its complete original California qualifier; a generic
+  // or unfamiliar Code title remains eligible for exact-list review.
+  return !(/^Code of Regulations$/iu.test(layoutName(source.slice(r.start,r.end)))&&/\bCalifornia\s+$/iu.test(original.slice(0,r.start)));
+ });
  for(const title of titles){
   const row=byName.get(layoutName(source.slice(title.start,title.end)).toLowerCase());
   const after=source.slice(title.end,title.end+50),pair=/^\s*(?:[-–—]\s*|\(\s*|(?=[A-Z]{2,6}\b))([A-Za-z]{2,6}\.?|(?:[A-Za-z][.&]){1,6}[A-Za-z]\.?)(?=\s*(?:\)|[,;:.]|$|§|\d))/u.exec(after);
-  if(pair){const start=title.end+pair[0].lastIndexOf(pair[1]);add(start,start+pair[1].length,'shorthand',row||null);candidates.at(-1).paired=true;title.paired=true;}
+  if(pair){
+   // A paired replacement inherits the complete title's identity. Removed
+   // characters cannot manufacture that identity or its original endpoints.
+   // Only the explicitly parsed adjoining separator dash is punctuation.
+   const titleOriginal=/[-–—]/u.test(doc.text[title.end]||'')?original.slice(0,title.end)+' '+original.slice(title.end+1):original;
+   if(entityNameBoundaryBlocked(doc.text,source,titleOriginal,title.start,title.end))continue;
+   const start=title.end+pair[0].lastIndexOf(pair[1]),raw=pair[1];
+   if(blocked(title.start,start+raw.length))continue;
+   // A final sentence period outside parentheses is punctuation, not part
+   // of the listed shorthand. A period printed inside (GOV.) remains exact
+   // shorthand evidence, as does an abbreviation before a section citation.
+   const sentencePeriod=raw.endsWith('.')&&!/^\s*\(/u.test(after)&&/^\s*$/u.test(source.slice(start+raw.length));
+   add(start,start+raw.length-Number(sentencePeriod),'shorthand',row||null);candidates.at(-1).paired=true;title.paired=true;
+  }
  }
- const shorts=new RegExp('(?<![\\p{L}\\p{N}\\p{M}_])(?:'+CALIFORNIA_CODES.map(e=>e.shorthand).sort((a,b)=>b.length-a.length).join('|')+')(?:\\.)?(?![\\p{L}\\p{N}\\p{M}_])','giu');
- const sectionAfter=/^\s*(?:§{1,2}|[Ss]ections?\b|[Ss]ecs?\.|\d)/u;
  for(const m of source.matchAll(shorts))if(sectionAfter.test(source.slice(m.index+m[0].length,m.index+m[0].length+30))||/\b(?:Cal\.|California)\s*$/u.test(source.slice(Math.max(0,m.index-20),m.index)))add(m.index,m.index+m[0].length,'shorthand');
  // Unknown short forms need an explicit section symbol/word, California
  // qualifier, or "Section N of ..." cue. Bill IDs and ordinary acronyms alone
@@ -58,7 +78,12 @@ function codeIssues(doc){
   if(symbol||uppercase&&/^\s*(?:[Ss]ections?\s+\d|[Ss]ecs?\.\s+\d)/u.test(after)||sectionAfter.test(after)&&/\b(?:Cal\.|California)\s*$/u.test(before)||uppercase&&/\bsections?\s+\d[\d.()\s,-]*\s+of\s+(?:the\s+)?$/iu.test(before))add(m.index,m.index+m[0].length,'shorthand');
  }
  for(const m of source.matchAll(/(?<![\p{L}\p{N}\p{M}_])(?:[A-Za-z][.&]){1,6}[A-Za-z]\.?(?![\p{L}\p{N}\p{M}_])/gu))if(sectionAfter.test(source.slice(m.index+m[0].length,m.index+m[0].length+30)))add(m.index,m.index+m[0].length,'shorthand');
- const all=[...titles,...candidates.filter(r=>r.kind==='shorthand')].sort((a,b)=>a.start-b.start||b.end-a.end||Number(!!b.pair)-Number(!!a.pair)),seen=new Set();
+ // An explicitly parsed title owns its shorthand. The independent acronym
+ // scan may also include the following sentence period; it must not create
+ // a competing correction with a different code identity or source span.
+ const pairedShorts=candidates.filter(r=>r.kind==='shorthand'&&r.paired);
+ const shortCandidates=candidates.filter(r=>r.kind==='shorthand'&&(r.paired||!pairedShorts.some(p=>p.start===r.start&&(r.end===p.end||r.end===p.end+1&&source[p.end]==='.'))));
+ const all=[...titles,...shortCandidates].sort((a,b)=>a.start-b.start||b.end-a.end||Number(!!b.pair)-Number(!!a.pair)),seen=new Set();
  for(const r of all){
   const {start,end,kind,pair}=r,key=kind+':'+start+':'+end;if(seen.has(key))continue;seen.add(key);
   let boundaryOriginal=original;

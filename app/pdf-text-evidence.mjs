@@ -8,7 +8,7 @@ const supportedTextMatrix=m=>m?.length===6&&m.every(Number.isFinite)&&m[0]>=.75&
 const compact=s=>s.replace(/\s/g,'');
 export function sourceDrawingEvidence(operators,OPS){
  let state={font:null,size:0,spacing:0,wordSpacing:0,white:false,mode:0,tm:null,supported:true},pending=null;
- const stack=[],words=[],labels=[];
+ const stack=[],words=[],labels=[],drawings=[];
  const flush=()=>{if(pending){words.push(pending);pending=null;}};
  for(let i=0;i<operators.fnArray.length;i++){
   const op=operators.fnArray[i],a=operators.argsArray[i];
@@ -42,6 +42,13 @@ export function sourceDrawingEvidence(operators,OPS){
    let left=x;for(const g of glyphs){if(typeof g==='number'||!/^\s+$/.test(g.unicode))break;left+=g.width*s.size/1000;}
    labels.push({x:left,y,font:s.font});
   }
+  // Retain independently positioned ordinary drawings too. PDF.js can merge
+  // a small real gap between two matrices into a single decoded text item.
+  // Only the bounded Constitution-reference consumer below may split it.
+  if(horizontal(s.tm)&&s.spacing===0&&Number.isFinite(s.wordSpacing)&&s.wordSpacing>=-s.size*.1&&s.wordSpacing<=s.size*2&&!s.white&&s.mode===0&&glyphs.every(g=>typeof g!=='number')){
+   let advance=x,end=x;for(const g of glyphs){const space=/^\s+$/u.test(g.unicode);advance+=g.width*s.size/1000+(space?s.wordSpacing:0);if(!space)end=advance;}
+   drawings.push({text:raw,x,y,end,font:s.font,size:s.size});
+  }
   // Unsupported advances cannot establish the next drawing's origin. Wait
   // for an explicit text matrix rather than reusing a stale text location.
   if(!(s.spacing>.1)||glyphs.some(g=>typeof g==='number'&&Math.abs(g)>100)){flush();state.tm=null;continue;}
@@ -59,10 +66,10 @@ export function sourceDrawingEvidence(operators,OPS){
   state.tm=[...s.tm.slice(0,4),x,y];
  }
  flush();
- return {words,labels};
+ return {words,labels,drawings};
 }
 export function sourceTextEvidence(items,operators,OPS){
- const {words,labels}=sourceDrawingEvidence(operators,OPS);
+ const {words,labels,drawings}=sourceDrawingEvidence(operators,OPS);
  const corrected=items.map(item=>{
   if(typeof item.str!=='string')return item;
   const label=labels.filter(r=>item.str.trim()==='line'&&item.fontName===r.font&&Math.abs(item.transform[5]-r.y)<.1);
@@ -74,7 +81,25 @@ export function sourceTextEvidence(items,operators,OPS){
   const word=matches[0];
   return {...item,str:word.text,sourceCharSpacing:physicalTracking(word),...(word.scaleX!==1?{sourceGlyphs:word.glyphs}: {})};
  });
- return mergeTrackedFragments(corrected,words);
+ return separateMergedArticleSuffixes(mergeTrackedFragments(corrected,words),drawings);
+}
+
+// Require the entire decoded item to agree with independently positioned
+// source drawings, including both endpoints. Neither the expected citation
+// spelling nor a guessed word boundary can supply missing geometry.
+function separateMergedArticleSuffixes(items,drawings){
+ const roman=/^(?=.)M{0,3}(?:CM|CD|D?C{0,3})(?:XC|XL|L?X{0,3})(?:IX|IV|V?I{0,3})$/u;
+ return items.flatMap(item=>{
+  if(typeof item.str!=='string'||!item.str.includes('Article ')||item.sourceCharSpacing!==undefined||!Number.isFinite(item.width)||item.width<=0||!Array.isArray(item.transform)||item.transform.length!==6||!item.transform.every(Number.isFinite)||Math.abs(item.transform[1])+Math.abs(item.transform[2])>1e-6||Math.abs(item.transform[0]-item.height)>.1||Math.abs(item.transform[3]-item.height)>.1)return [item];
+  const x=item.transform[4],y=item.transform[5],end=x+item.width;
+  const parts=drawings.filter(d=>d.font===item.fontName&&Math.abs(d.size-item.height)<.1&&Math.abs(d.y-y)<.1&&d.x>=x-.1&&d.end<=end+.25&&d.end>x+.05&&d.x<end-.05).sort((a,b)=>a.x-b.x);
+  if(parts.length<2||Math.abs(parts[0].x-x)>.1||Math.abs(parts.at(-1).end-end)>.25||parts.map(d=>d.text).join('').trimEnd()!==item.str||parts.some((d,n)=>n&&d.x<parts[n-1].end-.05)||items.some(other=>other!==item&&typeof other.str==='string'&&other.str.trim()&&Math.abs(other.transform[5]-y)<.1&&other.transform[4]<end-.05&&other.transform[4]+other.width>x+.05))return [item];
+  const boundary=parts.some((d,n)=>{
+   if(!n)return false;const prior=parts[n-1],left=/(?<![\p{L}\p{N}\p{M}_])Article\s+([MDCLXVI]+)$/u.exec(prior.text),right=/^([A-Z])\s+of\s+the\s+California\s+Constitution(?![\p{L}\p{N}\p{M}_])/u.exec(d.text),gap=d.x-prior.end;
+   return left&&right&&roman.test(left[1])&&!roman.test(left[1]+right[1])&&gap>Math.max(.5,item.height*.04)&&gap<=Math.max(1.5,item.height*.16);
+  });
+  return boundary?parts.map((d,n)=>({...item,str:n===parts.length-1?d.text.trimEnd():d.text,width:d.end-d.x,transform:[...item.transform.slice(0,4),d.x,item.transform[5]],hasEOL:n===parts.length-1&&item.hasEOL})): [item];
+ });
 }
 
 // Large positive tracking can make PDF.js emit one item per glyph, with

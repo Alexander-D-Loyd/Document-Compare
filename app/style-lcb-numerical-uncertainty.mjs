@@ -47,6 +47,9 @@ export function lcbNumericalUncertaintyIssues(doc,references,{existingIssues=[]}
   for(const c of candidates){
    const {start,end}=c;
    const term=source.slice(start,end),opening=!source.slice(ctx.sentenceAt(start).start,start).replace(/^[\s”"’']*(?:\([a-z\d]+\)\s*)*/iu,'').trim();
+   // Normalizing a printed body dash for style matching must not invent one
+   // alphanumeric identifier from a label and its separately printed value.
+   if(c.identifierRole&&/[\u2014\u2015]/u.test(d.text.slice(start,end)))continue;
    const namedCase=!c.identifierRole&&(term===term.toUpperCase()&&/\p{L}{2}/u.test(term)||/(?:^|[\s-])\p{Lu}[\p{L}\p{M}]+/u.test(term.slice(1)));
    if(c.skipOtherMixed||c.billSmallMixed&&ctx.at(start)!=='Bill'||c.canonicalAnd&&opening||c.openingOnly&&!opening||namedCase)continue;
    const priorOwner=c.wholeOwnerOnly?prior.some(i=>i.start<=start&&i.end>=end):overlap(prior,start,end);

@@ -7,7 +7,9 @@ export const COUNTED_CLAUSE_END=String.raw`(?=\s*(?:[,;:.)]|$)|\s+(?:and|or|unde
 const quantity=String.raw`(?:${nounHeadPattern}|technicians?|veterinarians?|days?|weeks?|months?|years?|hours?|minutes?|seconds?|feet|foot|inches?|meters?|miles?|pounds?)`;
 const citationEnd=String.raw`(?!\s+(?:(?:licensed|registered|public|private|qualified|eligible|additional|full-time|part-time)\s+)*${quantity}\b${COUNTED_CLAUSE_END})`;
 const series=identifier+String.raw`(?:\s*(?:,\s*(?:(?:and|or)\s*)?|(?:and|or|to|through)\s+)${identifier}${citationEnd})*`;
-const named=new RegExp(String.raw`\b(?:Sections?|Subsections?|Secs?\.?|Articles?|Chapters?|Paragraphs?|Subparagraphs?|Subdivisions?|Clauses?)\s+${series}`,'gi');
+const named=new RegExp(String.raw`\b(?:Sections?|Subsections?|Secs?\.?|Articles?|Chapters?|Paragraphs?|Subparagraphs?|Subdivisions?|Clauses?|Provisions?)\s+${series}`,'gi');
+const abbreviatedStatute=new RegExp(String.raw`\b(?:Chs?|Stats?|Regs?)\.\s*${series}`,'gi');
+const statuteYear=/\b(?:Budget\s+Act|Statutes)\s+of\s+\d{4}(?![\p{L}\p{N}\p{M}_-])/giu;
 const federal=String.raw`(?:U\.?\s*S\.?\s*C\.?|C\.?\s*F\.?\s*R\.?)`,section=String.raw`(?:§\s*|(?:Sections?|Secs?\.?)\s+)?`;
 const federalReference=new RegExp(String.raw`\b(?:\d+\s+)?${federal}\s+${section}${series}`,'gi');
 const year=String.raw`\d{4}\s*-\s*\d{2,4}`,yearSeries=year+String.raw`(?:\s*(?:,\s*(?:(?:and|or)\s*)?|(?:and|or|to|through)\s+)${year})*`;
@@ -32,5 +34,5 @@ const education=[
  /\bPK\s*-\s*3\s+early\s+childhood\s+education\s+specialist\s+instruction\s+credential\b/g,
 ];
 export function numeralIdentifierRanges(source){
- return [...[named,federalReference,...yearPatterns,virus,letters,orders,formCodes,labelledFormSuffix,roadways,...education].flatMap(pattern=>[...source.matchAll(pattern)].map(m=>({start:m.index,end:m.index+m[0].length}))),...dividedCalendarDates(source).map(({start,end})=>({start,end}))];
+ return [...[named,abbreviatedStatute,statuteYear,federalReference,...yearPatterns,virus,letters,orders,formCodes,labelledFormSuffix,roadways,...education].flatMap(pattern=>[...source.matchAll(pattern)].map(m=>({start:m.index,end:m.index+m[0].length}))),...dividedCalendarDates(source).map(({start,end})=>({start,end}))];
 }

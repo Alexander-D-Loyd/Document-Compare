@@ -27,7 +27,6 @@ import {lcbListedAliasIssues,restoreListedAliasEvidence} from './style-lcb-liste
 import {lcbDollarMinimumIssues,restoreDollarMinimumEvidence} from './style-lcb-dollar-minimum.mjs';
 import {lcbIncomeSeriesIssues,lcbIncomeSeriesProtectionRanges,restoreIncomeSeriesEvidence} from './style-lcb-income-series.mjs';
 import {lcbListedIncludingBoundaryIssues,restoreListedIncludingBoundaryEvidence} from './style-lcb-listed-including-boundary.mjs';
-import {lcbDataSharingAgreementIssues} from './style-lcb-data-sharing-agreements.mjs';
 import {lcbListedAgencyFormIssues} from './style-lcb-listed-agency-form.mjs';
 import {lcbDigestPercentIssues,restoreDigestPercentEvidence} from './style-lcb-digest-percent.mjs';
 import {lcbListedNumericModifierIssues,lcbListedNumericModifierProtectionRanges,restoreListedNumericModifierEvidence} from './style-lcb-listed-numeric-modifiers.mjs';
@@ -53,7 +52,6 @@ import {phrasalInflectionIssues} from './style-phrasal-inflections.mjs';
 import {nominalPluralIssues} from './style-nominal-plurals.mjs';
 import {largeOrdinalIssues} from './style-large-ordinals.mjs';
 import {styleWordDivisionView} from './style-word-divisions.mjs';
-import {billQuotedTermProtection} from './style-quoted-terms.mjs';
 import {OFFLINE_MODIFIERS,GENERAL_MODIFIER_REVIEW_RULE}from './offline-rules.mjs';
 import {lcbSemanticReviewIssues}from './style-lcb-review-meanings.mjs';
 import {lcbUnknownMoneyReviewIssues}from './style-lcb-review-money-context.mjs';
@@ -61,7 +59,6 @@ import {lcbNumberRelationReviewIssues}from './style-lcb-review-number-relations.
 import {restoreRepeatedCountEvidence}from './style-repeated-count-phrases.mjs';
 import {lcbReferenceChainIssues,lcbReferenceIdentityProtectionRanges,lcbConstitutionalReferenceReviewIssues,lcbStructuralReferenceReviewIssues,lcbCoordinatedReferenceReviewIssues}from './style-lcb-review-reference-chains.mjs';
 import {lcbTableCellIssues}from './style-lcb-review-table-cells.mjs';
-import {lcbUnfamiliarSeriesReviewIssues}from './style-lcb-review-series-punctuation.mjs';
 import {introducedSeriesReviewIssues,restoreIntroducedSeriesEvidence}from './style-introduced-series-review.mjs';
 import {lcbCreatedOfficialTitleReviewIssues,lcbCreatedOfficialTitleProtectionRanges}from './style-lcb-review-created-titles.mjs';
 import {lcbCreatedTitleReferenceReviewIssues,lcbCreatedTitleReferenceProtectionRanges}from './style-lcb-review-title-references.mjs';
@@ -333,7 +330,6 @@ function reviewStylisticIssues(doc,references,engineIssues=[],includeReviewSugge
    combined.push(...lcbNumberRelationReviewIssues(doc,references,{existingIssues:combined}));
 
 
-   combined.push(...lcbUnfamiliarSeriesReviewIssues(doc,references,{existingIssues:combined}));
    for(const finding of introducedSeriesReviewIssues(doc,references,{existingIssues:combined})){
     const witness=finding.ownedByPunctuationReview,owner=witness&&combined.find(i=>i.checkId===witness.checkId&&i.start===witness.start&&i.end===witness.end&&i.reviewSuggested&&i.suggestion===null);
     if(owner){owner.introducedSeriesEvidence=finding.introducedSeriesEvidence;owner.evidenceStart=finding.evidenceStart;owner.evidenceEnd=finding.evidenceEnd;owner.hasIntroducedSeriesReview=true;owner.introducedSeriesMessage=finding.message;owner.message+=' '+finding.message;owner.references=[...owner.references,...finding.references.filter(r=>!owner.references.some(e=>e.guideId===r.guideId&&e.rule===r.rule&&e.guidePage===r.guidePage))];}
@@ -380,7 +376,6 @@ function reviewStylisticIssues(doc,references,engineIssues=[],includeReviewSugge
    combined.push(issue);
   }
   combined.push(...lcbInclusiveRangeIssues(doc,references));
-  combined.push(...lcbDataSharingAgreementIssues(doc,references));
   combined.push(...lcbListedOpenNounAliasIssues(doc,references));
   combined.push(...lcbListedAliasIssues(doc,references));
   for(const range of lcbIncomeSeriesProtectionRanges(doc))for(let n=combined.length-1;n>=0;n--){const prior=combined[n];if(prior.start>=range.start&&prior.end<=range.end&&range.supersedesCheckIds.includes(prior.checkId))combined.splice(n,1);}

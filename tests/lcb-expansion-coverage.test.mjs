@@ -6,14 +6,14 @@ const refs=Object.fromEntries(['lcb','gpo'].map(id=>[id,JSON.parse(fs.readFileSy
 const make=text=>makeDocument([text],'Current');
 test('new explicit checks retain actual LCB source offsets and distinct limited scopes',()=>{
  const rows=styleRuleInventory(refs).filter(r=>r.id.startsWith('lcb-explicit-'));assert.equal(rows.length,43);
- for(const row of rows){const source=refs.lcb.pages.find(p=>p.page===row.page).text;assert.equal(source.slice(row.sourceStart,row.sourceEnd),row.text);assert.equal(row.status,'Partially automated');const method=CHECK_COVERAGE.find(r=>r.id===row.id);assert.equal(method.text,row.scope);assert.equal(method.page,row.page);}
- const agreement=searchRuleInventory(refs,'data sharing agreement').find(r=>r.id==='lcb-explicit-data-sharing-agreement');assert.ok(agreement);assert.match(agreement.scope,/not a phrase claimed to be printed/);assert.match(agreement.text,/Generally/);
+ for(const row of rows){const source=refs.lcb.pages.find(p=>p.page===row.page).text;assert.equal(source.slice(row.sourceStart,row.sourceEnd),row.text);assert.equal(row.status,row.id==='lcb-explicit-data-sharing-agreement'?'Disabled — manual review':'Partially automated');const method=CHECK_COVERAGE.find(r=>r.id===row.id);assert.equal(method.text,row.scope);assert.equal(method.page,row.page);}
+ const agreement=searchRuleInventory(refs,'data sharing agreement').find(r=>r.id==='lcb-explicit-data-sharing-agreement');assert.ok(agreement);assert.match(agreement.scope,/not an explicitly printed/);assert.match(agreement.text,/Generally/);
  assert.match(rows.find(r=>r.id==='lcb-explicit-inclusive-range').scope,/No inclusive intent/);
  const bifurcation=rows.find(r=>r.id==='lcb-explicit-listed-bifurcation');assert.equal(bifurcation.text,'bifurcation');assert.equal(bifurcation.page,3);assert.match(bifurcation.scope,/noun/i);
 });
 test('public coverage states LCB priority and separates bounded agreement checks from disabled parser guesses',()=>{
  const priority=CHECK_COVERAGE.find(r=>r.title==='Conflicting guide rules');assert.equal(priority.status,'LCB takes priority');assert.match(priority.text,/Compliant LCB wording stays quiet/);assert.doesNotMatch(priority.text,/regardless of which guide/);
- const parser=CHECK_COVERAGE.find(r=>r.title==='Offline language engines');assert.match(parser.text,/75 exact printed/);assert.match(parser.text,/separate application check/i);assert.match(parser.text,/Generic data-sharing parser candidates/);
+ const parser=CHECK_COVERAGE.find(r=>r.title==='Offline language engines');assert.match(parser.text,/75 exact printed/);assert.doesNotMatch(parser.text,/separate application check/i);assert.match(parser.text,/Generic data-sharing parser candidates/);
 });
 
 test('coverage describes the explicit Opinion choice and one selected local entity authority without certifying complete authority',()=>{

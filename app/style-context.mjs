@@ -75,7 +75,7 @@ export function styleContext(doc){
     // Recognized running heads can bridge pages; bare date-shaped labels and
     // actual geometry/leader rows retain their table treatment.
     const yearContinuation=/^[1-9]\d{3}\.?$/.test(body)&&(calendarContinuation.test(previousBody(index))||/\b(?:Statutes\s+of|Stats\.?|Budget\s+Act\s+of)\s*$/i.test(previousBody(index)));
-    return b.formatting?.headerGaps?.length>=2||/\.{3,}/.test(body)||wrappedLabel||(budget&&body&&!yearContinuation&&/^[\d\s,$().+%—–-]+$/.test(body));
+    return b.formatting?.headerGaps?.length>=2||/\.{3,}/.test(body)||wrappedLabel||(budget&&body&&!yearContinuation&&/^[\d\s,$().+%−—–-]+$/.test(body));
   });
   const tableAt=offset=>{let lo=0,hi=tableRanges.length;while(lo<hi){const mid=(lo+hi)>>1;if(tableRanges[mid].end<=offset)lo=mid+1;else hi=mid;}return !!tableRanges[lo]&&tableRanges[lo].start<=offset;};
   return {source,documentType,at,sentenceAt,tableAt,literalRanges,wrappedLiteralRanges,literalAt,technicalRanges,technicalAt};

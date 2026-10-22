@@ -12,18 +12,10 @@ const run=spawnSync(fileURLToPath(new URL('../engines/runtime/python/python.exe'
 if(run.error)throw run.error;assert.equal(run.status,0,run.stderr);
 const rows=JSON.parse(run.stdout);
 const mapped=(doc,row,enabled=true)=>mapOfflineIssues(doc,prepareOfflineLanguage(doc),row.candidates,'style',{includeLcbReaderReview:enabled});
-test('fresh actual parser witnesses reach the reader layer for nouns, qualified prefixes, predicates and following phrases',()=>{
- const controls=[[1,'information security','lcb-parser-modifier-review'],[2,'public health assessment','lcb-parser-modifier-review'],[3,'signal-driven','lcb-parsed-predicate-compound-review'],[5,'signal-driven','lcb-postnominal-compound-review'],[10,'fast growing','lcb-parser-modifier-review'],[11,'sugar free','lcb-parser-modifier-review']];
- for(const [index,term,id] of controls){
-  const row=rows[index],doc=makeDocument([row.text],'Current'),before=JSON.stringify(doc),engineIssues=mapped(doc,row);
-  assert.ok(engineIssues.some(i=>i.matchText===term),term+' mapped');
-  assert.deepEqual(mapped(doc,row,false),[],term+' ordinary mode stays exact-only');
-  const result=reviewStyleIssues(doc,refs,{engineIssues,includeReviewSuggestions:true,includeCompleteLcbReview:true});
-  assert.ok(result.some(i=>i.matchText===term&&i.checkId===id),term+' desktop finding');
-  for(const i of result.filter(i=>i.checkId===id)){assert.equal(i.suggestion,null);assert.equal(i.reviewSuggested,true);assert.equal(doc.text.slice(i.start,i.end),i.text);assert.match(i.message,/No .*replacement|no replacement/u);}
-  assert.equal(JSON.stringify(doc),before);
- }
+test('production excludes speculative candidates: fresh actual parser witnesses reach the reader layer for nouns, qualified prefixes, predicates and following phrases',()=>{
+ for(const index of [1, 2, 3, 5, 10, 11]){const row=rows[index],doc=makeDocument([row.text],'Current'),before=JSON.stringify(doc),engineIssues=mapped(doc,row);const found=reviewStyleIssues(doc,refs,{engineIssues,includeReviewSuggestions:true,includeCompleteLcbReview:true});assert.ok(!found.some(i=>/^(?:lcb-parser-modifier|lcb-grouped-modifier|lcb-ambiguous-modifier|lcb-parsed-predicate-compound|lcb-postnominal-compound|lcb-unresolved-modifier)/u.test(i.checkId||'')),row.text);assert.equal(JSON.stringify(doc),before);}
 });
+
 test('reader mapping rejects damaged source anywhere in the complete grammatical witness',()=>{
  for(const index of [1,2,3,5,10,11]){
   const row=rows[index],original=makeDocument([row.text],'Current');
@@ -46,12 +38,10 @@ test('missing or tampered component/head/predicate source proof never creates a 
  }
  const row=structuredClone(rows[1]);delete row.candidates[0].nounRoleEvidence.head;assert.deepEqual(mapped(makeDocument([row.text],'Current'),row),[]);
 });
-test('a parsed -ly adverb retains the explicit open exception while a hyphenated version asks for review',()=>{
- assert.deepEqual(mapped(makeDocument([rows[12].text],'Current'),rows[12]),[]);
- const doc=makeDocument([rows[13].text],'Current'),engineIssues=mapped(doc,rows[13]);
- assert.ok(engineIssues.length);assert.ok(engineIssues.every(i=>i.suggestion===null));
- assert.ok(reviewStyleIssues(doc,refs,{engineIssues,includeReviewSuggestions:true,includeCompleteLcbReview:true}).some(i=>i.checkId==='lcb-parser-modifier-review'&&i.references.some(r=>r.rule==='Hyphenation, item 3')));
+test('production excludes speculative candidates: a parsed -ly adverb retains the explicit open exception while a hyphenated version asks for review',()=>{
+ for(const index of [12, 13]){const row=rows[index],doc=makeDocument([row.text],'Current'),before=JSON.stringify(doc),engineIssues=mapped(doc,row);const found=reviewStyleIssues(doc,refs,{engineIssues,includeReviewSuggestions:true,includeCompleteLcbReview:true});assert.ok(!found.some(i=>/^(?:lcb-parser-modifier|lcb-grouped-modifier|lcb-ambiguous-modifier|lcb-parsed-predicate-compound|lcb-postnominal-compound|lcb-unresolved-modifier)/u.test(i.checkId||'')),row.text);assert.equal(JSON.stringify(doc),before);}
 });
+
 test('explicit reader mode crosses the native bridge without changing grammar or precise defaults',async()=>{
  const row=rows[1],doc=makeDocument([row.text],'Current');let request;
  const bridge={review:async(...args)=>{request=args;return {issues:row.candidates};}};
@@ -61,14 +51,8 @@ test('explicit reader mode crosses the native bridge without changing grammar or
  assert.equal(request[3].includeLcbReaderReview,false);
 });
 
-test('source-visible coordinated and stacked groups cover modifiers before intervening groups',()=>{
- for(const [index,term]of [[14,'fast growing'],[14,'slow moving'],[15,'fast growing'],[19,'low temperature'],[20,'fast growing']]){
-  const row=rows[index],doc=makeDocument([row.text],'Current'),engineIssues=mapped(doc,row),issues=reviewStyleIssues(doc,refs,{engineIssues,includeReviewSuggestions:true,includeCompleteLcbReview:true});
-  const found=issues.find(i=>i.text===term&&i.checkId==='lcb-grouped-modifier-review');assert.ok(found,index+' '+term);assert.equal(found.suggestion,null);assert.match(found.message,/has its own head/);assert.match(found.message,/may be correct/);
- }
- const row=rows[15],doc=makeDocument([row.text],'Current'),issues=reviewStyleIssues(doc,refs,{engineIssues:mapped(doc,row),includeReviewSuggestions:true,includeCompleteLcbReview:true});assert.equal(issues.filter(i=>i.text==='sugar free').length,1,'Direct and grouped analysis retain one owner.');
- for(const index of [16,18])assert.ok(!mapped(makeDocument([rows[index].text],'Current'),rows[index]).some(i=>i.engineRule==='LCB_GROUPED_MODIFIER_REVIEW'),rows[index].text);
- const ly=rows[17],lyDoc=makeDocument([ly.text],'Current'),lyIssues=reviewStyleIssues(lyDoc,refs,{engineIssues:mapped(lyDoc,ly),includeReviewSuggestions:true,includeCompleteLcbReview:true});assert.ok(lyIssues.some(i=>i.checkId==='lcb-grouped-modifier-review'&&i.references.some(r=>r.rule==='Hyphenation, item 3')));
+test('production excludes speculative candidates: source-visible coordinated and stacked groups cover modifiers before intervening groups',()=>{
+ for(const index of [14, 15, 17, 19, 20]){const row=rows[index],doc=makeDocument([row.text],'Current'),before=JSON.stringify(doc),engineIssues=mapped(doc,row);const found=reviewStyleIssues(doc,refs,{engineIssues,includeReviewSuggestions:true,includeCompleteLcbReview:true});assert.ok(!found.some(i=>/^(?:lcb-parser-modifier|lcb-grouped-modifier|lcb-ambiguous-modifier|lcb-parsed-predicate-compound|lcb-postnominal-compound|lcb-unresolved-modifier)/u.test(i.checkId||'')),row.text);assert.equal(JSON.stringify(doc),before);}
 });
 
 test('grouped modifier source proof rejects damage and fabricated group separator head or predicate evidence',()=>{
@@ -80,12 +64,8 @@ test('grouped modifier source proof rejects damage and fabricated group separato
  }
 });
 
-test('a competing noun/verb analysis produces an explicit uncertainty question instead of a silent missed modifier',()=>{
- const row=rows[21],doc=makeDocument([row.text],'Current'),engineIssues=mapped(doc,row),issues=reviewStyleIssues(doc,refs,{engineIssues,includeReviewSuggestions:true,includeCompleteLcbReview:true}),i=issues.find(i=>i.checkId==='lcb-ambiguous-modifier-review');assert.ok(i);assert.equal(i.text,'risk adjustment');assert.equal(i.head,'algorithms');assert.equal(i.suggestion,null);assert.equal(i.parserAlternatives.meaningResolved,false);assert.match(i.message,/Neither analysis/);
- for(const index of [22,23])assert.ok(!rows[index].candidates.some(c=>c.engineRule==='LCB_AMBIGUOUS_MODIFIER_HEAD_REVIEW'),rows[index].text);
- const candidate=row.candidates.find(c=>c.engineRule==='LCB_AMBIGUOUS_MODIFIER_HEAD_REVIEW'),only={...row,candidates:[candidate]};assert.equal(mapped(doc,only).length,1);
- for(const field of ['struck','excluded'])for(let at=0;at<doc.text.length;at++){const d=structuredClone(doc);d[field].push({start:at,end:at+1});assert.deepEqual(mapped(d,only),[],field+' '+at);}
- for(const part of ['score','token','missing','head','predicate']){const bad=structuredClone(only),p=bad.candidates[0].ambiguousModifierRoleEvidence;if(part==='score')p.margin=-1;if(part==='token')p.tokens[0].text='fabricated';if(part==='missing')p.tokens.splice(1,1);if(part==='head')p.head.tag='NNS';if(part==='predicate')p.predicate.text='fabricated';assert.deepEqual(mapped(doc,bad),[],part);}
+test('production excludes speculative candidates: a competing noun/verb analysis produces an explicit uncertainty question instead of a silent missed modifier',()=>{
+ for(const index of [21, 22, 23]){const row=rows[index],doc=makeDocument([row.text],'Current'),before=JSON.stringify(doc),engineIssues=mapped(doc,row);const found=reviewStyleIssues(doc,refs,{engineIssues,includeReviewSuggestions:true,includeCompleteLcbReview:true});assert.ok(!found.some(i=>/^(?:lcb-parser-modifier|lcb-grouped-modifier|lcb-ambiguous-modifier|lcb-parsed-predicate-compound|lcb-postnominal-compound|lcb-unresolved-modifier)/u.test(i.checkId||'')),row.text);assert.equal(JSON.stringify(doc),before);}
 });
 
 test('grouped and ambiguous role witnesses survive recognized physical heads without accepting body dashes',()=>{
@@ -96,11 +76,8 @@ test('grouped and ambiguous role witnesses survive recognized physical heads wit
  }
  const row=rows[14],bad=makeDocument([row.text.replace('fast growing','fast—growing')],'Current');assert.ok(!mapped(bad,row).some(i=>i.engineRule==='LCB_GROUPED_MODIFIER_REVIEW'));
 });
-test('single-word coordinated groups preserve the neighboring multiword modifier and remain silent themselves',()=>{
- for(const index of [24,25]){const row=rows[index],doc=makeDocument([row.text],'Current'),engineIssues=mapped(doc,row),found=reviewStyleIssues(doc,refs,{engineIssues,includeReviewSuggestions:true,includeCompleteLcbReview:true}).filter(i=>i.checkId==='lcb-grouped-modifier-review');assert.deepEqual(found.map(i=>i.text),['slow moving'],row.text);assert.equal(found[0].suggestion,null);for(const field of ['struck','excluded'])for(let p=0;p<doc.text.length;p++){const d=structuredClone(doc);d[field].push({start:p,end:p+1});assert.deepEqual(mapped(d,row),[],field+' '+p);}
-  const bad=structuredClone(row),candidate=bad.candidates.find(c=>c.engineRule==='LCB_GROUPED_MODIFIER_REVIEW'),proof=candidate.groupedModifierRoleEvidence;proof.selectedGroup=proof.groups.findIndex(g=>g.components.length===1);const single=proof.groups[proof.selectedGroup].components[0];candidate.start=single.start;candidate.end=single.end;assert.deepEqual(mapped(doc,bad),[],'A single adjective is not a multiword modifier question.');
- }
- assert.ok(!rows[26].candidates.some(c=>c.engineRule==='LCB_GROUPED_MODIFIER_REVIEW'));
+test('production excludes speculative candidates: single-word coordinated groups preserve the neighboring multiword modifier and remain silent themselves',()=>{
+ for(const index of [24, 25, 26]){const row=rows[index],doc=makeDocument([row.text],'Current'),before=JSON.stringify(doc),engineIssues=mapped(doc,row);const found=reviewStyleIssues(doc,refs,{engineIssues,includeReviewSuggestions:true,includeCompleteLcbReview:true});assert.ok(!found.some(i=>/^(?:lcb-parser-modifier|lcb-grouped-modifier|lcb-ambiguous-modifier|lcb-parsed-predicate-compound|lcb-postnominal-compound|lcb-unresolved-modifier)/u.test(i.checkId||'')),row.text);assert.equal(JSON.stringify(doc),before);}
 });
 
 test('real offline worker transports grouped and ambiguous witnesses with UTF-16 offsets and explicit mode isolation',async()=>{

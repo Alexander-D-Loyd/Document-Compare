@@ -32,12 +32,12 @@ test('multiple hard splits own one complete source sentence task and leave follo
  assert.match(issues[0].message,/items 1–2/);assert.match(issues[0].message,/item 3/);
  assert.equal(JSON.stringify(doc),before);
  const all=reviewStyleIssues(doc,refs,{includeCompleteLcbReview:true,includeReviewSuggestions:true});
- assert.equal(all.filter(i=>i.checkId==='lcb-incomplete-analysis-review').length,1);
+ assert.equal(all.filter(i=>i.checkId==='lcb-incomplete-analysis-review').length,0,'A processing limit must not create a style discrepancy.');
  assert.ok(!reviewStyleIssues(doc,refs).some(i=>i.checkId==='lcb-incomplete-analysis-review'));
  const contextual=make(long.replace('fast growing organisms','enough evidence to ensure the outcome'));
  const contextualIssues=reviewStyleIssues(contextual,refs,{includeCompleteLcbReview:true,includeReviewSuggestions:true});
- assert.ok(contextualIssues.some(i=>i.checkId==='lcb-incomplete-analysis-review'));
- assert.ok(contextualIssues.some(i=>i.text==='ensure'),'An analysis-limit task cannot own unrelated word-meaning review.');
+ assert.ok(!contextualIssues.some(i=>i.checkId==='lcb-incomplete-analysis-review'));
+ assert.ok(!contextualIssues.some(i=>i.text==='ensure'),'Correct listed wording must not be flagged for speculative meaning review.');
 });
 
 test('normal sentences have no size-limit question and protected source cannot manufacture one',()=>{

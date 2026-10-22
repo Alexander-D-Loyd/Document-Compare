@@ -69,3 +69,23 @@ test('a font-size change between drawing parts cannot establish one tracked sour
  const input=item('c a s h f l o w',72,700,66),ops=operators([...setup(),['showText',glyphs('cash')],['setFont','body',14],['setTextMatrix',new Float32Array([1,0,0,1,104,700])],['showText',glyphs('flow')]]);
  assert.deepEqual(sourceTextEvidence([input],ops,OPS),[input]);
 });
+
+const articleFixture=(gap=1.2)=>{
+ const prefix='Section 6 of ',left='Article XIII',right='B of the California Constitution because',x=72,y=700;
+ const articleX=x+prefix.length*6,suffixX=articleX+left.length*6+gap;
+ return {input:item(prefix+left+right,x,y,suffixX+right.length*6-x),events:[...setup(0,x,y),['showText',glyphs(prefix)],['setTextMatrix',new Float32Array([1,0,0,1,articleX,y])],['showText',glyphs(left)],['setTextMatrix',new Float32Array([1,0,0,1,suffixX,y])],['showText',glyphs(right)]]};
+};
+test('a merged PDF.js item preserves the independently drawn Constitution suffix gap',()=>{
+ const {input,events}=articleFixture(),saved=JSON.stringify(input),ops=operators(events),out=sourceTextEvidence([input],ops,OPS);
+ assert.equal(out.length,3);assert.equal(out[1].str,'Article XIII');assert.equal(out[2].str,'B of the California Constitution because');assert.ok(Math.abs(out[2].transform[4]-out[1].transform[4]-out[1].width-1.2)<1e-4);
+ const layout=extractPageLayout([input],ops,OPS);assert.equal(layout.text,'Section 6 of Article XIII B of the California Constitution because');assert.equal(JSON.stringify(input),saved);
+ assert.deepEqual(sourceTextEvidence(out,ops,OPS),out,'The source projection is idempotent.');
+ const struck=extractPageLayout([{...input,ocrStruck:true}],ops,OPS);assert.deepEqual(struck.strikes.map(r=>struck.text.slice(r.start,r.end)),['Section 6 of ','Article XIII','B of the California Constitution because']);
+});
+test('merged article recovery requires the original complete drawing geometry and context',()=>{
+ for(const mutate of [f=>f.input.width+=2,f=>f.input.str=f.input.str.replace('California','Federal'),f=>f.events.splice(4,1),f=>f.events.unshift(['transform',1,0,0,1,15,0]),f=>f.input.transform[1]=.2,f=>f.input.sourceCharSpacing=1]){
+  const fixture=articleFixture();mutate(fixture);assert.deepEqual(sourceTextEvidence([fixture.input],operators(fixture.events),OPS),[fixture.input]);
+ }
+ for(const gap of [0,.1,.49]){const {input,events}=articleFixture(gap);assert.deepEqual(sourceTextEvidence([input],operators(events),OPS),[input]);}
+ const {input,events}=articleFixture();assert.deepEqual(sourceTextEvidence([input,{...input}],operators(events),OPS),[input,{...input}]);
+});

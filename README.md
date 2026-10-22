@@ -1,10 +1,12 @@
 # Document Compare
 
-Offline Windows desktop app for legislative PDF comparison and amendment/style review. Version **1.21.21** expands grammar and numerical recognition, adds individually audited tasks for all 102 supplementary citation provisions, and reduces redundant review questions. It includes the AB 1967 amendment-placement, in-kind and Digest-layout fixes. Applicable LCB guidance and both California reference lists remain active. Complete dictionary authority, universal recognition and office accuracy remain unverified; a quiet check does not certify compliance.
+Offline Windows desktop app for legislative PDF comparison and amendment/style review. Version **1.21.22** applies supported bill-section rules automatically and reduces unsupported review questions while preserving explicit source comparisons. It includes the AB 1967 amendment-placement, in-kind and Digest-layout fixes. Coverage remains partial; a quiet check does not certify compliance.
+
+Current development status: [PROJECT_STATUS.md](PROJECT_STATUS.md). The **1.21.22 Windows build is verified**; archive/publication status is recorded separately. Version 1.21.21 is already published. The feature list below describes the current source.
 
 ## Run the packaged app
 
-Extract the entire **Document-Compare-Windows-1.21.21.zip** and open **Document Compare/Document Compare.exe**. Keep the runtime and resources together. No installation or development tools are required. PDF and language review run locally.
+Extract the entire **Document-Compare-Windows-1.21.22.zip** and open **Document Compare/Document Compare.exe**. Keep the runtime and resources together. No installation or development tools are required. PDF and language review run locally.
 
 ## Features
 
@@ -26,14 +28,16 @@ Extract the entire **Document-Compare-Windows-1.21.21.zip** and open **Document 
 - Local authorized-data spelling importer; see OFFLINE_AUTHORITY.md. Complete Merriam-Webster data is not bundled.
 - On-demand local OCR for printed bill scans, with uncertainty and embedded-text disagreement warnings.
 - Profile-persisted authorized entity-list import, source metadata, bounded search and restoration of the bundled snapshot; see ENTITY_AUTHORITY.md. Missing names do not become errors.
-- Explicit Bill/Digest, Opinion and Cover letter style selection for the Current document; a replacement Current file resets to Bill/Digest.
+- Automatic section-aware style checks for the Current bill: the Legislative Counsel’s Digest heading and enacting clause distinguish heading, Digest and bill text. No ruleset selection is required.
 - Selected LanguageTool/spaCy contextual methods. Engines start on demand and do not send text online.
 
 Blue indicates additions, red deletions, yellow non-amendment changes, and purple potential style issues. Red and blue underlines identify spelling and grammar.
 
 ## Validation and limitations
 
-All 2,975 source tests pass; the 13 packaging/publishing regression tests were also rechecked. The staged Windows 1.21.21 EXE passes the four supplied AB 1967 PDFs, all nine amendment results, comma placement, exact in-kind highlighting and Digest alignment, plus existing citation/two-page regressions and a new three-page LCB fixture. Source links, expandable citation duties, whole numerical/table questions, known-role controls and exact physical highlights pass. Quality replay across 23 unchanged models / 2,024 pages reduces reader questions by a net 2,440 while preserving all 141 precise comparisons. A fresh final parser run reproduces all 3,175 mapped baseline candidates. All 34 original corpus PDFs retain their hashes. These are processing and stability checks, not human precision/recall or a full-rule certificate. Complete ordered Merriam-Webster authority remains unavailable; intended meaning, unrecognized contexts, legal identity, source support and original typography may still require reader or authoritative verification. Native testing uses an isolated packaged app with actual PDF readers, workers and portable engines; physical OS chooser/drag gestures are outside this result. The final archive is verified against every manifest entry and includes a SHA-256 sidecar. See [desktop verification](DESKTOP_VERIFICATION.md) and [LCB coverage](LCB_COVERAGE_REVIEW.md).
+The 1.21.22 build passes all 3,008 source tests and staged Windows verification for automatic sections, AB 1967 amendment/comma/in-kind/Digest cases and AB 2266 original readings. Fresh intake covers 34 unchanged PDFs and 23 bill models / 2,024 pages. The numerical follow-up reduces cached-model questions from 589 to 219 while retaining every precise comparison. Fresh extraction removes four old Roman-spacing artifacts. See [current status](PROJECT_STATUS.md) for exact scope and remaining limits.
+
+The published 1.21.21 build passed all 2,975 source tests; its 13 packaging/publishing regression tests were also rechecked. The staged Windows 1.21.21 EXE passes the four supplied AB 1967 PDFs, all nine amendment results, comma placement, exact in-kind highlighting and Digest alignment, plus existing citation/two-page regressions and a new three-page LCB fixture. Source links, expandable citation duties, whole numerical/table questions, known-role controls and exact physical highlights pass. Quality replay across 23 unchanged models / 2,024 pages reduces reader questions by a net 2,440 while preserving all 141 precise comparisons. A fresh final parser run reproduces all 3,175 mapped baseline candidates. All 34 original corpus PDFs retain their hashes. These are processing and stability checks, not human precision/recall or a full-rule certificate. Complete ordered Merriam-Webster authority remains unavailable; intended meaning, unrecognized contexts, legal identity, source support and original typography may still require reader or authoritative verification. Native testing uses an isolated packaged app with actual PDF readers, workers and portable engines; physical OS chooser/drag gestures are outside this result. The final archive is verified against every manifest entry and includes a SHA-256 sidecar. See [desktop verification](DESKTOP_VERIFICATION.md) and [LCB coverage](LCB_COVERAGE_REVIEW.md).
 
 Full contextual LCB/GPO automation and the complete ordered Merriam-Webster authority remain incomplete. Genuine SB 879 differences and missing drafting attachments remain flagged. Office-wide precision/recall has not been measured; controlled tests are not an exhaustive human benchmark.
 
@@ -66,7 +70,7 @@ For full offline language-engine functionality, copy the Windows release's `Docu
 
 Run `npm start` to launch the source app. Run `npm test` after restoring the two reference JSON files to execute the complete source suite. The launcher exits with an explicit setup message if those references are missing; it does not label a skipped suite as passed.
 
-The Windows ZIP contains the complete runtime; generated development assets and reference files are restored as above. The October 21 changes are included in the Windows package; GitHub publication is recorded separately. The renderer blocks external network requests, and native engine requests are restricted to the trusted app frame.
+The Windows ZIP contains the complete runtime; generated development assets and reference files are restored as above. The 1.21.21 changes are included in the published Windows package. Later local changes and their validation are listed in PROJECT_STATUS.md. The renderer blocks external network requests, and native engine requests are restricted to the trusted app frame.
 
 ## Build the Windows package
 
@@ -76,7 +80,7 @@ Restore the release-only references and offline engines described above, then ru
 node scripts/package-windows.cjs --stage-only --electron-base "../Document Compare"
 ```
 
-This preserves the matching branded Electron executable from the extracted release. Omit --electron-base to use the installed pinned Electron executable. Run the staged app from dist/Document-Compare-Windows-1.21.17/Document Compare and finish native verification before archiving:
+This preserves the matching branded Electron executable from the extracted release. Omit --electron-base to use the installed pinned Electron executable. Run the staged app from `dist/Document-Compare-Windows-<package.json version>/Document Compare` and finish native verification before archiving:
 
 ```text
 node scripts/package-windows.cjs --archive-existing --refresh-docs --electron-base "../Document Compare"

@@ -8,17 +8,13 @@ import {workerWords} from './helpers/spelling-worker.mjs';
 const refs=Object.fromEntries(['lcb','gpo'].map(id=>[id,JSON.parse(fs.readFileSync(new URL('../app/data/'+id+'-reference.json',import.meta.url)))]));
 const words=await workerWords();
 
-test('desktop reader review integrates unfamiliar whole lists without changing precise-only API',()=>{
+test('desktop reader review does not introduce unfamiliar-list structural guesses',()=>{
  const doc=makeDocument(['The office receives accident reports, signed declarations and supporting photographs.'],'Current'),saved=JSON.stringify(doc);
  assert.equal(jointStylisticIssues(doc,refs).filter(i=>i.checkId==='lcb-series-punctuation-review').length,0);
  const findings=jointStylisticIssues(doc,refs,{includeReviewSuggestions:true}).filter(i=>i.checkId==='lcb-series-punctuation-review');
- assert.equal(findings.length,1);
- assert.equal(doc.text.slice(findings[0].start,findings[0].end),'accident reports, signed declarations and supporting photographs');
- assert.equal(findings[0].suggestion,null);
- assert.equal(findings[0].reviewSuggested,true);
- assert.deepEqual(findings[0].references.map(r=>r.guideId),['lcb','gpo']);
+ assert.equal(findings.length,0);
  assert.equal(JSON.stringify(doc),saved);
- assert.ok(CHECK_COVERAGE.some(c=>c.title==='Unfamiliar series punctuation'&&c.page===6&&c.text.includes('reader-review')));
+ assert.ok(CHECK_COVERAGE.some(c=>c.title==='Unfamiliar series punctuation'&&c.page===6&&/Disabled/u.test(c.status)));
 });
 test('fuzzy entity identity remains quiet while exact registry capitalization is retained',()=>{
  const doc=makeDocument(['The State Board of the Education shall administer the program.'],'Current'),saved=JSON.stringify(doc);

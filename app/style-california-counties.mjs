@@ -8,6 +8,7 @@ const clean=s=>s.replace(/\s+/gu,' ').trim(),layout=s=>clean(s.replace(/(?<=\p{L
 const byName=new Map(CALIFORNIA_COUNTIES.map(row=>[row.name.toLowerCase(),row]));
 const names=CALIFORNIA_COUNTIES.map(row=>row.name.split(' ').map(word=>[...word].map(escape).join('(?:-[ \\t]*\\n\\s*)?')).join('\\s+')).sort((a,b)=>b.length-a.length).join('|');
 const knownAt=new RegExp('^(?:'+names+')(?![\\p{L}\\p{N}\\p{M}_])','iu');
+const canonicalNames=new RegExp('(?:'+names+')','giu');
 const knownBefore=new RegExp('(?:'+names+')\\s+$','iu');
 const reverse=new RegExp('(?<![\\p{L}\\p{N}\\p{M}_])(?<name>'+names+')\\s+county(?![\\p{L}\\p{N}\\p{M}_])','giu');
 const separator=/^\s*(?:,\s*(?:(?:and|or|&)\s+)?|(?:and|or|&)\s+)/iu;
@@ -16,6 +17,9 @@ const stopWord=/^(?:and|or|of|the|this|that|those|these|each|any|a|an|shall|must
 const genericWord=/^(?:his|her|their|its|our|your|my|operation|assignment|business|service|services|choice|principal|usual|current|last|first|legal|permanent|temporary)$/iu;
 const institutionalTail=/^\s+(?:Fire\s+Department|Superior\s+Court|Public\s+(?:Works|Health|Services|Defender)|Health\s+(?:Care\s+Agency|Services\s+Department)|District\s+Attorney(?:'s|’s)?\s+Office)\b/iu;
 const citizensTail=new RegExp('^\\s+'+['Citizens','Redistricting','Commission'].map(word=>[...word].map(escape).join('(?:-[ \\t]*\\n\\s*)?')).join('\\s+')+'(?![\\p{L}\\p{N}\\p{M}_])','iu');
+const titleWord='[\\p{Lu}][\\p{L}\\p{M}’\'\\-]*',member=titleWord+'(?:\\s+'+titleWord+'){0,3}',unknownReverse=new RegExp('(?<![\\p{L}\\p{N}\\p{M}_])(?<name>'+member+')\\s+[Cc]ounty(?![\\p{L}\\p{N}\\p{M}_])','gu');
+const sep='(?:\\s*,\\s*(?:(?:and|or|&)\\s+)?|\\s+(?:and|or|&)\\s+)',backList=new RegExp('(?<![\\p{L}\\p{N}\\p{M}_])(?<items>'+member+'(?:'+sep+member+')+)\\s+[Cc]ounties(?![\\p{L}\\p{N}\\p{M}_])','gu');
+const knownBackList=new RegExp('(?<![\\p{L}\\p{N}\\p{M}_])(?<items>(?:'+names+')(?:'+sep+'(?:'+names+'))+)\\s+counties(?![\\p{L}\\p{N}\\p{M}_])','giu');
 const proseLead=value=>{let length=0;for(let n=0;n<4;n++){const m=/^([\p{L}\p{M}]+)\s+/u.exec(value.slice(length));if(!m||(!stopWord.test(m[1])&&!genericWord.test(m[1])))break;length+=m[0].length;}return value.slice(0,length);};
 const words=new Set(['county','counties','of',...CALIFORNIA_COUNTIES.flatMap(row=>row.name.toLowerCase().split(' '))]);
 export function californiaCountyIssues(doc){
@@ -73,7 +77,7 @@ function countyIssues(doc){
  }
  // Reversed singular references use complete registered names only. This
  // deliberately does not classify bare city names or unfamiliar name syntax.
- const titleWord='[\\p{Lu}][\\p{L}\\p{M}’\'\\-]*',member=titleWord+'(?:\\s+'+titleWord+'){0,3}',unknownReverse=new RegExp('(?<![\\p{L}\\p{N}\\p{M}_])(?<name>'+member+')\\s+[Cc]ounty(?![\\p{L}\\p{N}\\p{M}_])','gu'),reverseCovered=[],originalReverse=[...original.matchAll(unknownReverse)].map(m=>({start:m.index+proseLead(m.groups.name).length,end:m.index+m[0].length}));
+ const reverseCovered=[],originalReverse=[...original.matchAll(unknownReverse)].map(m=>({start:m.index+proseLead(m.groups.name).length,end:m.index+m[0].length}));
  for(const m of [...source.matchAll(unknownReverse),...source.matchAll(reverse)]){
   const leading=proseLead(m.groups.name),start=m.index+leading.length,end=m.index+m[0].length;if(covered.some(r=>r.start<=start&&r.end>=end)||reverseCovered.some(r=>r.start<end&&r.end>start))continue;
   // An original separator dash before generic County is a caption boundary;
@@ -85,8 +89,7 @@ function countyIssues(doc){
  }
  // Bounded reversed named lists are eligible only when every member is exact.
  // Unknown title-cased members retain a review-only finding with no substitute.
- const sep='(?:\\s*,\\s*(?:(?:and|or|&)\\s+)?|\\s+(?:and|or|&)\\s+)',backList=new RegExp('(?<![\\p{L}\\p{N}\\p{M}_])(?<items>'+member+'(?:'+sep+member+')+)\\s+[Cc]ounties(?![\\p{L}\\p{N}\\p{M}_])','gu');
- const knownBackList=new RegExp('(?<![\\p{L}\\p{N}\\p{M}_])(?<items>(?:'+names+')(?:'+sep+'(?:'+names+'))+)\\s+counties(?![\\p{L}\\p{N}\\p{M}_])','giu'),backCovered=[],originalLists=[...original.matchAll(backList)].map(m=>({start:m.index+proseLead(m.groups.items).length,end:m.index+m[0].length}));
+ const backCovered=[],originalLists=[...original.matchAll(backList)].map(m=>({start:m.index+proseLead(m.groups.items).length,end:m.index+m[0].length}));
  for(const m of [...source.matchAll(backList),...source.matchAll(knownBackList)]){
   const leading=proseLead(m.groups.items),start=m.index+leading.length,end=m.index+m[0].length;if(covered.some(r=>r.start<end&&r.end>start))continue;
   if(originalLists.some(r=>r.start<start&&r.end===end))continue;
@@ -95,7 +98,7 @@ function countyIssues(doc){
   if(/[\p{L}\p{M}’'\-]+(?:\s*,\s*(?:(?:and|or|&)\s+)?|\s+(?:and|or|&)\s+)$/iu.test(original.slice(0,start)))continue;
   if(backCovered.some(r=>r.start<end&&r.end>start))continue;backCovered.push({start,end});
   const items=layout(m.groups.items.slice(leading.length)),parts=items.split(/\s*,\s*(?:(?:and|or|&)\s+)?|\s+(?:and|or|&)\s+/iu),rows=parts.map(name=>byName.get(name.toLowerCase())),complete=rows.every(Boolean)&&!badDivision(start,end);
-  const lookup=new Map(parts.map((part,n)=>[part.toLowerCase(),rows[n]?.name])),canonical=complete?items.replace(new RegExp('(?:'+names+')','giu'),name=>lookup.get(layout(name).toLowerCase())||layout(name)):null;
+  const lookup=new Map(parts.map((part,n)=>[part.toLowerCase(),rows[n]?.name])),canonical=complete?items.replace(canonicalNames,name=>lookup.get(layout(name).toLowerCase())||layout(name)):null;
   add(start,end,complete?'Counties of '+canonical:null,complete?'form':'unknown',null,{plural:true});
  }
  return issues.sort((a,b)=>a.start-b.start||a.end-b.end).filter((issue,n,all)=>!all.slice(0,n).some(prior=>prior.start===issue.start&&prior.end===issue.end&&prior.suggestion===issue.suggestion));

@@ -161,13 +161,8 @@ test('all six exact LCB-compliant controls stay quiet through the complete produ
  for(const [body,kind] of [['The rate is 1⁄2 of 1%.','Digest'],['The rate is 1½%.','Digest'],['Sections 123 to 130, inclusive, apply.','Bill'],['Pupils in grades 1 to 6, inclusive, attend.','Bill'],['The County Employees Retirement Law of 1937 applies.','Bill'],['The Cal-OSHA program applies.','Bill'],['The two-hundred-dollar ($200) minimum applies.','Bill'],['The extremely low, very low, low-, and moderate-income households receive assistance.','Bill']])assert.equal(check(document(body,kind)).length,0,kind+' '+body);
 });
 
-test('user-restored data-sharing agreements use the explicit unit-modifier provision with one selected owner',()=>{
- for(const [body,expected] of [['The board retains a data sharing agreement.','data-sharing'],['The data sharing agreements apply.','data-sharing'],['Data sharing agreement applies.','Data-sharing']]){
-  const doc=document(body),issues=check(doc),owner=issues.find(i=>i.checkId==='lcb-data-sharing-agreement');assert.ok(owner,body);assert.equal(owner.suggestion,expected);assert.equal(issues.filter(i=>i.start<owner.end&&i.end>owner.start).length,1);
-  assert.ok(owner.references.some(ref=>ref.guideId==='lcb'&&ref.guidePage===8&&ref.sourcePassage?.kind==='Source provision'&&ref.sourcePassage?.text.includes('unit modifier')));
- }
- for(const body of ['The agreement concerns data sharing.','The data sharing is permitted.','The agency shares data under an agreement.','The data-sharing agreement applies.','The data sharing program operates.','The Data Sharing Agreement applies.','The data sharing agreement Act applies.','The data sharing agreementsα apply.','The data sharing agreement.1 applies.','The data sharing agreement-identifier applies.','The term “Data sharing” is defined. The data sharing agreement applies.'])assert.equal(selected(document(body),['lcb-data-sharing-agreement']).length,0,body);
- assert.equal(selected(document('The data sharing agreement applies.'),['lcb-data-sharing-agreement']).length,1,'The quoted authority from a previous bill does not persist');
+test('unlisted data-sharing agreements are not inferred from the general modifier provision',()=>{
+ for(const body of ['The board retains a data sharing agreement.','The data sharing agreements apply.','Data sharing agreement applies.','The term “Data sharing” is defined. The data sharing agreement applies.'])assert.equal(selected(document(body),['lcb-data-sharing-agreement']).length,0,body);
 });
 
 test('data-sharing source and intact head cannot be manufactured by exclusions, damaged literal marks or record quotations',()=>{

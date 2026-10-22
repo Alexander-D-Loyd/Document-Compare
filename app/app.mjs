@@ -1,7 +1,6 @@
 import {searchCaliforniaCounties} from './data/california-counties.mjs';
 import {searchCaliforniaCodes} from './data/california-codes.mjs';
 import {createEntityAuthorityPanel} from './entity-authority-ui.mjs';
-import {normalizeStyleDocumentType} from './style-document-type.mjs';
 import {digestDisplay,digestPayload,amendmentName} from './digest-amendment.mjs';
 import {styleReviewView} from './style-review-view.mjs';
 import {STYLE_REVIEW_SCOPE,STYLE_EXCEPTION_SUMMARY} from './style-finding-policy.mjs';
@@ -122,7 +121,6 @@ function availability() {
   $('review-amendments').disabled = !docs.every(Boolean) || !hasAmendments() || Object.values(loading).some(Boolean) || !!amendmentWorker;
   $('refresh').disabled = Object.values(loading).some(Boolean);
   $('continue-reference').disabled = !externalDocs[referenceBill] || Object.values(loading).some(Boolean);
-  $('style-document-type').disabled=!docs[1]||loading[1];
   $('check-style').disabled = !docs.every(Boolean) || loading[0] || loading[1] || !!compareWorker || !!styleWorker || stylePending;
 }
 function invalidateAmendments(){
@@ -174,7 +172,6 @@ function refreshView(){
 
 async function readFile(file, side) {
   uploadedFiles.delete(side);
-  if(side===1)$('style-document-type').value='bill';
   const version = ++versions[side];
   const requestedBill=referenceBill;
   if(side!=='reference'){
@@ -301,7 +298,6 @@ async function readFile(file, side) {
 }
 
 function removeFile(side){
-  if(side===1)$('style-document-type').value='bill';
   const sides=side==='amendments'?['digest','amendments']:[side];
   for(const slot of sides){
     uploadedFiles.delete(slot);$('name'+slot).removeAttribute('role');$('name'+slot).removeAttribute('tabindex');$('name'+slot).removeAttribute('title');
@@ -792,11 +788,11 @@ async function checkStyle(){
     allStyleIssues=data.issues;styleChecked=true;styleIndex=-1;
     applyStyleReviewView();
   };
-  const doc={...docs[1],styleDocumentType:normalizeStyleDocumentType($('style-document-type').value)},id=styleRequestId='style-'+crypto.randomUUID(),native=await reviewOfflineLanguage(doc,'style',id,undefined,{includeLcbReaderReview:true});
+  const doc={...docs[1]},id=styleRequestId='style-'+crypto.randomUUID(),native=await reviewOfflineLanguage(doc,'style',id,undefined,{includeLcbReaderReview:false});
   if(seq!==styleSequence)return;
   if(native.cancelled||!styleWorker){finish();return;}
   styleEngineWarning=[native.warning||'',entityPanel.warning()].filter(Boolean).join(' ');
-  styleWorker.postMessage({doc:{text:doc.text,blocks:doc.blocks,excluded:doc.excluded,struck:doc.struck,wrappedWords:doc.wrappedWords,styleDocumentType:doc.styleDocumentType},terms:customTerms,engineIssues:native.issues,analysisCoverage:native.analysisCoverage||null,authority:offlineAuthority,entityAuthority:entityPanel.selected()});
+  styleWorker.postMessage({doc:{text:doc.text,blocks:doc.blocks,excluded:doc.excluded,struck:doc.struck,wrappedWords:doc.wrappedWords},terms:customTerms,engineIssues:native.issues,analysisCoverage:native.analysisCoverage||null,authority:offlineAuthority,entityAuthority:entityPanel.selected()});
 }
 function loadGuideReference(id=activeGuideId){
   if(!guideReferencePromises.has(id))guideReferencePromises.set(id,fetch(guideById(id).referenceUrl).then(response=>{if(!response.ok)throw Error(`${guideById(id).title} reference could not be loaded.`);return response.json();}).catch(error=>{guideReferencePromises.delete(id);throw error;}));
@@ -1452,12 +1448,6 @@ setReviewMode('changes');
 $('compare').addEventListener('click',runComparison);
 $('refresh').addEventListener('click',refreshView);
 $('check-style').addEventListener('click',checkStyle);
-$('style-document-type').addEventListener('change',()=>{
-  const recheck=styleChecked||stylePending||!!styleWorker;
-  reviewIgnores.clearKind('style');resetStyle();availability();
-  if(compared)renderDocuments();
-  if(compared&&recheck)checkStyle();
-});
 $('previous-style').addEventListener('click',()=>nextStyle(-1));
 $('next-style').addEventListener('click',()=>nextStyle(1));
 $('style-rule').addEventListener('click',()=>{const issue=styleIssues[styleIndex];if(issue)openGuide(issue.guidePage,'',issue.guideId,issue);});

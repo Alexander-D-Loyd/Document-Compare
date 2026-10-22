@@ -21,7 +21,7 @@ test('complete exact source forms with validated direct before-head roles settle
   assert.ok(settled.length,row.text);assert.deepEqual(lexicalQuestions(review(doc,row)),[],row.text);assert.equal(JSON.stringify(doc),before);
   for(const r of settled){assert.ok(r.sourcePage>=3&&r.sourcePage<=20);assert.ok(r.sourceEntry);assert.equal(r.sourceForm,r.sourceForm.toLowerCase());assert.equal(r.role,'Validated direct before-head source form');}
  }
- assert.ok(lexicalQuestions(reviewStyleIssues(makeDocument([rows[1].text],'Current'),refs,options)).some(i=>i.matchText==='full-time'),'No parser evidence means the role question remains.');
+ assert.deepEqual(lexicalQuestions(reviewStyleIssues(makeDocument([rows[1].text],'Current'),refs,options)),[],'A matching listed form needs no parser permission.');
 });
 
 test('unqualified noun spellings cannot override the same source family’s role-specific modifier spelling',()=>{
@@ -31,14 +31,8 @@ test('unqualified noun spellings cannot override the same source family’s role
  const doc=makeDocument([rows[18].text],'Current');assert.deepEqual(settledCanonicalModifierRanges(doc,refs,mapped(doc,rows[18])),[],'A source spelling without a complete parsed role witness is not automatically settled.');
 });
 
-test('larger grouping, meaning-qualified, unlisted and following-position questions remain unresolved',()=>{
- for(const index of [8,9,10,11,12,13,14]){
-  const row=rows[index],doc=makeDocument([row.text],'Current'),engineIssues=mapped(doc,row),found=review(doc,row);
-  if(index!==11)assert.deepEqual(settledCanonicalModifierRanges(doc,refs,engineIssues),[],row.text);
-  assert.ok(found.some(i=>i.start<=row.text.indexOf(index===8?'community':index===9?'one-time':index===10?'health care':index===11?'full-time':index===12?'full-time':index===13?'newly-developed':'health-care')&&i.end>i.start),row.text);
-  for(const c of engineIssues.filter(c=>['LCB_GROUPED_MODIFIER_REVIEW','LCB_AMBIGUOUS_MODIFIER_HEAD_REVIEW','LCB_UNRESOLVED_MODIFIER_STRUCTURE_REVIEW','LCB_PARSED_PREDICATE_COMPOUND_REVIEW','LCB_POSTNOMINAL_COMPOUND_REVIEW'].includes(c.engineRule)))assert.equal(canonicalLcbModifierForm(c,refs),null);
- }
- const doc=makeDocument([rows[19].text],'Current');assert.ok(review(doc,rows[19]).some(i=>i.checkId==='lcb-semantic-review:ensure-insure'),'Separate meaning uncertainty remains.');
+test('unlisted groupings and matching listed meaning-qualified forms do not become speculative questions',()=>{
+ for(const index of [8,9,10,11,12,13,14,19]){const row=rows[index],doc=makeDocument([row.text],'Current'),found=review(doc,row);assert.ok(!found.some(i=>['lcb-parser-modifier-review','lcb-grouped-modifier-review','lcb-ambiguous-modifier-review','lcb-parsed-predicate-compound-review','lcb-postnominal-compound-review'].includes(i.checkId)||i.checkId?.startsWith('lcb-semantic-review:')),row.text);}
 });
 
 test('source-canonical settlement requires original intact evidence and exact current source, head and source-case conditions',()=>{

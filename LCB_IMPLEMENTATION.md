@@ -1,3 +1,11 @@
+Current status — October 22, 2026
+
+[PROJECT_STATUS.md](PROJECT_STATUS.md) and [STYLE_COVERAGE_STATUS.json](STYLE_COVERAGE_STATUS.json) record the current build. Version 1.21.22 has passed source and staged Windows verification; final archive/publication follows this build-time snapshot. Version 1.21.21 is already published. Automatic bill sections require no ruleset selection.
+
+Historical checkpoints follow. Earlier test totals, release tasks, reader modes and coverage summaries apply only to their dated versions. Original release receipts and package manifests are retained unchanged.
+
+---
+
 Version 1.21.20 — ordered LCB follow-up, October 21, 2026
 
 All 2,865 source tests pass (zero failed, skipped or cancelled). The exact-target audit fingerprints all23 LCB pages and retains41 numbered/section provisions. All497 source-derived target rows have exact overlapping source/page evidence;213 plain solid forms have no justified alternate probe. Literal controls pass. This finite test matrix is not whole-rule or complete dictionary coverage.

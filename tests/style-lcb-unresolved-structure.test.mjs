@@ -6,13 +6,16 @@ import {fileURLToPath} from 'node:url';
 import {makeDocument} from '../app/core.mjs';
 import {mapOfflineIssues,prepareOfflineLanguage,reviewOfflineLanguage} from '../app/offline-language.mjs';
 import {reviewStyleIssues} from '../app/style-review.mjs';
+import {lcbParserReviewIssues} from '../app/style-lcb-parser-review.mjs';
 import engineHost from '../engine-host.cjs';
 const refs=Object.fromEntries(['lcb','gpo'].map(id=>[id,JSON.parse(fs.readFileSync(new URL('../app/data/'+id+'-reference.json',import.meta.url)))]));
 const run=spawnSync(fileURLToPath(new URL('../engines/runtime/python/python.exe',import.meta.url)),['-I','-B',fileURLToPath(new URL('./lcb-unresolved-structure-parser.py',import.meta.url))],{encoding:'utf8',windowsHide:true});
 if(run.error)throw run.error;assert.equal(run.status,0,run.stderr);
 const rows=JSON.parse(run.stdout),checkId='lcb-unresolved-modifier-structure-review';
 const mapped=(doc,row)=>mapOfflineIssues(doc,prepareOfflineLanguage(doc),row.candidates,'style',{includeLcbReaderReview:true});
-const reviewed=(doc,row)=>reviewStyleIssues(doc,refs,{engineIssues:mapped(doc,row),includeCompleteLcbReview:true,includeReviewSuggestions:true}).filter(i=>i.checkId===checkId);
+// Legacy source-proof validators remain tested in isolation; their generic
+// questions are deliberately excluded from production style review.
+const reviewed=(doc,row)=>lcbParserReviewIssues(doc,refs,{engineIssues:mapped(doc,row)}).filter(i=>i.checkId===checkId);
 
 test('fresh parser fragments and interrupted or infinitival wording produce a rule-and-reason question without a grammatical choice',()=>{
  for(const [index,mode]of [[0,'nominal-fragment'],[1,'nominal-fragment'],[2,'interrupted-coordination'],[3,'infinitival-ambiguity'],[4,'infinitival-ambiguity'],[26,'nominal-fragment'],[27,'nominal-fragment']]){
@@ -82,3 +85,5 @@ test('noncontiguous source selections retain exact physical text and do not gain
  assert.equal(found.length,1);assert.equal(doc.text.slice(found[0].start,found[0].end),found[0].text);assert.ok(found[0].text.includes('line 2'));
  const bad=structuredClone(row);bad.candidates[0].unresolvedModifierEvidence.components.splice(1,1);assert.deepEqual(mapped(makeDocument([row.text],'Current'),bad),[]);
 });
+
+test('legacy ambiguity candidates cannot reenable production grammar questions',()=>{for(const row of rows){const doc=makeDocument([row.text],'Current');assert.ok(!reviewStyleIssues(doc,refs,{engineIssues:mapped(doc,row),includeCompleteLcbReview:true,includeReviewSuggestions:true}).some(i=>i.checkId===checkId));}});

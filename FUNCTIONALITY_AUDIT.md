@@ -1,3 +1,11 @@
+Current status — October 22, 2026
+
+[PROJECT_STATUS.md](PROJECT_STATUS.md) and [STYLE_COVERAGE_STATUS.json](STYLE_COVERAGE_STATUS.json) record the current build. Version 1.21.22 has passed source and staged Windows verification; final archive/publication follows this build-time snapshot. Version 1.21.21 is already published. Automatic bill sections require no ruleset selection.
+
+Historical checkpoints follow. Earlier test totals, release tasks, reader modes and coverage summaries apply only to their dated versions. Original release receipts and package manifests are retained unchanged.
+
+---
+
 Document Compare 1.21.19 — October 21, 2026
 
 The requested follow-on groups were implemented in order. Abbreviation/time checks add six exact Celsius, Fahrenheit, Rankine, kelvin, Baumé and Twaddell full-name/symbol definitions, complete whole-hour/o’clock forms, and original-source safeguards for bare measurements and clock signs. Symbol checks add the printed “The result is” numeric multiplication form and complete dollar-symbol series in applicable Digest/Opinion/Cover letter contexts, with LCB priority. Contextual wording checks add three printed repeated-prefix forms, four sake expressions and five printed holiday names in finite source roles.

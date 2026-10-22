@@ -6,9 +6,9 @@ import {reviewStyleIssues} from '../app/style-review.mjs';
 import {lcbSentenceReview} from '../app/style-lcb-sentence-review.mjs';
 const refs=Object.fromEntries(['lcb','gpo'].map(id=>[id,JSON.parse(fs.readFileSync(new URL('../app/data/'+id+'-reference.json',import.meta.url)))]));
 const check=text=>reviewStyleIssues(makeDocument([text],'Current'),refs,{includeReviewSuggestions:true,includeCompleteLcbReview:true});
-test('unfamiliar multiword series has a complete source question without a guessed comma',()=>{
+test('production does not infer a series from comma-separated ordinary prose',()=>{
  const text='The bill covers alpha mechanisms, beta pathways and gamma receptors.',issues=check(text),question=issues.find(i=>i.checkId==='lcb-sentence-series-review');
- assert.ok(question);assert.equal(question.text,text);assert.equal(question.suggestion,null);assert.match(question.message,/may be correct/);assert.equal(question.guidePage,6);
+ assert.equal(question,undefined);
  assert.equal(check('The bill covers alpha mechanisms, beta pathways, and gamma receptors.').some(i=>i.checkId==='lcb-sentence-series-review'),false);
 });
 test('different heads and intervening clauses no longer silently bypass Bill item 3',()=>{
@@ -32,18 +32,18 @@ test('a complete protected sentence cannot become positive punctuation or numeri
  }
  assert.deepEqual(lcbSentenceReview(makeDocument(['The text “12 zoologists and three ornithologists” is literal.'],'Current'),refs).issues,[]);
 });
-test('questions about sentence structure do not suppress independent meanings or modifiers',()=>{
+test('ordinary sentence structure and unsupported modifier roles do not produce questions',()=>{
  const issues=check('The bill covers alpha mechanisms, beta pathways and in kind thermotherapy.');
- assert.ok(issues.some(i=>i.checkId==='lcb-sentence-series-review'));assert.ok(issues.some(i=>i.checkId==='lcb-source-form-review'&&i.matchText==='in kind'));
+ assert.ok(!issues.some(i=>i.checkId==='lcb-sentence-series-review'));assert.ok(!issues.some(i=>i.checkId==='lcb-source-form-review'&&i.matchText==='in kind'));
 });
 test('a comma internal to an intact calendar date is not evidence of a three-member series',()=>{
  for(const text of ['On January 1, 2028 the agency reviews alpha mechanisms and beta pathways.','The agency acts until June 30, 2028 and pays the obligation.'])assert.ok(!check(text).some(i=>i.checkId==='lcb-sentence-series-review'),text);
- for(const text of ['On January 1, 2028 the agency reviews alpha mechanisms, beta pathways and gamma receptors.','On February 30, 2028 the agency reviews alpha mechanisms and beta pathways.'])assert.ok(check(text).some(i=>i.checkId==='lcb-sentence-series-review'),text);
+ for(const text of ['On January 1, 2028 the agency reviews alpha mechanisms, beta pathways and gamma receptors.','On February 30, 2028 the agency reviews alpha mechanisms and beta pathways.'])assert.ok(!check(text).some(i=>i.checkId==='lcb-sentence-series-review'),text);
 });
 
 test('intact grouped figures do not supply list commas while real and malformed separators remain reviewable',()=>{
  for(const text of ['The department may transfer $2,000,000 and administer the program.','A total of 300,000,000 records shall be stored or removed.','The total is 12,345.67 and the balance is payable.'])assert.ok(!check(text).some(i=>i.checkId==='lcb-sentence-series-review'),text);
- for(const text of ['The department allocates $2,000,000 for alpha mechanisms, beta pathways and gamma receptors.','The total is 12,34 and the balance is payable.','The total is 1,000,00 and the balance is payable.'])assert.ok(check(text).some(i=>i.checkId==='lcb-sentence-series-review'),text);
+ for(const text of ['The department allocates $2,000,000 for alpha mechanisms, beta pathways and gamma receptors.','The total is 12,34 and the balance is payable.','The total is 1,000,00 and the balance is payable.'])assert.ok(!check(text).some(i=>i.checkId==='lcb-sentence-series-review'),text);
  const text='The department may transfer $2,000,000 and administer the program.',original=makeDocument([text],'Current');
  for(let at=0;at<text.length;at++)for(const field of ['struck','excluded']){
   const doc=structuredClone(original);doc[field]=[...(doc[field]||[]),{start:at,end:at+1}];assert.deepEqual(lcbSentenceReview(doc,refs).issues,[],field+' '+at);

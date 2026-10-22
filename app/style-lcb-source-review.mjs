@@ -12,7 +12,7 @@ import {settledCanonicalModifierRanges} from './style-lcb-canonical-modifier.mjs
 // A source form identifies a question, never an automatic grammatical or
 // dictionary judgment. In particular, joining a familiar root is not spelling
 // authority, and finding a printed modifier does not establish its role.
-export const LCB_SOURCE_REVIEW_SCOPE='Source-driven reader review supplements precise checks for every lexical table entry on LCB pages 3–5, 9–14 and 18–20, the printed page 15 end-word examples and exceptions, explicitly separated prefix candidates, and the four productive page 16 endings. It compares printed word boundaries and case and asks about stated meanings/roles without selecting a replacement. Exact unqualified compliant forms stay quiet. An unfamiliar noun head does not suppress a source-form question. Protected source and existing precise findings take precedence. This does not prove semantic accuracy, recognize arbitrary misspellings or certify complete dictionary/entity authority or every application of the general prose rules.';
+export const LCB_SOURCE_REVIEW_SCOPE='Compares complete explicitly listed LCB lexical forms and printed page 15 end-word examples. A listed compliant spelling stays quiet, including role-qualified forms. A role-qualified mismatch requires an independently established condition; an unknown grammatical role does not create a warning. Unqualified listed forms with different boundaries or capitalization may receive a source comparison without a guessed replacement. Explicit numbered-reference conditions remain checked. Unlisted roots, productive ending guesses, ordinary noun groups and general sentence structure are outside this checker.';
 const escape=s=>s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
 const fold=s=>s.replace(/[’‘]/gu,"'").replace(/[\u2010\u2011]/gu,'-').replace(/\s+/gu,' ').replace(/\s*-\s*/gu,'-').trim();
 // A suspended compound is one complete construction, not alternatives
@@ -22,6 +22,7 @@ const overlaps=(ranges,a,b)=>ranges.some(r=>r.start<b&&r.end>a);
 const prefixForms=new Set(['anti','bi','in','multi','non']);
 const cache=new WeakMap();
 const matcherCache=new WeakMap();
+export const isUnconditionalLcbSourceForm=row=>!row.qualified||/\((?:all forms|all uses one word|pref\.|[A-Z][A-Z0-9]*)\)/u.test(row.text);
 export function lcbSourceReviewRows(reference){
  if(!reference?.pages)return [];
  if(cache.has(reference))return cache.get(reference);
@@ -102,7 +103,7 @@ function review(doc,references,existingIssues,settledCanonical){
   // Removing every boundary and distinctive internal capital from a name
   // is not evidence that an ordinary medical adjective names the program.
   if(/^[Mm]edical$/u.test(m[0])&&g.rows.every(r=>r.form==='Medi-Cal'))continue;
-  const exact=g.rows.filter(r=>fold(r.form).toLowerCase()===fold(m[0]).toLowerCase());
+  const exact=g.rows.filter(r=>formAlternatives(r.form).some(f=>fold(f).toLowerCase()===fold(m[0]).toLowerCase()));
   // Some printed qualifications are directly observable and already settle
   // the form. Do not ask a reader seventy times to confirm a compliant bare
   // "court", or repeatedly question an intact correctly cased Section number.
@@ -125,28 +126,23 @@ function review(doc,references,existingIssues,settledCanonical){
   if(term==='state'&&ctx.at(m.index)==='Bill'&&exact.some(r=>r.text==='state (appearing alone in bill)')&&!constitutionalDocument)continue;
   // The reader must resolve a stated role/meaning. An exact plain spelling
   // is compliant with that finite source entry and does not need a question.
-  const roles=g.rows.filter(r=>r.qualified),caseQuestion=g.rows.some(r=>/[A-Z]/u.test(r.form)&&fold(r.form)!==fold(m[0])&&fold(r.form).toLowerCase()===fold(m[0]).toLowerCase());
-  if(exact.length&&!roles.length&&!caseQuestion)continue;
-  candidates.push({start:m.index,end:m.index+m[0].length,rows:g.rows,reason:caseQuestion?'This occurrence differs from the capitalization of the complete printed form; confirm whether the listed expression is intended.':exact.length?'The listed meaning, role or capitalization condition has not been established for this occurrence.':'This occurrence has different word boundaries from the complete printed form; the appropriate role has not been established.'});
+  const caseQuestion=g.rows.some(r=>/[A-Z]/u.test(r.form)&&fold(r.form)!==fold(m[0])&&formAlternatives(r.form).some(f=>fold(f).toLowerCase()===fold(m[0]).toLowerCase()));
+  const numberedCaseMismatch=term==='section'&&/^\s+[\d(]/u.test(after)||term==='schedule'&&/^\s+(?:\d|\(\s*\d)/u.test(after);
+  const listedCompliant=exact.some(r=>formAlternatives(r.form).some(f=>fold(f)===term||r.page<18&&f===f.toLowerCase()&&fold(f).toLowerCase()===term.toLowerCase()));
+  if(listedCompliant&&!numberedCaseMismatch)continue;
+  // A listed unit modifier is conditional on that role. Its open noun use
+  // (third party), a preposition followed by a noun (in state statute), or
+  // an ordinary member cannot establish the condition merely by matching
+  // the letters of an entry. Dedicated checks own observable role evidence.
+  const applicable=g.rows.filter(r=>isUnconditionalLcbSourceForm(r)||numberedCaseMismatch&&/^(?:Section|Schedule) \(with number\)$/u.test(r.text));
+  if(!applicable.length)continue;
+  candidates.push({start:m.index,end:m.index+m[0].length,rows:applicable,reason:caseQuestion?'This occurrence differs from the capitalization of the complete printed form; confirm whether the listed expression is intended.':exact.length?'The listed capitalization condition has been established for this occurrence.':'This occurrence has different word boundaries from the complete printed form.'});
  }
  // Longest complete source phrases own contained lexical questions; never
  // turn an open exception into a warning about a shorter suffix.
  candidates.sort((a,b)=>a.start-b.start||b.end-a.end);
  for(const c of candidates)add(c.start,c.end,c.rows,c.reason,'source-entry-context');
- for(const m of source.matchAll(/(?<![\p{L}\p{N}\p{M}_-])(anti|bi|in|multi|non|ex|quasi|self)(?:[\u2010\u2011-]|\s+(?!(?:in)\b))([\p{Ll}][\p{Ll}\p{M}]+)(?![\p{L}\p{N}\p{M}_-])/gu)){
-  const prefix=m[1];if(prefix==='in'&&!/[\u2010\u2011-]/u.test(m[0]))continue;
-  if(prefix==='non'&&/^non\s+sequiturs?$/u.test(m[0])||prefix==='multi'&&/^multi\s+(?:ply|plies)$/u.test(m[0]))continue;
-  if(['ex','quasi','self'].includes(prefix)&&/[\u2010\u2011-]/u.test(m[0]))continue;
-  const row=lcbSourceReviewRows(references.lcb).find(r=>r.prefix&&r.form===prefix);
-  const page8=references.lcb.pages.find(p=>p.page===8);
-  const witness=row||(['ex','quasi','self'].includes(prefix)&&page8?.text.includes('quasi')?{id:'lcb-prefix-exceptions',page:8,text:page8.text.replace(/\s+/gu,' ').trim(),form:prefix}:null);
-  if(witness)add(m.index,m.index+m[0].length,[witness],'An explicitly separated potential prefix needs review; root recognition cannot establish the spelling or meaning of the complete word.','prefix-context');
- }
- const page16=references.lcb.pages.find(p=>p.page===16);
- if(page16?.text.includes('unit modifier'))for(const m of source.matchAll(/(?<![\p{L}\p{N}\p{M}_-])\p{Ll}[\p{Ll}\p{M}]*(?:[\u2010\u2011-]|\s+)(adopted|approved|based|related)(?![\p{L}\p{N}\p{M}_-])/gu)){
-  if(!page16.text.includes('-'+m[1]))continue;
-  if(/^(?:the|a|an|this|that|these|those|each|any|all|some|is|are|was|were|be|been|being|has|have|had|may|shall|must|can|will|would|could|should|to|of|for|by|as|and|or|nor|not)\s/iu.test(m[0]))continue;
-  add(m.index,m.index+m[0].length,[{id:'lcb-page16-'+m[1],page:16,text:'Use a hyphen when -'+m[1]+' is in the unit modifier position.',form:m[1]}],'The productive ending is present, but modifier position versus a finite verb or following phrase has not been established.','productive-ending-context');
- }
+ // General prefix/root and productive-ending guesses do not identify a
+ // mismatch to a complete listed form. Dedicated explicit rules run separately.
  return issues.sort((a,b)=>a.start-b.start||a.end-b.end);
 }

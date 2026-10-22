@@ -14,16 +14,16 @@ test('explicit state-office titles follow LCB priority without excluding federal
  assert.ok(check('The United States secretary of state shall act.').some(i=>i.suggestion==='Secretary of State'));
  assert.deepEqual(check('State veterinary technician associations recognized by the secretary of state in that state.').map(i=>i.suggestion),['Secretary of State']);
  assert.ok(check('The California attorney general Jane Smith shall act.').some(i=>i.suggestion==='Attorney General'));
- assert.deepEqual(check('The California secretary of state shall use a data sharing agreement.').map(i=>i.suggestion),['Secretary of State','data-sharing']);
+ assert.deepEqual(check('The California secretary of state shall use a data sharing agreement.').map(i=>i.suggestion),['Secretary of State']);
 });
 test('expanded contractions and sourced spelling variants detect violations while accepting corrected prose',()=>{
  const found=check('The board hasn’t approved the fibre. It should’ve addressed the anaemia.');assert.deepEqual(found.map(i=>i.suggestion),['has not','fiber','should have','anemia']);
  assert.equal(check('The board has not approved the fiber. It should have addressed the anemia.').length,0);
 });
-test('bounded data-sharing agreements and printed data-processing retain source evidence while ordinary data sharing stays quiet',()=>{
- const agreements=check('A data sharing agreement, data sharing agreements, data-sharing agreement, and data sharing are discussed.');assert.deepEqual(agreements.map(i=>[i.text,i.suggestion,i.checkId]),[['data sharing','data-sharing','lcb-data-sharing-agreement'],['data sharing','data-sharing','lcb-data-sharing-agreement']]);
+test('unlisted data-sharing constructions stay quiet while printed data-processing retains source evidence',()=>{
+ const agreements=check('A data sharing agreement, data sharing agreements, data-sharing agreement, and data sharing are discussed.');assert.deepEqual(agreements.map(i=>[i.text,i.suggestion,i.checkId]),[]);
  const doc=makeDocument(['line 1 The data\nline 2 sharing agreement covers records.'],'Current');
- const original=JSON.stringify(doc),agreement=jointStylisticIssues(doc,references);assert.equal(agreement.length,1);assert.equal(agreement[0].suggestion,'data-sharing');assert.equal(doc.text.slice(agreement[0].start,agreement[0].end),'data\nline 2 sharing');assert.equal(JSON.stringify(doc),original);
+ const original=JSON.stringify(doc),agreement=jointStylisticIssues(doc,references);assert.deepEqual(agreement,[]);assert.equal(JSON.stringify(doc),original);
  const printed=makeDocument(['line 1 The data\nline 2 processing system covers records.'],'Current'),before=JSON.stringify(printed),wrapped=jointStylisticIssues(printed,references);assert.equal(wrapped.length,1);assert.equal(wrapped[0].suggestion,'data-processing');assert.equal(wrapped[0].guidePage,10);assert.match(references.lcb.pages[9].text,/data-processing/);assert.equal(printed.text.slice(wrapped[0].start,wrapped[0].end),wrapped[0].text);assert.equal(JSON.stringify(printed),before);
  printed.struck=[{start:wrapped[0].start,end:wrapped[0].end}];assert.equal(jointStylisticIssues(printed,references).length,0);
 });
@@ -37,7 +37,7 @@ test('LCB spelling preferences take priority, with GPO retained as a secondary r
 test('LCB preferred forms override GPO differences while compliant forms and agreed rules remain active',()=>{
  assert.deepEqual(check('The federal government and Federal Government provide health care and healthcare.').map(i=>i.suggestion),['federal government','health care']);assert.equal(check('The federal government provides health care.').length,0);assert.equal(check('The term “healthcare” is stated. The healthcare is provided.').length,0);
  assert.deepEqual(check('The African American program offers collective bargaining rights and groundwater levels for children 2 years of age. It takes three minutes.').map(i=>i.suggestion),['two']);
- assert.deepEqual(check('Use healthcare and a data sharing agreement with eleven requests.').map(i=>i.suggestion),['health care','data-sharing','11']);
+ assert.deepEqual(check('Use healthcare and a data sharing agreement with eleven requests.').map(i=>i.suggestion),['health care','11']);
 });
 test('LCB numeral form supersedes a hyphen-only suggestion, with both guides agreeing on figures',()=>{
  const issues=check('The office schedules twenty one events and eleven requests. Twenty-one people attend.');

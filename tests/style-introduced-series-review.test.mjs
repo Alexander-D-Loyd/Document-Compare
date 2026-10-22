@@ -13,8 +13,8 @@ test('long introduced phrases have no eight-word item or total source cap',()=>{
 test('unfamiliar clauses remain conditional candidates rather than asserted noun roles',()=>{
  const d=make('The record includes records apply, workers remain and notices are required.'),[i]=find(d);assert.ok(i);exact(d,i);assert.equal(i.introducedSeriesEvidence.items.length,3);assert.match(i.message,/no grammatical role, parallelism or replacement/);assert.equal(i.suggestion,null);
 });
-test('existing conditional series questions retain their key and gain whole introduced context',()=>{
- const d=make('The record includes applicants qualify, officers decide and residents register.'),[i]=find(d);assert.ok(i);assert.equal(i.checkId,'lcb-series-punctuation-review');assert.equal(i.hasIntroducedSeriesReview,true);assert.equal(all(d).filter(i=>i.checkId==='lcb-introduced-series-review').length,0);exact(d,i);assert.ok(i.introducedSeriesEvidence.text.startsWith('includes '));
+test('explicit introduced context has one conditional owner without broad unfamiliar-series inference',()=>{
+ const d=make('The record includes applicants qualify, officers decide and residents register.'),[i]=find(d);assert.ok(i);assert.equal(i.checkId,'lcb-introduced-series-review');assert.equal(all(d).filter(i=>i.checkId==='lcb-series-punctuation-review').length,0);assert.equal(all(d).filter(i=>i.checkId==='lcb-introduced-series-review').length,1);exact(d,i);assert.ok(i.introducedSeriesEvidence.text.startsWith('includes '));
 });
 test('independent lexical and number findings within items do not hide punctuation questions',()=>{
  const d=make('The record includes audio-video communication, sworn affidavits and retained invoices.'),issues=all(d);assert.ok(issues.some(i=>i.suggestion==='audiovideo'));const i=issues.find(i=>i.introducedSeriesEvidence);assert.ok(i);exact(d,i);
