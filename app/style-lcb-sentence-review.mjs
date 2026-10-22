@@ -11,6 +11,8 @@ import {CALENDAR_MONTHS,validCompleteCalendarDate} from './style-calendar-dates.
 import {nounHeadMatch} from './style-noun-heads.mjs';
 import {labelledNumericalRoleRanges} from './style-lcb-labelled-numerical-roles.mjs';
 import {eraReferenceRanges} from './style-gpo-era-references.mjs';
+import {lumberProtectionRanges} from './style-gpo-lumber.mjs';
+import {sentenceEnumeratorRanges,quantifiedSentenceCountRole,sentenceMonthYearRanges,sentenceLabelledReferenceRanges} from './style-sentence-number-roles.mjs';
 const overlap=(rows,a,b)=>rows.some(r=>r.start<b&&r.end>a);
 // The source explicitly makes different numerical expressions an exception.
 // Presence of two numbers is observable; whether they are related is not.
@@ -25,6 +27,10 @@ function review(doc,references,existing,citationRanges,includeSeriesReview){
  const ctx=styleContext(doc),source=ctx.source,blocked=styleEvidenceGuard(doc,ctx),literal=originalStyleLiteralGuard(doc,ctx),single=styleSingleQuoteRanges(source),identifiers=numeralIdentifierRanges(source),numeric=numericExpressionGuard(doc,ctx),quantity=writtenQuantityEvidenceGuard(doc,ctx),issues=[],superseded=[];
  identifiers.push(...citationRanges,...labelledNumericalRoleRanges(doc,ctx));
  identifiers.push(...eraReferenceRanges(doc,ctx));
+ identifiers.push(...lumberProtectionRanges(doc,references,ctx));
+ identifiers.push(...sentenceEnumeratorRanges(doc,ctx));
+ identifiers.push(...sentenceMonthYearRanges(doc,references,ctx));
+ identifiers.push(...sentenceLabelledReferenceRanges(doc,references,ctx));
  // A complete clock already established by its source-backed time checker
  // cannot also supply separate ordinary-count components to this review.
  identifiers.push(...existing.filter(i=>['gpo-whole-clock','gpo-time-meridian'].includes(i.checkId)).map(({start,end})=>({start,end})));
@@ -62,6 +68,7 @@ function review(doc,references,existing,citationRanges,includeSeriesReview){
   if(duration&&!blocked(a,b+duration[0].length))return {kind:'duration',unit:(duration[1]||duration[2]).toLowerCase().replace(/s$/u,'')};
   const proportion=/^(?:\s*%|\s+percent(?:age\s+points?)?)(?![\p{L}\p{N}\p{M}_-])/iu.exec(after);
   if(proportion&&!blocked(a,b+proportion[0].length))return {kind:'proportion',unit:'percent'};
+  const quantified=quantifiedSentenceCountRole(doc,ctx,a,b,{blocked,literal});if(quantified)return quantified;
   const head=nounHeadMatch(after);
   return head&&!blocked(a,b+head[0].length)?{kind:'count',unit:null}:{kind:'unknown',unit:null};
  };

@@ -11,6 +11,7 @@ import {splitHistoryChanges} from './history-rows.mjs';
 import {isAmendmentMetadataLine as metadataLine} from './amendment-metadata.mjs';
 import {periodInsertionAnchor} from './amendment-period-anchor.mjs';
 import {commaInsertionAnchor} from './amendment-comma-anchor.mjs';
+import {applyExternalReferenceReadingWarnings,billReadingWarnings} from './bill-ocr-policy.mjs';
 const canonical=value=>value.normalize('NFKC').replace(/[“”]/g,'"').replace(/[‘’]/g,"'");
 const values=tokens=>tokens.map(t=>canonical(t.value));
 const phrase=(text,context=text)=>values(substantiveTokens(text,context));
@@ -420,8 +421,8 @@ function amendmentPlan(instructionText,prevDoc,currentDoc,externalDocs={},digest
 export function verifyAmendments(instructionText,prevDoc,currentDoc,externalDocs={},digestDoc=null){
   const {compiled,previous,current,patches,expectedTokens,origins}=amendmentPlan(instructionText,prevDoc,currentDoc,externalDocs,digestDoc);
   let map,error='';try{map=alignment(expectedTokens,current);}catch(e){error=e.message;}
-  const unresolvedBoundaries=compiled.filter(r=>r.externalReference&&(r.error||r.attachmentWarning)).flatMap(r=>{try{return compile({...r,error:''},prevDoc).map(p=>p.start);}catch{return [];}});
-  return compiled.map(rule=>{
+  const unresolvedBoundaries=compiled.filter(r=>r.externalReference&&(r.error||r.attachmentWarning||billReadingWarnings(externalDocs[r.externalReference.bill]).length)).flatMap(r=>{try{return compile({...r,error:''},prevDoc).map(p=>p.start);}catch{return [];}});
+  const results=compiled.map(rule=>{
     if(rule.error||error)return {...rule,status:'needs-review',message:rule.error||error,evidence:[]};
     try{
       if(rule.action==='delete'&&rule.patches.some(p=>unresolvedBoundaries.includes(p.start)||unresolvedBoundaries.includes(p.end)))throw Error('This deletion shares its location with an unresolved referenced insertion. Review the deletion alongside the referenced bill and additional drafting attachments.');
@@ -435,6 +436,7 @@ export function verifyAmendments(instructionText,prevDoc,currentDoc,externalDocs
       return {...rule,status,message:evidence.some(e=>e.orderingViolation)?'The inserted text appears after the bill’s end marker; it must precede that marker.':message,evidence};
     }catch(e){return {...rule,status:'needs-review',message:e.message,evidence:[]};}
   });
+  return applyExternalReferenceReadingWarnings(results,externalDocs);
 }
 
 // Compare the expected amended revision with actual active wording. A raw

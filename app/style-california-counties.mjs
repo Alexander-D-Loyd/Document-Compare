@@ -4,6 +4,7 @@ import {styleWordDivisionView} from './style-word-divisions.mjs';
 import {styleEvidenceGuard,originalBodyStyleContext} from './style-evidence.mjs';
 import {entityNameBoundaryBlocked} from './style-entity-name-boundaries.mjs';
 import {styleSingleQuoteRanges} from './style-single-quote-ranges.mjs';
+import {countyInstitutionCaptionRanges} from './style-lcb-local-source-roles.mjs';
 const clean=s=>s.replace(/\s+/gu,' ').trim(),layout=s=>clean(s.replace(/(?<=\p{L})-[ \t]*\n\s*(?=\p{L})/gu,'')),escape=s=>s.replace(/[.*+?^${}()|[\]\\]/gu,'\\$&');
 const byName=new Map(CALIFORNIA_COUNTIES.map(row=>[row.name.toLowerCase(),row]));
 const names=CALIFORNIA_COUNTIES.map(row=>row.name.split(' ').map(word=>[...word].map(escape).join('(?:-[ \\t]*\\n\\s*)?')).join('\\s+')).sort((a,b)=>b.length-a.length).join('|');
@@ -35,6 +36,7 @@ function countyIssues(doc){
  const printed=(start,end)=>source.slice(start,end).split('').map((c,n)=>c==='-'&&/[\u2011-\u2015]/u.test(doc.text[start+n])?doc.text[start+n]:c).join('');
  // This explicit user reference includes quoted references and table cells.
  const blocked=styleEvidenceGuard(doc,{...ctx,literalAt:ctx.technicalAt,tableAt:()=>false}),singleQuotes=styleSingleQuoteRanges(original),issues=[],covered=[];
+ const institutionalCaptions=countyInstitutionCaptionRanges(doc,ctx);
  const boundaryBlocked=(start,end)=>{
   let negative=original;
   // A complete enclosing single quote is punctuation, not a word attachment.
@@ -43,6 +45,7 @@ function countyIssues(doc){
  };
  const add=(start,end,suggestion,kind,row=null,extra={})=>{
   const evidenceStart=extra.evidenceStart??start,evidenceEnd=extra.evidenceEnd??end;
+  if(institutionalCaptions.some(r=>r.start<=start&&r.end>=end))return;
   if(blocked(evidenceStart,evidenceEnd)||boundaryBlocked(start,end))return;
   const text=doc.text.slice(start,end),form=layout(printed(start,end));
   if(suggestion===form)return;

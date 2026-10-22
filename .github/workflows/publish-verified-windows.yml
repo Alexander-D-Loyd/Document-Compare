@@ -4,12 +4,12 @@ on:
   push:
     branches: [main]
     paths:
-      - .github/release-receipts/1.21.23.json
-      - .github/release-receipts/1.21.23.package-manifest.json
+      - .github/release-receipts/1.21.24.json
+      - .github/release-receipts/1.21.24.package-manifest.json
       - scripts/publish-verified-windows.cjs
 
 concurrency:
-  group: document-compare-release-1.21.23
+  group: document-compare-release-1.21.24
   cancel-in-progress: false
 
 jobs:
@@ -27,8 +27,8 @@ jobs:
         with:
           persist-credentials: false
       - name: Reconstruct and verify the exact locally tested package
-        run: node scripts/publish-verified-windows.cjs --prepare .github/release-receipts/1.21.23.json
+        run: node scripts/publish-verified-windows.cjs --prepare .github/release-receipts/1.21.24.json
       - name: Publish the verified ZIP and checksum as the latest release
-        run: node scripts/publish-verified-windows.cjs --publish .github/release-receipts/1.21.23.json
+        run: node scripts/publish-verified-windows.cjs --publish .github/release-receipts/1.21.24.json
         env:
           GH_TOKEN: ${{ github.token }}

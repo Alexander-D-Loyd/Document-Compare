@@ -1,7 +1,7 @@
 {
   "name": "document-compare",
   "productName": "Document Compare",
-  "version": "1.21.23",
+  "version": "1.21.24",
   "private": true,
   "main": "main.cjs",
   "description": "Local PDF comparison, spelling and grammar review, and instructional amendment verification",

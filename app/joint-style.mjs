@@ -1,4 +1,13 @@
 import {gpoWebTypographyIssues} from './style-gpo-web-typography.mjs';
+import {gpoLiteralDateTimeIssues,restoreGpoLiteralEvidence} from './style-gpo-literal-date-time.mjs';
+import {gpoExplicitSpellingIssues} from './style-gpo-explicit-spelling.mjs';
+import {gpoStandardItDefinitionIssues} from './style-gpo-standard-it-definitions.mjs';
+import {gpoExplicitTableDefinitionIssues} from './style-gpo-explicit-table-definitions.mjs';
+import {gpoMilitaryRankDefinitionIssues} from './style-gpo-military-rank-definitions.mjs';
+import {gpoLumberIssues} from './style-gpo-lumber.mjs';
+import {gpoPrintedFullNameIssues} from './style-gpo-printed-full-names.mjs';
+import {gpoListedCompoundIssues} from './style-gpo-listed-compounds.mjs';
+import {compoundPluralParentRanges} from './style-compound-plurals.mjs';
 import {gpoTimezoneDefinitionIssues} from './style-gpo-timezone-definitions.mjs';
 import {gpoEraReferenceIssues} from './style-gpo-era-references.mjs';
 import {lcbInKindIssues} from './style-lcb-in-kind.mjs';
@@ -203,7 +212,8 @@ function mapReviewEvidence(issue,map,text=null){
   const role=r=>{const start=map(r.start),end=map(r.end,true);return {...r,start,end,headStart:map(r.headStart),headEnd:map(r.headEnd,true),...(text!==null?{sourceText:text.slice(start,end)}:{})};};
   const e=issue.modifierRoleEvidence;result.modifierRoleEvidence={...e,components:e.components.map(role),head:role(e.head),predicate:{...role(e.predicate),finiteAuxiliaries:e.predicate.finiteAuxiliaries.map(role)}};
  }
- for(const key of ['measurementDefinitionEvidence','temperatureGravityEvidence'])if(issue[key]){const e=issue[key];result[key]={...e,evidenceStart:map(e.evidenceStart),evidenceEnd:map(e.evidenceEnd,true)};}
+ for(const key of ['measurementDefinitionEvidence','temperatureGravityEvidence','explicitTableDefinitionEvidence','militaryRankDefinitionEvidence'])if(issue[key]){const e=issue[key];result[key]={...e,evidenceStart:map(e.evidenceStart),evidenceEnd:map(e.evidenceEnd,true)};}
+ if(issue.gpoLiteralEvidence)result.gpoLiteralEvidence=restoreGpoLiteralEvidence(issue.gpoLiteralEvidence,map,text);
  for(const key of ['listedWordingEvidence','holidayEvidence'])if(issue[key]){const e=issue[key],start=map(e.start),end=map(e.end,true);result[key]={...e,start,end,...(text!==null?{sourceText:text.slice(start,end)}:{})};}
  if(Number.isInteger(issue.evidenceStart))result.evidenceStart=map(issue.evidenceStart);
  if(Number.isInteger(issue.sentenceEvidenceStart))result.sentenceEvidenceStart=map(issue.sentenceEvidenceStart);
@@ -259,6 +269,8 @@ function reviewStylisticIssues(doc,references,engineIssues=[],includeReviewSugge
     }
   }
   const source=sourceText(doc),protectedRanges=[...styleContext(doc).literalRanges,...doc.struck,...doc.blocks.filter(b=>b.ignored).map(b=>({start:b.start,end:b.end}))];
+  const pluralParents=compoundPluralParentRanges(doc,lexicalContext);
+  for(let n=combined.length-1;n>=0;n--)if(combined[n].guideId==='gpo'&&combined[n].rule==='5.8'&&pluralParents.some(p=>p.start<=combined[n].start&&p.end>=combined[n].end&&(p.start<combined[n].start||p.end>combined[n].end)))combined.splice(n,1);
   for(const issue of combined.filter(i=>i.guideId==='gpo')){
     const shared={'6.20':['Hyphenation, item 3',8,'LCB says not to hyphenate an adjective phrase containing an adverb ending in -ly.'],'6.34':['Hyphenation, item 5',8,'LCB lists ex-, quasi-, and self- as exceptions to its general rule against prefix hyphens.'],'6.15':['Hyphenation, item 1',8,'LCB generally hyphenates a unit modifier immediately before the word modified.']}[issue.rule];
     if(shared){issue.references.unshift(citation('lcb',shared[0],shared[1],issue.suggestion,shared[2],references.lcb));issue.guideId='lcb';issue.rule=shared[0];issue.guidePage=shared[1];issue.guidePrintedPage=String(shared[1]);issue.message='LCB and GPO agree on this form; LCB is the primary reference.';}
@@ -276,6 +288,11 @@ function reviewStylisticIssues(doc,references,engineIssues=[],includeReviewSugge
    if(!combined.some(i=>i.start<issue.end&&i.end>issue.start))combined.push(issue);
   }
   for(const issue of [...gpoEraReferenceIssues(doc,references),...gpoTimezoneDefinitionIssues(doc,references),...calendarIssues(doc,references),...verbEndingIssues(doc,references),...listedNounIssues(doc,references),...calendarAbbreviationIssues(doc,references),...gpoListedWordingIssues(doc,references),...gpoHolidayNameIssues(doc,references),...quantitySeparatorIssues(doc,references),...symbolIssues(doc,references),...editorialNotationIssues(doc,references),...tableFigureIssues(doc,references),...compoundPluralIssues(doc,references),...geologicNameIssues(doc,references),...modifierPositionIssues(doc,references),...semicolonSeriesIssues(doc,references),...serialCommaIssues(doc,references),...reflexivePronounIssues(doc,references),...phrasalVerbIssues(doc,references),...phrasalInflectionIssues(doc,references),...nominalPluralIssues(doc,references),...gpoNominalIssues(doc,references),...metricDefinitionIssues(doc,references),...numberArticleIssues(doc,references),...suffixSpellingIssues(doc,references),...lcbRoleFormIssues(doc,references),...contractionIssues(doc,references),...lcbSpellingIssues(doc,references),...lcbPrefixIssues(doc,references)]){if(!combined.some(i=>i.start<issue.end&&i.end>issue.start))combined.push(issue);}
+  // New finite GPO source comparisons retain applicable existing LCB owners.
+  // Complete written-name definitions never infer a bare symbol's identity.
+  for(const issue of [...gpoLiteralDateTimeIssues(doc,references,{existingIssues:combined}),...gpoExplicitSpellingIssues(doc,references,{existingIssues:combined,authority}),...gpoStandardItDefinitionIssues(doc,references),...gpoExplicitTableDefinitionIssues(doc,references),...gpoMilitaryRankDefinitionIssues(doc,references),...gpoLumberIssues(doc,references),...gpoPrintedFullNameIssues(doc,references,{existingIssues:combined}),...gpoListedCompoundIssues(doc,references,{existingIssues:combined})]){
+   if(!combined.some(i=>i.start<issue.end&&i.end>issue.start))combined.push(issue);
+  }
   // Existing source rules retain precedence and their original citations.
   // Only add parser findings after every local rule has been considered.
   const referenceProtections=lcbReferenceIdentityProtectionRanges(doc,references);

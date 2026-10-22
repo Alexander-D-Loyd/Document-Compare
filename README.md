@@ -4,6 +4,8 @@ Offline Windows desktop app for legislative PDF comparison and amendment/style r
 
 Current development status: [PROJECT_STATUS.md](PROJECT_STATUS.md). [Version **1.21.23**](https://github.com/Alexander-D-Loyd/Document-Compare/releases/tag/v1.21.23) is the latest published Windows release on main, including the verified GPO clock, unit, time-zone and era follow-up. All 3,043 source tests, 16 packaging/publishing regressions and actual staged Windows GPO/AB 1967/AB 2266 checks pass. GitHub reconstructed the exact tested ZIP and verified both asset digests.
 
+Local follow-on work adds ordered PDF/OCR disagreement review for all document slots, source-bound confirmations and referenced-bill reading questions. It also expands explicit GPO source-form comparisons across the prioritized date/time, compound, printed-name and abbreviation/symbol tables. Accuracy calibration reduces the 219 original questions to 81, preserves all 138 prior precise findings and adds the explicit Schedule correction. All 3,181 source tests pass. The staged 1.21.24 Windows EXE passes GPO/accuracy, original amendment and PDF-reading checks. Exact archiving and publication directly on main follow this build-time snapshot. The separate 1.21.23 publication evidence and remaining manual scope are recorded in the current development status.
+
 ## Run the packaged app
 
 Extract the entire **Document-Compare-Windows-1.21.23.zip** and open **Document Compare/Document Compare.exe**. Keep the runtime and resources together. No installation or development tools are required. PDF and language review run locally.

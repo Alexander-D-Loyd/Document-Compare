@@ -8,6 +8,8 @@ import {sourceNameRanges} from './style-source-names.mjs';
 import {END_WORD_RULES,OPEN_END_RULES} from './style-compounds.mjs';
 import {createBoundedRegistryMatcher} from './bounded-registry-matcher.mjs';
 import {settledCanonicalModifierRanges} from './style-lcb-canonical-modifier.mjs';
+import {lcbLocalSourceRoleRanges} from './style-lcb-local-source-roles.mjs';
+import {originalRoleBoundaryBlocked} from './style-original-role-boundaries.mjs';
 
 // A source form identifies a question, never an automatic grammatical or
 // dictionary judgment. In particular, joining a familiar root is not spelling
@@ -74,12 +76,13 @@ export function lcbSourceReviewIssues(doc,references,{existingIssues=[],engineIs
  const prior=view?existingIssues.map(i=>({...i,start:view.toView(i.start),end:view.toView(i.end)})):existingIssues;
  const settledView=view?settled.map(r=>({...r,start:view.toView(r.start),end:view.toView(r.end)})):settled;
  const result=withStyleContext(d,()=>review(d,references,prior,settledView));
- return view?view.restore(result):result;
+ return view?view.restore(result).map((issue,n)=>Number.isInteger(result[n].evidenceStart)?{...issue,evidenceStart:view.toSource(result[n].evidenceStart),evidenceEnd:view.toSource(result[n].evidenceEnd,true)}:issue):result;
 }
 function review(doc,references,existingIssues,settledCanonical){
  const ctx=styleContext(doc),source=ctx.source,blocked=styleEvidenceGuard(doc,ctx),literal=originalStyleLiteralGuard(doc,ctx),quoted=billQuotedTermProtection(doc,ctx);
  const originalSource=originalBodyStyleContext(doc)?.source||source;
  const names=sourceNameRanges(source),single=styleSingleQuoteRanges(source),issues=[],candidates=[];
+ const localRoles=lcbLocalSourceRoleRanges(doc,ctx,references);
  const eligible=(start,end)=>!blocked(start,end)&&!literal(start,end)&&!cutsOriginalStyleWord(doc,start)&&!cutsOriginalStyleWord(doc,end)&&ctx.at(start)!=='Heading'&&!ctx.tableAt(start)&&!overlaps(names,start,end)&&!overlaps(single,start,end)&&!quoted({start,end})&&!/[\u2012-\u2015]/u.test(doc.text.slice(start,end));
  const add=(start,end,rows,reason,kind)=>{
   if(settledCanonical.some(r=>r.start===start&&r.end===end))return;
@@ -108,6 +111,7 @@ function review(doc,references,existingIssues,settledCanonical){
   // the form. Do not ask a reader seventy times to confirm a compliant bare
   // "court", or repeatedly question an intact correctly cased Section number.
   const after=source.slice(m.index+m[0].length),term=fold(m[0]);
+  if(localRoles.some(r=>r.start<=m.index&&r.end>=m.index+m[0].length))continue;
   if(term==='court'&&exact.some(r=>r.text==='court (appearing alone)')&&!/^\s+of\s+appeals?\b/iu.test(after))continue;
   if(exact.some(r=>r.text==='Section (with number)')){
    const number=/^\s+\d+(?:\.\d+)*(?:\s*\([A-Za-z0-9]+\))*(?![\p{L}\p{N}\p{M}_])/u.exec(after);
@@ -117,6 +121,11 @@ function review(doc,references,existingIssues,settledCanonical){
   if(exact.some(r=>r.text==='Schedule (with number)')){
    const pattern=/^\s+(?:\d+(?:\.\d+)*(?:\([A-Za-z0-9]+\))*|\(\d+\)(?:\([A-Za-z0-9]+\))*)(?![\p{L}\p{N}\p{M}_])/u,number=pattern.exec(after),originalNumber=pattern.exec(originalSource.slice(m.index+m[0].length));
    if(term==='Schedule'&&number&&!blocked(m.index,m.index+m[0].length+number[0].length)&&!(originalNumber&&blocked(m.index,m.index+m[0].length+originalNumber[0].length)))continue;
+   if(term==='schedule'&&number){
+    const start=m.index,end=start+m[0].length,evidenceEnd=end+number[0].length,row=exact.find(r=>r.text==='Schedule (with number)'),pages=references.lcb.pages.filter(p=>p.page===row.page),page=pages[0];
+    if(pages.length===1&&page.text?.includes(row.text)&&originalNumber?.[0]===number[0]&&source.slice(start,evidenceEnd)===originalSource.slice(start,evidenceEnd)&&eligible(start,end)&&!blocked(start,evidenceEnd)&&!literal(start,evidenceEnd)&&!originalRoleBoundaryBlocked(originalSource,start,evidenceEnd)&&!overlaps(single,start,evidenceEnd)&&!quoted({start,end:evidenceEnd})&&!overlaps(existingIssues,start,end))issues.push({start,end,evidenceStart:start,evidenceEnd,text:doc.text.slice(start,end),matchText:term,suggestion:'Schedule',guideId:'lcb',guidePage:row.page,guidePrintedPage:String(page.printedPage),rule:row.text,category:'Capitalization',context:ctx.at(start),checkId:'lcb-numbered-schedule',conflict:false,sourceEntryIds:[row.id],message:'LCB explicitly prints Schedule (with number). The intact following number establishes that condition; capitalize only Schedule, retaining the reference digits and subdivisions.',references:[{guideId:'lcb',guideName:'LCB Style Manual',guidePage:row.page,guidePrintedPage:String(page.printedPage),rule:row.text,preferred:'Schedule',ruleText:row.text}]});
+    continue;
+   }
    // The printed condition is a following number. A plain lower-case noun
    // does not need a question about a condition visibly absent from source.
    const cue=/^\s+(?:\d|\(\s*\d)/u;

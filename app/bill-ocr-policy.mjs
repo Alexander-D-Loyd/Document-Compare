@@ -18,3 +18,13 @@ export function applyBillReadingWarnings(results,docs){
  if(!readings.length)return results;const locations=[...new Set(readings.map(w=>w.version+' page '+w.page))].slice(0,10).join(', ');
  return results.map(r=>({...r,status:'needs-review',versionReadingWarnings:readings.slice(0,100),versionReadingWarningCount:readings.length,message:r.message+' Bill PDF reading also needs review: '+locations+'. Confirm source characters before concluding whether this amendment is implemented or incorrect.'}));
 }
+// An inserted external bill is another source of the expected wording. Its
+// disputed OCR cannot become a certified amendment merely by matching Current.
+export function applyExternalReferenceReadingWarnings(results,externalDocs={}){
+ return results.map(result=>{
+  const bill=result.externalReference?.bill,doc=bill&&externalDocs[bill],readings=billReadingWarnings(doc);
+  if(!readings.length)return result;
+  const locations=[...new Set(readings.map(w=>'Referenced '+bill+', page '+w.page))].slice(0,10).join('; ');
+  return {...result,status:'needs-review',referenceReadingWarnings:readings.slice(0,100).map(w=>({...w,bill,sourceName:doc.name})),referenceReadingWarningCount:readings.length,message:result.message+' Referenced bill PDF reading needs review: '+locations+'. Confirm the original referenced PDF before concluding whether this amendment is implemented or incorrect.'};
+ });
+}

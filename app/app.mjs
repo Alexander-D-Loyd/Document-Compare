@@ -4,7 +4,7 @@ import {createEntityAuthorityPanel} from './entity-authority-ui.mjs';
 import {digestDisplay,digestPayload,amendmentName} from './digest-amendment.mjs';
 import {styleReviewView} from './style-review-view.mjs';
 import {STYLE_REVIEW_SCOPE,STYLE_EXCEPTION_SUMMARY} from './style-finding-policy.mjs';
-import {billReadingSummary,applyBillReadingWarnings}from './bill-ocr-policy.mjs';
+import {billReadingWarnings,billReadingSummary,applyBillReadingWarnings}from './bill-ocr-policy.mjs';
 import {validateAuthority,authorityIndex,authorityAccepts,authorityStore}from './offline-authority.mjs';
 import {legislativeBody} from './external-amendments.mjs';
 import {documentComparisonTokens as comparisonTokensFor} from './document-comparison.mjs';
@@ -152,6 +152,11 @@ function metadata(side) {
   $('name' + side).textContent = doc.name;
   $('meta' + side).textContent = side==='digest'?`${doc.pages} page${doc.pages===1?'':'s'} · Digest · click to replace`:side==='amendments'?`${doc.pages} page${doc.pages===1?'':'s'} · ${parseAmendments(doc.text).length} amendment(s)${doc.endMarkerPage?` · ends at - 0 - on page ${doc.endMarkerPage}`:doc.ignoredFromPage?` · mockup pages ${doc.ignoredFromPage}–${doc.sourcePages} ignored`:''}${jrBoxMetadata(doc.jrBoxes)} · click to replace`:`${doc.pages} page${doc.pages === 1 ? '' : 's'} · ${doc.tokens.filter(t=>/[\p{L}\p{N}]/u.test(t.value)).length.toLocaleString()} words${jrBoxMetadata(doc.jrBoxes)} · click to replace`;
   if(side!=='amendments'&&doc.ocr){$('meta'+side).textContent+=' · '+billReadingSummary(doc);}
+  const readings=side==='amendments'?amendmentReadingWarnings(doc):billReadingWarnings(doc);
+  if(side!=='reference'&&readings.length){
+    const review=document.createElement('button');review.type='button';review.className='quiet';review.textContent='Review PDF Reading';
+    review.addEventListener('click',event=>{event.preventDefault();event.stopPropagation();showReadingReview();});$('meta'+side).append(' ',review);
+  }
 }
 
 function refreshView(){
@@ -177,10 +182,11 @@ async function readFile(file, side) {
   if(side!=='reference'){
     versions.reference++;pdfTasks.reference?.destroy().catch(()=>{});loading.reference=false;
     for(const key of Object.keys(externalDocs))delete externalDocs[key];
+    for(const key of uploadedFiles.keys())if(key==='reference'||typeof key==='string'&&key.startsWith('reference:'))uploadedFiles.delete(key);
     $('reference-dialog').close();referenceBill=null;
   }
   pdfTasks[side]?.destroy().catch(()=>{});
-  if(side==='reference'){invalidateAmendments();$('continue-reference').disabled=true;}else if(side==='amendments'||side==='digest'){reviewIgnores.clear();resetSpelling();resetStyle();if(side==='digest')digestDoc=null;else amendmentsDoc=null;invalidateAmendments();}else{invalidateResults();docs[side]=null;}
+  if(side==='reference'){delete externalDocs[requestedBill];uploadedFiles.delete('reference:'+requestedBill);invalidateAmendments();$('continue-reference').disabled=true;}else if(side==='amendments'||side==='digest'){reviewIgnores.clear();resetSpelling();resetStyle();if(side==='digest')digestDoc=null;else amendmentsDoc=null;invalidateAmendments();}else{invalidateResults();docs[side]=null;}
   loading[side] = true;
   $('error' + side).textContent = '';
   $('name' + side).textContent = file.name;
@@ -273,6 +279,7 @@ async function readFile(file, side) {
     if(side==='reference'){legislativeBody(document,requestedBill);$('status').textContent=docs.every(Boolean)?'Ready to compare document text.':'Choose the other PDF to continue.';externalDocs[requestedBill]=document;}else if(side==='amendments')amendmentsDoc=document;else if(side==='digest'){digestPayload(document);digestDoc=document;}else docs[side]=document;
     metadata(side);
     uploadedFiles.set(side,file);$('name'+side).title='Open this PDF';$('name'+side).setAttribute('role','link');$('name'+side).tabIndex=0;
+    if(side==='reference')uploadedFiles.set('reference:'+requestedBill,file);
     if(side==='amendments'||side==='digest'){$('amendments-section').hidden=reviewMode!=='amendments';$('amendment-status').textContent='Instructions loaded. Select Amendments to verify both versions.';}
     else if(side!=='reference') $('status').textContent = docs.every(Boolean) ? 'Ready to compare document text.' : 'Choose the other PDF to continue.';
   } catch (error) {
@@ -309,6 +316,7 @@ function removeFile(side){
   }
   versions.reference++;pdfTasks.reference?.destroy().catch(()=>{});loading.reference=false;
   for(const key of Object.keys(externalDocs))delete externalDocs[key];referenceBill=null;$('reference-dialog').close();
+  for(const key of uploadedFiles.keys())if(key==='reference'||typeof key==='string'&&key.startsWith('reference:'))uploadedFiles.delete(key);
   invalidateResults();setReviewMode('changes');
   for(const id of ['left','right']){$(id).replaceChildren();$(id+'-name').textContent='';$(id+'-page').value='1';$(id+'-page-total').textContent='0';}
   $('added').textContent='';$('removed').textContent='';availability();
@@ -918,7 +926,7 @@ function renderGuideContext(){
     const box=document.createElement('article');box.className='guide-rule-card';
     const title=document.createElement('strong');title.textContent=`${guideById(reference.guideId).title}${reference.guideId==='lcb'?' · Primary':''} · ${reference.rule} · p. ${reference.guidePrintedPage}`;
     const form=document.createElement('p');form.textContent=`${reference.guideId==='lcb'?'Recommended LCB form':'GPO form'}: “${reference.preferred}”`;
-    const rule=document.createElement('p');rule.textContent=reference.sourcePassage?.text||reference.ruleText;
+    const rule=document.createElement('p');rule.textContent=reference.sourcePassage?.displayText||reference.sourcePassage?.text||reference.ruleText;
     const sourceLabel=document.createElement('p');sourceLabel.textContent=reference.sourcePassage?.kind||'Checking condition — consult the original guide page';
     const button=document.createElement('button');button.className='quiet';button.textContent=`View ${guideById(reference.guideId).title} page`;button.addEventListener('click',()=>selectGuide(reference.guideId,reference.guidePage));
     box.append(title);if(reference.preferred)box.append(form);box.append(sourceLabel,rule,button);root.append(box);
@@ -1235,8 +1243,16 @@ function renderAmendments(){
   const root=$('amendment-results');root.replaceChildren();
   $('next-amendment').disabled=!amendmentResults.length||!compared||!!compareWorker;$('previous-amendment').disabled=$('next-amendment').disabled;
   const result=amendmentResults[amendmentIndex];
-  $('amendment-status').textContent=result?.readingWarnings?.length?result.message:'';
-  if(result?.readingWarnings?.length){const review=document.createElement('button');review.className='quiet';review.textContent='Review PDF Reading';review.addEventListener('click',showReadingReview);$('amendment-status').append(' ',review);}
+  const hasReadings=result?.readingWarnings?.length||result?.versionReadingWarnings?.length||result?.referenceReadingWarnings?.length;
+  $('amendment-status').textContent=hasReadings?result.message:'';
+  if(result?.readingWarnings?.length||result?.versionReadingWarnings?.length){const review=document.createElement('button');review.className='quiet';review.textContent='Review PDF Reading';review.addEventListener('click',showReadingReview);$('amendment-status').append(' ',review);}
+  if(result?.referenceReadingWarnings?.length){
+    const bill=result.externalReference.bill,source=externalDocs[bill],key='reference:'+bill;
+    for(const page of [...new Set(result.referenceReadingWarnings.map(w=>w.page))].slice(0,10)){
+      const open=document.createElement('button');open.type='button';open.className='quiet';open.textContent=`Open ${bill} source, page ${page}`;
+      open.addEventListener('click',()=>{if(externalDocs[bill]!==source||!uploadedFiles.has(key)){ $('amendment-status').textContent='This source file has changed. Verify amendments again.';return;}openUploadedPdf(key,page);});$('amendment-status').append(' ',open);
+    }
+  }
   $('amendment-position').textContent=result?`${amendmentName(result)}${result.digest?'':` of ${amendmentResults.filter(r=>!r.digest).length}`} · ${amendmentLabels[result.status]}`:'';
   if(!result)return;
   const display=result.digest&&digestDoc?digestDisplay(digestDoc,docs[0]):amendmentsDoc?amendmentDisplays(amendmentsDoc).find(d=>d.number===(result.sourceNumber??result.number)):null;
@@ -1292,17 +1308,43 @@ function appendAmendmentText(root,styled,missing=[],focused=[]){
 
 function showReadingReview(){
   const list=$('reading-list');list.replaceChildren();$('reading-feedback').textContent='';
-  for(const reading of amendmentReadingWarnings(amendmentsDoc)){
+  const sources=[{side:'amendments',label:'Instructional Amendments',doc:amendmentsDoc},{side:0,label:'Previous Version',doc:docs[0]},{side:1,label:'Current Version',doc:docs[1]},{side:'digest',label:'Digest',doc:digestDoc}];
+  let shown=0,total=0;
+  for(const {side,label:sourceLabel,doc} of sources)for(const reading of side==='amendments'?amendmentReadingWarnings(doc):billReadingWarnings(doc)){
+    total++;if(shown>=100)continue;shown++;
     const row=document.createElement('form');row.className='guide-page-navigation';
-    const page=document.createElement('button');page.type='button';page.className='quiet';page.textContent=`Open Page ${reading.page}`;page.addEventListener('click',()=>openUploadedPdf('amendments',reading.page));
-    const label=document.createElement('label');label.textContent=`Amendment ${reading.number}: `;
-    const input=document.createElement('input');input.type='text';input.value=reading.text;input.maxLength=200;input.setAttribute('aria-label',`Correct reading ${reading.text} on page ${reading.page}`);label.append(input);
+    const currentDocument=()=>side==='amendments'?amendmentsDoc:side==='digest'?digestDoc:docs[side];
+    const page=document.createElement('button');page.type='button';page.className='quiet';page.textContent=`Open Page ${reading.page}`;page.addEventListener('click',()=>{if(currentDocument()!==doc){$('reading-feedback').textContent='This file has changed. Reopen PDF reading review.';return;}openUploadedPdf(side,reading.page);});
+    const label=document.createElement('label');label.textContent=`${sourceLabel}${reading.number?` — Amendment ${reading.number}`:''}, page ${reading.page}: `;
+    const input=document.createElement('input');input.type='text';input.value=reading.text;input.maxLength=200;input.setAttribute('aria-label',`Correct ${sourceLabel} reading ${reading.text} on page ${reading.page}`);label.append(input);
     const save=document.createElement('button');save.type='submit';save.className='quiet';save.textContent='Confirm Reading';
-    row.append(page,label,save);row.addEventListener('submit',event=>{
+    row.append(page,label,save);
+    if(reading.disagreement){const reason=document.createElement('span');reason.className='small-note';reason.textContent=reading.disagreement;
+      const preview=text=>text.length>200?text.slice(0,200)+'…':text;
+      if(reading.sourceWitness&&reading.ocrWitness)reason.textContent+=` Embedded text layer: “${preview(reading.sourceWitness.text)}”. Local pixel OCR: “${preview(reading.ocrWitness.text)}”.`;
+      row.append(reason);
+    }
+    row.addEventListener('submit',async event=>{
       event.preventDefault();if(Object.values(loading).some(Boolean)||amendmentWorker)return;
-      try{amendmentsDoc=correctPdfReading(amendmentsDoc,reading,input.value);invalidateAmendments();metadata('amendments');showReadingReview();$('reading-feedback').textContent='Reading confirmed for this loaded file. Verification is being checked again.';checkAmendments(reviewMode==='amendments');}catch(error){$('reading-feedback').textContent=error.message;}
+      try{
+        if(currentDocument()!==doc)throw Error('This file has changed. Reopen PDF reading review.');
+        save.disabled=true;const words=await ocrWords();
+        if(Object.values(loading).some(Boolean)||currentDocument()!==doc)throw Error('This file has changed. Reopen PDF reading review.');
+        const updated=correctPdfReading(doc,reading,input.value,words),mode=reviewMode;
+        if(side==='amendments'){amendmentsDoc=updated;invalidateAmendments();}
+        else if(side==='digest'){digestPayload(updated);digestDoc=updated;invalidateAmendments();}
+        else{
+          const heads=updated.blocks.filter(b=>isBudgetRunningHead(updated,b));
+          if(heads.length){updated.tokens=updated.tokens.filter(t=>!heads.some(b=>t.start>=b.start&&t.end<=b.end));updated.effectiveTokens=updated.effectiveTokens.filter(t=>!heads.some(b=>t.start>=b.start&&t.end<=b.end));}
+          docs[side]=updated;invalidateResults();
+        }
+        metadata(side);showReadingReview();$('reading-feedback').textContent='Reading confirmed for this loaded file. Verification is being checked again.';
+        if((side===0||side===1)&&docs.every(Boolean))runComparison();
+        if(hasAmendments())checkAmendments(mode==='amendments');
+      }catch(error){$('reading-feedback').textContent=error.message;}finally{save.disabled=false;}
     });list.append(row);
   }
+  if(total>shown){const more=document.createElement('p');more.className='small-note';more.textContent=`Showing ${shown} of ${total} uncertain readings. Confirmed readings leave this list so the remaining readings can be reviewed. All unresolved readings remain marked for review.`;list.append(more);}
   if(!list.childElementCount)list.textContent='No uncertain readings remain.';
   if(!$('reading-dialog').open)$('reading-dialog').showModal();
 }
@@ -1327,7 +1369,7 @@ function checkAmendments(selectMode=true){
     if(data.error){$('amendment-status').textContent=data.error;return;}
     amendmentsChecked=true;otherEdits=data.otherEdits;amendmentResults=applyBillReadingWarnings(applyAmendmentReadingWarnings(data.results,amendmentReadingWarnings(amendmentsDoc)),docs).map(r=>r.digest?applyBillReadingWarnings([r],[null,digestDoc])[0]:r);amendmentIndex=amendmentResults.length?0:-1;updateChangeNavigation();renderAmendments();if(compared){renderDocuments();if(reviewMode==='amendments')focusAmendment(amendmentResults[amendmentIndex],true);}
   };
-  const model=doc=>({name:doc.name,pages:doc.pages,text:doc.text,blocks:doc.blocks,tokens:doc.tokens,effectiveTokens:doc.effectiveTokens,struck:doc.struck,wrappedWords:doc.wrappedWords});
+  const model=doc=>({name:doc.name,pages:doc.pages,text:doc.text,blocks:doc.blocks,tokens:doc.tokens,effectiveTokens:doc.effectiveTokens,struck:doc.struck,wrappedWords:doc.wrappedWords,scanQuality:doc.scanQuality});
   amendmentWorker.postMessage({text:amendmentsDoc?(amendmentsDoc.ocr?repairOcrInstructions(activeText(amendmentsDoc)):activeText(amendmentsDoc)):'',digest:digestDoc?model(digestDoc):null,previous:model(docs[0]),current:model(docs[1]),externalDocs:Object.fromEntries(Object.entries(externalDocs).map(([bill,doc])=>[bill,model(doc)]))});
 }
 function selectGrammar(index){

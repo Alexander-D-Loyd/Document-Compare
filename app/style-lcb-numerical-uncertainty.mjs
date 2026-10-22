@@ -7,9 +7,10 @@ import {andCardinalParts} from './style-compound-cardinals.mjs';
 import {styleWordDivisionView} from './style-word-divisions.mjs';
 import {uncertainNumberRanges,numericTokenIdentifierRanges} from './style-uncertain-number-ranges.mjs';
 import {numeralIdentifierRanges} from './style-numeral-identifiers.mjs';
+import {lumberProtectionRanges} from './style-gpo-lumber.mjs';
 import {chemicalNameRanges} from './chemical-name-ranges.mjs';
 import {sourceNameRanges} from './style-source-names.mjs';
-import {labelledNumericalRoleRanges} from './style-lcb-labelled-numerical-roles.mjs';
+import {labelledNumericalRoleRanges,labelledNumericalRoleQuestionProtections} from './style-lcb-labelled-numerical-roles.mjs';
 const overlap=(rows,a,b)=>rows.some(r=>r.start<b&&r.end>a);
 
 // These recognizable expressions are outside the value converters. Ask about
@@ -21,8 +22,9 @@ export function lcbNumericalUncertaintyIssues(doc,references,{existingIssues=[]}
  const prior=view?existingIssues.map(i=>({...i,start:view.toView(i.start),end:view.toView(i.end)})):existingIssues;
  const result=withStyleContext(d,()=>{
   const ctx=styleContext(d),source=ctx.source,blocked=styleEvidenceGuard(d,ctx),literal=originalStyleLiteralGuard(d,ctx),single=styleSingleQuoteRanges(source),identifiers=numeralIdentifierRanges(source),issues=[];
-  identifiers.push(...chemicalNameRanges(source),...sourceNameRanges(source));
+  identifiers.push(...chemicalNameRanges(source),...sourceNameRanges(source),...lumberProtectionRanges(d,references,ctx));
   const labelledRoles=labelledNumericalRoleRanges(d,ctx);
+  const questionProtections=labelledNumericalRoleQuestionProtections(d,ctx);
   // These intact source labels already establish a serial role in the precise
   // numeral checks; an unresolved-expression route must retain that ownership.
   for(const pattern of [/\bCAS(?:\s+(?:RN|Registry(?:\s+(?:Number|No\.?))?|Number|No\.?))?\s*(?:[:#]\s*)?\d{2,7}\s*-\s*\d{2}\s*-\s*\d(?![\p{L}\p{N}_])/giu,/\b\d+\s+Cal\.\s*(?:App\.\s*|Rptr\.\s*)?(?:2d|3d|4th|5th)?\s+\d+(?:\s*,\s*\d+)*\b/g,/\b\d+\s+U\.S\.\s+\d+(?:\s*,\s*\d+)*\b/g])for(const m of source.matchAll(pattern))identifiers.push({start:m.index,end:m.index+m[0].length});
@@ -51,7 +53,7 @@ export function lcbNumericalUncertaintyIssues(doc,references,{existingIssues=[]}
    // alphanumeric identifier from a label and its separately printed value.
    if(c.identifierRole&&/[\u2014\u2015]/u.test(d.text.slice(start,end)))continue;
    const namedCase=!c.identifierRole&&(term===term.toUpperCase()&&/\p{L}{2}/u.test(term)||/(?:^|[\s-])\p{Lu}[\p{L}\p{M}]+/u.test(term.slice(1)));
-   if(c.skipOtherMixed||c.billSmallMixed&&ctx.at(start)!=='Bill'||c.canonicalAnd&&opening||c.openingOnly&&!opening||namedCase)continue;
+   if(c.skipOtherMixed||c.billSmallMixed&&ctx.at(start)!=='Bill'||c.canonicalAnd&&opening||c.openingOnly&&!opening||namedCase||questionProtections.some(r=>r.start<=start&&r.end>=end))continue;
    const priorOwner=c.wholeOwnerOnly?prior.some(i=>i.start<=start&&i.end>=end):overlap(prior,start,end);
    if(blocked(start,end)||original.some(r=>r.start<end&&r.end>start&&blocked(r.start,r.end))||literal(start,end)||overlap(single,start,end)||overlap(identifiers,start,end)||labelledRoles.some(r=>r.start<=start&&r.end>=end)||priorOwner||overlap(issues,start,end)||ctx.at(start)==='Heading'||ctx.tableAt(start)||cutsOriginalStyleWord(d,start)||cutsOriginalStyleWord(d,end)||/[:/\\#@\p{L}\p{N}\p{M}_-]$/u.test(source.slice(0,start))||/^[:/\\#@\p{L}\p{N}\p{M}_-]/u.test(source.slice(end)))continue;
    issues.push({start,end,text:d.text.slice(start,end),suggestion:null,guideId:'lcb',guidePage:21,guidePrintedPage:String(page.printedPage),rule:'Numerals: unresolved whole expression',category:'Numerical Expression Review',context:ctx.at(start),reviewSuggested:true,confidence:'Review Suggested',checkId:'lcb-numerical-uncertainty-review',conflict:false,matchesPrimary:false,message:'Review Suggested: '+c.reason+' Check the complete expression against LCB21 sentence-opening, document-type and specialized-number rules. No intended value, error or replacement is asserted.',references:[{guideId:'lcb',guideName:'LCB Style Manual',guidePage:21,guidePrintedPage:String(page.printedPage),rule:'Numerals: general and document-type provisions',preferred:null,ruleText:page.text}]});

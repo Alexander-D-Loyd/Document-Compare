@@ -1,4 +1,4 @@
-import {embeddedOcrDisagreements}from './ocr-embedded-agreement.mjs';
+import {embeddedOcrReadingWarnings,rereadDisagreement,readingWarningSpans}from './ocr-embedded-agreement.mjs';
 import {readBillMarginColumn}from './bill-ocr-margins.mjs';
 import {labelScannedBillMargins}from './bill-ocr-policy.mjs';
 import {ocrPageItems,scannedStrokeGeometry,maskScannedStrikeouts,markDeletedOcrItems} from './scanned-amendments.mjs';
@@ -72,7 +72,7 @@ export async function readScannedInstructions(page,worker,OPS,checkCancelled=()=
      // A joined OCR word may become multiple words on the reread. Keep all
      // of them; accepting only the first candidate can silently lose text.
      const candidate=group.length===1?group[0]:group.length?{...group[0],text:group.map(w=>w.text).join(' '),confidence:Math.min(...group.map(w=>w.confidence)),bbox:{x0:Math.min(...group.map(w=>w.bbox.x0)),x1:Math.max(...group.map(w=>w.bbox.x1)),y0:Math.min(...group.map(w=>w.bbox.y0)),y1:Math.max(...group.map(w=>w.bbox.y1))},symbols:group.flatMap(w=>w.symbols)}:null;
-     return candidate&&candidate.confidence>word.confidence?candidate:word;
+     return candidate&&candidate.confidence>word.confidence?{...candidate,readingDisagreement:rereadDisagreement(word.text,candidate.text,word.readingDisagreement)}:word;
     });
    }
   }
@@ -94,12 +94,9 @@ export async function readScannedInstructions(page,worker,OPS,checkCancelled=()=
     const candidates=(result.blocks||[]).flatMap(b=>(b.paragraphs||[]).flatMap(p=>(p.lines||[]).flatMap(l=>l.words||[])));
     if(candidates.length!==1||!isolatedWord.test(candidates[0].text)||candidates[0].confidence<=word.confidence||word.text.startsWith('(')!==candidates[0].text.startsWith('('))continue;
     const candidate=candidates[0],move=b=>({x0:b.x0+left,x1:b.x1+left,y0:b.y0+top,y1:b.y1+top});
-    const index=embedded?.lines.findIndex(f=>Math.abs(f.baseline-(pageHeight-line.baseline.y0/scale))<2)??-1;
-    const words=index<0?[]:embedded.text.split('\n')[index].toLowerCase().match(/\p{L}+/gu)||[];
-    const before=word.text.toLowerCase().replace(/[^\p{L}]/gu,''),after=candidate.text.toLowerCase().replace(/[^\p{L}]/gu,'');
     // Recognition confidence alone cannot resolve differing valid words.
     // An uncorroborated change remains reviewable even at a high OCR score.
-    const disagreement=before!==after&&(!words.includes(after)||words.includes(before))?before+' / '+after:undefined;
+    const disagreement=rereadDisagreement(word.text,candidate.text,word.readingDisagreement);
     Object.assign(word,candidate,{bbox:move(candidate.bbox),symbols:candidate.symbols.map(s=>({...s,bbox:move(s.bbox)}))});
     word.readingDisagreement=disagreement;
    }
@@ -134,10 +131,17 @@ export async function readScannedInstructions(page,worker,OPS,checkCancelled=()=
   const offsets=[];let cursor=0;for(const line of layout.text.split('\n')){offsets.push(cursor);cursor+=line.length+1;}
   const uncertain=items.filter(w=>(bill||!w.ocrStruck)&&!w.structuralMargin&&(w.confidence<85||w.readingDisagreement)).flatMap(w=>{
    const index=layout.lines.findIndex(f=>Math.abs(f.baseline-w.transform[5])<=2),run=layout.lines[index]?.runs.find(r=>Math.abs(r.x-w.transform[4])<.5);
-   return run?[{text:w.str,struck:!!w.ocrStruck,confidence:w.confidence,disagreement:w.readingDisagreement,start:offsets[index]+run.start,end:offsets[index]+run.end}]:[];
+   if(!run)return [];
+   const start=offsets[index]+run.start,end=offsets[index]+run.end,ocrWitness={start,end,text:layout.text.slice(start,end)};
+   return readingWarningSpans(layout.text,start,end).map(span=>({...span,struck:!!w.ocrStruck,confidence:w.confidence,disagreement:w.readingDisagreement,ocrWitness}));
   });
-  const embeddedDisagreements=bill&&embedded?.text?embeddedOcrDisagreements(embedded.text,layout.text):[];
-  if(layout.text.length&&embeddedDisagreements.length)uncertain.push(...embeddedDisagreements.slice(0,100).map(text=>({text,confidence:null,disagreement:'Embedded text and local pixel OCR disagree; confirm the original PDF',start:0,end:1})));
+  // Compare only an intact decoded layer of this same PDF. The instruction
+  // layer needs this check too: a high-confidence c/e reading may still differ.
+  // Damaged/partial native decoding is already handled by integrity checks.
+  const quality=embedded?.readingQuality,reliableEmbedded=embedded?.text&&quality?.preservedCharacters&&!quality.invalidGeometry&&!quality.unsupportedCharacters.length;
+  const embeddedWarnings=reliableEmbedded?embeddedOcrReadingWarnings(embedded,layout,{instructions:!bill}).filter(w=>bill||!layout.strikes.some(r=>r.start<=w.start&&r.end>=w.end)):[];
+  const embeddedDisagreements=embeddedWarnings.map(w=>w.sourceWitness.text||w.ocrWitness.text);
+  uncertain.push(...embeddedWarnings);
   return {layout,marker,quality:{engine:'local OCR',passes:strokes.length?2:1,lineChecks,wordChecks,markerChecks,markerReadings,embeddedDisagreements,uncertain}};
  }finally{canvas.width=canvas.height=0;}
 }

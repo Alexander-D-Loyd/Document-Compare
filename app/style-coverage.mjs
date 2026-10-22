@@ -1,4 +1,13 @@
 import {GPO_WEB_TYPOGRAPHY_SCOPE} from './style-gpo-web-typography.mjs';
+import {GPO_LITERAL_DATE_TIME_SCOPE} from './style-gpo-literal-date-time.mjs';
+import {GPO_EXPLICIT_SPELLING_SCOPE} from './style-gpo-explicit-spelling.mjs';
+import {GPO_PRINTED_FULL_NAMES_SCOPE} from './style-gpo-printed-full-names.mjs';
+import {GPO_EXPLICIT_TABLE_DEFINITION_SCOPE} from './style-gpo-explicit-table-definitions.mjs';
+import {GPO_STANDARD_IT_DEFINITION_SCOPE} from './style-gpo-standard-it-definitions.mjs';
+import {GPO_MILITARY_RANK_DEFINITION_SCOPE} from './style-gpo-military-rank-definitions.mjs';
+import {GPO_LUMBER_SCOPE} from './style-gpo-lumber.mjs';
+import {GPO_LISTED_COMPOUND_SCOPE} from './style-gpo-listed-compounds.mjs';
+import {GPO_LISTED_COMPOUND_COUNTS} from './data/gpo-listed-compound-forms.mjs';
 import {LCB_IN_KIND_SCOPE} from './style-lcb-in-kind.mjs';
 import {LCB_SOURCE_REVIEW_SCOPE} from './style-lcb-source-review.mjs';
 import {GPO_LISTED_WORDING_SCOPE} from './style-gpo-listed-wording.mjs';
@@ -77,6 +86,15 @@ import {GPO_COMPOUND_PLURAL_SCOPE}from './style-compound-plurals.mjs';
 import {GPO_ENGLISH_ABBREVIATION_SCOPE}from './style-english-abbreviations.mjs';
 import {GPO_MATH_SYMBOL_SPACING_SCOPE}from './style-symbols.mjs';
 export const CHECK_COVERAGE=[
+ {title:'Source labels and literal numerical roles',status:'Selected contextual protections',guide:'lcb',page:22,text:'Complete source labels protect selected Budget Act item citations and lists, statutory mandate-code lists, fund/account captions and explicitly labelled baseline, award and fiscal-year periods from ordinary count questions. Selected complete education/program titles, educational continuations and protocol/right-number clauses can veto a quantity question without establishing grade, program or telephone identity. Whole intact legal lists in tables supply negative ownership only; they cannot create prose corrections. Reimbursement amounts additionally require their original Item/Amount header and physical amount-column separation. Complete source characters and establishing labels must survive strikes and unknown exclusions; an unlabelled year-shaped token, arbitrary K-range or unrelated code does not inherit protection. Unestablished roles, reference accuracy and source identity remain manual.'},
+ {title:'GPO complete printed-name case',status:'134 selected whole source names',text:GPO_PRINTED_FULL_NAMES_SCOPE,guide:'gpo',page:59},
+ {title:'GPO explicit negative spelling preference',status:'One selected printed pair',text:GPO_EXPLICIT_SPELLING_SCOPE,guide:'gpo',page:97},
+ {title:'GPO literal date time and decimal forms',status:'Five finite source-form groups',text:GPO_LITERAL_DATE_TIME_SCOPE,guide:'gpo',page:289},
+ {title:'GPO standard and IT abbreviation definitions',status:'Selected complete source pairs',text:GPO_STANDARD_IT_DEFINITION_SCOPE,guide:'gpo',page:252},
+ {title:'GPO unit Latin element and currency definitions',status:'Selected complete source pairs',text:GPO_EXPLICIT_TABLE_DEFINITION_SCOPE,guide:'gpo',page:262},
+ {title:'GPO military rank abbreviation definitions',status:'Selected explicit branch and rank pairs',text:GPO_MILITARY_RANK_DEFINITION_SCOPE,guide:'gpo',page:241},
+ {title:'GPO printed lumber designation',status:'One complete source designation',text:GPO_LUMBER_SCOPE,guide:'gpo',page:290},
+ {title:'GPO complete printed compound nouns',status:'Selected intact nominal roles',text:GPO_LISTED_COMPOUND_SCOPE+' The registry retains '+GPO_LISTED_COMPOUND_COUNTS.mappedRows+' selected rows ('+GPO_LISTED_COMPOUND_COUNTS.unqualifiedRows+' unqualified and '+GPO_LISTED_COMPOUND_COUNTS.explicitNominalRows+' explicit nominal); '+GPO_LISTED_COMPOUND_COUNTS.manualRows+' rows remain manual, '+GPO_LISTED_COMPOUND_COUNTS.structuralHeads+' structural heads do not independently authorize corrections, and '+GPO_LISTED_COMPOUND_COUNTS.existingOwnedRows+' rows retain existing LCB/GPO owners.',guide:'gpo',page:127},
  {title:'Complete era references',status:'Selected source forms',text:GPO_ERA_REFERENCE_SCOPE,guide:'gpo',page:289},
  {title:'Explicit GPO time-zone definitions',status:'Selected source pairs',text:GPO_TIMEZONE_DEFINITION_SCOPE,guide:'gpo',page:248},
  {title:'Supplementary California citation forms',status:'Source forms and family-specific reader tasks',text:'Explicit Opinion and Cover letter selections use source-form checks and reader tasks under LCB1 item5. Routes span all102 numbered provisions in citation chapters1–3 of the reviewed fourth edition; this is an applicability inventory, not a full-rule certificate. Additional code, constitutional, regulatory, court-rule, legislative, federal, case and secondary-source checks preserve their own source sections and complete evidence. Parenthetical and selected full/reversed prose citations receive family-specific tasks; an existing form finding owns its additional tasks without a duplicate question. Named and nonadversarial case coordinates retain their figures. Complete bibliographic angle-bracket URLs can receive a reader task without changing or opening the URL. The source card links to the reviewed manual. Bill/Digest mode does not enable this layer. Unrecognized or protected citations, authority identity, current publication status, pinpoint support and original typography remain unverified. The 2000 edition does not establish newer reporter typography or present citability.',guide:'lcb',page:1},

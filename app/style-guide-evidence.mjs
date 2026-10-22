@@ -3,6 +3,16 @@ import {lcbSourceItems} from './style-lcb-source-sections.mjs';
 const clean=text=>text.replace(/\s+/gu,' ').trim();
 const fold=text=>clean(text).toLocaleLowerCase('en-US');
 const escape=text=>text.replace(/[.*+?^${}()|[\]\\]/gu,'\\$&');
+// The original page was visually checked: this one unresolved font token is
+// the multiplication sign in the printed lumber exception. Keep raw source
+// offsets/text intact; only provide a separate, page-bound display reading.
+function gpoVerifiedGlyphDisplay(reference,page,witness){
+ const raw='2 by 4 or 2 x 4 (lumber) (not 2/H115034)';
+ if(page.page!==290||page.printedPage!=='276'||page.text.length!==1197||witness.start!==938||witness.end!==978||witness.text!==raw||reference.pages.filter(p=>p.page===290).length!==1)return {};
+ let hash=2166136261;for(let i=0;i<page.text.length;i++)hash=Math.imul(hash^page.text.charCodeAt(i),16777619)>>>0;
+ if(hash!==3186427053)return {};
+ return {displayText:raw.replace('/H11503','×'),glyphTranscription:{originalPdfPage:290,printedPage:'276',originalPdfSHA256:'d4cfd249757b27bef01bd3fa76ce7da71fe6e4cb2cdcf510d371c7374d9ae630',encoded:'/H11503',reading:'×'}};
+}
 function lcbExampleSection(page,rule){
  const sections=page.page===23?[
   ['MEASURES',/measures?/iu],['MONEY',/money|monetary/iu],['PERCENT',/percent/iu],['PROPORTIONS/RATIOS',/proportions?|ratios?/iu],['TIME',/\btime\b/iu]
@@ -56,7 +66,7 @@ export function guidePassage(reference,citation){
   // Retain an exact source-validated example on its own cited page.
   const witness=citation.sourcePassage;
   if(witness&&Number.isInteger(witness.start)&&Number.isInteger(witness.end)&&witness.start>=0&&witness.end>witness.start&&witness.end<=page.text.length&&(witness.page===undefined||witness.page===page.page)&&typeof witness.text==='string'&&witness.text.trim()&&page.text.slice(witness.start,witness.end)===witness.text){
-   return {text:witness.text,kind:'Printed source passage',page:page.page,start:witness.start,end:witness.end};
+   return {text:witness.text,kind:'Printed source passage',page:page.page,start:witness.start,end:witness.end,...gpoVerifiedGlyphDisplay(reference,page,witness)};
   }
   const number=/^\d+\.\d+$/u.test(citation.rule||'')?citation.rule:null;
   if(number){

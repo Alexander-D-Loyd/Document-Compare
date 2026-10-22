@@ -17,6 +17,7 @@ test('inventory retains full source text and exposes page assessments separately
  const rows=styleRuleInventory(refs),pages=rows.filter(r=>r.sourceAssessment);assert.equal(pages.length,273);
  for(const r of pages){assert.match(r.id,/^gpo-page-/u);assert.equal(r.text,refs.gpo.pages.find(p=>p.page===r.page).text.replace(/\s+/gu,' ').trim());}
  assert.ok(rows.filter(r=>/^gpo-\d+\./u.test(r.id)).every(r=>!r.sourceAssessment));
- assert.equal(rows.find(r=>r.id==='gpo-page-59').status,'Assessed — mapping incomplete');
+ const names=rows.find(r=>r.id==='gpo-page-59');assert.equal(names.status,'Partially automated');assert.match(names.scope,/3 selected complete printed-name witnesses/);assert.match(names.scope,/manual remainder retained/);assert.match(names.scope,/not full semantic capitalization automation/);
+ assert.equal(rows.find(r=>r.id==='gpo-page-73').status,'Assessed — mapping incomplete');
  assert.ok(!rows.some(r=>r.guide==='gpo'&&r.status==='Not yet assessed'));
 });

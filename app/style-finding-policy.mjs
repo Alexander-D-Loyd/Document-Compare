@@ -2,6 +2,7 @@ import {validGpoWebTypographyFinding} from './style-gpo-web-typography.mjs';
 import {billQuotedTermProtection} from './style-quoted-terms.mjs';
 import {styleEvidenceGuard} from './style-evidence.mjs';
 import {originalStyleLiteralGuard} from './style-original-literal-guard.mjs';
+import {validGpoPrintedFullNameWitness} from './style-gpo-printed-full-names.mjs';
 
 export const STYLE_REVIEW_SCOPE='Style findings require an explicit LCB or GPO provision and a supported context. Grammar and spelling remain separate language checks. General compound guesses, fuzzy name comparisons and inferred legal targets are disabled.';
 export const STYLE_EXCEPTION_SUMMARY='Quoted wording is respected within this Current Version. Literal quotations, legislative identifiers, names, deleted text and table contexts retain their applicable protections. LCB takes priority when its applicable provision differs from GPO.';
@@ -17,6 +18,7 @@ export function styleNameProtected(issue,names,source=null,originalSource=source
  return issue.checkId!=='california-entities'&&!exactCase&&!titleChecks.has(issue.checkId)&&!printedNameWitness(issue,originalSource)&&names.some(r=>r.start<issue.end&&r.end>issue.start);
 }
 function printedNameWitness(issue,source){
+ if(validGpoPrintedFullNameWitness(issue,source))return true;
  const e=issue.listedNameEvidence;
  const punctuation=issue.checkId==='lcb-listed-punctuation-name'&&e?.sourcePage===7&&['Public Employees’ Retirement System','State Teachers’ Retirement System','County Employees Retirement Law of 1937'].includes(e.printedName);
  const agency=((issue.checkId==='lcb-listed-agency-form'&&e?.sourcePage===9&&e.printedName==='Cal-OSHA')||(issue.checkId==='lcb-listed-program-alias'&&e?.sourcePage===11&&e.printedName==='Medi-Cal'))&&e.start===issue.start&&e.agencyEnd===issue.end&&e.headStart===issue.end&&e.headEnd===e.end;

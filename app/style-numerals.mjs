@@ -1,5 +1,6 @@
 import {currencySeriesEvidence} from './style-currency-symbol-series.mjs';
 import {eraReferenceRanges} from './style-gpo-era-references.mjs';
+import {lumberProtectionRanges} from './style-gpo-lumber.mjs';
 import {dimensionSeriesEvidence} from './style-symbol-series.mjs';
 import {styleContext,styleRangeBlocked} from './style-context.mjs';
 import {dimensionMarkParts} from './style-dimension-marks.mjs';
@@ -13,6 +14,7 @@ import {listNounPhrase} from './style-list-phrases.mjs';
 import {andCardinalParts} from './style-compound-cardinals.mjs';
 import {explicitRatioParts} from './style-ratios.mjs';
 import {numeralIdentifierRanges,COUNTED_CLAUSE_END} from './style-numeral-identifiers.mjs';
+import {labelledNumericalRoleRanges} from './style-lcb-labelled-numerical-roles.mjs';
 import {styleEvidenceGuard,cutsOriginalStyleWord} from './style-evidence.mjs';
 import {ones,tens,numbers,wordValue,spellNumber,canonicalWrittenValue,spellOrdinal,ordinalOnes as ordinals} from './style-cardinal-values.mjs';
 import {numericExpressionGuard} from './style-numeric-expression-evidence.mjs';
@@ -31,8 +33,14 @@ const ordinalValues=new Map([...ordinalNumbers].map(([word,value])=>[word.replac
 const ordinalPattern=[...ordinalNumbers.keys()].sort((a,b)=>b.length-a.length).map(w=>w.replace(/[ -]/g,'[\\s-]+')).join('|');
 const figureOrdinal=n=>n.toLocaleString('en-US')+((n%100>=11&&n%100<=13)?'th':({1:'st',2:'nd',3:'rd'}[n%10]||'th'));
 const singular=w=>({people:'person',children:'child',feet:'foot',inches:'inch',copies:'copy'}[w]||w.replace(/s$/,''));
+const preciseIdentifierRoles=new Set(['fund-reference','mandate-list','mandate-claim','budget-citation-item','item-list','code-legend-range','fund-caption']);
 export function numeralIssues(doc,references){
  const ctx=styleContext(doc),source=ctx.source,issues=[],protectedRanges=[],eras=eraReferenceRanges(doc,ctx);
+ protectedRanges.push(...lumberProtectionRanges(doc,references,ctx));
+ // Only complete explicit serial identifiers enter this converter gate.
+ // Clock, percentage, duration, year and ordinary quantity roles retain
+ // their own sentence-opening and specialized numeral responsibilities.
+ protectedRanges.push(...labelledNumericalRoleRanges(doc,ctx).filter(r=>preciseIdentifierRoles.has(r.role)));
  const incompleteNumeric=numericExpressionGuard(doc,ctx);
  const scalarSeries=scalarSeriesRanges(ctx,doc);
  const countedGroups=countedSeriesGroups(ctx,references.lcb,doc);
