@@ -32,3 +32,27 @@ test('publication verifies uploaded digests before making the release public and
  const result=await publishVerified(f.data,f.files,{api,env:workflow});assert.equal(result.latest,true);f.data.receipt.branch='main';assert.equal((await publishVerified(f.data,f.files,{api,env:{...workflow,GITHUB_REF:'refs/heads/main'}})).latest,true);assert.equal(result.sourceCommit,commit);assert.equal(result.assets.length,2);const create=calls.find(row=>row.method==='POST'&&row.route===base+'/releases');assert.equal(create.body.draft,true);assert.equal(create.body.target_commitish,commit);assert.equal(calls.filter(row=>row.method==='PATCH').length,1);assert.equal(expected.length,2);
 });
 test('an uploaded digest mismatch leaves the draft unpublished',async t=>{const f=fixture(t);artifacts(f);let patched=false;const base='/repos/'+repo,api=async(method,route,body,asset)=>{if(route===base+'/commits/'+commit)return {sha:commit};if(method==='GET')return null;if(method==='PATCH'){patched=true;return {};}if(asset)return {name:asset.name,size:asset.bytes,digest:'sha256:'+'0'.repeat(64),state:'uploaded'};return {...body,id:9,assets:[],upload_url:'https://uploads.github.com/repos/'+repo+'/releases/9/assets{?name,label}'};};await assert.rejects(publishVerified(f.data,f.files,{api,env:workflow}),/failed verification/);assert.equal(patched,false);});
+
+test('GitHub API permission errors expose the safe route status and selected documentation',async()=>{
+ const token='ghs_test_permission_token',route='/repos/'+repo+'/releases',requests=[];
+ const api=publisher.createAPI(token,{fetch:async(url,options)=>{requests.push({url,options});return {ok:false,status:403,json:async()=>({message:'Resource not accessible by integration',documentation_url:'https://docs.github.com/rest/releases/releases#create-a-release',errors:[{private:'not printable'}]})};}});
+ await assert.rejects(api('POST',route,{notes:'private request body'}),error=>{assert.equal(error.message,'GitHub release request failed: POST '+route+' HTTP 403: Resource not accessible by integration https://docs.github.com/rest/releases/releases#create-a-release');assert.ok(!error.message.includes(token));assert.ok(!error.message.includes('private'));return true;});
+ assert.equal(requests.length,1);assert.equal(requests[0].url,'https://api.github.com'+route);assert.equal(requests[0].options.headers.Authorization,'Bearer '+token);assert.equal(requests[0].options.body,JSON.stringify({notes:'private request body'}));
+});
+
+test('API diagnostics redact credentials omit query values and ignore unselected response data',async()=>{
+ const token='ghs_private_workflow_token',other='github_pat_other_private_token',route='https://uploads.github.com/repos/'+repo+'/releases/7/assets?name=private-query-'+token;
+ const api=publisher.createAPI(token,{fetch:async()=>({ok:false,status:403,json:async()=>({message:'Permission denied for '+token+'\n'+other,documentation_url:'https://docs.github.com/rest/releases/assets?credential=private-query-'+token+'#upload',headers:{Authorization:'private response header'},errors:['private error body']})})});
+ await assert.rejects(api('POST',route,{secret:'private request body'}),error=>{assert.equal(error.message,'GitHub release request failed: POST /repos/'+repo+'/releases/7/assets HTTP 403: Permission denied for [redacted] [redacted] https://docs.github.com/rest/releases/assets#upload');for(const privateValue of [token,other,'private-query','private response header','private error body','private request body','credential=','?name='])assert.ok(!error.message.includes(privateValue),privateValue);assert.ok(!/[\r\n]/u.test(error.message));return true;});
+ const bounded=publisher.createAPI(token,{fetch:async()=>({ok:false,status:403,json:async()=>({message:'x'.repeat(10000)+token,documentation_url:'https://untrusted.example/private-docs'})})});
+ await assert.rejects(bounded('POST','/repos/'+repo+'/releases'),error=>{assert.ok(error.message.length<800);assert.ok(!error.message.includes(token));assert.ok(!error.message.includes('untrusted.example'));return true;});
+});
+
+test('API error parsing falls back safely and preserves successful absent and rejected-route behavior',async()=>{
+ const token='ghs_fallback_secret',route='/repos/'+repo+'/releases';
+ const broken=publisher.createAPI(token,{fetch:async()=>({ok:false,status:403,json:async()=>{throw Error('private non-JSON response '+token);}})});
+ await assert.rejects(broken('POST',route),{message:'GitHub release request failed: POST '+route+' HTTP 403'});
+ let reads=0;const missing=publisher.createAPI(token,{fetch:async()=>({ok:false,status:404,json:async()=>{reads++;throw Error('must not parse');}})});assert.equal(await missing('GET',route),null);assert.equal(reads,0);
+ const success=publisher.createAPI(token,{fetch:async()=>({ok:true,status:201,json:async()=>({id:7})})});assert.deepEqual(await success('POST',route),{id:7});
+ let requests=0;const guarded=publisher.createAPI(token,{fetch:async()=>{requests++;throw Error('must not fetch');}});for(const target of ['/repos/other/repo/releases','https://untrusted.example/repos/'+repo+'/releases/7/assets'])await assert.rejects(guarded('POST',target),/Unexpected release/);assert.equal(requests,0);assert.throws(()=>publisher.createAPI(''),/token was not provided/);
+});
