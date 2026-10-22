@@ -1,0 +1,22 @@
+{
+  "format": "document-compare.verified-release",
+  "repository": "Alexander-D-Loyd/Document-Compare",
+  "version": "1.21.21",
+  "sourceCommit": "b29163ce42fd2de894f741afb1dd307add199cbb",
+  "tag": "v1.21.21",
+  "branch": "main",
+  "manifestPath": ".github/release-receipts/1.21.21.package-manifest.json",
+  "manifestSHA256": "b22b51e99d970014a5242d4b435b212accc7dd5e5160d65c464b7eb4939ac457",
+  "archiveName": "Document-Compare-Windows-1.21.21.zip",
+  "archiveBytes": 538267585,
+  "archiveSHA256": "5fc6ba9759b6a572c8b156ed68da42aa93cbf0324281e62f5dc136f4045628de",
+  "startHere": "Document Compare 1.21.21\r\n\r\nOpen Document Compare.exe and keep this entire folder together.\r\nPDF, OCR, spelling, grammar and style review run locally.\r\nLCB retains priority over differing GPO guidance. California Codes checks\r\nuse the supplied name/shorthand list and do not validate section numbers.\r\nStyle coverage is partial; review the source provisions and exceptions.\r\nSee resources/app/DESKTOP_VERIFICATION.md for verification scope.\r\nPACKAGE-MANIFEST.json records the SHA-256 of every packaged file except itself.\r\nIncluded Electron, PDF/OCR, dictionary and offline-engine licenses/notices\r\nare retained in their original folders.\r\n",
+  "title": "Document Compare 1.21.21",
+  "notes": "Document Compare 1.21.21 expands LCB grammar and numerical recognition, strengthens supplementary citations, and reduces redundant review questions.\n\nGrammar review now covers additional fragments, interrupted groups, infinitival ambiguity and following-position structures, including “requires hard to obtain.” Uncertain interpretations identify the rule and reason without choosing a replacement. Numerical review keeps unfamiliar scientific notation, spoken decimals, malformed grouping and table expressions whole; intact source labels and exact canonical modifier forms settle selected redundant questions.\n\nAll 102 numbered provisions in California Style Manual citation chapters 1–3 were individually audited. Opinion/Cover letter checks combine observable form comparisons with 285 specific reader duties and source-page links. Recognizable unknown or incomplete citations receive unresolved-source questions. Overlapping requirements retain their separate reasons.\n\nValidation: 2,975 source tests pass, with the 13 packaging/publishing regressions also rechecked. The actual packaged Windows app passes the four supplied AB 1967 PDFs, all nine amendment results, comma placement, exact in-kind highlighting and Digest alignment, plus existing citation/two-page regressions and a new three-page LCB fixture. Every final ZIP entry is verified against the package manifest.\n\nQuality replay across 23 unchanged models / 2,024 pages yields a net 2,440 fewer reader questions while preserving all 141 precise comparisons. A fresh final parser run reproduces all 3,175 mapped baseline candidates. All 34 original corpus PDFs retain their hashes. Questions are not established errors, and these measurements are not human precision/recall.\n\nComplete ordered Merriam-Webster authority remains unavailable. Universal recognition, intended meaning, current legal/source identity, supporting text and original typography are not certified. California Codes and Counties remain independent checks; code section numbers are not validated.\n\nDownload and extract the Windows ZIP, keep the entire Document Compare folder together, and open Document Compare.exe. PDF and language processing run locally. Existing offline engines and LCB/GPO references are included; the supplementary citation manual is linked externally. A SHA-256 sidecar accompanies the ZIP.\n\nSource commit on main: b29163ce42fd2de894f741afb1dd307add199cbb\nWindows ZIP SHA-256: 5fc6ba9759b6a572c8b156ed68da42aa93cbf0324281e62f5dc136f4045628de",
+  "priorRelease": {
+    "tag": "v1.21.20",
+    "assetName": "Document-Compare-Windows-1.21.20.zip",
+    "sha256": "9a011a5587ef4165d39063a9bb3c023ca1d4f70e9d0b12df16b66431a8dc420f",
+    "bytes": 538177284
+  }
+}
