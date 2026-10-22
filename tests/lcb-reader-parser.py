@@ -22,15 +22,28 @@ texts=[
  'The panel considers sugar free beverages.',
  'The panel considers newly developed prototypes.',
  'The panel considers newly-developed prototypes.',
+ 'The agency evaluates fast growing or slow moving organisms.',
+ 'The agency evaluates fast growing and sugar free organisms.',
+ 'The agency evaluates locally developed and widely distributed prototypes.',
+ 'The agency evaluates locally-developed and widely-distributed prototypes.',
+ 'The agency studies treatment risks and weather warning signals.',
+ 'The agency evaluates low temperature high pressure reactors.',
+ 'The agency evaluates fast growing, slow moving, and sugar free organisms.',
+ 'The agency evaluates risk adjustment algorithms.',
+ 'The agency reports staff training improves outcomes.',
+ 'The agency reports staff training improves.',
+ 'The agency evaluates ordinary and slow moving organisms.',
+ 'The agency evaluates slow moving and ordinary organisms.',
+ 'The agency evaluates ordinary and familiar organisms.',
 ]
 rows=[]
 rules=json.loads((root/'engines/language-config.json').read_text(encoding='utf-8'))['lcbModifiers']
 listed=parser.ListedModifierParser(rules)
 for text in texts:
  doc=nlp(text)
- candidates=list(parser.lcb_reader_review_candidates(doc))
+ candidates=list(parser.lcb_reader_review_candidates(doc,nlp.get_pipe('tagger')))
  assert all(c['suggestion'] is None and c['reviewSuggested'] for c in candidates)
- assert not any(c['engineRule'] not in ['LCB_GENERAL_UNIT_MODIFIER_REVIEW','LCB_ATTRIBUTIVE_PHRASE_REVIEW',parser.PREDICATE_COMPOUND_RULE,parser.POSTNOMINAL_COMPOUND_RULE] for c in candidates)
+ assert not any(c['engineRule'] not in ['LCB_GENERAL_UNIT_MODIFIER_REVIEW','LCB_ATTRIBUTIVE_PHRASE_REVIEW','LCB_GROUPED_MODIFIER_REVIEW','LCB_AMBIGUOUS_MODIFIER_HEAD_REVIEW',parser.PREDICATE_COMPOUND_RULE,parser.POSTNOMINAL_COMPOUND_RULE] for c in candidates)
  assert not any(c.get('reviewSuggested') for c in listed.candidates(doc)), 'Ordinary style mode must retain its exact-only contract.'
  rows.append({'text':text,'candidates':candidates})
 assert any(c['engineRule']=='LCB_GENERAL_UNIT_MODIFIER_REVIEW' for r in rows for c in r['candidates'])

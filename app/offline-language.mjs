@@ -8,6 +8,7 @@ import {openIncomeQualifierBefore}from './style-income-qualifiers.mjs';
 import {inStatePrepositionalEvidence}from './style-in-state-evidence.mjs';
 import {nonNominalModifierHeadEvidence}from './style-modifier-head-evidence.mjs';
 import {mapLcbReaderCandidate,isLcbReaderCandidate} from './style-lcb-parser-review.mjs';
+import {offlineSentenceEndings} from './offline-sentence-boundaries.mjs';
 export function listedModifierSelection(rule,text){
  const words=text.split(/[\s-]+/u),expected=rule.preferred.split('-');
  if(words.length!==expected.length)return null;
@@ -50,12 +51,7 @@ export function prepareOfflineLanguage(doc){
  };
  const range=(a,b)=>{if(!Number.isInteger(a)||!Number.isInteger(b)||a<0||b>text.length||b<=a)return null;const start=sourceOffset(a),end=sourceOffset(b,true);return start!==null&&end!==null&&end>start?{start,end}:null;};
  // A hard chunk split cannot supply positive sentence evidence at its edge.
- const endings=[];
- for(let at=0;at<text.length;at++){
-  if(!/[.!?]/.test(text[at]))continue;
-  if(text[at]==='.'&&((/\d/.test(text[at-1]||'')&&/\d/.test(text[at+1]||''))||/\b(?:SEC|Sec|No|Mr|Mrs|Ms|Dr|St|U|S|a|p|m|e|g|i)\.$/.test(text.slice(Math.max(0,at-10),at+1))))continue;
-  if(at+1===text.length||/\s/.test(text[at+1]))endings.push(at+1);
- }
+ const endings=offlineSentenceEndings(text);
  const chunks=[];let start=0,completeStart=true,endingIndex=0;
  while(start<text.length){
   const limit=Math.min(start+11000,text.length);let end=limit,completeEnd=end===text.length;
@@ -63,7 +59,19 @@ export function prepareOfflineLanguage(doc){
   if(!completeEnd){let n=endingIndex;while(n<endings.length&&endings[n]<=limit)n++;if(n>endingIndex){end=endings[n-1];completeEnd=true;}else{const gap=text.lastIndexOf(' ',limit);if(gap>start)end=gap;else if(/[\uD800-\uDBFF]/.test(text[end-1]))end--;}}
   chunks.push({text:text.slice(start,end),start,completeStart,completeEnd});start=end;completeStart=completeEnd;
  }
- return {text,chunks,range};
+ // Hard splits are a resource limit, never evidence of a complete sentence.
+ // Keep the whole affected sentence as a separate review region, including
+ // its tail in a later chunk. Multiple splits of one sentence share a task.
+ const incompleteRanges=[];
+ for(const chunk of chunks){
+  if(chunk.completeEnd)continue;
+  const edge=chunk.start+chunk.text.length;
+  let a=0,b=text.length;
+  for(const ending of endings){if(ending<=edge)a=ending;else{b=ending;break;}}
+  while(a<b&&/\s/u.test(text[a]))a++;
+  if(!incompleteRanges.some(r=>r.start===a&&r.end===b))incompleteRanges.push({start:a,end:b,reason:'sentence-exceeds-parser-chunk'});
+ }
+ return {text,chunks,range,incompleteRanges};
 }
 export function mapOfflineIssues(doc,plan,raw,kind,{includeLcbReaderReview=false}={}){
  const ctx=styleContext(doc),blocked=styleEvidenceGuard(doc,ctx),names=sourceNameRanges(ctx.source),singles=[...ctx.source.matchAll(/(?<![\p{L}\p{N}\p{M}_])(?:‘[^’]*’|'[^']*')/gu)].map(m=>({start:m.index,end:m.index+m[0].length})),out=[];
@@ -117,12 +125,15 @@ export function mergeOfflineGrammar(local,additional){
  return result.sort((a,b)=>a.start-b.start||a.end-b.end).map((issue,id)=>({...issue,id}));
 }
 export async function reviewOfflineLanguage(doc,kind,id,bridge=globalThis.offlineLanguage,{includeLcbReaderReview=false}={}){
- if(!bridge?.review)return {issues:[],warning:'Additional offline language checks are unavailable; existing checks were used.'};
+ const requested=kind==='style'&&includeLcbReaderReview;
+ const unavailable={requested,completed:false,incompleteSentenceRegions:null};
+ const failureWarning=reason=>reason+(requested?' LCB8 items 1–3 parser-dependent modifier checks did not complete; review grammatical roles and the -ly exception manually.':'');
+ if(!bridge?.review)return {issues:[],warning:failureWarning('Additional offline language checks are unavailable; existing checks were used.'),...(requested?{analysisCoverage:unavailable}:{})};
  try{
   const plan=prepareOfflineLanguage(doc),result=await bridge.review(id,kind,plan.chunks,{includeLcbReaderReview});
   if(result.cancelled)return {cancelled:true,issues:[]};
-  if(result.error)return {issues:[],warning:result.error};
-  return {issues:mapOfflineIssues(doc,plan,result.issues,kind,{includeLcbReaderReview})};
- }catch{return {issues:[],warning:'Additional offline language checks could not finish; existing checks were used.'};}
+  if(result.error)return {issues:[],warning:failureWarning(result.error),...(requested?{analysisCoverage:unavailable}:{})};
+  return {issues:mapOfflineIssues(doc,plan,result.issues,kind,{includeLcbReaderReview}),...(requested?{analysisCoverage:{requested:true,completed:true,incompleteSentenceRegions:plan.incompleteRanges.length},...(plan.incompleteRanges.length?{warning:plan.incompleteRanges.length+' long sentence region(s) could not receive complete parser analysis. Eligible passages have LCB rule-linked review questions; protected passages remain unchecked.'}:{})}:{})};
+ }catch{return {issues:[],warning:failureWarning('Additional offline language checks could not finish; existing checks were used.'),...(requested?{analysisCoverage:unavailable}:{})};}
 }
 export function cancelOfflineLanguage(id){if(id)try{globalThis.offlineLanguage?.cancel(id)?.catch(()=>{});}catch{}}

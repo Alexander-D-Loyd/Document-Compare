@@ -1,5 +1,6 @@
 import test from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs';
 import {makeDocument}from '../app/core.mjs';import {styleContext}from '../app/style-context.mjs';import {jointStylisticIssues}from '../app/joint-style.mjs';
+import {reviewStyleIssues}from '../app/style-review.mjs';
 const refs=Object.fromEntries(['lcb','gpo'].map(id=>[id,JSON.parse(fs.readFileSync(new URL('../app/data/'+id+'-reference.json',import.meta.url)))]));
 const check=t=>jointStylisticIssues(makeDocument([t],'Current'),refs);
 test('LCB spelling and contraction preferences do not modify complete explicit URL identifiers',()=>{
@@ -28,5 +29,5 @@ test('serial identifier protection keeps full source offsets and does not exempt
 test('serial-looking groups need an intact original label rather than hidden source characters',()=>{
  const text='Use FCC/2 x identifier.',doc=makeDocument([text],'Current'),start=text.indexOf(' x ')+1;doc.excluded=[...(doc.excluded||[]),{start,end:start+1}];assert.equal(styleContext(doc).technicalRanges.length,0);
  assert.equal(styleContext(makeDocument(['Use FCC/2 identifieré.'],'Current')).technicalRanges.length,0);
- assert.ok(check('Use PK-3 unlisted program.').some(i=>i.text==='3'));
+ const unknown='Use PK-3 unlisted program. Appoint 3 workers.';assert.ok(!check(unknown).some(i=>i.start<unknown.indexOf('Appoint')&&i.text==='3'));assert.ok(check(unknown).some(i=>i.text==='3'&&i.start>unknown.indexOf('Appoint')));assert.ok(reviewStyleIssues(makeDocument([unknown],'Current'),refs,{includeReviewSuggestions:true,includeCompleteLcbReview:true}).some(i=>i.checkId==='lcb-numerical-uncertainty-review'&&i.text==='PK-3'&&i.suggestion===null),'Unresolved token role gets a whole question, not a guessed digit repair');
 });

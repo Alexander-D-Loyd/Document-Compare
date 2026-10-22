@@ -1,12 +1,13 @@
 {
   "date": "2026-10-21",
-  "packagedVersion": "1.21.20",
+  "packagedVersion": "1.21.21",
   "localFollowOn": false,
   "desktopVerification": {
-    "version": "1.21.20",
-    "sourceTests": 2865,
-    "passed": 2865,
+    "version": "1.21.21",
+    "sourceTests": 2975,
+    "passed": 2975,
     "failed": 0,
+    "packagingPublishingTestsRechecked": 13,
     "actualPackagedDesktop": true,
     "suppliedPdfs": 4,
     "digestAndEightAmendmentsVerified": true,
@@ -15,22 +16,34 @@
     "lcbPage11Navigation": true,
     "digestProseAlignment": true,
     "sourceFilesUnchanged": true,
-    "citationFindings": 5,
+    "ab1967StyleFindings": 61,
     "citationSourceLink": true,
     "documentTypeIsolation": true,
+    "citationProvisionTasksVerified": true,
+    "overlappingCitationRequirementsVerified": true,
     "sourceOffsetIntegrity": true,
+    "controlledCompletionPdf": {
+      "pages": 3,
+      "findings": 46,
+      "wholeNumericalNotation": true,
+      "newGrammarStructures": true,
+      "sourceTables": true,
+      "calibrationControls": true,
+      "parserProcessingReceipt": true
+    },
     "corpus": {
       "models": 23,
       "pages": 2024,
-      "findings": 9913,
-      "precise": 140,
-      "questions": 9773,
-      "removedCorrections": 2,
-      "addedCorrections": 0
+      "freshFinalParserCandidates": 3175,
+      "preciseComparisonsPreserved": 141,
+      "questionsBefore": 13241,
+      "questionsAfter": 10801,
+      "netFewerQuestions": 2440,
+      "all34OriginalPdfsUnchanged": true
     },
     "report": "DESKTOP_VERIFICATION.md",
     "localSourcePackaged": true,
-    "scope": "Final source suite, actual staged EXE with the four AB1967 PDFs and a controlled citation PDF, plus cached source-model replay. No office precision/recall or full-rule certification."
+    "scope": "Actual staged Windows 1.21.21 EXE, four supplied AB 1967 PDFs, existing citation/two-page regressions and new three-page completion fixture. Corpus uses unchanged models with freshly verified final parser output. No human precision/recall or universal LCB certification."
   },
   "californiaCodes": {
     "source": "User-supplied image",
@@ -2678,5 +2691,54 @@
     "locallyVerified": true,
     "githubPublicationConfirmed": false,
     "explanation": "Immutable build-time snapshot. The later public release and its archive digest are verified separately; this package does not certify complete LCB compliance."
+  },
+  "previousDesktopVerification12120": {
+    "version": "1.21.20",
+    "sourceTests": 2865,
+    "passed": 2865,
+    "failed": 0,
+    "actualPackagedDesktop": true,
+    "suppliedPdfs": 4,
+    "digestAndEightAmendmentsVerified": true,
+    "commaMarkerAndSelection": true,
+    "exactInKindHighlight": true,
+    "lcbPage11Navigation": true,
+    "digestProseAlignment": true,
+    "sourceFilesUnchanged": true,
+    "citationFindings": 5,
+    "citationSourceLink": true,
+    "documentTypeIsolation": true,
+    "sourceOffsetIntegrity": true,
+    "corpus": {
+      "models": 23,
+      "pages": 2024,
+      "findings": 9913,
+      "precise": 140,
+      "questions": 9773,
+      "removedCorrections": 2,
+      "addedCorrections": 0
+    },
+    "report": "DESKTOP_VERIFICATION.md",
+    "localSourcePackaged": true,
+    "scope": "Final source suite, actual staged EXE with the four AB1967 PDFs and a controlled citation PDF, plus cached source-model replay. No office precision/recall or full-rule certification."
+  },
+  "lcbImplementation12121": {
+    "citationProvisionRows": 102,
+    "explicitCitationReaderDuties": 285,
+    "sourceTests": 2975,
+    "corpus": {
+      "models": 23,
+      "pages": 2024,
+      "freshFinalParserCandidates": 3175,
+      "preciseComparisonsPreserved": 141,
+      "questionsBefore": 13241,
+      "questionsAfter": 10801,
+      "netFewerQuestions": 2440,
+      "all34OriginalPdfsUnchanged": true
+    },
+    "completeOrderedDictionaryAuthority": false,
+    "universalRecognition": false,
+    "wholeRuleCertification": false,
+    "report": "LCB_COVERAGE_REVIEW.md"
   }
 }

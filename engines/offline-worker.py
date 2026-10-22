@@ -105,7 +105,7 @@ def check(job,cancel):
    # witnesses. The ordinary exact-form contract remains unchanged. These
    # candidates never authorize a spelling or hyphenation replacement.
    if job.get('includeLcbReaderReview') is True:
-    for candidate in parserModule.lcb_reader_review_candidates(doc):
+    for candidate in parserModule.lcb_reader_review_candidates(doc,nlp.get_pipe('tagger')):
      a,b=candidate['evidenceStart'],candidate['evidenceEnd']
      if (not chunk['completeStart']and not text[:a].strip())or(not chunk['completeEnd']and not text[b:].strip()):continue
      results.append(source_candidate_to_plan(candidate,text,base))

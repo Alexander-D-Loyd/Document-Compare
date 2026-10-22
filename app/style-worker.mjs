@@ -9,6 +9,6 @@ self.onmessage=async({data})=>{
       return [guide.id,await response.json()];
     })));
     const issues=[...reviewStyleIssues(data.doc,references,{engineIssues:data.engineIssues||[],includeReviewSuggestions:true,includeCompleteLcbReview:true,authority:data.authority||null,entityAuthority:data.entityAuthority||null}),...customStyleIssues(data.doc,data.terms||[])].sort((a,b)=>a.start-b.start||a.end-b.end).map((issue,id)=>({...issue,id}));
-    self.postMessage({issues,lcbReadiness:lcbReviewReadiness(references,{authority:data.authority||null,entityAuthority:data.entityAuthority||null})});
+    self.postMessage({issues,lcbReadiness:lcbReviewReadiness(references,{authority:data.authority||null,entityAuthority:data.entityAuthority||null,analysisCoverage:data.analysisCoverage||null})});
   }catch(error){self.postMessage({error:error.message||'Stylistic check could not finish.'});}
 };

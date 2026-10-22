@@ -36,3 +36,17 @@ test('questions about sentence structure do not suppress independent meanings or
  const issues=check('The bill covers alpha mechanisms, beta pathways and in kind thermotherapy.');
  assert.ok(issues.some(i=>i.checkId==='lcb-sentence-series-review'));assert.ok(issues.some(i=>i.checkId==='lcb-source-form-review'&&i.matchText==='in kind'));
 });
+test('a comma internal to an intact calendar date is not evidence of a three-member series',()=>{
+ for(const text of ['On January 1, 2028 the agency reviews alpha mechanisms and beta pathways.','The agency acts until June 30, 2028 and pays the obligation.'])assert.ok(!check(text).some(i=>i.checkId==='lcb-sentence-series-review'),text);
+ for(const text of ['On January 1, 2028 the agency reviews alpha mechanisms, beta pathways and gamma receptors.','On February 30, 2028 the agency reviews alpha mechanisms and beta pathways.'])assert.ok(check(text).some(i=>i.checkId==='lcb-sentence-series-review'),text);
+});
+
+test('intact grouped figures do not supply list commas while real and malformed separators remain reviewable',()=>{
+ for(const text of ['The department may transfer $2,000,000 and administer the program.','A total of 300,000,000 records shall be stored or removed.','The total is 12,345.67 and the balance is payable.'])assert.ok(!check(text).some(i=>i.checkId==='lcb-sentence-series-review'),text);
+ for(const text of ['The department allocates $2,000,000 for alpha mechanisms, beta pathways and gamma receptors.','The total is 12,34 and the balance is payable.','The total is 1,000,00 and the balance is payable.'])assert.ok(check(text).some(i=>i.checkId==='lcb-sentence-series-review'),text);
+ const text='The department may transfer $2,000,000 and administer the program.',original=makeDocument([text],'Current');
+ for(let at=0;at<text.length;at++)for(const field of ['struck','excluded']){
+  const doc=structuredClone(original);doc[field]=[...(doc[field]||[]),{start:at,end:at+1}];assert.deepEqual(lcbSentenceReview(doc,refs).issues,[],field+' '+at);
+ }
+ const mixed=check('The department retains 2,000,000 records and employs 3 clerks.');assert.ok(mixed.some(i=>i.checkId==='lcb-sentence-number-review'),'Grouping-comma protection must not settle the separate numerical-relationship rule.');
+});

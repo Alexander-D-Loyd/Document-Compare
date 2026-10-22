@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import {makeDocument} from '../app/core.mjs';
 import {numeralIssues} from '../app/style-numerals.mjs';
+import {reviewStyleIssues} from '../app/style-review.mjs';
 const refs=Object.fromEntries(['lcb','gpo'].map(id=>[id,JSON.parse(fs.readFileSync(new URL('../app/data/'+id+'-reference.json',import.meta.url)))]));
 const changes=text=>numeralIssues(makeDocument([text],'Current'),refs).filter(i=>!i.matchesPrimary).map(i=>[i.text,i.suggestion]);
 
@@ -25,7 +26,7 @@ test('ordinary duration modifiers and counted chemical groups are not chemical i
 
 test('selected chemical serial codes protect their complete numeric form only',()=>{
  for(const code of ['AB-001','JWH-004','JWH-007','JWH-009','RCS-4','RCS-8','CP 50,556-1','WIN 55,212-2'])assert.deepEqual(changes(`The substance is ${code}. The office takes 4 samples.`),[['4','four']],code);
- assert.deepEqual(changes('The unknown label is XYZ-4.'),[['4','four']]);
+ const text='The unknown label is XYZ-4. The office takes 3 samples.';assert.deepEqual(changes(text),[['3','three']]);assert.ok(reviewStyleIssues(makeDocument([text],'Current'),refs,{includeReviewSuggestions:true,includeCompleteLcbReview:true}).some(i=>i.checkId==='lcb-numerical-uncertainty-review'&&i.text==='XYZ-4'&&i.suggestion===null),'An unknown label is reviewed whole without borrowing a known chemical identity or rewriting its suffix');
 });
 
 test('explicit chemical ring positions are identifiers without exempting position counts',()=>{

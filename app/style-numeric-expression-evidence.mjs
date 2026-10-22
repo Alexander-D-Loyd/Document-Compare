@@ -1,4 +1,5 @@
 import {originalBodyStyleContext,cutsOriginalStyleWord,styleEvidenceGuard} from './style-evidence.mjs';
+import {uncertainNumberRanges,numericTokenIdentifierRanges} from './style-uncertain-number-ranges.mjs';
 const glyphs='¼½¾⅐⅑⅒⅓⅔⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞';
 const atom=new RegExp('(?<![\\p{L}\\p{N}\\p{M}_])(?:[+−-]\\s*)?(?:\\.\\d+|[\\d'+glyphs+'])[\\d.,/⁄'+glyphs+']*(?:\\s*[/⁄]\\s*[\\d.,/⁄'+glyphs+']+)*(?:st|nd|rd|th)?','giu');
 const integer=/^[+−-]?\s*\d+(?:,\d{3})*$/;
@@ -14,7 +15,11 @@ function expressionRanges(source){
    prior.end=r.end;prior.text=source.slice(prior.start,prior.end);
   }else ranges.push(r);
  }
- return ranges;
+ // Scientific notation, spoken decimals and noncanonical grouping remain one
+ // source expression. Its sign/exponent cannot become an independent count.
+ const merged=[];for(const r of [...ranges,...uncertainNumberRanges(source),...numericTokenIdentifierRanges(source)].sort((a,b)=>a.start-b.start||b.end-a.end)){
+  const last=merged.at(-1);if(last&&r.start<last.end){last.end=Math.max(last.end,r.end);last.text=source.slice(last.start,last.end);}else merged.push({...r});
+ }return merged;
 }
 export const NUMERIC_EXPRESSION_SCOPE=' Whole numeric source expressions protect leading decimals, spaced or joined mixed fractions, signed quantities and malformed numeric runs from isolated digit/fraction corrections. Original uncertain body text is used only to protect complete expressions; recognized page heads retain source offsets. This does not infer values, correct unfamiliar notation or certify whole numerical rules.';
 export function numericExpressionGuard(doc,ctx){

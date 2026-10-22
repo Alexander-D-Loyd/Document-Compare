@@ -35,6 +35,10 @@ test('institutional questions stop at clauses and omit generic metadata labels',
  assert.deepEqual(check('Fiscal committee: yes. This measure provides assistance to the applicant.'),[]);
  assert.deepEqual(check('The program provides support to an Independent Review Commission shall act.').map(i=>i.matchText),['Independent Review Commission']);
 });
+test('demonstrative complements do not become invented complete entity names',()=>{
+ for(const text of ['The secretary notifies the Committee of this action.','The director informs the Board of each transfer.','The chair informs the Commission of such proceedings.'])assert.ok(!check(text).some(i=>i.entitySource.sourceName===null),text);
+ for(const text of ['The Department of This New Research shall act.','The Department of That Field shall act.'])assert.ok(check(text).some(i=>i.entitySource.sourceName===null),text);
+});
 test('prior findings, exact registry identities, literal wording and damaged original text stay protected',()=>{
  for(const text of ['The text “Controller” and \'Attorney General\' is literal.','The Department of Consumer Affairs shall act.','CONTROLLER','The controllerα shall act.'])assert.deepEqual(check(text),[],text);
  const doc=makeDocument(['The Department of Imaginative Services shall act.'],'Current'),start=doc.text.indexOf('Imaginative');

@@ -5,6 +5,7 @@ import {makeDocument} from '../app/core.mjs';
 import {jointStylisticIssues} from '../app/joint-style.mjs';
 import {numeralIssues} from '../app/style-numerals.mjs';
 import {explicitRatioParts} from '../app/style-ratios.mjs';
+import {reviewStyleIssues} from '../app/style-review.mjs';
 const refs=Object.fromEntries(['lcb','gpo'].map(id=>[id,JSON.parse(fs.readFileSync(new URL('../app/data/'+id+'-reference.json',import.meta.url)))]));
 const check=t=>jointStylisticIssues(makeDocument([t],'Current'),refs).filter(i=>i.checkId==='numerals'||i.checkId==='ratios');
 
@@ -23,12 +24,15 @@ test('dotted federal citations protect complete section identifiers and do not a
 test('explicit year-period labels protect shortened ranges in either order and leave prose counts independent',()=>{
  for(const label of ['rate year','fiscal year','school year','academic year','calendar year','tax year'])for(const range of ['2005-06','2005–06','1999–00','2007-2008'])for(const text of ['During the '+range+' '+label+', 3 workers apply.','During '+label+' '+range+', 3 workers apply.'])assert.deepEqual(check(text).map(i=>[i.text,i.suggestion]),[['3','three']],text);
  assert.equal(check('The 2005–06 and 2006–07 rate years apply.').length,0);assert.equal(check('The rate years 2005–06, 2006–07, and 2007–08 apply.').length,0);
- assert.ok(check('The allocation for 2005-06 workers is reviewed.').some(i=>i.text==='06'),'An unlabelled expression is not assigned a year-period role');
+ // LCB21 does not authorize guessing that a digit tail is a separate count.
+ // An unlabelled dash expression receives whole-form review without acquiring
+ // the fiscal-year identity established by the labelled controls above.
+ const uncertain='The allocation for 2005-06 workers and 3 records is reviewed.';assert.deepEqual(check(uncertain).map(i=>i.text),['3']);const whole=reviewStyleIssues(makeDocument([uncertain],'Current'),refs,{includeReviewSuggestions:true,includeCompleteLcbReview:true}).find(i=>i.checkId==='lcb-numerical-uncertainty-review'&&i.text==='2005-06');assert.ok(whole);assert.equal(whole.suggestion,null);
 });
 
 test('known viral designations are indivisible labels rather than prose counts',()=>{
  for(const virus of ['SARS-CoV-1','SARS-CoV-2','COVID-19'])assert.deepEqual(check('Testing for '+virus+' is provided to 3 workers.').map(i=>[i.text,i.suggestion]),[['3','three']],virus);
- assert.ok(check('The OTHER-CoV-2 record is retained.').some(i=>i.text==='2'),'An unencoded designation stays outside this selected guard');
+ const uncertain='The OTHER-CoV-2 record and 3 copies are retained.';assert.deepEqual(check(uncertain).map(i=>i.text),['3']);assert.ok(reviewStyleIssues(makeDocument([uncertain],'Current'),refs,{includeReviewSuggestions:true,includeCompleteLcbReview:true}).some(i=>i.checkId==='lcb-numerical-uncertainty-review'&&i.text==='OTHER-CoV-2'&&i.suggestion===null),'An unknown token receives review without a guessed virus identity or suffix correction');
 });
 
 test('explicit coordinated ratios and selected educational qualifiers share one labelled scope',()=>{
@@ -47,7 +51,7 @@ test('a following form label protects the entire uppercase serial code while nea
   const text='The applicant shall complete a '+code+' form, retain 3 copies, and appoint 1 member.';
   assert.deepEqual(check(text).map(i=>[i.text,i.suggestion]),[['3','three'],['1','one']],code);
  }
- assert.ok(check('The report describes XYZ-4 workers.').some(i=>i.text==='4'),'A bare acronym does not establish a form code');
+ const uncertain='The report describes XYZ-4 workers and 3 records.';assert.deepEqual(check(uncertain).map(i=>i.text),['3']);assert.ok(reviewStyleIssues(makeDocument([uncertain],'Current'),refs,{includeReviewSuggestions:true,includeCompleteLcbReview:true}).some(i=>i.checkId==='lcb-numerical-uncertainty-review'&&i.text==='XYZ-4'&&i.suggestion===null),'A bare acronym cannot establish a form-code identity or independent digit suffix');
  assert.ok(check('The applicant shall complete 3 forms.').some(i=>i.text==='3'));
 });
 test('a following count with an intact finite predicate cannot be swallowed by a citation chain',()=>{

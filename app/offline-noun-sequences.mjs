@@ -1,3 +1,4 @@
+import {canonicalLcbModifierForm} from './style-lcb-canonical-modifier.mjs';
 const finite=t=>['VERB','AUX'].includes(t.pos)&&['VBD','VBP','VBZ','MD'].includes(t.tag);
 export const NOUN_SEQUENCE_SCOPE='Offline reader review of complete contiguous parsed noun prefixes before a nominal head, without a fixed component-count limit. Every selected component must carry a source-validated noun role and a compound/nmod attachment path to the same complete head in a clause with an explicit finite predicate. Complete component, graph, predicate and auxiliary source spans survive recognized word/page divisions. Attachment paths are validated iteratively with memoization. Source strikes, unknown gaps, literals, headings, tables, named/title evidence, precise owners, known guide conflicts and explicitly open LCB/GPO exceptions remain protected. No noun segmentation, lexical compound meaning or required hyphenation is asserted; GPO6.16 readability remains a reader decision. Missing or mistaken parser roles, adjective/verb interruptions, noncontiguous modifiers, chunk edges and unfamiliar meanings remain incomplete. This is a broader checking method, not full unit-modifier automation or measured office accuracy.';
 export function mapNounSequenceEvidence(doc,plan,issue){
@@ -22,6 +23,7 @@ export function restoreNounSequenceEvidence(e,map,text=null){
 }
 export function listedOpenNounModifier(candidate,references){
  if(!isNounPrefixReview(candidate))return null;
+ const canonical=canonicalLcbModifierForm(candidate,references);if(canonical)return canonical;
  const words=candidate.matchText.toLowerCase().split(/\s+/u);
  for(const page of references?.lcb?.pages||[])for(const entry of page.lexicalEntries||[]){if(!/\bu\.m\./u.test(entry))continue;const form=entry.split('(')[0].trim();if(form.includes('-')||!form.includes(' '))continue;const known=form.toLowerCase().split(/\s+/u);for(let at=0;at<=words.length-known.length;at++)if(known.every((w,n)=>words[at+n]===w))return {form,page:page.page,entry};}
  // Exact complete examples in GPO6.16 take precedence over a general

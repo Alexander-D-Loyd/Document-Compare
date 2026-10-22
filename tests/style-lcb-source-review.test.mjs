@@ -91,3 +91,14 @@ test('ordinary approved determiner phrases and Bill state references do not crea
  assert.ok(check('The board approved protocol applies.').some(i=>i.text==='board approved'));
  const d=makeDocument(['ASSEMBLY CONSTITUTIONAL AMENDMENT\nThe people do enact as follows:\nThe state shall act.'],'ACA 1');assert.ok(lcbSourceReviewIssues(d,refs).some(i=>i.text==='state'));
 });
+test('intact numbered Schedule forms and ordinary lower-case schedule nouns settle their printed condition',()=>{
+ for(const text of ['The funds in Schedule (1)(d) are available.','The allocation follows Schedule 12.','The payment schedule applies.','The schedule may provide an earlier transfer.'])assert.deepEqual(check(text),[],text);
+ for(const text of ['The funds in schedule (1)(d) are available.','The funds in Schedule are available.','The funds in Schedule (1α) are available.'])assert.ok(check(text).some(i=>i.matchText.toLowerCase()==='schedule'),text);
+ for(const field of ['struck','excluded']){const text='The funds in Schedule (1)(d) are available.',doc=makeDocument([text],'Current'),at=text.indexOf('(1)');for(let p=at;p<at+6;p++){const d=structuredClone(doc);d[field].push({start:p,end:p+1});assert.ok(lcbSourceReviewIssues(d,refs).some(i=>i.matchText==='Schedule'),field+' '+p);}const lower=makeDocument(['The funds in schedule 12 are available.'],'Current'),n=lower.text.indexOf('12');lower[field].push({start:n,end:n+2});assert.ok(lcbSourceReviewIssues(lower,refs).some(i=>i.matchText==='schedule'));}
+ const physical=makeDocument(['line 1 The funds in Schedule\nline 2 (1)(d) are available.'],'Current');assert.deepEqual(lcbSourceReviewIssues(physical,refs),[]);
+});
+test('suspended source compounds stay whole and a medical adjective does not establish program identity',()=>{
+ for(const text of ['The rent is paid in full.','The full cost is recovered.','The medical device is registered.','Medical information is confidential.'])assert.ok(!check(text).some(i=>/^(?:full|medical)$/iu.test(i.matchText)),text);
+ for(const term of ['full or part time','full- or part time']){const text='The '+term+' thermotherapists are covered.',found=check(text);assert.ok(found.some(i=>i.matchText===term&&i.references.some(r=>r.rule==='full- or part-time (u.m.)')),term);assert.ok(!found.some(i=>i.matchText==='full'||i.matchText==='part time'));}
+ for(const term of ['MediCal','medi-cal','Medi Cal'])assert.ok(check('The panel reviews '+term+' service.').some(i=>i.matchText===term),term);
+});

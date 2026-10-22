@@ -480,7 +480,7 @@ def postnominal_compound_reviews(doc):
 def listed_token_role(t):
  return {'start':t.idx,'end':t.idx+len(t.text),'text':t.text,'pos':t.pos_,'tag':t.tag_,'dep':t.dep_,'headStart':t.head.idx,'headEnd':t.head.idx+len(t.head.text),'headText':t.head.text}
 
-def lcb_reader_review_candidates(doc):
+def lcb_reader_review_candidates(doc,tagger=None):
  """Explicitly requested source-role questions, never automatic corrections.
 
  Keep legacy analytical generators out of ordinary exact-form style mode.
@@ -495,9 +495,215 @@ def lcb_reader_review_candidates(doc):
   seen.add((candidate['start'],candidate['end'],candidate['headStart']))
   yield candidate
  for candidate in attributive_phrase_reviews(doc):
-  if (candidate['start'],candidate['end'],candidate['headStart'])not in seen:yield candidate
- yield from predicate_compound_reviews(doc)
- yield from postnominal_compound_reviews(doc)
+  if (candidate['start'],candidate['end'],candidate['headStart'])not in seen:
+   seen.add((candidate['start'],candidate['end'],candidate['headStart']));yield candidate
+ for candidate in [*predicate_compound_reviews(doc),*postnominal_compound_reviews(doc),*grouped_modifier_reviews(doc),*(ambiguous_modifier_head_reviews(doc,tagger)if tagger is not None else[])]:
+  seen.add((candidate['start'],candidate['end'],candidate.get('headStart')));yield candidate
+ yield from unresolved_modifier_structure_reviews(doc,tagger)
+ for candidate in unresolved_post_head_reviews(doc):
+  if not any(a==candidate['start']and b==candidate['end']for a,b,h in seen):yield candidate
+
+UNRESOLVED_MODIFIER_STRUCTURE_RULE='LCB_UNRESOLVED_MODIFIER_STRUCTURE_REVIEW'
+
+def unresolved_post_head_reviews(doc):
+ """Explicit compounds in otherwise unsupported post-head role structures.
+
+ A preceding nominal anchor is a source locator, not an asserted modified
+ noun. Predicative, small-clause, reduced and nonfinite analyses remain
+ questions; neither a parser label nor source order authorizes an edit.
+ """
+ finite=lambda t:t.pos_ in {'VERB','AUX'}and t.tag_ in {'VBD','VBP','VBZ','MD'}
+ for match in COMPOUND_PATTERN.finditer(doc.text):
+  span=doc.char_span(match.start(),match.end(),alignment_mode='strict')
+  if span is None or lexical_hyphen_before(doc.text,match.start()):continue
+  words=[t for t in span if not t.is_punct]
+  if len(words)<2 or words[0].lower_ in {'ex','quasi','self'}or any(not t.text.isalpha()or not t.text.islower()or t.pos_ not in {'NOUN','ADJ','ADV','VERB'}for t in words):continue
+  if any(t.text!='-'for t in span if t.is_punct):continue
+  last=words[-1];node=last;seen=set()
+  while node.dep_=='conj'and node.i not in seen:
+   seen.add(node.i);node=node.head
+  nominal_coordination=node.pos_=='NOUN'and node.idx<span.start_char and last!=node and last.tag_ in {'VBN','VBG'}
+  if not nominal_coordination and node.dep_ not in {'acomp','attr','oprd','ccomp','advcl','acl','amod','relcl','ROOT'}:continue
+  if node.dep_ in {'acl','amod','relcl'}and(node.head.pos_ not in {'NOUN','PROPN'}or node.head.idx>=span.start_char):continue
+  if node.dep_=='ROOT'and not(any(t.dep_ in {'nsubj','nsubjpass'}for t in node.children)and any(t.dep_=='auxpass'for t in node.children)):continue
+  if not any(finite(t)for t in last.sent):continue
+  valid=True
+  for first in words[:-1]:
+   token=first;trail=set()
+   while token!=last:
+    if token.i in trail or token not in words or token.dep_ not in {'compound','amod','advmod','npadvmod','nmod'}:valid=False;break
+    trail.add(token.i);token=token.head
+   if not valid:break
+  if not valid:continue
+  anchors=[t for t in last.sent if t.idx<span.start_char and t.pos_=='NOUN'and t.tag_ in {'NN','NNS'}and t.text.islower()and t.dep_ not in {'compound','amod','nmod','npadvmod'}]
+  if not anchors:continue
+  head=anchors[-1];sentence=last.sent
+  yield {'start':span.start_char,'end':span.end_char,'headStart':head.idx,'headEnd':head.idx+len(head.text),'head':head.text,'evidenceStart':sentence.start_char,'evidenceEnd':sentence.end_char,'suggestion':None,'engine':'spaCy','engineRule':UNRESOLVED_MODIFIER_STRUCTURE_RULE,'reviewSuggested':True,'unresolvedModifierEvidence':{'mode':'post-head-ambiguity','components':[listed_token_role(t)for t in words],'head':listed_token_role(head),'tokens':[listed_token_role(t)for t in sentence]}}
+
+def unresolved_modifier_structure_reviews(doc,tagger=None):
+ """Source-complete questions for structures the adjacent-role routes omit.
+
+ These records deliberately do not assert that a unit modifier exists. A
+ fragment has no finite-clause witness, an infinitival phrase has a competing
+ clause reading, and an interrupted group does not establish a shared head.
+ Keep every sentence token so the source mapper can verify each condition.
+ """
+ finite=lambda t:t.pos_ in {'VERB','AUX'}and t.tag_ in {'VBD','VBP','VBZ','MD'}
+ word=lambda t:t.text.isalpha()and t.text.islower()and t.pos_ in {'NOUN','ADJ','ADV','VERB'}and(t.pos_!='VERB'or t.tag_ in {'VBG','VBN'})
+ def candidate(mode,head,components,**extra):
+  sentence=head.sent
+  return {'start':components[0].idx,'end':components[-1].idx+len(components[-1].text),'headStart':head.idx,'headEnd':head.idx+len(head.text),'head':head.text,'evidenceStart':sentence.start_char,'evidenceEnd':sentence.end_char,'suggestion':None,'engine':'spaCy','engineRule':UNRESOLVED_MODIFIER_STRUCTURE_RULE,'reviewSuggested':True,'unresolvedModifierEvidence':{'mode':mode,'components':[listed_token_role(t)for t in components],'head':listed_token_role(head),'tokens':[listed_token_role(t)for t in sentence],**extra}}
+ tag_scores=None
+ for sentence in doc.sents:
+  head=sentence.root
+  if head.pos_=='NOUN'and head.tag_ in {'NN','NNS'}:
+   before=[t for t in doc[sentence.start:head.i]if not(t.is_punct and t.text=='-')];after=list(doc[head.i+1:sentence.end])
+   if before and before[0].pos_=='DET':before=before[1:]
+   if len(before)>=2 and all(t.is_punct and t.text in {'.','!','?'}for t in after)and not any(finite(t)for t in sentence):
+    valid=True
+    for index,t in enumerate(before):
+     text_ok=t.text.islower()or index==0 and t.i==sentence.start and t.text.istitle()
+     if not text_ok or not t.text.isalpha()or t.pos_ not in {'NOUN','ADJ','ADV','VERB'}or t.pos_=='VERB'and t.tag_ not in {'VBG','VBN'}:valid=False;break
+     node=t;seen=set()
+     while node!=head:
+      if node.i in seen or node not in before or node.dep_ not in {'compound','amod','nmod','advmod','npadvmod'}:valid=False;break
+      seen.add(node.i);node=node.head
+     if not valid:break
+    if valid and(any(t.head in before for t in before)or any(t.tag_ in {'VBG','VBN'}for t in before))and not(before[0].pos_=='ADV'and before[0].lower_.endswith('ly')and '-'not in doc.text[before[0].idx:before[-1].idx+len(before[-1].text)]):yield candidate('nominal-fragment',head,before)
+   connectors=[t for t in before if t.pos_=='CCONJ'and t.lower_ in {'and','or'}]
+   if len(connectors)==1 and not any(finite(t)for t in sentence)and all(t.is_punct and t.text in {'.','!','?'}for t in after):
+    connector=connectors[0];groups=[[t for t in before if t.i<connector.i],[t for t in before if t.i>connector.i]]
+    def fragment_word(t):return word(t)or t.i==sentence.start and t.text.istitle()and t.pos_ in {'ADJ','NOUN','ADV'}
+    if all(len(g)>=2 and all(fragment_word(t)for t in g)and g[-1].pos_ in {'ADJ','VERB'}for g in groups):yield candidate('coordinated-fragment',head,groups[0]+groups[1],connector=listed_token_role(connector))
+  for adjective in sentence:
+   if adjective.pos_ not in {'ADJ','ADV'}or not adjective.text.isalpha()or not adjective.text.islower()or adjective.i+3>=sentence.end:continue
+   marker,verb,head=doc[adjective.i+1:adjective.i+4]
+   base=adjective;seen=set()
+   while base.dep_=='conj'and base.head.pos_=='ADJ'and base.i not in seen:seen.add(base.i);base=base.head
+   parent=base.head
+   if marker.lower_!='to'or marker.pos_!='PART'or marker.dep_!='aux'or marker.head!=verb or verb.pos_!='VERB'or verb.tag_!='VB'or verb.dep_!='xcomp'or verb.head not in {adjective,parent}:continue
+   if head.pos_!='NOUN'or head.tag_ not in {'NN','NNS'}or head.dep_ not in {'dobj','obj'}or head.head!=verb or not head.text.islower():continue
+   if base.dep_ not in {'acomp','advmod'}or parent.pos_ not in {'VERB','AUX'}or not finite(parent)or parent.lemma_ in LINKING_LEMMAS:continue
+   if verb.head==parent and(base!=adjective or base.dep_ not in {'acomp','advmod'}):continue
+   if any(t.dep_ in {'dobj','obj','expl'}and t.lower_=='it'for t in parent.children)or any(t!=marker and t.dep_ in {'aux','auxpass','nsubj','nsubjpass'}for t in verb.children):continue
+   if any(t.dep_ in {'det','poss'}for t in head.children):continue
+   extra={}
+   if adjective.pos_=='ADV':
+    if tagger is None or adjective.tag_!='RB':continue
+    if tag_scores is None:tag_scores=tagger.model.predict([doc])[0]
+    ranked=sorted(((str(label),float(tag_scores[adjective.i,n]))for n,label in enumerate(tagger.labels)),key=lambda item:-item[1])
+    if ranked[0][0]!='RB'or ranked[1][0]!='JJ':continue
+    # A competing tag supplies a review reason, never a probability, a
+    # verb-valency inference or a selected grammatical interpretation.
+    extra['adverbAlternative']={'chosenTag':'RB','alternativeTag':'JJ','chosenScore':ranked[0][1],'alternativeScore':ranked[1][1],'margin':ranked[0][1]-ranked[1][1]}
+   yield candidate('infinitival-ambiguity',head,[adjective,marker,verb],predicate=listed_token_role(parent),**extra)
+  for connector in sentence:
+   if connector.pos_!='CCONJ'or connector.lower_ not in {'and','or'}or connector.i+4>=sentence.end or doc[connector.i+1].text!=',':continue
+   start=connector.i
+   while start>sentence.start and word(doc[start-1]):start-=1
+   left=list(doc[start:connector.i])
+   if len(left)<2 or left[-1].pos_ not in {'ADJ','VERB'}:continue
+   close=connector.i+2
+   while close<sentence.end and doc[close].text!=',':close+=1
+   if close>=sentence.end:continue
+   aside=list(doc[connector.i+2:close])
+   prepositional=aside and aside[0].pos_=='ADP'and all(t.text.isalpha()and t.text.islower()and t.pos_ in {'ADP','DET','NOUN','ADJ','ADV','NUM','PRON'}for t in aside)
+   reduced=aside and aside[0].lower_=='when'and aside[0].pos_=='SCONJ'and len(aside)>1 and all(t.text.isalpha()and t.text.islower()and t.pos_ in {'ADJ','ADV'}for t in aside[1:])
+   if not(prepositional or reduced):continue
+   finish=close+1
+   while finish<sentence.end and word(doc[finish]):finish+=1
+   right=list(doc[close+1:finish])
+   if len(right)<3:continue
+   head=right[-1];right=right[:-1]
+   if head.pos_!='NOUN'or head.tag_ not in {'NN','NNS'}or head.dep_ in {'compound','nmod'}or right[-1].pos_ not in {'ADJ','VERB'}:continue
+   if not any(finite(t)for t in sentence):continue
+   yield candidate('interrupted-coordination',head,left+right,left=[listed_token_role(t)for t in left],right=[listed_token_role(t)for t in right],aside=[listed_token_role(t)for t in aside],separators=[listed_token_role(connector),listed_token_role(doc[connector.i+1]),listed_token_role(doc[close])])
+
+def ambiguous_modifier_head_reviews(doc,tagger):
+ """Ask about a competing noun/verb analysis, never choose either as fact."""
+ possible=[]
+ for head in doc:
+  if head.pos_!='VERB'or head.tag_ not in {'VBZ','VBP'}or head.dep_!='ccomp'or head.head!=head.sent.root:continue
+  if any(t.dep_ in {'dobj','obj','iobj','ccomp','xcomp','attr','acomp','oprd','mark','aux','auxpass'}for t in head.children):continue
+  if any(not t.is_punct and not t.is_space for t in doc[head.i+1:head.sent.end]):continue
+  start=head.i
+  while start>head.sent.start and doc[start-1].pos_ in {'NOUN','ADJ','ADV'}and doc[start-1].text.isalpha()and doc[start-1].text.islower():start-=1
+  words=list(doc[start:head.i]);predicate=head.sent.root
+  if len(words)<2 or sum(t.pos_=='NOUN'for t in words)<2 or predicate.pos_ not in {'VERB','AUX'}or predicate.tag_ not in {'VBD','VBP','VBZ','MD'}:continue
+  if words[-1].dep_ not in {'nsubj','dobj','obj'}or words[-1].head not in {head,predicate}:continue
+  possible.append((head,words,predicate))
+ if not possible:return
+ scores=tagger.model.predict([doc])[0];labels=tagger.labels
+ for head,words,predicate in possible:
+  ranked=sorted(((str(label),float(scores[head.i,n]))for n,label in enumerate(labels)),key=lambda item:-item[1])
+  alternative='NNS'if head.tag_=='VBZ'else'NN'
+  if ranked[0][0]!=head.tag_ or ranked[1][0]!=alternative:continue
+  margin=ranked[0][1]-ranked[1][1]
+  if not 0<=margin<=5:continue
+  yield {'start':words[0].idx,'end':words[-1].idx+len(words[-1].text),'headStart':head.idx,'headEnd':head.idx+len(head.text),'head':head.text,'evidenceStart':head.sent.start_char,'evidenceEnd':head.sent.end_char,'engine':'spaCy','engineRule':'LCB_AMBIGUOUS_MODIFIER_HEAD_REVIEW','suggestion':None,'reviewSuggested':True,'ambiguousModifierRoleEvidence':{'components':[listed_token_role(t)for t in words],'head':listed_token_role(head),'predicate':listed_token_role(predicate),'tokens':[listed_token_role(t)for t in head.sent],'chosenTag':head.tag_,'alternativeTag':alternative,'chosenScore':ranked[0][1],'alternativeScore':ranked[1][1],'margin':margin}}
+
+def grouped_modifier_reviews(doc):
+ """Source-visible coordinated/stacked groups; attachment remains a question."""
+ finite=lambda t:t.pos_ in {'VERB','AUX'}and t.tag_ in {'VBD','VBP','VBZ','MD'}
+ def words_ok(words,min_words=2):
+  return len(words)>=min_words and all(t.text.isalpha()and t.text.islower()and t.pos_ in {'NOUN','ADJ','ADV','VERB'}and(t.pos_!='VERB'or t.tag_ in {'VBG','VBN'}or t.tag_=='VB'and n+1<len(words)and words[n+1].tag_ in {'VBG','VBN'}and t.dep_=='amod')for n,t in enumerate(words))
+ def record_group(span,root=None,min_words=2):
+  words=[t for t in span if not t.is_punct]
+  if not words_ok(words,min_words)or any(t.is_punct and t.text!='-'for t in span):return None
+  return {'components':[listed_token_role(t)for t in words],**({'root':listed_token_role(root)}if root is not None else {})}
+ seen=set()
+ for head in doc:
+  if head.pos_!='NOUN'or head.tag_ not in {'NN','NNS'}or head.dep_ in {'compound','nmod'}:continue
+  predicate=head.sent.root;aux=[t for t in predicate.children if finite(t)and t.dep_ in {'aux','auxpass','cop'}]
+  if not(finite(predicate)or aux):continue
+  proposed=[]
+  for connector in head.sent:
+   if connector.i>=head.i or connector.pos_!='CCONJ'or connector.text not in {'and','or'}:continue
+   root=connector.head
+   ancestors=set()
+   while root.dep_=='conj'and root.head.i<root.i and root.i not in ancestors:
+    ancestors.add(root.i);root=root.head
+   # The small model can attach a nominalized participle as an object of
+   # the immediately preceding adjective (slow moving and ordinary).
+   # Preserve that competing structure in a question; never correct it.
+   if root.dep_ in {'dobj','obj'}and root.head.i<root.i and root.head.dep_=='amod'and root.head.head==head:root=root.head
+   if root.i>=connector.i or root.dep_ not in {'compound','amod','nmod','advcl'}:continue
+   start=root.left_edge.i
+   if start>root.i:continue
+   region=doc[start:head.i];spans=[];separators=[];begin=start
+   for token in region:
+    if token.text==','or token.pos_=='CCONJ'and token.text in {'and','or'}:
+     if token.i>begin:spans.append(doc[begin:token.i])
+     separators.append(token);begin=token.i+1
+   if begin<head.i:spans.append(doc[begin:head.i])
+   groups=[record_group(span,root if n==0 else None,min_words=1)for n,span in enumerate(spans)]
+   if len(groups)>=2 and all(groups)and any(len(g['components'])>=2 for g in groups)and doc.text[groups[-1]['components'][-1]['end']:head.idx].isspace():proposed.append(('coordinated',groups,separators))
+  parts=[]
+  for root in head.children:
+   if root.i>=head.i or root.dep_ not in {'compound','amod','nmod'}:continue
+   members=sorted(root.subtree,key=lambda t:t.i)
+   if not members or members[-1]!=root:continue
+   span=doc[members[0].i:root.i+1]
+   if {t.i for t in span}!={t.i for t in members}:continue
+   group=record_group(span,root,1)
+   if group:parts.append(group)
+  parts.sort(key=lambda g:g['components'][0]['start']);stacked=[];index=0
+  while index<len(parts):
+   part=parts[index];components=part['components']
+   if len(components)==1 and components[0]['pos']in {'ADJ','ADV'}and index+1<len(parts)and len(parts[index+1]['components'])==1 and parts[index+1]['components'][0]['pos']=='NOUN'and doc.text[components[-1]['end']:parts[index+1]['components'][0]['start']].isspace():
+    part={'components':components+parts[index+1]['components'],'root':parts[index+1]['root']};index+=1
+   if len(part['components'])>=2:stacked.append(part)
+   index+=1
+  if len(stacked)>=2 and all(doc.text[a['components'][-1]['end']:b['components'][0]['start']].isspace()for a,b in zip(stacked,stacked[1:]))and doc.text[stacked[-1]['components'][-1]['end']:head.idx].isspace():proposed.append(('stacked',stacked,[]))
+  for mode,groups,separators in proposed:
+   for index,group in enumerate(groups):
+    components=group['components']
+    if len(components)<2:continue
+    start,end=components[0]['start'],components[-1]['end'];key=(start,end,head.idx)
+    if key in seen:continue
+    seen.add(key)
+    if components[0]['pos']=='ADV'and components[0]['text'].endswith('ly')and '-'not in doc.text[start:end]:continue
+    yield {'start':start,'end':end,'headStart':head.idx,'headEnd':head.idx+len(head.text),'head':head.text,'evidenceStart':head.sent.start_char,'evidenceEnd':head.sent.end_char,'engine':'spaCy','engineRule':'LCB_GROUPED_MODIFIER_REVIEW','suggestion':None,'reviewSuggested':True,'groupedModifierRoleEvidence':{'mode':mode,'selectedGroup':index,'groups':groups,'separators':[listed_token_role(t)for t in separators],'head':listed_token_role(head),'predicate':{**listed_token_role(predicate),'finiteAuxiliaries':[listed_token_role(t)for t in aux]}}}
 
 def attributive_phrase_reviews(doc):
  """Complete direct multiword modifier subtrees, without lexical corrections."""

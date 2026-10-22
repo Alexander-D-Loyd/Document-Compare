@@ -1,3 +1,37 @@
+Version 1.21.21 — verified Windows package, October 21, 2026
+
+The staged Windows 1.21.21 executable includes both prior source follow-ups and the completed grammar/numerical, citation and review-quality changes. All 2,975 source tests pass, and the 13 packaging/publishing regressions were rechecked. Native packaged verification passes the four supplied AB 1967 PDFs, all nine amendment results, comma insertion placement/selection, exact in-kind highlighting/LCB11 navigation and Digest alignment. Existing citation and two-page regression PDFs also pass. The new three-page fixture verifies grammar uncertainty (including “requires hard to obtain”), whole numerical/table review, explicit numerical roles, canonical modifier controls, exact physical highlighting, processing receipts and individual citation-provision cards with separate overlapping requirements. Its 46 findings include reader questions. All original inputs and fixtures retain their hashes.
+
+Quality replay over 23 unchanged models / 2,024 pages removes a net 2,440 questions and preserves all 141 precise comparisons. Fresh final parser execution reproduces all 3,175 mapped baseline candidates. All 34 original corpus PDFs retain their hashes. Citation chapters 1–3 have 102 individually audited provisions and 285 specific reader duties. Complete dictionary authority, universal recognition, current legal/source identity, supporting text, original typography and human precision/recall remain outside certification.
+
+This is the immutable build-time verification snapshot. Archiving verifies unchanged application/runtime bytes and refreshes only root documentation/status snapshots. Final archive details and GitHub publication are recorded separately in .github/release-receipts/1.21.21.json. Native evidence is in qa-output/release-1.21.21/native/{verified,citation-verified,contexts-verified,completion-verified}.json; corpus and source-suite receipts are in qa-output/lcb-completion. Private QA inputs and captures are excluded from public exports.
+
+---
+
+Completed three-part LCB source follow-up — October 21, 2026
+
+The actual current-source Electron application passes the four-file AB 1967 workflow, the existing citation and two-page regression PDFs, and a new three-page controlled PDF. All nine amendment results, named-comma marker/selection, exact in-kind highlight, LCB11 navigation and Digest prose alignment pass. The AB workflow retains 61 style findings. Original input hashes are unchanged.
+
+The new PDF verifies nominal/coordinated fragments, interrupted groups, infinitival and post-head ambiguity, whole unfamiliar numerical notation, complete table expressions, abbreviated and short citations, nearby prose quantities, source-labelled numerical-role controls and exact canonical modifier controls. “Requires hard to obtain permits” receives an uncertainty question that retains both adverb and adjective readings. Exact physical highlighting and LCB8 navigation pass. The source dialog displays separate overlapping citation requirements and expandable provision-specific duties with the correct section/page links. The parser-processing receipt is transmitted to the worker/readiness display. The new fixture retains its hash and yields 46 findings, including unresolved questions. Relevant screenshots were visually inspected.
+
+This uses actual PDF readers, workers and portable engines in an isolated source application. It does not verify physical OS chooser/drag gestures or a newly packaged EXE. All 2,975 source tests pass. Separate corpus quality replay over 23 unchanged models / 2,024 pages removes a net 2,440 questions while retaining all 141 precise comparisons; final fresh parser output is identical to its fresh baseline across all 3,175 candidates. All 34 original corpus PDFs retain their hashes. These are processing/stability results, not human accuracy or complete LCB compliance measurements.
+
+Evidence: qa-output/lcb-completion/native/{verified,citation-verified,contexts-verified,completion-verified}.json, completion-grammar.png, completion-source.png and completion-provision-tasks.png; qa-output/lcb-completion/{full-suite-final.log,quality-verified.json,final-parser-verified.json}. Published release receipts remain historical and are preserved below.
+
+---
+
+Previous unreleased source follow-up after 1.21.20 — October 21, 2026
+
+The current source Electron application passes the real four-file AB 1967 workflow and a two-page controlled PDF after the grammar/numerical, citation and review-quality changes. The AB workflow retains all nine amendment results, the named-comma marker/selection, exact in-kind highlight, LCB11 navigation and Digest prose alignment; it retains 61 style findings. Original inputs are unchanged.
+
+The controlled PDF verifies coordinated/stacked modifiers, single-word neighboring groups, a competing noun/verb parse, whole numerical uncertainty, complete table-expression review, additional citation forms and family-specific reader tasks, full/reversed prose citations, bibliographic-coordinate preservation, independent nearby prose counts and source-unprinted reporter deferral. Actual physical highlights and the citation task/source cards pass and were visually inspected. The controlled result contains 29 findings; questions do not assert errors. File hashes remain unchanged during execution.
+
+The application ran with actual PDF readers, workers and portable engines, an isolated profile and loopback file-input events. Physical OS chooser/drag gestures and a newly packaged EXE are outside this result. All 2,896 source tests pass. Cached style replay removes 1,617 questions while retaining all 140 form comparisons and all 23 model hashes; the 34 original corpus PDF hashes remain unchanged. Human precision/recall is unmeasured. See LCB_COVERAGE_REVIEW.md for source scope and remaining authority/recognition limits.
+
+Evidence: qa-output/ab1967/source-contexts-next/{verified,contexts-verified}.json, grouped-modifier.png and citation-context-source.png; qa-output/lcb-contexts-next/full-suite-final.log. Published 1.21.20 artifacts and their historical receipts below remain unchanged.
+
+---
+
 Version 1.21.20 — ordered LCB follow-up, October 21, 2026
 
 All 2,865 source tests pass (zero failed, skipped or cancelled). The exact-target audit fingerprints all23 LCB pages and retains41 numbered/section provisions. All497 source-derived target rows have exact overlapping source/page evidence;213 plain solid forms have no justified alternate probe. Literal controls pass. This finite test matrix is not whole-rule or complete dictionary coverage.

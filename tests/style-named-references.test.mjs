@@ -1,5 +1,6 @@
 import test from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs';
 import {makeDocument} from '../app/core.mjs';import {jointStylisticIssues} from '../app/joint-style.mjs';import {sourceNameRanges} from '../app/style-source-names.mjs';
+import {reviewStyleIssues} from '../app/style-review.mjs';
 const refs=Object.fromEntries(['lcb','gpo'].map(id=>[id,JSON.parse(fs.readFileSync(new URL('../app/data/'+id+'-reference.json',import.meta.url)))]));
 const check=t=>jointStylisticIssues(makeDocument([t],'Current'),refs),programs=['Alzheimer’s Disease Program','California Alzheimer’s Disease Centers','Alzheimer’s Disease and Related Disorders Advisory Committee'];
 test('complete source program and advisory names preserve their medical fragment while ordinary disease wording is checked',()=>{
@@ -12,7 +13,7 @@ test('literal name matching accepts printed apostrophe forms and complete bounda
 });
 test('complete All Plan Letter serials preserve leading zeros and leave adjacent quantities checked',()=>{
  for(const text of ['Under All Plan Letter 23-001, 3 workers apply.','Under all plan letter 23-001, 3 workers apply.','Under All Plan Letter 18-007, 3 workers apply.'])assert.deepEqual(check(text).map(i=>[i.text,i.suggestion]),[['3','three']],text);
- assert.ok(check('Under Letter 23-001, 3 workers apply.').some(i=>i.text==='001'),'Unencoded letter roles remain outside the selected guard');
+ const text='Under Letter 23-001, 3 workers apply.';assert.deepEqual(check(text).filter(i=>i.checkId==='numerals').map(i=>i.text),['3']);assert.ok(reviewStyleIssues(makeDocument([text],'Current'),refs,{includeReviewSuggestions:true,includeCompleteLcbReview:true}).some(i=>i.checkId==='lcb-numerical-uncertainty-review'&&i.text==='23-001'&&i.suggestion===null),'Unencoded letter wording receives whole uncertainty without an inferred All Plan Letter identity or guessed suffix count');
 });
 test('complete letter-prefixed executive order references preserve identifier and title form with generic descriptions still checked',()=>{
  for(const code of ['N-66-20','S-09-06','B-1-2027'])for(const no of ['', 'No. '])assert.deepEqual(check('Under Executive Order '+no+code+', 3 workers apply.').map(i=>[i.text,i.suggestion]),[['3','three']],code);

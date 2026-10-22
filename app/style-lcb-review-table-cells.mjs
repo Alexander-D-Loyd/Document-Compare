@@ -1,13 +1,15 @@
 import {styleContext,withStyleContext} from './style-context.mjs';
-import {styleEvidenceGuard,cutsOriginalStyleWord} from './style-evidence.mjs';
+import {styleEvidenceGuard,cutsOriginalStyleWord,originalBodyStyleContext} from './style-evidence.mjs';
 import {styleWordDivisionView} from './style-word-divisions.mjs';
 import {numericExpressionGuard} from './style-numeric-expression-evidence.mjs';
 import {writtenQuantityEvidenceGuard} from './style-written-quantity-evidence.mjs';
-import {canonicalWrittenValue,ones,tens} from './style-cardinal-values.mjs';
+import {canonicalWrittenValue,ones,tens,ordinalOnes,ordinalTens} from './style-cardinal-values.mjs';
+import {originalStyleLiteralGuard} from './style-original-literal-guard.mjs';
 import {andCardinalParts} from './style-compound-cardinals.mjs';
 import {sourceNameRanges} from './style-source-names.mjs';
+import {uncertainNumberRanges,numericTokenIdentifierRanges} from './style-uncertain-number-ranges.mjs';
 
-export const LCB_TABLE_CELL_SCOPE='Source-confirmed tabular rows receive numeral checks even without an Item Amount heading. Canonical written amounts after leaders in explicit Budget Act item tables and written counts in source-aligned numeric columns have precise figure corrections; unknown column roles receive reader review without a replacement. Literal/name columns, headings, quoted cells, malformed quantities, source strikes, excluded evidence and table-adjacent prose remain protected. Numeric table roles use explicit source headers or quantity units; geometry by itself does not establish legal meaning. This is not a general table interpretation or footnote/fraction checker.';
+export const LCB_TABLE_CELL_SCOPE='Source-confirmed tabular rows receive numeral checks even without an Item Amount heading. Canonical written amounts after leaders in explicit Budget Act item tables and written counts in source-aligned numeric columns have precise figure corrections; unknown column roles receive reader review without a replacement. Explicit complete-reader mode also asks about complete cells beginning with noninteger or otherwise unresolved numerical wording, including ordinals, fractions, decimals and annotations. No value is inferred for those cells. Literal/name columns, headings, quoted cells, source strikes, excluded evidence and table-adjacent prose retain their protections. Complete original cells and headers are evidence; removing a prefix or header cannot manufacture another cell or numeric role. Numeric table roles use explicit source headers or quantity units; geometry by itself does not establish legal meaning. General table interpretation, footnote roles and arbitrary notation remain unresolved.';
 const numericHeader=/^(?:(?:number|no\.)\s+of\s+)?(?:amount|amounts|total|totals|quantity|quantities|count|counts|duration|time|grade|grades|percent|percentage|percentages|ratio|ratios|permits|applications|applicants|requests|notices|days|weeks|months|years|hours|minutes|seconds|employees|positions|population|cost|costs|funding|appropriation|appropriations|dollars)$/i;
 const literalHeader=/^(?:county|city|district|provider|program|name|names|title|description|item|unit|agency|department|entity|entities|location|address)$/i;
 const quantityUnit=/^(?:years?|months?|weeks?|days?|hours?|minutes?|seconds?|degrees?|percent|percentages?|dollars?|cents?|mills?)$/i;
@@ -17,7 +19,7 @@ function cells(block,source){
  const geometric=(block.formatting?.headerGaps||[]).filter(g=>Number.isInteger(g.start)&&Number.isInteger(g.end)&&g.start>=0&&g.end>g.start&&g.end<=body.length&&/^\s+$/.test(body.slice(g.start,g.end)));
  const gaps=wide.length>=2?wide:geometric.length>=2?geometric:[];if(gaps.length<2)return [];
  const rows=[];let start=block.margin?.length||0;
- for(const gap of [...gaps,{start:body.length,end:body.length}]){if(gap.start<start)continue;const raw=body.slice(start,gap.start),lead=raw.search(/\S/),text=raw.trim();if(text)rows.push({start:block.start+start+lead,end:block.start+start+lead+text.length,text});start=gap.end;}
+ for(const gap of [...gaps,{start:body.length,end:body.length}]){if(gap.start<start)continue;const raw=body.slice(start,gap.start),lead=raw.search(/\S/),text=raw.trim();if(text)rows.push({start:block.start+start+lead,end:block.start+start+lead+text.length,text,evidenceStart:block.start+start,evidenceEnd:block.start+gap.start});start=gap.end;}
  return rows;
 }
 function completeValue(text){
@@ -26,6 +28,15 @@ function completeValue(text){
  const part=andCardinalParts(normalized);return part.length===1&&part[0].start===0&&part[0].end===normalized.length?part[0].value:null;
 }
 const numericalWords=new Set([...ones,...tens,'hundred','thousand','million','billion','trillion','and','or','nor','to','through']);
+const otherNumericalWords=new Set([...ones,...tens,...ordinalOnes,...ordinalTens,'hundred','thousand','million','billion','trillion','quadrillion','quintillion','hundredth','thousandth','millionth','billionth','trillionth','half','halves','quarter','quarters','point','and','of','to','through','minus','negative'].filter(Boolean).flatMap(w=>[w,w+'s']));
+function unresolvedNumberCell(text,role){
+ const whole=[...uncertainNumberRanges(text),...numericTokenIdentifierRanges(text)].find(r=>r.start===0);
+ if(whole&&(role==='numeric'||whole.end===text.length))return true;
+ const terms=text.toLowerCase().match(/[\p{L}\p{M}]+|\d+(?:[./⁄]\d+)*/gu)||[];
+ if(!terms.length||!otherNumericalWords.has(terms[0])||['and','of','to','through','point'].includes(terms[0])&&terms.length===1)return false;
+ if(role==='numeric')return true;
+ return !textLooksNamed(text)&&terms.every(w=>otherNumericalWords.has(w)||/^\d/u.test(w)||quantityUnit.test(w));
+}
 function cellNumbers(text,{allowUnfamiliarUnit=false}={}){
  const unit=/(?<gap>\s+)(?<unit>[A-Za-z]+)$/.exec(text),known=unit&&quantityUnit.test(unit.groups.unit),unfamiliar=!!(allowUnfamiliarUnit&&unit&&!known&&!numericalWords.has(unit.groups.unit.toLowerCase())),after=known||unfamiliar?unit.groups.unit:'',end=after?unit.index:text.length,numberText=text.slice(0,end);
  if(completeValue(numberText)!==null)return {after,unfamiliar,members:[{start:0,end}]};
@@ -38,33 +49,46 @@ function cellNumbers(text,{allowUnfamiliarUnit=false}={}){
  return count>=2&&members.length?{after,unfamiliar,members}:null;
 }
 function detector(doc,references,options){
- const ctx=styleContext(doc),source=ctx.source,tableCtx={...ctx,tableAt:()=>false},blocked=styleEvidenceGuard(doc,tableCtx),written=writtenQuantityEvidenceGuard(doc,tableCtx),numeric=numericExpressionGuard(doc,tableCtx),names=sourceNameRanges(source),existing=options.existingIssues||[],issues=[];
+ const ctx=styleContext(doc),source=ctx.source,tableCtx={...ctx,tableAt:()=>false},blocked=styleEvidenceGuard(doc,tableCtx),literal=originalStyleLiteralGuard(doc,tableCtx),written=writtenQuantityEvidenceGuard(doc,tableCtx),numeric=numericExpressionGuard(doc,tableCtx),names=sourceNameRanges(source),existing=options.existingIssues||[],issues=[];
  const budgetWitness=[...source.matchAll(/\bBudget Act of\s+\d{4}/gi)].some(m=>!blocked(m.index,m.index+m[0].length));
  const itemWitness=[...source.matchAll(/(?<!\d)\d{4}-\d{3}-\d{4}\s*-/g)].some(m=>!blocked(m.index,m.index+m[0].length));
  const amountHeading=doc.blocks.some(b=>/^Item\s+Amount$/.test(source.slice(b.start,b.end).trim())&&!blocked(b.start,b.end));
  const budget=budgetWitness&&(itemWitness||amountHeading);
- let headers=null,prior=null;
+ const originalSource=originalBodyStyleContext(doc)?.source||source;
+ let headers=null,prior=null,originalHeader=null;
  const add=(start,end,evidenceStart,evidenceEnd,precise,role)=>{
+  if(options.unresolvedOnly)return;
   const text=doc.text.slice(start,end),value=completeValue(source.slice(start,end));
   if(value===null||!Number.isSafeInteger(value)||value<0||cutsOriginalStyleWord(doc,start)||cutsOriginalStyleWord(doc,end)||blocked(evidenceStart,evidenceEnd)||written(start,end)||numeric(start,end)||overlap(names,start,end)||overlap(existing,start,end))return;
   const suggestion=precise?value.toLocaleString('en-US'):null;
   issues.push({start,end,text,suggestion,rule:'Numerals, general item 2',guideId:'lcb',guidePage:21,guidePrintedPage:String(references.lcb.pages[20].printedPage),category:precise?'Table Numeral Form':'Table Cell Review',context:'Table',confidence:precise?'Rule check':'Review Suggested',reviewSuggested:!precise,reviewKind:precise?undefined:'table-cell-role',checkId:precise?'lcb-table-cell-figures':'lcb-table-cell-review',conflict:false,matchesPrimary:false,message:precise?'LCB uses figures in tables, and GPO 13.101 agrees. This complete canonical written count occurs in '+role+'; only its number is changed.':'Review Suggested: This source-confirmed table cell contains a written number, but its column role is unresolved. If it is a quantity rather than a literal label, LCB and GPO use figures. No replacement has been selected.',references:[{guideId:'lcb',guideName:'LCB Style Manual',rule:'Numerals, general item 2',guidePage:21,guidePrintedPage:String(references.lcb.pages[20].printedPage),preferred:suggestion,ruleText:'Always use figures with decimals, degrees, grades, percentages, ratios, time, and in tables.'},{guideId:'gpo',guideName:'GPO Style Manual',rule:'13.101',guidePage:312,guidePrintedPage:String(references.gpo.pages[311].printedPage),preferred:suggestion,ruleText:'Figures are used for all numbers, ordinals, and fractions in tables.'}]});
  };
  for(const block of doc.blocks){
-  if(block.ignored||ctx.at(block.start)==='Heading'){headers=null;prior=null;continue;}
+  if(block.ignored||ctx.at(block.start)==='Heading'){headers=null;prior=null;originalHeader=null;continue;}
   const body=source.slice(block.start+(block.margin?.length||0),block.end),lineStart=block.start+(block.margin?.length||0),isTable=ctx.tableAt(block.start);
-  if(!isTable){headers=null;prior=null;continue;}
+  if(!isTable){headers=null;prior=null;originalHeader=null;continue;}
+  if(prior&&block.start-prior.end>2&&block.page===prior.page)originalHeader=null;
+  // Unmasked cells are negative evidence only: a removed prefix or header
+  // cannot manufacture a new numerical cell or erase its source role.
+  const originalCells=cells(block,originalSource),originalRoles=originalCells.map(c=>numericHeader.test(c.text)?'numeric':literalHeader.test(c.text)?'literal':null);
+  if(originalCells.length>=2&&originalRoles.filter(Boolean).length>=2&&originalCells.every(c=>!cellNumbers(c.text)&&!/^\d+(?:,\d{3})*(?:\.\d+)?$/.test(c.text)))originalHeader=block;
   const leader=/\.{3,}[ \t]*(?<amount>[A-Za-z][A-Za-z\s-]*)$/.exec(body);
   if(leader){const amount=leader.groups.amount.trim(),start=lineStart+leader.index+leader[0].indexOf(leader.groups.amount);add(start,start+amount.length,lineStart,block.end,budget,budget?'an explicit Budget Act amount after leaders':'a leader-delimited cell');headers=null;prior=null;continue;}
   const row=cells(block,source);if(row.length<2){headers=null;prior=null;continue;}
   const roles=row.map(c=>numericHeader.test(c.text)?'numeric':literalHeader.test(c.text)?'literal':null);
   const headerOnly=row.every(c=>!cellNumbers(c.text)&&!/^\d+(?:,\d{3})*(?:\.\d+)?$/.test(c.text));
-  if(headerOnly&&roles.filter(Boolean).length>=2&&roles.includes('numeric')){headers={cells:row,roles,page:block.page};prior=block;continue;}
+  if(headerOnly&&roles.filter(Boolean).length>=2&&(roles.includes('numeric')||options.includeUnresolvedForms&&roles[0]==='literal')){headers={cells:row,roles,page:block.page,start:block.start,end:block.end};prior=block;continue;}
   if(prior&&block.start-prior.end>2&&block.page===prior.page)headers=null;
   for(let index=0;index<row.length;index++){
    const cell=row[index],role=headers?.cells.length===row.length?headers.roles[index]:null;
    if(role==='literal')continue;
-   const parsed=cellNumbers(source.slice(cell.start,cell.end),{allowUnfamiliarUnit:role==='numeric'});if(!parsed)continue;const {after}=parsed;
+   const parsed=cellNumbers(source.slice(cell.start,cell.end),{allowUnfamiliarUnit:role==='numeric'});
+   if(!parsed){
+    if(!options.includeUnresolvedForms||!unresolvedNumberCell(source.slice(cell.start,cell.end),role)||blocked(cell.evidenceStart,cell.evidenceEnd)||literal(cell.evidenceStart,cell.evidenceEnd)||cutsOriginalStyleWord(doc,cell.start)||cutsOriginalStyleWord(doc,cell.end)||overlap(names,cell.start,cell.end)||overlap(existing,cell.start,cell.end)||overlap(issues,cell.start,cell.end))continue;
+    if(blocked(block.start,block.end)||originalHeader&&blocked(originalHeader.start,originalHeader.end)||headers&&blocked(headers.start,headers.end))continue;
+    issues.push({start:cell.start,end:cell.end,text:doc.text.slice(cell.start,cell.end),suggestion:null,rule:'Numerals, general item 2',guideId:'lcb',guidePage:21,guidePrintedPage:String(references.lcb.pages[20].printedPage),category:'Table Numerical Review',context:'Table',confidence:'Review Suggested',reviewSuggested:true,checkId:'lcb-table-expression-review',conflict:false,matchesPrimary:false,tableHeaderRole:role||'unresolved',message:'Review Suggested: This source table cell begins with numerical wording that the ordinary whole-count comparison cannot resolve. LCB21 uses figures for numbers in tables. Confirm whether it is an ordinal, fraction, decimal, signed quantity, annotation or literal name, and check the complete cell under that rule. '+(role==='numeric'?'The intact header identifies a numeric column.':'The column role has not been established.')+' No value or replacement is asserted.',references:[{guideId:'lcb',guideName:'LCB Style Manual',rule:'Numerals, general item 2',guidePage:21,guidePrintedPage:String(references.lcb.pages[20].printedPage),preferred:null,ruleText:'Always use figures with decimals, degrees, grades, percentages, ratios, time, and in tables.'}]});
+    continue;
+   }const {after}=parsed;
    const precise=!parsed.unfamiliar&&(role==='numeric'||quantityUnit.test(after)&&!textLooksNamed(cell.text)),headerStart=headers?.cells[0].start;
    // A source strike or exclusion in the numeric header invalidates its role.
    if(role==='numeric'&&blocked(headerStart,headers.cells.at(-1).end))continue;

@@ -22,3 +22,9 @@ test('literal citations damaged evidence and technical boundaries cannot manufac
  }
  const changed=structuredClone(refs);changed.lcb.pages[0].text='No supplementary citation authority.';assert.deepEqual(californiaCitationReview(make(texts[0]),changed),{issues:[],ranges:[]});
 });
+test('reporter whitespace retains coordinate gaps and source-unprinted series are not invented typography authority',()=>{
+ // Independent missing-court questions may now accompany federal locations;
+ // recognizing a reporter still cannot authorize unprinted typography.
+ for(const reporter of ['Cal.','Cal.App.','F.Supp.','Fed.','Cal. App. 5th','F. 4th','F. Supp. 2d','F. Supp. 3d']){const text='Alpha v. Beta (1998) 2 '+reporter+' 1, 3.';assert.ok(check(text).every(i=>i.suggestion===null),reporter);assert.equal(californiaCitationReview(make(text),refs).ranges.length,1,reporter);}
+ for(const [reporter,wanted]of [['F. Supp.','F.Supp.'],['F. 2d','F.2d'],['F. 3d','F.3d'],['Cal. App.','Cal.App.']]){const found=check('Alpha v. Beta (1998) 2 '+reporter+' 1.'),spacing=found.filter(i=>i.suggestion!==null);assert.equal(spacing.length,1,reporter);assert.equal(spacing[0].suggestion,wanted);assert.equal(spacing[0].text,reporter);assert.ok(found.filter(i=>i!==spacing[0]).every(i=>i.suggestion===null));}
+});

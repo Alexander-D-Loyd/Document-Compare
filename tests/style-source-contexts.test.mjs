@@ -1,5 +1,6 @@
 import test from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs';
 import {makeDocument} from '../app/core.mjs';import {jointStylisticIssues} from '../app/joint-style.mjs';
+import {reviewStyleIssues} from '../app/style-review.mjs';
 import {dividedCalendarDates} from '../app/style-calendar-dates.mjs';import {sourceNameRanges} from '../app/style-source-names.mjs';
 const refs=Object.fromEntries(['lcb','gpo'].map(id=>[id,JSON.parse(fs.readFileSync(new URL('../app/data/'+id+'-reference.json',import.meta.url)))]));
 const check=t=>jointStylisticIssues(makeDocument([t],'Current'),refs),numbers=t=>check(t).filter(i=>i.checkId==='numerals');
@@ -33,7 +34,8 @@ test('complete coordinated Special Olympics source name protects its geographic 
 });
 test('selected complete education identifiers preserve serial numbers with nearby ordinary counts',()=>{
  for(const label of ['California Longitudinal Pupil Achievement Data System Fall 1','CALPADS Fall 1','California Longitudinal Pupil Achievement Data System as of the 2024–25 Fall 1','Fall 1 census day pupil data submitted through the California Longitudinal Pupil Achievement Data System','First 5 county commission','First 5 county commissions','PK-3 early childhood education specialist instruction credential'])assert.deepEqual(numbers('Review '+label+'. Appoint 3 workers.').map(i=>[i.text,i.suggestion]),[['3','three']],label);
- for(const label of ['Fall 1 worker','First 5 workers','PK-3 unlisted program'])assert.ok(numbers('Review '+label+'.').length,label);
+ for(const label of ['Fall 1 worker','First 5 workers'])assert.ok(numbers('Review '+label+'.').length,label);
+ const unknown='Review PK-3 unlisted program. Appoint 3 workers.';assert.deepEqual(numbers(unknown).map(i=>i.text),['3']);assert.ok(reviewStyleIssues(makeDocument([unknown],'Current'),refs,{includeReviewSuggestions:true,includeCompleteLcbReview:true}).some(i=>i.checkId==='lcb-numerical-uncertainty-review'&&i.text==='PK-3'&&i.suggestion===null),'An unfamiliar program token receives whole review without declaring the listed credential identity');
 });
 test('education identifier context is case sensitive and preserves exact page-break quantity offsets',()=>{
  const doc=makeDocument(['ASSEMBLY BILL No. 121\nThe people do enact as follows:\nline 1 The California Longitudinal Pupil Achievement Data System Fall\n97','AB 121 — 2 —\nline 1 1 Certification includes 3 workers.'],'Current'),issues=jointStylisticIssues(doc,refs);assert.deepEqual(issues.map(i=>i.text),['3']);assert.equal(issues[0].start,doc.text.indexOf('3 workers'));

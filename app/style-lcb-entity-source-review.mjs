@@ -55,6 +55,10 @@ function review(doc,references,selected,existingIssues,entityAuthority){
  const unlisted=new RegExp('\\b(?:Department|Bureau|Office|Division|Board|Commission|Council|Committee|Agency|Authority|Director|Secretary|Superintendent)\\s+of\\s+(?:the\\s+)?'+token+'(?:\\s+(?!(?:'+clause+')\\b)'+token+'){0,11}?(?=\\s+(?:'+clause+')\\b|[,.;:]|$)','giu');
  for(const m of source.matchAll(unlisted)){
   const start=m.index,end=start+m[0].length;
+  // A lower-case demonstrative/quantifier after of identifies a referring
+  // complement, not a new complete institutional title (Committee of this
+  // action). Retain differently cased potential names for source review.
+  if(/^[\p{L}]+\s+of\s+(?:the\s+)?(?:this|that|these|those|each|any|both|such)\b/u.test(m[0]))continue;
   // A recognized longer name must not be asked about again as its suffix.
   add(start,end,null,'This institutional wording has not been established as a complete eligible name in the selected source. Verify whether it is an official title, a description, or a newly created entity.','unresolved-entity-name');
  }

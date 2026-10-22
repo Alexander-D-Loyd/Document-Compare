@@ -4,6 +4,7 @@ import fs from 'node:fs';
 import {makeDocument} from '../app/core.mjs';
 import {numeralIssues} from '../app/style-numerals.mjs';
 import {jointStylisticIssues} from '../app/joint-style.mjs';
+import {reviewStyleIssues} from '../app/style-review.mjs';
 const refs=Object.fromEntries(['lcb','gpo'].map(id=>[id,JSON.parse(fs.readFileSync(new URL('../app/data/'+id+'-reference.json',import.meta.url)))]));
 const changes=text=>jointStylisticIssues(makeDocument([text],'Current'),refs);
 
@@ -14,7 +15,7 @@ test('AB 747 court reporter series and page identifiers are kept numeric without
   assert.deepEqual(issues.map(i=>[i.text,i.suggestion]),[['5th','fifth'],['3','three']],citation);
   assert.ok(!issues.some(i=>i.start<text.indexOf('The office')));
  }
- assert.ok(changes('The label is 17 XYZ.5th 207.').some(i=>i.text==='5th'),'Unknown reporter forms remain reviewable');
+ const unknown='The label is 17 XYZ.5th 207. Appoint 3 workers.';assert.ok(!changes(unknown).some(i=>i.text==='5th'),'An unknown reporter-shaped token cannot supply an independent ordinal repair');assert.ok(changes(unknown).some(i=>i.text==='3'&&i.suggestion==='three'));assert.ok(reviewStyleIssues(makeDocument([unknown],'Current'),refs,{includeReviewSuggestions:true,includeCompleteLcbReview:true}).some(i=>i.checkId==='lcb-numerical-uncertainty-review'&&i.text==='XYZ.5th'&&i.suggestion===null),'Unknown token role remains explicitly reviewable without a reporter identity');
 });
 
 test('inservice applies to selected training modifiers while ordinary service phrases are retained',()=>{

@@ -11,22 +11,28 @@ import {CALENDAR_MONTHS,validCompleteCalendarDate} from './style-calendar-dates.
 const overlap=(rows,a,b)=>rows.some(r=>r.start<b&&r.end>a);
 // The source explicitly makes different numerical expressions an exception.
 // Presence of two numbers is observable; whether they are related is not.
-export function lcbSentenceReview(doc,references,{existingIssues=[]}={}){
+export function lcbSentenceReview(doc,references,{existingIssues=[],citationRanges=[]}={}){
  if(!references?.lcb?.pages)return {issues:[],superseded:[]};
  const view=styleWordDivisionView(doc,{preserveRemainingWords:true}),d=view?.doc||doc,prior=view?existingIssues.map((i,index)=>({...i,index,start:view.toView(i.start),end:view.toView(i.end)})):existingIssues.map((i,index)=>({...i,index}));
- const result=withStyleContext(d,()=>review(d,references,prior));
+ const coordinates=view?citationRanges.map(r=>({...r,start:view.toView(r.start),end:view.toView(r.end)})):citationRanges;
+ const result=withStyleContext(d,()=>review(d,references,prior,coordinates));
  return {issues:view?view.restore(result.issues):result.issues,superseded:result.superseded};
 }
-function review(doc,references,existing){
+function review(doc,references,existing,citationRanges){
  const ctx=styleContext(doc),source=ctx.source,blocked=styleEvidenceGuard(doc,ctx),literal=originalStyleLiteralGuard(doc,ctx),single=styleSingleQuoteRanges(source),identifiers=numeralIdentifierRanges(source),numeric=numericExpressionGuard(doc,ctx),quantity=writtenQuantityEvidenceGuard(doc,ctx),issues=[],superseded=[];
+ identifiers.push(...citationRanges);
  // These are serial targets and layout labels, not ordinary small counts.
  // Their original complete spans still have to survive the sentence guard.
  const target='(?:\\([A-Za-z0-9]+\\)|\\d+(?:\\.\\d+)*(?:\\s*\\([A-Za-z0-9]+\\))*)';
  const serial=new RegExp('\\b(?:sections?|subsections?|secs?\\.?|chapters?|subchapters?|items?|schedules?|parts?|subparts?|divisions?|titles?|articles?|paragraphs?|subparagraphs?|subdivisions?|clauses?|pages?|lines?|tables?|figures?|forms?|bills?|propositions?|No\\.?)\\s+'+target+'(?:\\s*(?:,\\s*(?:(?:and|or)\\s*)?|(?:and|or|to|through)\\s+|[-–])'+target+')*','giu');
  for(const m of source.matchAll(serial))identifiers.push({start:m.index,end:m.index+m[0].length});
  for(const block of doc.blocks){const m=/^\s*(?:\([A-Za-z0-9]+\)\s*)+/u.exec(source.slice(block.start,block.end));if(m)identifiers.push({start:block.start,end:block.start+m[0].length});}
- const dates=new RegExp('\\b('+CALENDAR_MONTHS.join('|')+')\\s+(\\d{1,2}),\\s+(\\d{4})(?![\\p{L}\\p{N}\\p{M}_])','giu');
- for(const m of source.matchAll(dates))if(validCompleteCalendarDate(m[1],Number(m[2]),Number(m[3])))identifiers.push({start:m.index,end:m.index+m[0].length});
+ const dates=new RegExp('\\b('+CALENDAR_MONTHS.join('|')+')\\s+(\\d{1,2}),\\s+(\\d{4})(?![\\p{L}\\p{N}\\p{M}_])','giu'),calendarRanges=[];
+ for(const m of source.matchAll(dates))if(validCompleteCalendarDate(m[1],Number(m[2]),Number(m[3]))){const r={start:m.index,end:m.index+m[0].length};identifiers.push(r);calendarRanges.push(r);}
+ // A grouping comma inside an intact figure is not a separator between
+ // parallel list items. Require the complete printed grouping; malformed
+ // numeric strings still need review and cannot establish this exception.
+ const groupedFigures=[...source.matchAll(/(?<![\p{L}\p{N}\p{M}_.,])\d{1,3}(?:,\d{3})+(?:\.\d+)?(?![\p{L}\p{N}\p{M}_,]|\.\d)/gu)].map(m=>({start:m.index,end:m.index+m[0].length}));
  const sentences=new Map();
  for(const block of doc.blocks){
   if(block.ignored||ctx.at(block.start)==='Heading')continue;
@@ -46,7 +52,8 @@ function review(doc,references,existing){
    const before=last&&text.slice(0,last.index).trimEnd(),after=last&&text.slice(last.index+last[0].length).trim();
    // Existing finite list checks retain their precise selections. A comma
    // and conjunction only establish uncertainty, not three parallel items.
-   if(last&&before.includes(',')&&after&&!/[,;:]$/u.test(before)&&!existing.some(i=>overlap([i],start,end)&&i.references?.some(r=>r.guideId==='lcb'&&r.guidePage===6))){
+   const listComma=last&&[...text.slice(0,last.index).matchAll(/,/gu)].some(m=>!overlap([...calendarRanges,...citationRanges,...groupedFigures],start+m.index,start+m.index+1));
+   if(last&&listComma&&after&&!/[,;:]$/u.test(before)&&!existing.some(i=>overlap([i],start,end)&&i.references?.some(r=>r.guideId==='lcb'&&r.guidePage===6))){
     issues.push({start,end,text:doc.text.slice(start,end),matchText:text.replace(/\s+/gu,' '),suggestion:null,guideId:'lcb',guidePage:6,guidePrintedPage:String(references.lcb.pages.find(p=>p.page===6).printedPage),rule:'Punctuation: unresolved series structure',category:'Series Structure Review',context:ctx.at(start),confidence:'Review Suggested',reviewSuggested:true,reviewKind:'sentence-series-structure',checkId:'lcb-sentence-series-review',conflict:false,message:'Review Suggested: Comma-separated wording precedes the final “'+last[1]+'” without a serial comma or semicolon. Confirm whether it forms a series of three or more parallel items, a nested group, or separate clauses. LCB requires a serial comma for a qualifying series and a final semicolon for comma-grouped series. The structure has not been established; this sentence may be correct. No replacement has been selected.',references:[citation(6,'Punctuation: Commas and Semicolons','Use a comma before and, or, or nor preceding the last of three or more words, phrases, letters, or figures. A comma-grouped series uses a final semicolon.')]});
    }
   }

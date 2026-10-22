@@ -1,6 +1,7 @@
 import {threePointCompassCandidates,threePointCompassIssues} from './style-compass-directions.mjs';
 import {styleEvidenceGuard} from './style-evidence.mjs';
 import {multiAdverbCandidates,multiAdverbHead,lyModifierCandidates,lyModifierHead} from './style-multi-adverb-modifiers.mjs';
+import {uncertainNumberRanges} from './style-uncertain-number-ranges.mjs';
 // Explicit close variants of GPO forms; no arbitrary near-word substitutions.
 // Suggestions are advisory: a phrase can have a legitimate contextual exception.
 export const STYLE_RULES = [
@@ -110,7 +111,11 @@ export function stylisticIssues(doc,reference,rules=STYLE_RULES,{dynamic=true}={
   // of its first two words. Original candidates also own masked fragments.
   for(const match of lyModifierCandidates(searchable))if(!bodyDash(match)&&!owners.some(m=>m.index<=match.index&&m.index+m[0].length>=match.index+match[0].length)&&!adverbQuotes.some(r=>r.start<match.index+match[0].length&&r.end>match.index)){const head=lyModifierHead(match,searchable);if(head)add(match,{rule:'6.20',category:'Modifier hyphenation',message:'LCB and GPO omit the hyphen in this selected -ly adverb and participle construction before its complete noun. Confirm the adjective meaning in context.'},head.suggestion,head.end);}
   // A spelled-out compound number retains its words; only the missing hyphen is suggested.
-  for(const match of searchable.matchAll(/\b(?:twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety)\s+(?:one|two|three|four|five|six|seven|eight|nine)\b/gi))add(match,{rule:'6.36',category:'Numerical compounding',message:'GPO hyphenates the elements of spelled-out compound numbers from twenty-one through ninety-nine.'},fold(match[0]).replace(' ','-'));
+  // LCB21 requires whole decimal figures. An unresolved spoken decimal must
+  // not receive an independent GPO repair to its interior written words.
+  // Original ranges protect fragments exposed by removed source characters.
+  const wholeNumbers=[...uncertainNumberRanges(searchable),...uncertainNumberRanges(doc.text)];
+  for(const match of searchable.matchAll(/\b(?:twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety)\s+(?:one|two|three|four|five|six|seven|eight|nine)\b/gi))if(!wholeNumbers.some(r=>r.start<match.index+match[0].length&&r.end>match.index))add(match,{rule:'6.36',category:'Numerical compounding',message:'GPO hyphenates the elements of spelled-out compound numbers from twenty-one through ninety-nine.'},fold(match[0]).replace(' ','-'));
   // Only compare the specific unit-modifier phrases illustrated by GPO, retaining noun context.
   for(const [phrase,noun] of [['long term','loan'],['high speed','line'],['large scale','project'],['low cost','housing'],['lump sum','payment'],['part time','personnel'],['state of the art','technology'],['cost of living','increase']]){
     const pattern=new RegExp(`\\b${phrase.split(' ').join('\\s+')}(?=\\s+${noun}\\b)`,'gi');

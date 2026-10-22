@@ -1,5 +1,5 @@
 import {styleContext,withStyleContext} from './style-context.mjs';
-import {styleEvidenceGuard,cutsOriginalStyleWord} from './style-evidence.mjs';
+import {styleEvidenceGuard,cutsOriginalStyleWord,originalBodyStyleContext} from './style-evidence.mjs';
 import {styleWordDivisionView} from './style-word-divisions.mjs';
 import {styleSingleQuoteRanges} from './style-single-quote-ranges.mjs';
 import {originalStyleLiteralGuard} from './style-original-literal-guard.mjs';
@@ -7,6 +7,7 @@ import {billQuotedTermProtection} from './style-quoted-terms.mjs';
 import {sourceNameRanges} from './style-source-names.mjs';
 import {END_WORD_RULES,OPEN_END_RULES} from './style-compounds.mjs';
 import {createBoundedRegistryMatcher} from './bounded-registry-matcher.mjs';
+import {settledCanonicalModifierRanges} from './style-lcb-canonical-modifier.mjs';
 
 // A source form identifies a question, never an automatic grammatical or
 // dictionary judgment. In particular, joining a familiar root is not spelling
@@ -14,6 +15,9 @@ import {createBoundedRegistryMatcher} from './bounded-registry-matcher.mjs';
 export const LCB_SOURCE_REVIEW_SCOPE='Source-driven reader review supplements precise checks for every lexical table entry on LCB pages 3–5, 9–14 and 18–20, the printed page 15 end-word examples and exceptions, explicitly separated prefix candidates, and the four productive page 16 endings. It compares printed word boundaries and case and asks about stated meanings/roles without selecting a replacement. Exact unqualified compliant forms stay quiet. An unfamiliar noun head does not suppress a source-form question. Protected source and existing precise findings take precedence. This does not prove semantic accuracy, recognize arbitrary misspellings or certify complete dictionary/entity authority or every application of the general prose rules.';
 const escape=s=>s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
 const fold=s=>s.replace(/[’‘]/gu,"'").replace(/[\u2010\u2011]/gu,'-').replace(/\s+/gu,' ').replace(/\s*-\s*/gu,'-').trim();
+// A suspended compound is one complete construction, not alternatives
+// licensing its bare first fragment (full- or part-time is not bare full).
+const formAlternatives=form=>/-\s+or\s+/u.test(form)?[form]:form.split(/\s+or\s+/u);
 const overlaps=(ranges,a,b)=>ranges.some(r=>r.start<b&&r.end>a);
 const prefixForms=new Set(['anti','bi','in','multi','non']);
 const cache=new WeakMap();
@@ -46,7 +50,7 @@ function records(reference){
   const forms=[row.form,...(row.variant?[row.variant]:[])];
   for(const form of forms){
    // Alternative printed constructions retain separate complete witnesses.
-   for(const alternative of form.split(/\s+or\s+/u)){
+   for(const alternative of formAlternatives(form)){
     if(!/^[\p{L}\p{M}][\p{L}\p{M}\p{N}\s’',.-]*$/u.test(alternative))continue;
     const pattern=formPattern(alternative),key=pattern.toLowerCase();
     if(!groups.has(key))groups.set(key,{pattern,rows:[]});
@@ -55,25 +59,29 @@ function records(reference){
   }
  }
  const ordered=[...groups.values()].sort((a,b)=>b.pattern.length-a.pattern.length),byForm=new Map();
- for(const g of ordered)for(const row of g.rows)for(const form of [row.form,row.variant].filter(Boolean).flatMap(f=>f.split(/\s+or\s+/u))){
+ for(const g of ordered)for(const row of g.rows)for(const form of [row.form,row.variant].filter(Boolean).flatMap(formAlternatives)){
   const key=fold(form).toLowerCase().replace(/[\s-]/gu,'');
   const rows=byForm.get(key)||[];if(!rows.some(r=>r.id===row.id))rows.push(row);byForm.set(key,rows);
  }
  const value={byForm,matcher:createBoundedRegistryMatcher(ordered.map(g=>g.pattern),{prefix:'(?<![\\p{L}\\p{N}\\p{M}_-])',suffix:'(?![\\p{L}\\p{N}\\p{M}_-])'})};
  matcherCache.set(reference,value);return value;
 }
-export function lcbSourceReviewIssues(doc,references,{existingIssues=[]}={}){
+export function lcbSourceReviewIssues(doc,references,{existingIssues=[],engineIssues=[]}={}){
  if(!references?.lcb?.pages)return [];
+ const settled=settledCanonicalModifierRanges(doc,references,engineIssues);
  const view=styleWordDivisionView(doc,{preserveRemainingWords:true}),d=view?.doc||doc;
  const prior=view?existingIssues.map(i=>({...i,start:view.toView(i.start),end:view.toView(i.end)})):existingIssues;
- const result=withStyleContext(d,()=>review(d,references,prior));
+ const settledView=view?settled.map(r=>({...r,start:view.toView(r.start),end:view.toView(r.end)})):settled;
+ const result=withStyleContext(d,()=>review(d,references,prior,settledView));
  return view?view.restore(result):result;
 }
-function review(doc,references,existingIssues){
+function review(doc,references,existingIssues,settledCanonical){
  const ctx=styleContext(doc),source=ctx.source,blocked=styleEvidenceGuard(doc,ctx),literal=originalStyleLiteralGuard(doc,ctx),quoted=billQuotedTermProtection(doc,ctx);
+ const originalSource=originalBodyStyleContext(doc)?.source||source;
  const names=sourceNameRanges(source),single=styleSingleQuoteRanges(source),issues=[],candidates=[];
  const eligible=(start,end)=>!blocked(start,end)&&!literal(start,end)&&!cutsOriginalStyleWord(doc,start)&&!cutsOriginalStyleWord(doc,end)&&ctx.at(start)!=='Heading'&&!ctx.tableAt(start)&&!overlaps(names,start,end)&&!overlaps(single,start,end)&&!quoted({start,end})&&!/[\u2012-\u2015]/u.test(doc.text.slice(start,end));
  const add=(start,end,rows,reason,kind)=>{
+  if(settledCanonical.some(r=>r.start===start&&r.end===end))return;
   if(!eligible(start,end)||overlaps(existingIssues,start,end)||overlaps(issues,start,end))return;
   // Names and technical identifiers need their own identity evidence. An
   // ordinary sentence-opening capital remains an eligible body occurrence.
@@ -91,6 +99,9 @@ function review(doc,references,existingIssues){
  const registry=records(references.lcb);
  for(const m of registry.matcher.matchAll(source)){
   const g={rows:registry.byForm.get(fold(m[0]).toLowerCase().replace(/[\s-]/gu,''))||[]};if(!g.rows.length)continue;
+  // Removing every boundary and distinctive internal capital from a name
+  // is not evidence that an ordinary medical adjective names the program.
+  if(/^[Mm]edical$/u.test(m[0])&&g.rows.every(r=>r.form==='Medi-Cal'))continue;
   const exact=g.rows.filter(r=>fold(r.form).toLowerCase()===fold(m[0]).toLowerCase());
   // Some printed qualifications are directly observable and already settle
   // the form. Do not ask a reader seventy times to confirm a compliant bare
@@ -101,6 +112,14 @@ function review(doc,references,existingIssues){
    const number=/^\s+\d+(?:\.\d+)*(?:\s*\([A-Za-z0-9]+\))*(?![\p{L}\p{N}\p{M}_])/u.exec(after);
    if(term==='Section'&&number&&!blocked(m.index,m.index+m[0].length+number[0].length))continue;
    if(term==='section'&&!/^\s+[\d(]/u.test(after))continue; // LCB17 item 5.
+  }
+  if(exact.some(r=>r.text==='Schedule (with number)')){
+   const pattern=/^\s+(?:\d+(?:\.\d+)*(?:\([A-Za-z0-9]+\))*|\(\d+\)(?:\([A-Za-z0-9]+\))*)(?![\p{L}\p{N}\p{M}_])/u,number=pattern.exec(after),originalNumber=pattern.exec(originalSource.slice(m.index+m[0].length));
+   if(term==='Schedule'&&number&&!blocked(m.index,m.index+m[0].length+number[0].length)&&!(originalNumber&&blocked(m.index,m.index+m[0].length+originalNumber[0].length)))continue;
+   // The printed condition is a following number. A plain lower-case noun
+   // does not need a question about a condition visibly absent from source.
+   const cue=/^\s+(?:\d|\(\s*\d)/u;
+   if(term==='schedule'&&!cue.test(after)&&!cue.test(originalSource.slice(m.index+m[0].length)))continue;
   }
   const constitutionalDocument=/(?:^|\n)\s*(?:ASSEMBLY|SENATE)\s+CONSTITUTIONAL\s+AMENDMENT\b/iu.test(source.slice(0,2000))||/\b(?:ACA|SCA)[\s_-]*\d/iu.test(doc.name||'');
   if(term==='state'&&ctx.at(m.index)==='Bill'&&exact.some(r=>r.text==='state (appearing alone in bill)')&&!constitutionalDocument)continue;

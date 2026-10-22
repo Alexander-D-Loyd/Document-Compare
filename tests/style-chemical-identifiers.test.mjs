@@ -4,6 +4,7 @@ import fs from 'node:fs';
 import {makeDocument} from '../app/core.mjs';
 import {numeralIssues} from '../app/style-numerals.mjs';
 import {jointStylisticIssues} from '../app/joint-style.mjs';
+import {reviewStyleIssues} from '../app/style-review.mjs';
 const refs=Object.fromEntries(['lcb','gpo'].map(id=>[id,JSON.parse(fs.readFileSync(new URL('../app/data/'+id+'-reference.json',import.meta.url)))]));
 const changes=text=>numeralIssues(makeDocument([text],'Current'),refs).filter(i=>!i.matchesPrimary).map(i=>[i.text,i.suggestion]);
 
@@ -26,6 +27,5 @@ test('explicit CAS labels and wrapped identifiers protect only the identifier',(
 test('ordinary quantities and unlabelled expressions are not globally exempted',()=>{
  assert.deepEqual(changes('The office takes 4 samples and 3 containers.'),[['4','four'],['3','three']]);
  assert.deepEqual(changes('The product is CAS 5384-21-4 for 4 samples.'),[['4','four']]);
- assert.ok(changes('The sequence is 5384-21-4.').some(([text])=>text==='4'));
- assert.ok(changes('The case is 5384-21-4.').some(([text])=>text==='4'));
+ for(const text of ['The sequence is 5384-21-4. The office takes 3 samples.','The case is 5384-21-4. The office takes 3 samples.']){assert.deepEqual(changes(text),[['3','three']]);const whole=reviewStyleIssues(makeDocument([text],'Current'),refs,{includeReviewSuggestions:true,includeCompleteLcbReview:true}).find(i=>i.checkId==='lcb-numerical-uncertainty-review'&&i.text==='5384-21-4');assert.ok(whole,'An unlabelled multipart figure needs complete-role review without an inferred CAS identity');assert.equal(whole.suggestion,null);}
 });

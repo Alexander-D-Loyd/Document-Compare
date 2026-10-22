@@ -796,7 +796,7 @@ async function checkStyle(){
   if(seq!==styleSequence)return;
   if(native.cancelled||!styleWorker){finish();return;}
   styleEngineWarning=[native.warning||'',entityPanel.warning()].filter(Boolean).join(' ');
-  styleWorker.postMessage({doc:{text:doc.text,blocks:doc.blocks,excluded:doc.excluded,struck:doc.struck,wrappedWords:doc.wrappedWords,styleDocumentType:doc.styleDocumentType},terms:customTerms,engineIssues:native.issues,authority:offlineAuthority,entityAuthority:entityPanel.selected()});
+  styleWorker.postMessage({doc:{text:doc.text,blocks:doc.blocks,excluded:doc.excluded,struck:doc.struck,wrappedWords:doc.wrappedWords,styleDocumentType:doc.styleDocumentType},terms:customTerms,engineIssues:native.issues,analysisCoverage:native.analysisCoverage||null,authority:offlineAuthority,entityAuthority:entityPanel.selected()});
 }
 function loadGuideReference(id=activeGuideId){
   if(!guideReferencePromises.has(id))guideReferencePromises.set(id,fetch(guideById(id).referenceUrl).then(response=>{if(!response.ok)throw Error(`${guideById(id).title} reference could not be loaded.`);return response.json();}).catch(error=>{guideReferencePromises.delete(id);throw error;}));
@@ -895,6 +895,28 @@ function renderGuideContext(){
     const note=document.createElement('p');note.textContent=source.reason+' '+source.scope;
     const link=document.createElement('a');link.textContent='View supplementary citation source';link.href=source.url+'#page='+source.pdfPage;link.target='_blank';link.rel='noopener noreferrer';
     box.append(title,note,link);root.append(box);
+  }
+  for(const check of guideContext.citationFormChecks||[]){
+    const box=document.createElement('article');box.className='guide-rule-card';
+    const title=document.createElement('strong');title.textContent='Additional citation check · California Style Manual '+check.section;
+    const reason=document.createElement('p');reason.textContent=check.reason+(check.preferred!==null?' Listed form: '+check.preferred+'.':'');
+    const link=document.createElement('a');link.textContent='View this citation provision';link.href=guideContext.supplementarySource.url+'#page='+check.pdfPage;link.target='_blank';link.rel='noopener noreferrer';box.append(title,reason,link);root.append(box);
+  }
+  if(guideContext.citationContextReview?.length){
+    for(const family of guideContext.citationContextReview){
+      const box=document.createElement('article');box.className='guide-rule-card';
+      const title=document.createElement('strong');title.textContent='Citation checks · California Style Manual '+(family.chapterRange?'· ':'§§ ')+(family.sectionLabel||family.sections.join(', '));
+      const list=document.createElement(family.provisionChecks?.length?'div':'ul');
+      if(family.provisionChecks?.length){
+        for(const provision of family.provisionChecks){
+          const details=document.createElement('details'),summary=document.createElement('summary');summary.textContent='§'+provision.section+' · source verification';
+          const tasks=document.createElement('ul');for(const task of provision.tasks){const item=document.createElement('li');item.textContent=task;tasks.append(item);}
+          const source=document.createElement('a');source.textContent='View §'+provision.section;source.href=guideContext.supplementarySource.url+'#page='+provision.pdfPage;source.target='_blank';source.rel='noopener noreferrer';details.append(summary,tasks,source);list.append(details);
+        }
+      }else for(const task of family.tasks){const item=document.createElement('li');item.textContent=task;list.append(item);}
+      const link=document.createElement('a');link.textContent='View these citation provisions';link.href=guideContext.supplementarySource.url+'#page='+family.pdfPage;link.target='_blank';link.rel='noopener noreferrer';
+      box.append(title,list,link);root.append(box);
+    }
   }
   for(const reference of guideContext.references.filter(r=>!['california-codes','california-counties'].includes(r.guideId))){
     const box=document.createElement('article');box.className='guide-rule-card';

@@ -6,6 +6,7 @@ import {fileURLToPath} from 'node:url';
 import {makeDocument} from '../app/core.mjs';
 import {mapOfflineIssues,prepareOfflineLanguage,reviewOfflineLanguage} from '../app/offline-language.mjs';
 import {reviewStyleIssues} from '../app/style-review.mjs';
+import engineHost from '../engine-host.cjs';
 const refs=Object.fromEntries(['lcb','gpo'].map(id=>[id,JSON.parse(fs.readFileSync(new URL('../app/data/'+id+'-reference.json',import.meta.url)))]));
 const run=spawnSync(fileURLToPath(new URL('../engines/runtime/python/python.exe',import.meta.url)),['-I','-B',fileURLToPath(new URL('./lcb-reader-parser.py',import.meta.url))],{encoding:'utf8',windowsHide:true});
 if(run.error)throw run.error;assert.equal(run.status,0,run.stderr);
@@ -58,4 +59,57 @@ test('explicit reader mode crosses the native bridge without changing grammar or
  assert.equal(request[3].includeLcbReaderReview,true);
  assert.deepEqual((await reviewOfflineLanguage(doc,'style','ordinary-control',bridge)).issues,[]);
  assert.equal(request[3].includeLcbReaderReview,false);
+});
+
+test('source-visible coordinated and stacked groups cover modifiers before intervening groups',()=>{
+ for(const [index,term]of [[14,'fast growing'],[14,'slow moving'],[15,'fast growing'],[19,'low temperature'],[20,'fast growing']]){
+  const row=rows[index],doc=makeDocument([row.text],'Current'),engineIssues=mapped(doc,row),issues=reviewStyleIssues(doc,refs,{engineIssues,includeReviewSuggestions:true,includeCompleteLcbReview:true});
+  const found=issues.find(i=>i.text===term&&i.checkId==='lcb-grouped-modifier-review');assert.ok(found,index+' '+term);assert.equal(found.suggestion,null);assert.match(found.message,/has its own head/);assert.match(found.message,/may be correct/);
+ }
+ const row=rows[15],doc=makeDocument([row.text],'Current'),issues=reviewStyleIssues(doc,refs,{engineIssues:mapped(doc,row),includeReviewSuggestions:true,includeCompleteLcbReview:true});assert.equal(issues.filter(i=>i.text==='sugar free').length,1,'Direct and grouped analysis retain one owner.');
+ for(const index of [16,18])assert.ok(!mapped(makeDocument([rows[index].text],'Current'),rows[index]).some(i=>i.engineRule==='LCB_GROUPED_MODIFIER_REVIEW'),rows[index].text);
+ const ly=rows[17],lyDoc=makeDocument([ly.text],'Current'),lyIssues=reviewStyleIssues(lyDoc,refs,{engineIssues:mapped(lyDoc,ly),includeReviewSuggestions:true,includeCompleteLcbReview:true});assert.ok(lyIssues.some(i=>i.checkId==='lcb-grouped-modifier-review'&&i.references.some(r=>r.rule==='Hyphenation, item 3')));
+});
+
+test('grouped modifier source proof rejects damage and fabricated group separator head or predicate evidence',()=>{
+ for(const index of [14,15,19,20]){
+  const row=rows[index],doc=makeDocument([row.text],'Current'),candidate=row.candidates.find(c=>c.engineRule==='LCB_GROUPED_MODIFIER_REVIEW');assert.ok(candidate,index);
+  const only={...row,candidates:[candidate]};assert.equal(mapped(doc,only).length,1,index);
+  for(const field of ['struck','excluded'])for(let at=0;at<doc.text.length;at++){const d=structuredClone(doc);d[field].push({start:at,end:at+1});assert.deepEqual(mapped(d,only),[],index+' '+field+' '+at);}
+  for(const part of ['group','head','predicate','separator','selection']){const bad=structuredClone(only),c=bad.candidates[0],proof=c.groupedModifierRoleEvidence;if(part==='group')proof.groups[0].components[0].text='fabricated';if(part==='head')proof.head.text='fabricated';if(part==='predicate')proof.predicate.text='fabricated';if(part==='separator'){if(proof.separators.length)proof.separators[0].text='fabricated';else proof.mode='coordinated';}if(part==='selection')proof.selectedGroup=99;assert.deepEqual(mapped(doc,bad),[],index+' '+part);}
+ }
+});
+
+test('a competing noun/verb analysis produces an explicit uncertainty question instead of a silent missed modifier',()=>{
+ const row=rows[21],doc=makeDocument([row.text],'Current'),engineIssues=mapped(doc,row),issues=reviewStyleIssues(doc,refs,{engineIssues,includeReviewSuggestions:true,includeCompleteLcbReview:true}),i=issues.find(i=>i.checkId==='lcb-ambiguous-modifier-review');assert.ok(i);assert.equal(i.text,'risk adjustment');assert.equal(i.head,'algorithms');assert.equal(i.suggestion,null);assert.equal(i.parserAlternatives.meaningResolved,false);assert.match(i.message,/Neither analysis/);
+ for(const index of [22,23])assert.ok(!rows[index].candidates.some(c=>c.engineRule==='LCB_AMBIGUOUS_MODIFIER_HEAD_REVIEW'),rows[index].text);
+ const candidate=row.candidates.find(c=>c.engineRule==='LCB_AMBIGUOUS_MODIFIER_HEAD_REVIEW'),only={...row,candidates:[candidate]};assert.equal(mapped(doc,only).length,1);
+ for(const field of ['struck','excluded'])for(let at=0;at<doc.text.length;at++){const d=structuredClone(doc);d[field].push({start:at,end:at+1});assert.deepEqual(mapped(d,only),[],field+' '+at);}
+ for(const part of ['score','token','missing','head','predicate']){const bad=structuredClone(only),p=bad.candidates[0].ambiguousModifierRoleEvidence;if(part==='score')p.margin=-1;if(part==='token')p.tokens[0].text='fabricated';if(part==='missing')p.tokens.splice(1,1);if(part==='head')p.head.tag='NNS';if(part==='predicate')p.predicate.text='fabricated';assert.deepEqual(mapped(doc,bad),[],part);}
+});
+
+test('grouped and ambiguous role witnesses survive recognized physical heads without accepting body dashes',()=>{
+ for(const [index,term]of [[14,'fast growing'],[19,'low temperature'],[21,'risk adjustment']]){
+  const row=rows[index],cut=row.text.indexOf(' ',row.text.indexOf(term))+1;
+  const doc=makeDocument(['line 1 '+row.text.slice(0,cut),'AB 224 — 2 —\nline 1 '+row.text.slice(cut)],'Current'),head=doc.blocks.find(b=>b.text==='AB 224 — 2 —');assert.ok(head);head.ignored=true;head.formatting={headerParts:[{start:0,end:head.text.length,anchor:'left'}]};doc.excluded.push({start:head.start,end:head.end});
+  const plan=prepareOfflineLanguage(doc);assert.equal(plan.text,row.text);const engineIssues=mapOfflineIssues(doc,plan,row.candidates,'style',{includeLcbReaderReview:true});assert.ok(engineIssues.some(i=>i.matchText===term),term);for(const i of engineIssues)assert.equal(doc.text.slice(i.start,i.end),i.text);
+ }
+ const row=rows[14],bad=makeDocument([row.text.replace('fast growing','fast—growing')],'Current');assert.ok(!mapped(bad,row).some(i=>i.engineRule==='LCB_GROUPED_MODIFIER_REVIEW'));
+});
+test('single-word coordinated groups preserve the neighboring multiword modifier and remain silent themselves',()=>{
+ for(const index of [24,25]){const row=rows[index],doc=makeDocument([row.text],'Current'),engineIssues=mapped(doc,row),found=reviewStyleIssues(doc,refs,{engineIssues,includeReviewSuggestions:true,includeCompleteLcbReview:true}).filter(i=>i.checkId==='lcb-grouped-modifier-review');assert.deepEqual(found.map(i=>i.text),['slow moving'],row.text);assert.equal(found[0].suggestion,null);for(const field of ['struck','excluded'])for(let p=0;p<doc.text.length;p++){const d=structuredClone(doc);d[field].push({start:p,end:p+1});assert.deepEqual(mapped(d,row),[],field+' '+p);}
+  const bad=structuredClone(row),candidate=bad.candidates.find(c=>c.engineRule==='LCB_GROUPED_MODIFIER_REVIEW'),proof=candidate.groupedModifierRoleEvidence;proof.selectedGroup=proof.groups.findIndex(g=>g.components.length===1);const single=proof.groups[proof.selectedGroup].components[0];candidate.start=single.start;candidate.end=single.end;assert.deepEqual(mapped(doc,bad),[],'A single adjective is not a multiword modifier question.');
+ }
+ assert.ok(!rows[26].candidates.some(c=>c.engineRule==='LCB_GROUPED_MODIFIER_REVIEW'));
+});
+
+test('real offline worker transports grouped and ambiguous witnesses with UTF-16 offsets and explicit mode isolation',async()=>{
+ const host=engineHost.createEngineHost({runtimeRoot:fileURLToPath(new URL('../engines/runtime',import.meta.url)),idleMs:1000}),bridge={review:(id,kind,chunks,options)=>host.review({id,kind,chunks,...options})};
+ try{
+  const text='An 🦉 observation is recorded. The agency evaluates fast growing or slow moving organisms. The agency evaluates low temperature high pressure reactors. The agency evaluates risk adjustment algorithms. The agency evaluates ordinary and slow moving organisms. The agency evaluates slow moving and ordinary organisms.',doc=makeDocument([text],'Current');
+  const result=await reviewOfflineLanguage(doc,'style','actual-reader-protocol',bridge,{includeLcbReaderReview:true});assert.equal(result.warning,undefined);assert.ok(result.issues.some(i=>i.engineRule==='LCB_GROUPED_MODIFIER_REVIEW'&&i.matchText==='fast growing'));assert.ok(result.issues.some(i=>i.engineRule==='LCB_GROUPED_MODIFIER_REVIEW'&&i.matchText==='low temperature'));assert.ok(result.issues.some(i=>i.engineRule==='LCB_AMBIGUOUS_MODIFIER_HEAD_REVIEW'&&i.matchText==='risk adjustment'));
+  for(const i of result.issues)assert.equal(doc.text.slice(i.start,i.end),i.text);
+  assert.equal(result.issues.filter(i=>i.engineRule==='LCB_GROUPED_MODIFIER_REVIEW'&&i.matchText==='slow moving').length,3);
+  const ordinary=await reviewOfflineLanguage(doc,'style','actual-precise-protocol',bridge);assert.ok(!ordinary.issues.some(i=>['LCB_GROUPED_MODIFIER_REVIEW','LCB_AMBIGUOUS_MODIFIER_HEAD_REVIEW'].includes(i.engineRule)));
+ }finally{host.stop();}
 });

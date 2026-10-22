@@ -4,11 +4,17 @@ import {mapPostnominalCompound,postnominalCompoundIssues,POSTNOMINAL_COMPOUND_RU
 import {styleContext} from './style-context.mjs';
 import {styleFindingPolicy} from './style-finding-policy.mjs';
 import {sourceNameRanges} from './style-source-names.mjs';
+import {GROUPED_MODIFIER_RULE,mapGroupedModifier,groupedModifierIssues} from './style-lcb-grouped-modifiers.mjs';
+import {AMBIGUOUS_MODIFIER_RULE,mapAmbiguousModifier,ambiguousModifierIssues} from './style-lcb-ambiguous-modifiers.mjs';
+import {UNRESOLVED_STRUCTURE_RULE,mapUnresolvedStructure,unresolvedStructureIssues} from './style-lcb-unresolved-structure.mjs';
 const nounRule='LCB_GENERAL_UNIT_MODIFIER_REVIEW';
 const attributiveRule='LCB_ATTRIBUTIVE_PHRASE_REVIEW';
-export const isLcbReaderCandidate=i=>i?.engine==='spaCy'&&i.reviewSuggested===true&&i.suggestion===null&&[nounRule,attributiveRule,PARSED_PREDICATE_COMPOUND_RULE,POSTNOMINAL_COMPOUND_RULE].includes(i.engineRule);
+export const isLcbReaderCandidate=i=>i?.engine==='spaCy'&&i.reviewSuggested===true&&i.suggestion===null&&[nounRule,attributiveRule,GROUPED_MODIFIER_RULE,AMBIGUOUS_MODIFIER_RULE,UNRESOLVED_STRUCTURE_RULE,PARSED_PREDICATE_COMPOUND_RULE,POSTNOMINAL_COMPOUND_RULE].includes(i.engineRule);
 export function mapLcbReaderCandidate(doc,plan,issue,selected,evidence){
  if(!isLcbReaderCandidate(issue))return null;
+ if(issue.engineRule===UNRESOLVED_STRUCTURE_RULE)return mapUnresolvedStructure(doc,plan,issue,selected,evidence);
+ if(issue.engineRule===GROUPED_MODIFIER_RULE)return mapGroupedModifier(doc,plan,issue,selected,evidence);
+ if(issue.engineRule===AMBIGUOUS_MODIFIER_RULE)return mapAmbiguousModifier(doc,plan,issue,selected,evidence);
  if(issue.engineRule===PARSED_PREDICATE_COMPOUND_RULE)return mapPredicateCompound(doc,plan,issue,selected,evidence);
  if(issue.engineRule===POSTNOMINAL_COMPOUND_RULE)return mapPostnominalCompound(doc,plan,issue,selected,evidence);
  if(issue.engineRule===attributiveRule)return mapAttributive(doc,plan,issue,selected,evidence);
@@ -48,5 +54,8 @@ export function lcbParserReviewIssues(doc,references,{engineIssues=[],existingIs
  }
  issues.push(...parsedPredicateCompoundIssues(doc,references,engineIssues,{existingIssues:[...existingIssues,...issues]}));
  issues.push(...postnominalCompoundIssues(doc,references,engineIssues,{existingIssues:[...existingIssues,...issues]}));
+ issues.push(...groupedModifierIssues(doc,references,engineIssues,{existingIssues:[...existingIssues,...issues]}));
+ issues.push(...ambiguousModifierIssues(doc,references,engineIssues,{existingIssues:[...existingIssues,...issues]}));
+ issues.push(...unresolvedStructureIssues(doc,references,engineIssues,{existingIssues:[...existingIssues,...issues]}));
  return issues.filter(styleFindingPolicy(doc,{context:ctx,names:sourceNameRanges(ctx.source)}));
 }
