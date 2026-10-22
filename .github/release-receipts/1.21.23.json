@@ -1,0 +1,22 @@
+{
+  "format": "document-compare.verified-release",
+  "repository": "Alexander-D-Loyd/Document-Compare",
+  "version": "1.21.23",
+  "sourceCommit": "e3cff11f7ec90904fc3b1ee62115125421376c0c",
+  "tag": "v1.21.23",
+  "branch": "main",
+  "manifestPath": ".github/release-receipts/1.21.23.package-manifest.json",
+  "manifestSHA256": "0ebfc3feb792fa6af01f2cccf405bbaefdcbd2170a2b687908aeb3d671a46883",
+  "archiveName": "Document-Compare-Windows-1.21.23.zip",
+  "archiveBytes": 538313575,
+  "archiveSHA256": "1a79e92da4efe1eace460b23bc8dfc2f7e4147d38677c0f3cd6deb4809189a8c",
+  "startHere": "Document Compare 1.21.23\r\n\r\nOpen Document Compare.exe and keep this entire folder together.\r\nPDF, OCR, spelling, grammar and style review run locally.\r\nLCB retains priority over differing GPO guidance. California Codes checks\r\nuse the supplied name/shorthand list and do not validate section numbers.\r\nStyle coverage is partial; review the source provisions and exceptions.\r\nSee resources/app/DESKTOP_VERIFICATION.md for verification scope.\r\nPACKAGE-MANIFEST.json records the SHA-256 of every packaged file except itself.\r\nIncluded Electron, PDF/OCR, dictionary and offline-engine licenses/notices\r\nare retained in their original folders.\r\n",
+  "title": "Document Compare 1.21.23",
+  "notes": "Document Compare 1.21.23 adds explicit GPO source comparisons and removes unrelated clock/era review noise.\n\nComplete nonzero-minute clocks omit redundant o’clock. Contiguous AM/PM is compared only after an intact finite clock lead. Eighteen exact square/cubic written-unit definitions detect missing powers. Twenty-seven complete time-zone name/symbol pairs compare exact case, dots, spacing and recognized wrong pairs. Complete era/year references retain their own identity and printed position; genuine sentence openings and explicit California code qualifiers retain their separate checks.\n\nEvery comparison requires complete original source evidence. Quoted and bill-defined forms, names, tables, source removals, technical boundaries and physical selections remain protected. Bare symbols, geography, daylight applicability and unfamiliar meaning are not inferred. LCB retains priority and California Codes, Counties and Entities remain independent references.\n\nThe coverage catalogue now individually assesses all 273 formerly unassessed unnumbered GPO pages: 147 contain literal/format candidates with mapping incomplete, 55 require manual evidence, and 71 concern federal publication workflows outside California bill prose. These page dispositions are not automated-rule totals. Broader GPO implementation remains partial; 17 prioritized candidate groups remain after era placement.\n\nValidation: all 3,043 source tests and 16 packaging/publishing regressions pass. The actual staged Windows EXE verifies eight precise GPO findings, eight quiet controls, zero questions, exact Current-only highlights and rendered source pages. It passes the four original AB 1967 PDFs, all nine Digest/amendment results, comma insertion, in-kind selection and ordinary Digest alignment. AB 2266 has zero style findings, automatic Heading/Digest/Bill rules and ten implemented amendments after confirming the unchanged previously reviewed readings. Original inputs retain their hashes.\n\nA separately fingerprinted style replay of 23 fresh native PDF models / 2,024 pages retains exactly 357 findings (138 precise and 219 questions), with zero additions/removals and all 34 original PDFs unchanged. Actual parser outputs from the prior fresh phase were reused only after matching model and preparation/mapping fingerprints. These results are not human precision/recall or full LCB/GPO certification.\n\nAdditional AB 109/SB 879 drafting materials and complete licensed ordered dictionary authority remain unavailable. Meaning, legal/entity identity, source currency and uncertain typography retain their stated manual limits.\n\nExtract the entire Windows ZIP and open Document Compare/Document Compare.exe. Keep all runtime/resources together. PDF and language processing run locally. Existing manuals, offline engines and licenses are included. A SHA-256 sidecar accompanies the ZIP.\n\nSource commit on main: e3cff11f7ec90904fc3b1ee62115125421376c0c\nWindows ZIP SHA-256: 1a79e92da4efe1eace460b23bc8dfc2f7e4147d38677c0f3cd6deb4809189a8c",
+  "priorRelease": {
+    "tag": "v1.21.22",
+    "assetName": "Document-Compare-Windows-1.21.22.zip",
+    "sha256": "290d9251d652c59eea45c7552dca3c223fbb3163b2013eb55943bf1f62fa47b5",
+    "bytes": 538279234
+  }
+}
