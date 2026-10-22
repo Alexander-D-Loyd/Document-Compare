@@ -3,6 +3,7 @@ import {styleContext,withStyleContext} from './style-context.mjs';
 import {styleWordDivisionView} from './style-word-divisions.mjs';
 import {styleEvidenceGuard,originalBodyStyleContext} from './style-evidence.mjs';
 import {entityNameBoundaryBlocked} from './style-entity-name-boundaries.mjs';
+import {eraReferenceRanges} from './style-gpo-era-references.mjs';
 const clean=s=>s.replace(/\s+/gu,' ').trim();
 const escape=s=>s.replace(/[.*+?^${}()|[\]\\]/gu,'\\$&');
 const layoutName=s=>clean(s.replace(/(?<=\p{L})-[ \t]*\n\s*(?=\p{L})/gu,''));
@@ -106,5 +107,6 @@ function codeIssues(doc){
   const rule=kind==='name'?'Exact code name':'Exact shorthand',message=expected?`“${form}” does not exactly match ${pair?'the shorthand for '+pair.name:'the California Codes list'}. Listed form: “${expected}”.`:`“${form}” is not an exact ${kind==='name'?'code name':'shorthand'} in the California Codes list. Confirm the intended citation; no replacement is inferred.`;
   issues.push({start,end,text,matchText:form,suggestion:expected||null,guideId:'california-codes',rule,category:kind==='name'?'California Code name':'California Code shorthand',checkId:'california-codes-'+kind,context:ctx.at(start),conflict:false,reviewSuggested:!expected,message,codeSource:{...CALIFORNIA_CODES_SOURCE,entry:pair||row||null,pairedWith:pair?.name||null},references:[{guideId:'california-codes',guideName:'California Codes',rule,preferred:expected||null,ruleText:message}]});
  }
- return issues;
+ const eras=eraReferenceRanges(doc,ctx);
+ return issues.filter(i=>!eras.some(r=>r.markerStart<=i.start&&r.markerEnd>=i.end));
 }

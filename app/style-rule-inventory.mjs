@@ -44,6 +44,7 @@ import {LCB_SPELLING_VARIANTS} from './style-lcb-spellings.mjs';
 import {LCB_ROLE_FORMS} from './style-lcb-role-forms.mjs';
 import {WORD_CHOICE_RULES} from './style-word-choice.mjs';
 import {GPO_ASSESSMENTS} from './style-rule-assessments.mjs';
+import {gpoPageAssessment} from './style-gpo-page-assessments.mjs';
 import {END_WORD_RULES,OPEN_END_RULES,NOMINAL_COMPOUNDS} from './style-compounds.mjs';
 import {GPO_NOMINAL_FORMS} from './gpo-nominal-forms.mjs';
 import {lcbLexicalInventory} from './lcb-lexical-inventory.mjs';
@@ -151,8 +152,8 @@ export function styleRuleInventory(references){
    // Unnumbered example tables, front matter and indexes still have a source
    // entry. Do not silently drop them because they have no numbered rule.
    for(const p of ref.pages)if(!covered.has(p.page)&&p.text.trim()){
-    const navigation=['Front matter','Index'].includes(p.chapter);
-    records.push({id:'gpo-page-'+p.page,title:'GPO · '+p.chapter+' · Source page '+p.page,guide:'gpo',page:p.page,status:navigation?'Not applicable to legislative prose':'Not yet assessed',text:p.text.replace(/\s+/g,' ').trim(),scope:navigation?'This passage provides publication credits, history, contents, general orientation or an index into the manual; it is not a standalone legislative wording prescription. The complete source remains searchable in the GPO tab.':'Unnumbered examples or page continuation; source search is available. Whole-page automatic coverage is not established.'});
+    const navigation=['Front matter','Index'].includes(p.chapter),assessed=gpoPageAssessment(p);
+    records.push({id:'gpo-page-'+p.page,title:'GPO · '+p.chapter+' · Source page '+p.page,guide:'gpo',page:p.page,status:navigation?'Not applicable to legislative prose':'Not yet assessed',text:p.text.replace(/\s+/g,' ').trim(),scope:navigation?'This passage provides publication credits, history, contents, general orientation or an index into the manual; it is not a standalone legislative wording prescription. The complete source remains searchable in the GPO tab.':'Unnumbered examples or page continuation; source search is available. Whole-page automatic coverage is not established.',...(assessed||{})});
    }
    records.push(...reportFormatInventory(ref));
    records.push(

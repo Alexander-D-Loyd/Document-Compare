@@ -1,4 +1,5 @@
 import {currencySeriesEvidence} from './style-currency-symbol-series.mjs';
+import {eraReferenceRanges} from './style-gpo-era-references.mjs';
 import {dimensionSeriesEvidence} from './style-symbol-series.mjs';
 import {styleContext,styleRangeBlocked} from './style-context.mjs';
 import {dimensionMarkParts} from './style-dimension-marks.mjs';
@@ -31,7 +32,7 @@ const ordinalPattern=[...ordinalNumbers.keys()].sort((a,b)=>b.length-a.length).m
 const figureOrdinal=n=>n.toLocaleString('en-US')+((n%100>=11&&n%100<=13)?'th':({1:'st',2:'nd',3:'rd'}[n%10]||'th'));
 const singular=w=>({people:'person',children:'child',feet:'foot',inches:'inch',copies:'copy'}[w]||w.replace(/s$/,''));
 export function numeralIssues(doc,references){
- const ctx=styleContext(doc),source=ctx.source,issues=[],protectedRanges=[];
+ const ctx=styleContext(doc),source=ctx.source,issues=[],protectedRanges=[],eras=eraReferenceRanges(doc,ctx);
  const incompleteNumeric=numericExpressionGuard(doc,ctx);
  const scalarSeries=scalarSeriesRanges(ctx,doc);
  const countedGroups=countedSeriesGroups(ctx,references.lcb,doc);
@@ -186,6 +187,9 @@ export function numeralIssues(doc,references){
   if(!figure&&/[a-z]-[ \t]*\n\s*$/i.test(source.slice(Math.max(0,start-80),start)))continue;
   const prefix=source.slice(sentence.start,start).replace(/^[\s”"’']*(?:\([a-z\d]+\)\s*)*/i,'').trim();
   const sentenceStart=!prefix;
+  // An abbreviation's periods do not create a new sentence before its era
+  // year. A genuine year-first opening retains the general opening rule.
+  if(eras.some(r=>r.yearStart<=start&&r.yearEnd>=end&&(r.markerFirst||!sentenceStart)))continue;
   if(text.toLowerCase()==='second'&&/\b(?:per|each|every)\s*$/i.test(before))continue;
   if(ordinal&&(figure||/^[A-Z]/.test(text))&&/^\s+(?:Amendment|Circuit|Congress|Street|Avenue)\b/.test(after))continue;
   if(!figure&&/\b(?:January|February|March|April|May|June|July|August|September|October|November|December)\s+$/i.test(before)&&value<=31){

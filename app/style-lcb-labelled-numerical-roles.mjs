@@ -1,5 +1,6 @@
 import {styleContext} from './style-context.mjs';
 import {originalBodyStyleContext,styleEvidenceGuard} from './style-evidence.mjs';
+import {technicalClockBoundary} from './style-time-abbreviations-next.mjs';
 
 // A printed label can establish that a hyphenated figure is a reference rather
 // than an unresolved quantity. It does not establish the reference's accuracy.
@@ -12,6 +13,10 @@ const phone='(?:[2-9]\\s*-\\s*1\\s*-\\s*1|9\\s*-\\s*8\\s*-\\s*8)';
 const order='(?:[A-Z]{1,4}\\d*\\s*-\\s*)?\\d+(?:\\s*-\\s*\\d+)+';
 const ruleCode='[A-Z]{2,8}(?:\\s*-\\s*[A-Z0-9]+)+';
 const claim='(?:\\d{2,3}(?:\\s*-\\s*(?:[A-Z]{2,4}|\\d{1,3})){1,3}|\\d{3,5})';
+const clock="(?:[1-9]|1[0-2])(?::[0-5]\\d)?(?:\\s+o[’']clock)?\\s*[ap]\\.\\s*m\\.";
+const writtenClock="(?:one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve)\\s+o[’']clock";
+const undottedClock="(?:(?:[1-9]|1[0-2])(?::[0-5]\\d)?(?:\\s+o[’']clock)?|"+writtenClock+')\\s*[ap]m\\.?';
+const clockLead="(?<![\\p{L}\\p{N}\\p{M}_./:\\\\#@’'\\-])(?:at|after|before|by|until|from|between|to)\\s+";
 const list=value=>value+'(?:\\s*(?:,\\s*(?:(?:and|or)\\s+)?|(?:and|or)\\s+)'+value+')*';
 const patterns=[
  ['item',new RegExp(left+'Items?\\s+(?<values>'+list(item)+')'+right,'giu')],
@@ -30,7 +35,10 @@ const patterns=[
  ['project-code',new RegExp(left+'\\(\\s*(?<values>'+ruleCode+')\\s*\\)\\s+(?:projects?|programs?)'+right,'gu')],
  ['claim',new RegExp(left+'CSM(?:\\s*-\\s*|\\s+)(?<values>'+list(claim)+')'+right,'gu')],
  ['version',new RegExp(left+'(?<values>v\\d+(?:\\.\\d+)+)'+right,'gu')],
- ['version',new RegExp(left+'[Vv]ersion\\s+(?<values>\\d+(?:\\.\\d+)+)'+right,'gu')]
+ ['version',new RegExp(left+'[Vv]ersion\\s+(?<values>\\d+(?:\\.\\d+)+)'+right,'gu')],
+ ['clock',new RegExp(left+'(?<values>'+clock+')'+right,'giu')],
+ ['clock',new RegExp(clockLead+'(?<values>'+undottedClock+')'+right,'giu')],
+ ['clock',new RegExp(clockLead+'(?<values>'+writtenClock+'\\s*[ap]\\.\\s*m\\.)'+right,'giu')]
 ];
 const valuesFor={item:new RegExp(item,'gu'),'item-heading':new RegExp(item,'gu'),'fund-heading':/\d{4}/gu,'code-legend':/\d{3,4}/gu,'public-law':/\d+\s*-\s*\d+/gu,year:new RegExp(year,'gu'),grade:/K\s*-\s*12/giu,phone:new RegExp(phone,'gu'),decision:/\d{2}\s*-\s*\d{2}\s*-\s*\d{3}/gu,order:new RegExp(order,'giu'),'rule-code':new RegExp(ruleCode,'gu'),'project-code':new RegExp(ruleCode,'gu'),claim:new RegExp(claim,'gu'),version:/v?\d+(?:\.\d+)+/gu};
 function supportedYear(value){
@@ -41,7 +49,7 @@ export function labelledNumericalRoleWitnesses(source){
  const out=[];
  for(const [role,pattern]of patterns)for(const m of source.matchAll(pattern)){
   if(['fund-heading','item-heading'].includes(role)&&!/\bBudget\s+Act\s+of\s+\d{4}\b/iu.test(source))continue;
-  const values=m.groups.values,valueAt=m.index+m[0].indexOf(values),coordinates=[...values.matchAll(valuesFor[role])];
+  const values=m.groups.values,valueAt=m.index+m[0].indexOf(values),coordinates=role==='clock'?[{0:values,index:0}]:[...values.matchAll(valuesFor[role])];
   // An unfamiliar or malformed labelled period still needs the whole-expression
   // question. No calendar period or missing digit is inferred from its prefix.
   if(role==='year'&&coordinates.some(v=>!supportedYear(v[0])))continue;
@@ -59,7 +67,7 @@ export function labelledNumericalRoleRanges(doc,ctx=styleContext(doc)){
  // digits-only amount rows cannot invalidate that label. Physical table
  // geometry and dot leaders still retain their original protections.
  const itemBlocked=styleEvidenceGuard(doc,{...ctx,tableAt:offset=>ctx.tableAt(offset)&&doc.blocks.some(b=>b.start<=offset&&b.end>offset&&(b.formatting?.headerGaps?.length>=2||/\.{3,}/u.test(ctx.source.slice(b.start,b.end))))});
- const intact=current.filter(r=>(!['fund-heading','item-heading'].includes(r.role)||budgetAnchor)&&!(r.role==='item'?itemBlocked:blocked)(r.evidenceStart,r.evidenceEnd)&&original.some(o=>o.role===r.role&&o.start===r.start&&o.end===r.end&&o.evidenceStart===r.evidenceStart&&o.evidenceEnd===r.evidenceEnd));
+ const intact=current.filter(r=>(!['fund-heading','item-heading'].includes(r.role)||budgetAnchor)&&!(r.role==='item'?itemBlocked:blocked)(r.evidenceStart,r.evidenceEnd)&&!(r.role==='clock'&&technicalClockBoundary(doc,ctx.source,originalSource,r.start,r.end))&&original.some(o=>o.role===r.role&&o.start===r.start&&o.end===r.end&&o.evidenceStart===r.evidenceStart&&o.evidenceEnd===r.evidenceEnd));
  // Once this source explicitly identifies a complete dialing code, its
  // repeated identical token remains that identifier. This licenses neither
  // other hyphenated figures nor a partial code manufactured by removed text.

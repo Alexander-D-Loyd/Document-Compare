@@ -20,6 +20,8 @@ import {INTRODUCED_SERIES_REVIEW_SCOPE}from './style-introduced-series-review.mj
 import {REPEATED_COUNT_PHRASE_SCOPE}from './style-repeated-count-phrases.mjs';
 import {EXACT_COUNT_THRESHOLD_SCOPE}from './style-lcb-review-number-relations.mjs';
 import {GPO_TIME_ABBREVIATION_SCOPE}from './style-measures.mjs';
+import {GPO_TIMEZONE_DEFINITION_SCOPE} from './style-gpo-timezone-definitions.mjs';
+import {GPO_ERA_REFERENCE_SCOPE} from './style-gpo-era-references.mjs';
 import {CALENDAR_ABBREVIATION_EVIDENCE_SCOPE}from './style-calendar-abbreviations.mjs';
 import {EDITORIAL_NOTATION_SCOPE}from './style-editorial-notation.mjs';
 import {GPO_COMPOUND_PLURAL_SCOPE}from './style-compound-plurals.mjs';
@@ -103,6 +105,7 @@ chapter9([38,39,40,41,42,43],'Manual review required','Publication and congressi
 chapter9([44,45],'Partially automated',CALENDAR_ABBREVIATION_EVIDENCE_SCOPE);
 chapter9([46],'Partially automated',CALENDAR_ABBREVIATION_EVIDENCE_SCOPE);
 chapter9([47,48,49,50,51,52],'Manual review required','Time-zone meanings, legal/copyrighted acronym forms, Latin references, compass/land exceptions and latitude/longitude groups require technical/referent and often line-layout evidence. These rules are not covered by generic spelling similarity.');
+GPO_ASSESSMENTS.set('9.47',{status:'Partially automated',scope:GPO_TIMEZONE_DEFINITION_SCOPE});
 chapter9([53],'Partially automated','Selected Celsius/Fahrenheit/Rankine degree-symbol spacing is checked, retaining plane-angle distinctions. Gravity scales, kelvin, Baumé, API and Twaddell forms remain manual.');
 chapter9([54,55],'Partially automated',GPO_TIME_ABBREVIATION_SCOPE);
 chapter9([56,57],'Partially automated','Selected metric/electrical symbols have spacing and plural-s checks. The 2016 prefix table is used for meter/gram/liter symbol protection and explicit full-name/symbol consistency, including significant prefix case. The fifteen explicit GPO 9.57 electrical forms are also checked with source-specific references. Unlisted derived units, squared/cubed, cubic-centimeter preference, angle and roman-type rules are not fully encoded.');
@@ -245,3 +248,4 @@ GPO_ASSESSMENTS.set('10.6',{...GPO_ASSESSMENTS.get('10.6'),scope:GPO_ASSESSMENTS
 for(const rule of ['6.33','8.16'])GPO_ASSESSMENTS.set(rule,{status:'Partially automated',scope:GPO_LISTED_WORDING_SCOPE});
 GPO_ASSESSMENTS.set('3.25',{...GPO_ASSESSMENTS.get('3.25'),scope:GPO_ASSESSMENTS.get('3.25').scope+' '+GPO_HOLIDAY_NAME_SCOPE});
 GPO_ASSESSMENTS.set('11.16',{status:'Partially automated',scope:GPO_WEB_TYPOGRAPHY_SCOPE});
+GPO_ASSESSMENTS.set('12.9',{...GPO_ASSESSMENTS.get('12.9'),scope:GPO_ASSESSMENTS.get('12.9').scope+' '+GPO_ERA_REFERENCE_SCOPE});

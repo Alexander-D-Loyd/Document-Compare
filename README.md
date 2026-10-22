@@ -2,7 +2,7 @@
 
 Offline Windows desktop app for legislative PDF comparison and amendment/style review. Version **1.21.22** applies supported bill-section rules automatically and reduces unsupported review questions while preserving explicit source comparisons. It includes the AB 1967 amendment-placement, in-kind and Digest-layout fixes. Coverage remains partial; a quiet check does not certify compliance.
 
-Current development status: [PROJECT_STATUS.md](PROJECT_STATUS.md). The **1.21.22 Windows build is verified**; archive/publication status is recorded separately. Version 1.21.21 is already published. The feature list below describes the current source.
+Current development status: [PROJECT_STATUS.md](PROJECT_STATUS.md). Version **1.21.22 is published** as the latest Windows release. The source also contains the subsequently verified GPO clock, unit, time-zone and era follow-up, which awaits packaging for a later release.
 
 ## Run the packaged app
 

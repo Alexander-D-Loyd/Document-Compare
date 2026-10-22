@@ -69,12 +69,16 @@ import {LCB_FRESH_QUOTE_REVIEW_SCOPE}from './style-lcb-review-quote-ownership.mj
 import {LCB_PERCENTAGE_VALUE_SCOPE}from './style-percentage-values.mjs';
 import {CALENDAR_SOURCE_EVIDENCE_SCOPE}from './style-calendar.mjs';
 import {GPO_TIME_ABBREVIATION_SCOPE}from './style-measures.mjs';
+import {GPO_TIMEZONE_DEFINITION_SCOPE} from './style-gpo-timezone-definitions.mjs';
+import {GPO_ERA_REFERENCE_SCOPE} from './style-gpo-era-references.mjs';
 import {CALENDAR_ABBREVIATION_EVIDENCE_SCOPE}from './style-calendar-abbreviations.mjs';
 import {EDITORIAL_NOTATION_SCOPE}from './style-editorial-notation.mjs';
 import {GPO_COMPOUND_PLURAL_SCOPE}from './style-compound-plurals.mjs';
 import {GPO_ENGLISH_ABBREVIATION_SCOPE}from './style-english-abbreviations.mjs';
 import {GPO_MATH_SYMBOL_SPACING_SCOPE}from './style-symbols.mjs';
 export const CHECK_COVERAGE=[
+ {title:'Complete era references',status:'Selected source forms',text:GPO_ERA_REFERENCE_SCOPE,guide:'gpo',page:289},
+ {title:'Explicit GPO time-zone definitions',status:'Selected source pairs',text:GPO_TIMEZONE_DEFINITION_SCOPE,guide:'gpo',page:248},
  {title:'Supplementary California citation forms',status:'Source forms and family-specific reader tasks',text:'Explicit Opinion and Cover letter selections use source-form checks and reader tasks under LCB1 item5. Routes span all102 numbered provisions in citation chapters1–3 of the reviewed fourth edition; this is an applicability inventory, not a full-rule certificate. Additional code, constitutional, regulatory, court-rule, legislative, federal, case and secondary-source checks preserve their own source sections and complete evidence. Parenthetical and selected full/reversed prose citations receive family-specific tasks; an existing form finding owns its additional tasks without a duplicate question. Named and nonadversarial case coordinates retain their figures. Complete bibliographic angle-bracket URLs can receive a reader task without changing or opening the URL. The source card links to the reviewed manual. Bill/Digest mode does not enable this layer. Unrecognized or protected citations, authority identity, current publication status, pinpoint support and original typography remain unverified. The 2000 edition does not establish newer reporter typography or present citability.',guide:'lcb',page:1},
  {title:'LCB unusual numerical expressions',status:'Reader-assisted checking',text:'Recognizable noncanonical adjacent cardinal words, selected large scales, scale-and-conjunction quantities, spoken decimals, small mixed Bill fractions and exponent notation outside protected technical literals receive whole-expression questions under LCB21. Removed prefixes cannot expose a false valid suffix. No value or replacement is calculated; canonical figures/words and existing specific owners retain precedence. Arbitrary notation and meaning remain unresolved.',guide:'lcb',page:21},
  {title:'LCB quoted corporation classification',status:'Selected source forms',text:'In the desktop reader mode, independently quoted lowercase c/s before an intact corporation noun receive the source classification-letter case comparison from LCB18/19. The quote pair and noun are original evidence; enclosing quotations and removed source remain protected. The check does not determine corporate status or legal identity.',guide:'lcb',page:18},

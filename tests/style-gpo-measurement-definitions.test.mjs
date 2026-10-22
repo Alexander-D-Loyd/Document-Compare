@@ -21,9 +21,9 @@ test('plain and superscript powers remain accepted without treating PDF flatteni
  assert.equal(run('Use 25 square meters (M ³S).')[0].suggestion,'m²');assert.equal(run('Use 25 cubic feet (F.T.²).')[0].suggestion,'ft³');
 });
 
-test('full names disambiguate ds hs and Ts while unrelated or missing-power symbols stay manual',()=>{
+test('full names disambiguate ds hs and Ts while unrelated symbol families stay manual',()=>{
  for(const [text,wanted]of [['Use 25 days (ds).','d'],['Use 25 hours (hs).','h'],['Use 25 metric tons (Ts).','t'],['Use 25 seconds (SS).','s']])assert.equal(run(text)[0].suggestion,wanted);
- for(const text of ['Use 25 ds and 25 hs and 25 Ts.','Use 25 square meters (M).','Use 25 square meters (km3).','Use 25 inches (ft).','Use 25 cubic centimeters (cc).','Use 25 cubic centimeters (cc) when requested.','Use 25 tons (T).','Use 25 feet².','Use 25 square feet (FT2).','Use 25 square dekameters (DAM2).','Use 25 cubic decameters (DAM3).'])assert.deepEqual(run(text),[],text);
+ for(const text of ['Use 25 ds and 25 hs and 25 Ts.','Use 25 square meters (km3).','Use 25 inches (ft).','Use 25 cubic centimeters (cc).','Use 25 cubic centimeters (cc) when requested.','Use 25 tons (T).','Use 25 feet².','Use 25 square feet (FT2).','Use 25 square dekameters (DAM2).','Use 25 cubic decameters (DAM3).'])assert.deepEqual(run(text),[],text);
 });
 
 test('complete finite measurement cues establish a definition but bare names and identifiers do not',()=>{
@@ -68,4 +68,22 @@ test('physical wraps margins page heads and discretionary divisions keep exact s
  const unknown=structuredClone(d),h=unknown.blocks.find(b=>b.text==='AB 999 — 2 —');h.formatting=null;h.runningHead=false;h.layoutLabel=false;h.ignored=true;assert.deepEqual(run(unknown),[]);
  assert.equal(run('line 1 Use 25 square centi-\nline 2 meters (CM3).')[0].suggestion,'cm2');
  for(const dash of ['–','—'])assert.deepEqual(run('line 1 Use 25 square centi'+dash+'\nline 2 meters (CM3).'),[],dash);
+});
+
+test('complete source-listed powered definitions compare a missing exponent on the same base symbol',()=>{
+ for(const row of GPO_MEASUREMENT_DEFINITIONS.filter(r=>r.power))for(const name of row.names){
+  const text='Use 25 '+name+' ('+row.symbol+').',[i]=run(text);assert.ok(i,text);assert.equal(i.text,row.symbol);assert.equal(i.suggestion,row.symbol+(row.power===2?'²':'³'));assert.equal(i.rule,row.rule);assert.equal(i.guidePage,row.page);assert.equal(text.slice(i.measurementDefinitionEvidence.evidenceStart,i.measurementDefinitionEvidence.evidenceEnd),'25 '+name+' ('+row.symbol+')');
+ }
+ assert.equal(run('The parcel has an area of 12 square meters (m).')[0].suggestion,'m²');assert.equal(run('The tank holds 12 cubic centimeters (cm).')[0].suggestion,'cm³');
+ for(const text of ['The symbols m and cm are listed.','The distance is 12 m. The area is recorded separately.','The Square Meters (m) Program applies.','The parcel has an area of 12 square meters (km).','Use 25 cubic centimeters (cc).','Use 25 square feet (ft).','Use 25 square meters (ms).','Use 25 square meters (m4).'])assert.deepEqual(run(text),[],text);
+});
+
+test('missing powers require every original definition character and retain ordinary negative evidence',()=>{
+ for(const phrase of ['25 square meters (m)','measured in cubic centimeters (cm)'])for(const field of ['struck','excluded'])for(let n=0;n<phrase.length;n++){
+  const d=doc('Use '+phrase+'.');d[field].push({start:4+n,end:5+n});assert.deepEqual(run(d),[],field+' '+phrase+' '+n);
+ }
+ for(const [prefix,suffix]of [['X',''],['é',''],['𐐀',''],['path/',''],['pre-',''],['','X'],['','é'],['','\u0301'],['','_key'],['','/key']]){const phrase='25 square meters (m)',text='Use '+prefix+phrase+suffix+'.';assert.deepEqual(run(text),[],text);for(const field of ['struck','excluded']){const changed=doc(text),at=prefix?4:4+phrase.length;changed[field].push({start:at,end:at+(prefix||suffix).length});assert.deepEqual(run(changed),[],field+' '+text);}}
+ for(const text of ['The wording is “25 square meters (m)”.','The 25 square meters (m) Program is hereby created.','Use 1 / 3 square meters (m).','Use 1e+3 square meters (m).','Use 25 square meters (m)^2.'])assert.deepEqual(run(text),[],text);
+ const table=doc('Use 25 square meters (m).');table.blocks[0].formatting={headerGaps:[{},{}]};assert.deepEqual(run(table),[]);
+ const d=makeDocument(['The people do enact as follows:\nline 1 Use 25 square','AB 999 — 2 —\nline 1 meters (m).'],'Current'),head=d.blocks.find(b=>b.text==='AB 999 — 2 —');head.formatting={headerParts:[{start:0,end:head.text.length,anchor:'left'}]};const [i]=run(d);assert.ok(i);assert.equal(i.text,'m');assert.equal(i.suggestion,'m²');assert.ok(d.text.slice(i.measurementDefinitionEvidence.evidenceStart,i.measurementDefinitionEvidence.evidenceEnd).includes('AB 999'));
 });

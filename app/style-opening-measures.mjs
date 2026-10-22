@@ -2,10 +2,12 @@ import {styleContext,styleRangeBlocked} from './style-context.mjs';
 import {dimensionMarkParts} from './style-dimension-marks.mjs';
 import {METRIC_UNITS,METRIC_SYMBOLS,LCB_LISTED_UNIT_DEFINITIONS} from './metric-units.mjs';
 import {spellNumber} from './style-numerals.mjs';
+import {eraReferenceRanges} from './style-gpo-era-references.mjs';
+import {originalBodyStyleContext} from './style-evidence.mjs';
 const names=new Map([...METRIC_UNITS,...LCB_LISTED_UNIT_DEFINITIONS].map(r=>[r.symbol,r]));
 const pattern=new RegExp('\\b(\\d+(?:,\\d{3})*)\\s*('+METRIC_SYMBOLS.slice().sort((a,b)=>b.length-a.length).join('|')+')\\b','g');
 export function openingMeasureIssues(doc,references){
- const ctx=styleContext(doc),source=ctx.source,issues=[],literal=[...source.matchAll(/“[^”]*”|"[^"\n]*"/g)].map(m=>({start:m.index,end:m.index+m[0].length}));
+ const ctx=styleContext(doc),source=ctx.source,original=originalBodyStyleContext(doc)?.source||source,issues=[],eras=eraReferenceRanges(doc,ctx),literal=[...source.matchAll(/“[^”]*”|"[^"\n]*"/g)].map(m=>({start:m.index,end:m.index+m[0].length}));
  for(const r of dimensionMarkParts(source)){
   if(r.kind!=='single'||!/^\d+$/.test(r.first)||ctx.at(r.start)==='Heading'||ctx.tableAt(r.start)||ctx.literalAt(r.start,r.evidenceEnd)||styleRangeBlocked(doc,r.start,r.evidenceEnd))continue;
   const sentence=ctx.sentenceAt(r.start),prefix=source.slice(sentence.start,r.start).replace(/^[\s”"’']*(?:\([a-z\d]+\)\s*)*/i,'').trim();if(prefix)continue;
@@ -20,6 +22,10 @@ export function openingMeasureIssues(doc,references){
  }
  for(const m of source.matchAll(pattern)){
   const start=m.index,end=start+m[0].length;
+  // An original dotted initial/identifier cannot become a bare SI symbol
+  // when its following period or letter is removed from the active view.
+  if(/^\.[\p{L}\p{N}\p{M}_]/u.test(original.slice(end)))continue;
+  if(eras.some(r=>r.start<=start&&r.end>=end))continue;
   if(ctx.at(start)==='Heading'||ctx.tableAt(start)||literal.some(r=>r.start<end&&r.end>start))continue;
   const sentence=ctx.sentenceAt(start),prefix=source.slice(sentence.start,start).replace(/^[\s”"’']*(?:\([a-z\d]+\)\s*)*/i,'').trim();
   if(prefix)continue;

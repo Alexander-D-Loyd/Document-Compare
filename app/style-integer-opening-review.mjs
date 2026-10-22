@@ -5,6 +5,7 @@ import {styleWordDivisionView}from './style-word-divisions.mjs';
 import {EXACT_INTEGER_TOKEN_PATTERN,exactIntegerParts,exceedsSafeInteger}from './style-exact-integer-digits.mjs';
 import {openingQuantityClause,quantityOpeningPrefix,quantitySingleQuoteRanges,quantityPredicateBoundaryBlocked}from './style-opening-quantity-evidence.mjs';
 import {numeralIdentifierRanges}from './style-numeral-identifiers.mjs';
+import {eraReferenceRanges}from './style-gpo-era-references.mjs';
 
 export const ORDINARY_INTEGER_OPENING_REVIEW_SCOPE='Unowned complete canonical ordinary integer/ordinal figures, including zero, at source-confirmed openings receive conditional LCB21/GPO12.16 spelling-or-rephrasing guidance, including the first sentence after the actual Digest heading. Existing precise opening corrections retain ownership. A competing nonopening Digest-body disagreement stays suppressed without suppressing the independent agreeing general opening question; no conflicting body replacement is shown. An intact selected finite clause supplies stronger evidence; unfamiliar clauses retain intact opening words and explicitly unresolved sentence/label roles without a word replacement. Exact grouping or nonopening ordinal owners merge with the independent opening question as one stop. Whole source prefixes, numbers and opening words, original/active legal abbreviation citations including Ch./Chs./Stats./H.R./S.R., known statutory heading labels, original unknown content, quotations, names, tables and numeric expressions remain protected. Percentages require an intact finite clause here; dedicated opening/fragment percentage methods retain their selected scope. Source coordinates survive recognized word/page divisions. Actual clause meaning, unfamiliar technical identities, broader percentage roles and general sentence segmentation remain incomplete; this is conditional checking, not whole numeral-rule automation.';
 export const ORDINARY_OPENING_MERGE_CHECK_IDS=['quantity-separators','numerals','lcb-unknown-money-review'];
@@ -25,6 +26,7 @@ function openingLabelBlocked(source,start){
 }
 function review(doc,refs,existing,protectedRanges){
  const ctx=styleContext(doc),original=originalBodyStyleContext(doc),blocked=styleEvidenceGuard(doc,ctx),numeric=numericExpressionGuard(doc,ctx),singles=[...quantitySingleQuoteRanges(ctx.source),...(original?quantitySingleQuoteRanges(original.source):[])],ids=numeralIdentifierRanges(ctx.source),out=[];
+ ids.push(...eraReferenceRanges(doc,ctx).filter(r=>r.markerFirst));
  for(const m of ctx.source.matchAll(token)){
   const parts=m[0]==='0'?{digits:'0',suffix:null}:exactIntegerParts(m[0]);if(!parts||exceedsSafeInteger(parts.digits))continue;const start=m.index,end=start+m[0].length;
   if(quantityOpeningPrefix(ctx,start)||ctx.at(start)==='Heading'||numeric(start,end)||ids.some(r=>r.start<end&&r.end>start)||protectedRanges.some(r=>r.start<end&&r.end>start))continue;

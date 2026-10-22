@@ -10,6 +10,7 @@ import {styleWordDivisionView} from './style-word-divisions.mjs';
 import {CALENDAR_MONTHS,validCompleteCalendarDate} from './style-calendar-dates.mjs';
 import {nounHeadMatch} from './style-noun-heads.mjs';
 import {labelledNumericalRoleRanges} from './style-lcb-labelled-numerical-roles.mjs';
+import {eraReferenceRanges} from './style-gpo-era-references.mjs';
 const overlap=(rows,a,b)=>rows.some(r=>r.start<b&&r.end>a);
 // The source explicitly makes different numerical expressions an exception.
 // Presence of two numbers is observable; whether they are related is not.
@@ -23,6 +24,10 @@ export function lcbSentenceReview(doc,references,{existingIssues=[],citationRang
 function review(doc,references,existing,citationRanges,includeSeriesReview){
  const ctx=styleContext(doc),source=ctx.source,blocked=styleEvidenceGuard(doc,ctx),literal=originalStyleLiteralGuard(doc,ctx),single=styleSingleQuoteRanges(source),identifiers=numeralIdentifierRanges(source),numeric=numericExpressionGuard(doc,ctx),quantity=writtenQuantityEvidenceGuard(doc,ctx),issues=[],superseded=[];
  identifiers.push(...citationRanges,...labelledNumericalRoleRanges(doc,ctx));
+ identifiers.push(...eraReferenceRanges(doc,ctx));
+ // A complete clock already established by its source-backed time checker
+ // cannot also supply separate ordinary-count components to this review.
+ identifiers.push(...existing.filter(i=>['gpo-whole-clock','gpo-time-meridian'].includes(i.checkId)).map(({start,end})=>({start,end})));
  // These are serial targets and layout labels, not ordinary small counts.
  // Their original complete spans still have to survive the sentence guard.
  const target='(?:\\([A-Za-z0-9]+\\)|\\d+(?:\\.\\d+)*(?:\\s*\\([A-Za-z0-9]+\\))*)';

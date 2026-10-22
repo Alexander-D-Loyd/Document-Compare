@@ -5,6 +5,7 @@ import {styleWordDivisionView}from './style-word-divisions.mjs';
 import {EXACT_INTEGER_TOKEN_PATTERN,exactIntegerParts,exceedsSafeInteger,exactOrdinalSuffix}from './style-exact-integer-digits.mjs';
 import {openingQuantityClause,quantityOpeningPrefix,quantitySingleQuoteRanges,quantityPredicateBoundaryBlocked}from './style-opening-quantity-evidence.mjs';
 import {numeralIdentifierRanges}from './style-numeral-identifiers.mjs';
+import {eraReferenceRanges}from './style-gpo-era-references.mjs';
 
 export const LARGE_INTEGER_OPENING_REVIEW_SCOPE='Whole canonical positive integer and ordinal figure strings larger than 9007199254740991 are preserved exactly rather than spelled or regrouped through a rounded Number. Ordinary large figure ordinals retain exact source grouping/suffix checks; magnitude evidence for related counts remains available. Eligible source-confirmed openings, including whole-dollar integers, receive conditional LCB21/GPO12.16 spelling-or-rephrasing review without an invented word form. A complete selected finite clause supplies stronger evidence; unfamiliar clauses remain reviewable with intact opening words and explicitly unresolved sentence/label roles. Existing exact thousands grouping, figure-ordinal or monetary questions merge with the opening question as one stop. Source coordinates remain exact through recognized word/page divisions. Headings, numeric-only rows, structural/identifier labels, quotes, tables, source damage, signed/decimal/fraction/exponent/range forms and noncanonical grouping stay protected. Mathematical identities, unfamiliar notation, full grammar, wider monetary meanings and word forms for very large integers remain incomplete; this is an exact-value safeguard and reader method, not whole numeral-rule automation.';
 const token=new RegExp('(?<![\\p{L}\\p{N}\\p{M}_.,/⁄$+−-])(\\$?)('+EXACT_INTEGER_TOKEN_PATTERN+')(st|nd|rd|th)?(?![\\p{L}\\p{N}\\p{M}_.,/⁄$+−-])','giu');
@@ -16,7 +17,7 @@ function review(doc,references,existing){
  for(const m of ctx.source.matchAll(token)){
   const parts=exactIntegerParts(m[2]+(m[3]||''));if(!parts||!exceedsSafeInteger(parts.digits)||m[1]&&parts.suffix)continue;const start=m.index,numberStart=start+m[1].length,end=start+m[0].length;
   if(quantityOpeningPrefix(ctx,start)||ctx.at(start)==='Heading'||numeric(numberStart,end)||original&&(quantityOpeningPrefix(original,start)||original.literalAt(start,end)||original.tableAt(start)))continue;
-  identifiers??=numeralIdentifierRanges(ctx.source);if(identifiers.some(r=>r.start<end&&r.end>start))continue;
+  identifiers??=[...numeralIdentifierRanges(ctx.source),...eraReferenceRanges(doc,ctx).filter(r=>r.markerFirst)];if(identifiers.some(r=>r.start<end&&r.end>start))continue;
   const next=followingWord.exec(ctx.source.slice(end));if(!next||structural.has(next[1].toLowerCase()))continue;const openingWordEnd=end+next[0].length;
   if(quantityPredicateBoundaryBlocked(doc,openingWordEnd)||blocked(start,openingWordEnd))continue;
   const clause=openingQuantityClause(ctx.source,end,{allowPartitive:true,originalSource:doc.text}),finite=clause&&!quantityPredicateBoundaryBlocked(doc,clause.evidenceEnd)&&!blocked(start,clause.evidenceEnd),evidenceEnd=finite?clause.evidenceEnd:openingWordEnd;

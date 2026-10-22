@@ -24,7 +24,7 @@ test('finite written and numeric o’clock forms receive one complete agreement-
 });
 
 test('unsupported hour meanings and nonzero-minute clocks remain outside the whole-hour helper',()=>{
- for(const phrase of ['0 A.M.','13 P.M.','01 A.M.','010:00 A.M.','0:00 a.m.','13:00 p.m.','2:30 P.M.','2:03 o’clock p.m.','ten P.M.','thirteen o’clock p.m.','one:00 o’clock p.m.','10 AM','10 a.m','10 am.','noon','midnight','10 o’clock','3 hours'])assert.deepEqual(run('Meet at '+phrase),[],phrase);
+ for(const phrase of ['0 A.M.','13 P.M.','01 A.M.','010:00 A.M.','0:00 a.m.','13:00 p.m.','2:30 P.M.','ten P.M.','thirteen o’clock p.m.','one:00 o’clock p.m.','10 a.m','noon','midnight','10 o’clock','3 hours'])assert.deepEqual(run('Meet at '+phrase),[],phrase);
 });
 
 test('every original clock word digit punctuation and bridge is required, including masked old :00 text',()=>{
@@ -73,4 +73,33 @@ test('original larger signed and decimal quantities cannot expose a finite hour 
   for(const property of ['struck','excluded'])for(const needle of [prefix.trim(),...(prefix.includes('and')?['and']:[]),...(prefix.includes('-')?['-']:[])]){const x=structuredClone(d),at=x.text.indexOf(needle);x[property].push({start:at,end:at+needle.length});for(const check of checks)assert.deepEqual(check(x),[],property+' '+needle+' '+phrase);}
  }
  for(const check of checks){const found=check(make('Meet at one o’clock A.M. and ten o’clock P.M.'));assert.deepEqual(found.map(i=>i.suggestion),['1 a.m.','10 p.m.']);}
+});
+
+test('complete nonzero-minute clocks omit redundant o’clock without changing minute digits',()=>{
+ for(const hour of ['1','2','10','12'])for(const minute of ['01','03','30','59'])for(const apostrophe of ['’',"'"]){
+  const phrase=hour+':'+minute+' o'+apostrophe+'clock P.M.',[i]=run('Meet at '+phrase);assert.ok(i,phrase);assert.equal(i.text,phrase);assert.equal(i.suggestion,hour+':'+minute+' p.m.');assert.equal(i.rule,'9.55');assert.equal(i.timeEvidence.omittedZero,false);assert.equal(i.timeEvidence.omittedOclock,true);
+ }
+ for(const phrase of ['2:30 o’clock p.m.','12:01 o’clock a.m.']){
+  const d=make('Meet at '+phrase),start=d.text.indexOf(phrase);for(const field of ['struck','excluded'])for(let n=0;n<phrase.length;n++){const changed=structuredClone(d);changed[field].push({start:start+n,end:start+n+1});assert.deepEqual(run(changed),[],field+' '+phrase+' '+n);}
+ }
+ for(const phrase of ['2:60 o’clock p.m.','02:30 o’clock p.m.','13:30 o’clock p.m.','two:30 o’clock p.m.','2:3 o’clock p.m.','2:30 p.m.'])assert.deepEqual(run('Meet at '+phrase),[],phrase);
+ const d=make('Meet at 2:30 o’clock P.M.'),all=jointStylisticIssues(d,refs),found=all.filter(i=>i.start<d.text.length&&i.end>d.text.indexOf('2:30'));assert.equal(found.length,1);assert.equal(found[0].suggestion,'2:30 p.m.');assert.ok(found[0].references.some(r=>r.guideId==='gpo'&&r.guidePage===250&&r.rule==='9.55'));
+});
+
+test('undotted meridians require a complete explicit clock lead and preserve the numeric clock',()=>{
+ for(const lead of ['at','after','before','by','until','from','between','to'])for(const phrase of ['10 AM.','2:30PM','12:59 pm.','3:00 AM']){
+  const d=make('Meet '+lead+' '+phrase),[i]=run(d);assert.ok(i,lead+' '+phrase);assert.equal(i.text,phrase);assert.equal(i.suggestion,phrase.startsWith('10')?'10 a.m.':phrase.startsWith('2')?'2:30 p.m.':phrase.startsWith('12')?'12:59 p.m.':'3 a.m.');assert.equal(i.rule,'9.54');assert.equal(i.timeEvidence.normalizedUndottedMeridian,true);assert.equal(i.evidenceStart,d.text.indexOf(lead));assert.equal(i.timeEvidence.clockLead,lead);
+ }
+ for(const phrase of ['10 AM','2:30 PM','ten o’clock PM'])assert.deepEqual(run('The label reads '+phrase),[],phrase);
+ for(const phrase of ['10 A M','10 a.m','2:3 PM','02:30 PM','13 PM','13:30 PM','10 AMXYZ','10 AM_key'])assert.deepEqual(run('Meet at '+phrase),[],phrase);
+ assert.equal(run('Meet at 2:30 o’clock PM.')[0].suggestion,'2:30 p.m.');assert.equal(run('Meet at ten o’clock AM.')[0].suggestion,'10 a.m.');
+});
+
+test('undotted clocks retain complete lead source boundaries names quotations and tables',()=>{
+ const phrase='at 2:30 PM.',d=make('Meet '+phrase),a=d.text.indexOf(phrase);for(const field of ['struck','excluded'])for(let n=0;n<phrase.length;n++){const changed=structuredClone(d);changed[field].push({start:a+n,end:a+n+1});assert.deepEqual(run(changed),[],field+' '+n);}
+ for(const text of ['Meet Xat 2:30 PM.','Meet αat 2:30 PM.','Meet path/at 2:30 PM.','Meet at 2:30 PM Program.','The at 2:30 PM West Foundation is hereby created.','Meet at “2:30 PM.”','“2:30 PM.” is the term. Meet at 2:30 PM.'])assert.deepEqual(run(text),[],text);
+ for(const field of ['struck','excluded'])for(const text of ['Meet Xat 2:30 PM.','Meet at X2:30 PM.','Meet at 2:30 PMX.']){const changed=make(text),at=changed.text.indexOf('X');changed[field].push({start:at,end:at+1});assert.deepEqual(run(changed),[],field+' '+text);}
+ const table=make('Meet at 2:30 PM.');table.blocks.at(-1).formatting={headerGaps:[{},{}]};assert.deepEqual(run(table),[]);
+ const divided=makeDocument(['The people do enact as follows:\nline 1 Meet at','AB 999 — 2 —\nline 1 2:30 PM.'],'Current'),head=divided.blocks.find(b=>b.text==='AB 999 — 2 —');head.formatting={headerParts:[{start:0,end:head.text.length,anchor:'left'}]};const [i]=run(divided);assert.ok(i);assert.equal(i.text,'2:30 PM.');assert.equal(i.suggestion,'2:30 p.m.');assert.ok(divided.text.slice(i.evidenceStart,i.evidenceEnd).includes('AB 999'));
+ head.formatting=null;head.runningHead=false;head.layoutLabel=false;head.ignored=true;assert.deepEqual(run(divided),[]);
 });

@@ -55,7 +55,7 @@ test('GPO 6.38 has bounded fraction automation with its true printed rule and re
 test('coverage inventory retains every nonempty source page and distinguishes source presence from automation',()=>{
  const items=styleRuleInventory(refs);assert.ok(items.length>500);
  for(const id of ['lcb','gpo'])for(const p of refs[id].pages.filter(p=>p.text.trim()))assert.ok(items.some(i=>i.guide===id&&(i.page===p.page||i.text.includes(p.text.trim().slice(0,40).replace(/\s+/g,' ')))),id+' page '+p.page);
- assert.ok(items.some(i=>i.id==='gpo-6.15'&&i.status==='Partially automated'));assert.ok(items.some(i=>i.status==='Not yet assessed'));
+ assert.ok(items.some(i=>i.id==='gpo-6.15'&&i.status==='Partially automated'));assert.ok(items.some(i=>i.status==='Assessed — mapping incomplete'));
  assert.ok(items.some(i=>i.id==='gpo-8.8'&&i.text.includes('Possessive pronouns')));
  assert.equal(new Set(items.map(i=>i.id)).size,items.length);assert.ok(searchRuleInventory(refs,'LCB unit modifier').length>0);
 });
