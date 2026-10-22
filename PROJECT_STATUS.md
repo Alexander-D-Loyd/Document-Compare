@@ -1,6 +1,6 @@
-# Document Compare — current source and published 1.21.22
+# Document Compare — 1.21.23 build verification
 
-Version [1.21.22](https://github.com/Alexander-D-Loyd/Document-Compare/releases/tag/v1.21.22) is published as the latest Windows release on main. GitHub verified the exact locally tested ZIP and both asset checksums. The selected GPO follow-up described below is verified in the current source and awaits packaging for a later release. STYLE_COVERAGE_STATUS.json separates these checkpoints.
+Version [1.21.22](https://github.com/Alexander-D-Loyd/Document-Compare/releases/tag/v1.21.22) is published as the latest Windows release on main. GitHub verified the exact locally tested ZIP and both asset checksums. The selected GPO follow-up below has passed actual staged Windows verification as 1.21.23. Archiving and GitHub publication follow this immutable build-time snapshot. STYLE_COVERAGE_STATUS.json separates these checkpoints.
 
 ## Completed work
 
@@ -12,14 +12,14 @@ The subsequent GPO source work implements complete nonzero-minute clocks with re
 
 ## Current verification
 
-All 3,043 source tests pass, with zero failures, skips or cancellations. The final source Electron run imports a controlled PDF and verifies eight precise findings, eight quiet controls, zero questions, exact Current-only highlights and rendered guide source pages 248, 250, 251 and 289. This is native source-app verification, separate from the already published 1.21.22 EXE.
+All 3,043 source tests pass, with zero failures, skips or cancellations. The actual staged 1.21.23 Windows EXE imports a controlled PDF and verifies eight precise findings, eight quiet controls, zero questions, exact Current-only highlights and rendered guide source pages 248, 250, 251 and 289. It also passes the four original AB 1967 PDFs, all nine Digest/amendment results, comma insertion, in-kind selection and ordinary Digest prose alignment. AB 2266 has zero style findings and automatic Heading/Digest/Bill routing; all ten amendments pass after confirming unchanged previously reviewed readings.
 
 A separately fingerprinted replay of all 23 fresh native models / 2,024 pages retains exactly 357 findings (138 precise and 219 questions), with zero additions or removals. Actual parser outputs from the prior fresh phase are reused only after their exact model and preparation/mapping fingerprints match. All 34 original PDFs retain their hashes. Independent source/evidence reviews have no remaining blockers. These checks do not measure human precision or recall.
 
 ## Coverage records and remaining work
 
-All 273 previously unassessed GPO records were unnumbered source pages. They now have individual source-bound assessments: 147 contain literal/format candidates with mapping incomplete, 55 need meaning/layout/external evidence, and 71 concern federal publication workflows outside California bill prose. Mixed capitalization and compounding pages retain their conditional remainder. Neither an assessed page nor a source entry establishes whole-rule automation. The separate finite backlog records 18 prioritized groups; the era-position subcase is completed in this follow-up.
+All 273 previously unassessed GPO records were unnumbered source pages. They now have individual source-bound assessments: 147 contain literal/format candidates with mapping incomplete, 55 need meaning/layout/external evidence, and 71 concern federal publication workflows outside California bill prose. Mixed capitalization and compounding pages retain their conditional remainder. Neither an assessed page nor a source entry establishes whole-rule automation. The original finite backlog recorded 18 prioritized candidate groups; era placement is completed, leaving 17 candidate groups with their source/evidence gates.
 
-The selected GPO source follow-up needs packaging before another Windows release. Broader GPO table forms, additional source conditions and the documented candidate backlog remain. AB 109/SB 879 still require additional LCB drafting RNs. The 219 remaining questions are not individually certified errors; representative human review and missed-error adjudication remain necessary. Complete licensed ordered Merriam-Webster authority is unavailable. Full LCB/GPO compliance, current legal/entity identity and statutory section validity are not certified.
+The staged 1.21.23 EXE is verified and ready for archiving/publication directly on main. Broader GPO table forms, additional source conditions and the documented candidate backlog remain. AB 109/SB 879 still require additional LCB drafting RNs. The 219 remaining questions are not individually certified errors; representative human review and missed-error adjudication remain necessary. Complete licensed ordered Merriam-Webster authority is unavailable. Full LCB/GPO compliance, current legal/entity identity and statutory section validity are not certified.
 
 Older dated reports and historicalCheckpoints retain their historical scope. Published receipts and archive bytes are unchanged. Private PDFs, models, parser output, app profiles and screenshots remain excluded from public source exports.

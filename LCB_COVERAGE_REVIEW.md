@@ -1,6 +1,6 @@
 Current status — October 22, 2026
 
-[PROJECT_STATUS.md](PROJECT_STATUS.md) and [STYLE_COVERAGE_STATUS.json](STYLE_COVERAGE_STATUS.json) record the current source. Version 1.21.22 is published as the latest Windows release. The subsequent selected GPO source follow-up passes source, native source-app and corpus verification and awaits packaging for a later release. Automatic bill sections require no ruleset selection.
+[PROJECT_STATUS.md](PROJECT_STATUS.md) and [STYLE_COVERAGE_STATUS.json](STYLE_COVERAGE_STATUS.json) record the verified 1.21.23 build. All 3,043 source tests and actual staged Windows GPO/AB 1967/AB 2266 checks pass. Final archiving and publication follow this build-time snapshot; 1.21.22 remains published at that checkpoint. Automatic bill sections require no ruleset selection.
 
 Historical checkpoints follow. Earlier test totals, release tasks, reader modes and coverage summaries apply only to their dated versions. Original release receipts and package manifests are retained unchanged.
 

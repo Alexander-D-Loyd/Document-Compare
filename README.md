@@ -1,12 +1,12 @@
 # Document Compare
 
-Offline Windows desktop app for legislative PDF comparison and amendment/style review. Version **1.21.22** applies supported bill-section rules automatically and reduces unsupported review questions while preserving explicit source comparisons. It includes the AB 1967 amendment-placement, in-kind and Digest-layout fixes. Coverage remains partial; a quiet check does not certify compliance.
+Offline Windows desktop app for legislative PDF comparison and amendment/style review. Version **1.21.23** applies supported bill-section rules automatically and reduces unsupported review questions while preserving explicit source comparisons. It includes the AB 1967 amendment-placement, in-kind and Digest-layout fixes. Coverage remains partial; a quiet check does not certify compliance.
 
-Current development status: [PROJECT_STATUS.md](PROJECT_STATUS.md). Version **1.21.22 is published** as the latest Windows release. The source also contains the subsequently verified GPO clock, unit, time-zone and era follow-up, which awaits packaging for a later release.
+Current development status: [PROJECT_STATUS.md](PROJECT_STATUS.md). Version **1.21.23** packages the verified GPO clock, unit, time-zone and era follow-up. All 3,043 source tests and actual staged Windows GPO/AB 1967/AB 2266 checks pass. Final archive/publication follows this build-time snapshot; 1.21.22 remains published at that checkpoint.
 
 ## Run the packaged app
 
-Extract the entire **Document-Compare-Windows-1.21.22.zip** and open **Document Compare/Document Compare.exe**. Keep the runtime and resources together. No installation or development tools are required. PDF and language review run locally.
+Extract the entire **Document-Compare-Windows-1.21.23.zip** and open **Document Compare/Document Compare.exe**. Keep the runtime and resources together. No installation or development tools are required. PDF and language review run locally.
 
 ## Features
 

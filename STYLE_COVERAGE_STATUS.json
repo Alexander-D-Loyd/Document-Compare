@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "date": "2026-10-22",
-  "packagedVersion": "1.21.22",
+  "packagedVersion": "1.21.23",
   "localFollowOn": true,
   "statusReport": "PROJECT_STATUS.md",
   "publishedRelease": {
@@ -224,20 +224,21 @@
   },
   "workingCopy": {
     "basePublishedVersion": "1.21.22",
-    "packageJsonVersion": "1.21.22",
+    "packageJsonVersion": "1.21.23",
     "unreleasedChanges": true,
-    "followUpVersionAssigned": false,
-    "packaged": false,
-    "scope": "Selected GPO clock, powered-unit, time-zone and era-reference source follow-up is verified. Published 1.21.22 ZIP remains unchanged. Consult Git for live commit state."
+    "followUpVersionAssigned": true,
+    "followUpVersion": "1.21.23",
+    "packaged": true,
+    "scope": "Immutable 1.21.23 build-time snapshot: actual staged Windows verification passed; final archive and GitHub publication follow separately."
   },
   "currentValidation": {
-    "scope": "Current GPO source follow-up; native source Electron testing is separate from published 1.21.22 Windows EXE verification.",
+    "scope": "Verified 1.21.23 source and actual staged Windows EXE. Published-release identity is separately verified after archiving.",
     "sourceTests": 3043,
     "passed": 3043,
     "failed": 0,
     "skipped": 0,
     "cancelled": 0,
-    "sourceSuiteEvidence": "qa-output/gpo-followup-native/source-tests-final.txt",
+    "sourceSuiteEvidence": "qa-output/release-1.21.23/source-tests.txt",
     "sourceNativeGpo": {
       "actualSourceElectron": true,
       "actualPackagedApplication": false,
@@ -284,6 +285,80 @@
       "all142CachedPreciseKeysPreserved": true,
       "baselineQuestionsIndividuallyDispositioned": true,
       "evidence": "qa-output/remaining-review-comparison.json"
+    },
+    "packagedWindows": {
+      "version": "1.21.23",
+      "actualWindowsExe": true,
+      "gpo": {
+        "findings": 8,
+        "precise": 8,
+        "questions": 0,
+        "quietControls": 8,
+        "exactSelectionsAndSourceCards": true,
+        "renderedGuidePages": [
+          248,
+          250,
+          251,
+          289
+        ],
+        "originalFixturesUnchanged": true
+      },
+      "ab1967": {
+        "actualDesktop": true,
+        "actualPackagedApplication": true,
+        "version": "1.21.23",
+        "files": 4,
+        "digestAndEightAmendmentsVerified": true,
+        "commaMarkerAndSelection": true,
+        "exactInKindHighlight": true,
+        "lcbPage11Navigation": true,
+        "digestProseAlignment": true,
+        "sourceFilesUnchanged": true,
+        "styleFindings": 4
+      },
+      "automaticSections": {
+        "actualPackagedApplication": true,
+        "version": "1.21.23",
+        "originalBillPdfs": 2,
+        "originalPdfsUnchanged": true,
+        "hashes": {
+          "AB 2266 v95.pdf": "1b3d9eeb4ae369448a7f5b86cbb6b65c2de7d4bf6afa789b4ff7de348414d4f6",
+          "AB 2266 v94.pdf": "733f74b7dbfd1277718de61f457b51ad71a686e1c7347428291b657f1692d6cc"
+        },
+        "findings": 0,
+        "selectorAbsent": true,
+        "forcedType": null,
+        "contexts": {
+          "heading": "Heading",
+          "digest": "Digest",
+          "bill": "Bill"
+        },
+        "controlledProductionWorker": [
+          {
+            "text": "two",
+            "suggestion": "2",
+            "context": "Digest",
+            "rule": "Numerals: Digest, item 1"
+          },
+          {
+            "text": "2",
+            "suggestion": "two",
+            "context": "Bill",
+            "rule": "Numerals: Bill, item 1"
+          }
+        ]
+      },
+      "ab2266Amendments": {
+        "implemented": 10,
+        "previouslyReviewedReadingsConfirmedUnchanged": true,
+        "originalFilesUnchanged": true
+      },
+      "evidence": [
+        "qa-output/release-1.21.23/gpo/verified.json",
+        "qa-output/release-1.21.23/ab1967/verified.json",
+        "qa-output/release-1.21.23/automatic/verified.json",
+        "qa-output/release-1.21.23/amendments2266/verified.json"
+      ]
     }
   },
   "styleScope": {
@@ -328,7 +403,8 @@
       "literalOrFormatMappingBacklog": 147,
       "manualEvidenceRequired": 55,
       "outsideCaliforniaBillScope": 71,
-      "sourceHashesBound": true
+      "sourceHashesBound": true,
+      "remainingPrioritizedCandidateGroups": 17
     },
     "scope": "Page applicability, individual source entries and selected methods only. Assessed mapping backlog is not automation; counts are not completion percentages or measured accuracy."
   },
@@ -447,7 +523,7 @@
   },
   "wholeRuleCertification": false,
   "pending": [
-    "Package the selected GPO source follow-up before including it in another Windows release. The verified 1.21.22 release is published and complete.",
+    "Archive the verified 1.21.23 Windows build and publish it directly on main. Version 1.21.22 remains published at this build-time checkpoint.",
     "Continue the separately assessed finite GPO table/source backlog. The four selected clock/unit/time-zone groups and the era-position subcase are implemented; remaining candidate groups retain source and evidence gates.",
     "Obtain additional LCB drafting RNs for AB 109/SB 879 source questions.",
     "Human-adjudicate remaining questions and missed issues. Complete licensed ordered dictionary authority, source currency and legal/name identity remain unverified."
@@ -3555,6 +3631,80 @@
         }
       },
       "validationRef": "publishedRelease.validation"
+    },
+    "before12123Packaging": {
+      "scope": "Verified source follow-up before staging the new Windows release.",
+      "workingCopy": {
+        "basePublishedVersion": "1.21.22",
+        "packageJsonVersion": "1.21.22",
+        "unreleasedChanges": true,
+        "followUpVersionAssigned": false,
+        "packaged": false,
+        "scope": "Selected GPO clock, powered-unit, time-zone and era-reference source follow-up is verified. Published 1.21.22 ZIP remains unchanged. Consult Git for live commit state."
+      },
+      "currentValidation": {
+        "scope": "Current GPO source follow-up; native source Electron testing is separate from published 1.21.22 Windows EXE verification.",
+        "sourceTests": 3043,
+        "passed": 3043,
+        "failed": 0,
+        "skipped": 0,
+        "cancelled": 0,
+        "sourceSuiteEvidence": "qa-output/gpo-followup-native/source-tests-final.txt",
+        "sourceNativeGpo": {
+          "actualSourceElectron": true,
+          "actualPackagedApplication": false,
+          "fixtureVersion": "v3",
+          "findings": 8,
+          "precise": 8,
+          "questions": 0,
+          "quietControls": 8,
+          "exactPhysicalHighlights": true,
+          "originalGuidePages": [
+            248,
+            250,
+            251,
+            289
+          ],
+          "sourceHashesStable": true,
+          "evidence": "qa-output/gpo-followup-native/verified-v3-final/verified.json"
+        },
+        "freshCorpusReplay": {
+          "models": 23,
+          "pages": 2024,
+          "findings": 357,
+          "precise": 138,
+          "questions": 219,
+          "added": 0,
+          "removed": 0,
+          "originalPdfsUnchanged": 34,
+          "parserPhase": "Reused actual parser outputs from fresh native intake after verifying all model and preparation/mapping dependencies unchanged; current style rerun is separately fingerprinted.",
+          "evidence": "qa-output/gpo-followup-native/corpus-replay.json"
+        },
+        "independentReview": {
+          "clockZoneUnitAssertions": 838,
+          "eraAssertions": 368,
+          "noBlockers": true,
+          "evidence": [
+            "qa-output/gpo-complete-audit/late-review.json",
+            "qa-output/gpo-complete-audit/era-review.json"
+          ]
+        },
+        "originalQuestionAudit": {
+          "baselineQuestions": 589,
+          "questionsRemoved": 370,
+          "questionsRetained": 219,
+          "all142CachedPreciseKeysPreserved": true,
+          "baselineQuestionsIndividuallyDispositioned": true,
+          "evidence": "qa-output/remaining-review-comparison.json"
+        }
+      }
     }
+  },
+  "releaseCandidate": {
+    "version": "1.21.23",
+    "status": "native-verified-archive-publication-pending",
+    "branch": "main",
+    "buildSnapshotDate": "2026-10-22",
+    "archiveReceipt": ".github/release-receipts/1.21.23.json"
   }
 }
