@@ -1,6 +1,6 @@
 Current status — October 22, 2026
 
-[PROJECT_STATUS.md](PROJECT_STATUS.md) and [STYLE_COVERAGE_STATUS.json](STYLE_COVERAGE_STATUS.json) record the verified 1.21.23 build. All 3,043 source tests and actual staged Windows GPO/AB 1967/AB 2266 checks pass. Final archiving and publication follow this build-time snapshot; 1.21.22 remains published at that checkpoint. Automatic bill sections require no ruleset selection.
+[PROJECT_STATUS.md](PROJECT_STATUS.md) and [STYLE_COVERAGE_STATUS.json](STYLE_COVERAGE_STATUS.json) record [1.21.23](https://github.com/Alexander-D-Loyd/Document-Compare/releases/tag/v1.21.23) as the latest published Windows release on main. All 3,043 source tests, 16 packaging/publishing regressions and actual staged Windows GPO/AB 1967/AB 2266 checks pass. GitHub reconstructed the exact tested ZIP and verified both asset digests. Automatic bill sections require no ruleset selection.
 
 Historical checkpoints follow. Earlier test totals, release tasks, reader modes and coverage summaries apply only to their dated versions. Original release receipts and package manifests are retained unchanged.
 
