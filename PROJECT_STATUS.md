@@ -1,10 +1,10 @@
-# Document Compare — 1.21.24 Windows build verified on main
+# Document Compare — 1.21.24 published on main
 
-Version [1.21.23](https://github.com/Alexander-D-Loyd/Document-Compare/releases/tag/v1.21.23) is published as the latest Windows release directly from main. GitHub reconstructed the exact locally tested ZIP, verified all 7,716 archive entries / 7,715 manifest files and both asset checksums, and completed publication successfully. The archive is 538,313,575 bytes; its SHA-256 is 1a79e92da4efe1eace460b23bc8dfc2f7e4147d38677c0f3cd6deb4809189a8c. STYLE_COVERAGE_STATUS.json records the build, package and publication checkpoints separately.
+Version [1.21.24](https://github.com/Alexander-D-Loyd/Document-Compare/releases/tag/v1.21.24) is published as the latest Windows release directly from main. GitHub reconstructed the exact locally tested ZIP, verified all 7,732 archive entries / 7,731 manifest files and both asset checksums, and completed publication successfully. The archive is 538,793,546 bytes; its SHA-256 is 813fb2224f31c5d7182c9457c209a045d16495316ccdf07cb5e3ad224f85cbaf. Source, staged Windows, immutable archive and publication records are separate checkpoints.
 
 ## Completed work
 
-Local work after publication follows the requested order: PDF/OCR reliability, explicit GPO coverage, then accuracy calibration. These changes pass staged Windows verification as 1.21.24; 1.21.23 remains published until the exact archive and GitHub checks finish.
+Version 1.21.24 includes the completed work in the requested order: PDF/OCR reliability, explicit GPO coverage, then accuracy calibration. The tested Windows ZIP is published; subsequent main documentation records the publication without modifying its build-time snapshot.
 
 The OCR/embedded-text comparison now checks ordered words, omissions, insertions, punctuation, numbers and Roman references. Reading questions use exact, bounded source spans in Previous, Current, Digest and instructional PDFs. Confirmations are bound to the current source and warning; stale forms cannot change a replacement document. Referenced-bill OCR uncertainty follows that source into amendment results and prevents an unsupported implemented result. Original PDF bytes remain unchanged.
 
@@ -16,9 +16,9 @@ Before this local follow-on, all 589 baseline questions were individually assess
 
 The subsequent GPO source work implements complete nonzero-minute clocks with redundant o’clock, contiguous AM/PM after intact finite clock leads, missing powers in 18 exact square/cubic full-name definitions, and 27 exact time-zone full-name/symbol pairs. Complete era/year references now retain their own identity and explicit position check instead of becoming California-code, ordinary-count or SI-symbol findings. Genuine opening-number requirements and explicit code qualifiers remain checked. Clock digits cannot independently create a count-relationship question. Complete original evidence, quoted/defined forms, names, tables and removed-source protections remain required. Bare symbols and unestablished meaning do not authorize changes.
 
-## 1.21.24 staged Windows verification
+## Published 1.21.24 verification
 
-The actual staged 1.21.24 EXE passes six native workflows. GPO checks verify 17 exact findings, 29 quiet controls and 13 original guide pages; accuracy checks verify nine intended findings, 19 quiet controls and four original guide pages. Original AB 1967 verifies the Digest and all eight amendments, comma insertion, in-kind selection and Digest prose alignment. Original AB 2266 retains all ten amendments after unchanged reading confirmations, zero style findings and stale-form protection. Controlled Previous/Current/Digest confirmations and external-reference uncertainty/source opening pass. All original PDF and staged production bytes remain unchanged. Final ZIP archiving and publication follow this build-time snapshot.
+The actual staged 1.21.24 EXE passes six native workflows. GPO checks verify 17 exact findings, 29 quiet controls and 13 original guide pages; accuracy checks verify nine intended findings, 19 quiet controls and four original guide pages. Original AB 1967 verifies the Digest and all eight amendments, comma insertion, in-kind selection and Digest prose alignment. Original AB 2266 retains all ten amendments after unchanged reading confirmations, zero style findings and stale-form protection. Controlled Previous/Current/Digest confirmations and external-reference uncertainty/source opening pass. All original PDF and staged production bytes remain unchanged. GitHub subsequently reconstructed the exact ZIP, verified every manifest entry and both asset digests, and published it as latest. The archive retains its original build-time documentation snapshot.
 
 Evidence: [packaged verification](qa-output/release-1.21.24/native-verified.json) and [source tests](qa-output/release-1.21.24/source-tests.txt).
 
@@ -32,7 +32,7 @@ Every one of the original 219 questions has an individual source-bound dispositi
 
 Evidence: [PDF reliability](qa-output/pdf-reliability-next/verified-summary.json), [GPO app](qa-output/gpo-explicit-next/native/latest-verified.json), [final accuracy replay](qa-output/accuracy-next/latest-comparison.json), [accuracy app](qa-output/accuracy-next/native/latest-verified.json), and the individual source-linked [human review queue](qa-output/accuracy-next/validation-2026-10-22T21-41-28-142Z/human-review-queue.html). Private evidence remains local.
 
-## Published 1.21.23 verification
+## Historical 1.21.23 verification
 
 All 3,043 source tests pass, with zero failures, skips or cancellations. The actual staged 1.21.23 Windows EXE imports a controlled PDF and verifies eight precise findings, eight quiet controls, zero questions, exact Current-only highlights and rendered guide source pages 248, 250, 251 and 289. It also passes the four original AB 1967 PDFs, all nine Digest/amendment results, comma insertion, in-kind selection and ordinary Digest prose alignment. AB 2266 has zero style findings and automatic Heading/Digest/Bill routing; all ten amendments pass after confirming unchanged previously reviewed readings.
 
@@ -40,8 +40,8 @@ A separately fingerprinted replay of all 23 fresh native models / 2,024 pages re
 
 ## Coverage records and remaining work
 
-All 273 previously unassessed GPO records were unnumbered source pages. Their original assessment found 147 literal/format candidate pages, 55 needing meaning/layout/external evidence and 71 concerning federal publication workflows outside California bill prose. The local follow-on maps selected source forms from the candidate groups and updates the live inventory; the original assessment counts remain historical. Mixed capitalization and compounding pages retain their conditional remainder. Neither an assessed page nor a source entry establishes whole-rule automation.
+All 273 previously unassessed GPO records were unnumbered source pages. Their original assessment found 147 literal/format candidate pages, 55 needing meaning/layout/external evidence and 71 concerning federal publication workflows outside California bill prose. The 1.21.24 release maps selected source forms from the candidate groups and updates the live inventory; the original assessment counts remain historical. Mixed capitalization and compounding pages retain their conditional remainder. Neither an assessed page nor a source entry establishes whole-rule automation.
 
-Broader GPO conditional, meaning, source-layout and external-reference duties remain. AB 109/SB 879 still require additional LCB drafting RNs. The 81 questions remaining after individual source-bound reconciliation require human adjudication; they are not certified errors. Representative human review and missed-error adjudication remain necessary. Complete licensed ordered Merriam-Webster authority is unavailable. Full LCB/GPO compliance, current legal/entity identity and statutory section validity are not certified. The staged 1.21.24 EXE is verified; exact archiving and GitHub publication remain separate from the published 1.21.23 evidence.
+Broader GPO conditional, meaning, source-layout and external-reference duties remain. AB 109/SB 879 still require additional LCB drafting RNs. The 81 questions remaining after individual source-bound reconciliation require human adjudication; they are not certified errors. Representative human review and missed-error adjudication remain necessary. Complete licensed ordered Merriam-Webster authority is unavailable. Full LCB/GPO compliance, current legal/entity identity and statutory section validity are not certified. The published 1.21.24 EXE, exact archive reconstruction and GitHub identity are verified. Remaining human and authority duties are unchanged.
 
 Older dated reports and historicalCheckpoints retain their historical scope. Published receipts and archive bytes are unchanged. Private PDFs, models, parser output, app profiles and screenshots remain excluded from public source exports.

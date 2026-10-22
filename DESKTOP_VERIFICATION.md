@@ -1,6 +1,6 @@
 Current status — October 22, 2026
 
-[PROJECT_STATUS.md](PROJECT_STATUS.md) and [STYLE_COVERAGE_STATUS.json](STYLE_COVERAGE_STATUS.json) record the verified 1.21.24 build: all 3,181 source tests, the actual staged Windows GPO/accuracy fixtures, original AB 1967/AB 2266 files, and PDF-reading controls pass. The development corpus retains all 138 prior precise findings, adds Schedule, and reduces questions from 219 to 81. Exact archiving and GitHub publication follow this build-time snapshot; 1.21.23 remains published until then. Human accuracy and full-guide compliance are not certified.
+[Document Compare 1.21.24](https://github.com/Alexander-D-Loyd/Document-Compare/releases/tag/v1.21.24) is published as the latest Windows release directly from main. All 3,181 source tests, 16 packaging/publishing regressions and six actual staged Windows workflows pass. GitHub reconstructed the exact locally tested ZIP and verified all 7,732 entries / 7,731 manifest files and both asset digests. The development corpus preserves all 138 prior precise findings, adds Schedule, and reduces questions from 219 to 81. [PROJECT_STATUS.md](PROJECT_STATUS.md) and [STYLE_COVERAGE_STATUS.json](STYLE_COVERAGE_STATUS.json) distinguish source, native app, archive and publication checkpoints. Human accuracy and full-guide compliance remain uncertified.
 
 Historical checkpoints follow. Earlier test totals, release tasks, reader modes and coverage summaries apply only to their dated versions. Original release receipts and package manifests are retained unchanged.
 
